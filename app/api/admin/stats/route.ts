@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase-server";
+import { getSupabaseAdmin } from "@/lib/supabase-server";
 
 function isAuthenticated() {
   const cookieStore = cookies();
@@ -17,11 +17,12 @@ export async function GET() {
   const thirtyMinAgo = new Date(now.getTime() - 30 * 60 * 1000).toISOString();
   const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString();
 
+  const sb = getSupabaseAdmin();
   const [allOrders, todayOrders, recentOrders, chartOrders] = await Promise.all([
-    supabaseAdmin.from("orders").select("ukupno"),
-    supabaseAdmin.from("orders").select("ukupno").gte("created_at", todayStart),
-    supabaseAdmin.from("orders").select("id").gte("created_at", thirtyMinAgo),
-    supabaseAdmin.from("orders").select("created_at, ukupno").gte("created_at", fourteenDaysAgo).order("created_at", { ascending: true }),
+    sb.from("orders").select("ukupno"),
+    sb.from("orders").select("ukupno").gte("created_at", todayStart),
+    sb.from("orders").select("id").gte("created_at", thirtyMinAgo),
+    sb.from("orders").select("created_at, ukupno").gte("created_at", fourteenDaysAgo).order("created_at", { ascending: true }),
   ]);
 
   const totalCount = allOrders.data?.length ?? 0;

@@ -1,5 +1,5 @@
 import { Resend } from "resend";
-import { supabaseAdmin } from "@/lib/supabase-server";
+import { getSupabaseAdmin } from "@/lib/supabase-server";
 
 export async function POST(request: Request) {
   const resend = new Resend(process.env.RESEND_API_KEY);
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     const ukupnoCijena = ukupno.toFixed(2).replace(".", ",");
 
     // 1. Save to Supabase
-    const { error: dbError } = await supabaseAdmin.from("orders").insert({
+    const { error: dbError } = await getSupabaseAdmin().from("orders").insert({
       ime,
       telefon,
       adresa,

@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase-server";
+import { getSupabaseAdmin } from "@/lib/supabase-server";
 
 function isAuthenticated() {
   const cookieStore = cookies();
@@ -18,7 +18,7 @@ export async function GET(request: Request) {
   const pageSize = 20;
   const from = (page - 1) * pageSize;
 
-  let query = supabaseAdmin
+  let query = getSupabaseAdmin()
     .from("orders")
     .select("*", { count: "exact" })
     .order("created_at", { ascending: false })
