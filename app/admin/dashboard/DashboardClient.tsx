@@ -122,10 +122,10 @@ export default function DashboardClient() {
 
   const handleStatusChange = async (id: string, status: string) => {
     setOrders((prev) => prev.map((o) => o.id === id ? { ...o, status } : o));
-    await fetch("/api/admin/status", {
+    await fetch(`/api/admin/orders/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, status }),
+      body: JSON.stringify({ status }),
     });
   };
 
