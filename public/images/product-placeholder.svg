@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800">
+  <rect width="800" height="800" fill="#f0f0f0"/>
+  <!-- Shoe silhouette -->
+  <g transform="translate(400,400)" fill="none" stroke="#cccccc" stroke-width="3">
+    <!-- Sole -->
+    <path d="M-180,80 Q-180,110 -150,120 L150,120 Q200,120 220,90 L230,60 Q240,30 200,20 L160,15" fill="#e0e0e0" stroke="#bbbbbb" stroke-width="2"/>
+    <!-- Upper -->
+    <path d="M-160,80 L-170,20 Q-170,-60 -100,-80 L20,-90 Q120,-95 160,15" fill="#d0d0d0" stroke="#bbbbbb" stroke-width="2"/>
+    <!-- Toe cap -->
+    <path d="M-170,20 Q-195,-20 -160,-60 Q-130,-90 -80,-80 L-100,-80" fill="#c8c8c8" stroke="#aaaaaa" stroke-width="2"/>
+    <!-- BOA dial detail -->
+    <circle cx="60" cy="-20" r="18" fill="#c0c0c0" stroke="#999999" stroke-width="2"/>
+    <circle cx="60" cy="-20" r="10" fill="#b0b0b0" stroke="#999999" stroke-width="1.5"/>
+    <line x1="60" y1="-30" x2="60" y2="-10" stroke="#999" stroke-width="1.5"/>
+    <line x1="50" y1="-20" x2="70" y2="-20" stroke="#999" stroke-width="1.5"/>
+    <!-- Lace lines (BOA wires) -->
+    <path d="M-130,10 Q-60,-10 40,-15 Q70,-16 80,-20" stroke="#aaaaaa" stroke-width="1.5" fill="none"/>
+    <path d="M-140,30 Q-60,10 40,5 Q70,4 80,-20" stroke="#aaaaaa" stroke-width="1.5" fill="none"/>
+    <!-- Air sole detail -->
+    <rect x="-170" y="95" width="360" height="20" rx="4" fill="#c8c8c8" stroke="#aaaaaa" stroke-width="1.5"/>
+    <text x="0" y="113" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#999" letter-spacing="3">AIR CUSHION</text>
+  </g>
+  <!-- Label -->
+  <text x="400" y="680" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="16" font-weight="600" fill="#aaaaaa" letter-spacing="2">9K SAFETY PRO</text>
+  <text x="400" y="705" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="12" fill="#bbbbbb" letter-spacing="1">TACTICAL BLACK</text>
+</svg>
