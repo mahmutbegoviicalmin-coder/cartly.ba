@@ -62,10 +62,6 @@ function StatItem({ stat, active, index }: { stat: Stat; active: boolean; index:
   const raw = useCountUp(stat.target, 1500, active);
   const display = stat.format(raw);
 
-  // On mobile: no right border for items 1 (index=1) and 3 (index=3, last)
-  // On desktop: no right border for last item (index=3)
-  const isRightCol = index % 2 === 1; // indices 1 and 3 are right column on mobile
-
   return (
     <div className={`stats-item stats-item-${index}`}>
       {/* Number + optional star */}
