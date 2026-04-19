@@ -240,7 +240,7 @@ export default function DashboardClient() {
                   />
                   <Tooltip
                     labelFormatter={(v) => fmtShortDate(v as string)}
-                    formatter={(v: number) => [v, "Narudžbi"]}
+                    formatter={(v) => [v, "Narudžbi"]}
                     contentStyle={{ borderRadius: 8, border: "1px solid #F0F0F0", fontSize: 12 }}
                   />
                   <Line
