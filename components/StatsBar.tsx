@@ -38,22 +38,6 @@ const stats: Stat[] = [
   },
 ];
 
-function StarIcon({ size }: { size: number }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="white"
-      style={{ display: "inline-block", verticalAlign: "middle", flexShrink: 0 }}
-      aria-hidden="true"
-    >
-      <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
-    </svg>
-  );
-}
-
 function useCountUp(target: number, duration: number, active: boolean) {
   const [value, setValue] = useState(0);
   const raf = useRef<number | null>(null);
@@ -74,77 +58,122 @@ function useCountUp(target: number, duration: number, active: boolean) {
   return value;
 }
 
-function StatItem({ stat, active, isLast }: { stat: Stat; active: boolean; isLast: boolean }) {
+function StatItem({ stat, active, index }: { stat: Stat; active: boolean; index: number }) {
   const raw = useCountUp(stat.target, 1500, active);
   const display = stat.format(raw);
 
-  const fontSize = "clamp(28px, 4vw, 48px)";
+  // On mobile: no right border for items 1 (index=1) and 3 (index=3, last)
+  // On desktop: no right border for last item (index=3)
+  const isRightCol = index % 2 === 1; // indices 1 and 3 are right column on mobile
 
   return (
-    <div
-      style={{
-        flex: 1,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        textAlign: "center",
-        padding: "0 24px",
-        position: "relative",
-      }}
-    >
-      {/* Divider */}
-      {!isLast && (
-        <span
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            right: 0,
-            top: "50%",
-            transform: "translateY(-50%)",
-            width: "1px",
-            height: "40px",
-            backgroundColor: "rgba(255,255,255,0.25)",
-          }}
-        />
-      )}
-
+    <div className={`stats-item stats-item-${index}`}>
       {/* Number + optional star */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "2px",
-          lineHeight: 1.1,
-        }}
-      >
-        <span
-          style={{
-            fontFamily: "var(--font-inter), sans-serif",
-            fontSize,
-            fontWeight: 700,
-            color: "#FFFFFF",
-            letterSpacing: "-0.02em",
-          }}
-        >
-          {display}
-        </span>
-        {stat.isStar && <StarIcon size={36} />}
+      <div className="stats-number-row">
+        <span className="stats-number">{display}</span>
+        {stat.isStar && (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="stats-star"
+            viewBox="0 0 24 24"
+            fill="white"
+            aria-hidden="true"
+          >
+            <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+          </svg>
+        )}
       </div>
 
       {/* Label */}
-      <span
-        style={{
-          fontFamily: "var(--font-inter), sans-serif",
-          fontSize: "14px",
-          fontWeight: 400,
-          color: "rgba(255,255,255,0.75)",
-          marginTop: "6px",
-          lineHeight: 1.4,
-        }}
-      >
-        {stat.label}
-      </span>
+      <span className="stats-label">{stat.label}</span>
+
+      <style>{`
+        .stats-item {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          padding: 0 24px;
+          position: relative;
+        }
+        /* Desktop dividers — right border on all except last */
+        .stats-item-0::after,
+        .stats-item-1::after,
+        .stats-item-2::after {
+          content: '';
+          position: absolute;
+          right: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 1px;
+          height: 40px;
+          background: rgba(255,255,255,0.25);
+        }
+        .stats-number-row {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          line-height: 1.1;
+        }
+        .stats-number {
+          font-family: var(--font-inter), sans-serif;
+          font-size: clamp(28px, 4vw, 48px);
+          font-weight: 700;
+          color: #FFFFFF;
+          letter-spacing: -0.02em;
+        }
+        .stats-star {
+          width: 40px;
+          height: 40px;
+          display: inline-block;
+          vertical-align: middle;
+          flex-shrink: 0;
+        }
+        .stats-label {
+          font-family: var(--font-inter), sans-serif;
+          font-size: 14px;
+          font-weight: 400;
+          color: rgba(255,255,255,0.75);
+          margin-top: 6px;
+          line-height: 1.4;
+        }
+
+        @media (max-width: 767px) {
+          .stats-item {
+            width: 50%;
+            flex: none;
+            padding: 20px 16px;
+          }
+          /* Remove all desktop dividers on mobile */
+          .stats-item-0::after,
+          .stats-item-1::after,
+          .stats-item-2::after {
+            display: none;
+          }
+          /* Mobile dividers: right border only for left-column items (0, 2) */
+          .stats-item-0,
+          .stats-item-2 {
+            border-right: 1px solid rgba(255,255,255,0.25);
+          }
+          /* Bottom border for top row items (0, 1) */
+          .stats-item-0,
+          .stats-item-1 {
+            border-bottom: 1px solid rgba(255,255,255,0.25);
+          }
+          .stats-number {
+            font-size: 32px !important;
+          }
+          .stats-star {
+            width: 28px !important;
+            height: 28px !important;
+          }
+          .stats-label {
+            font-size: 12px !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
@@ -171,14 +200,14 @@ export default function StatsBar() {
     >
       <div
         className="max-w-6xl mx-auto px-4 sm:px-6"
-        style={{ display: "flex", alignItems: "stretch" }}
+        style={{ display: "flex", alignItems: "stretch", flexWrap: "wrap" }}
       >
         {stats.map((stat, i) => (
           <StatItem
             key={stat.label}
             stat={stat}
             active={active}
-            isLast={i === stats.length - 1}
+            index={i}
           />
         ))}
       </div>

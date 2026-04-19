@@ -86,11 +86,10 @@ export default function FloatingCTA() {
               fontWeight: 700,
               color: "#fff",
               lineHeight: 1.2,
-              whiteSpace: "nowrap",
               textTransform: "uppercase",
             }}
           >
-            Danas -57% &nbsp;Naruči sada
+            Danas -57% Naruči sada
           </span>
         </div>
       </button>
@@ -105,11 +104,14 @@ export default function FloatingCTA() {
           .floating-cta {
             bottom: 16px !important;
             right: 16px !important;
-            padding: 10px 16px !important;
-            max-width: 200px !important;
+            padding: 10px 14px !important;
+            max-width: calc(100vw - 32px) !important;
+            box-sizing: border-box !important;
           }
           .floating-cta .fcta-main {
             font-size: 12px !important;
+            white-space: normal !important;
+            word-break: break-word !important;
           }
           .floating-cta .fcta-label {
             font-size: 9px !important;
