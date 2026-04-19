@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useRef } from "react";
 import Image from "next/image";
+import { event } from "@/lib/fbpixel";
 
 const SIZES = [39, 40, 41, 42, 43, 44, 45, 46, 47, 48];
 const PRICE_PER_PAIR = 59.9;
@@ -59,6 +60,7 @@ export default function OrderForm() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const checkoutTracked = useRef(false);
 
   const totalPairs = Object.values(quantities).reduce((a, b) => a + b, 0);
   const productTotal = totalPairs * PRICE_PER_PAIR;
@@ -110,6 +112,11 @@ export default function OrderForm() {
 
       const data = await res.json();
       if (data.success) {
+        event("Purchase", {
+          value: grandTotal,
+          currency: "BAM",
+          content_name: "Radne Patike S3 Tactical Black",
+        });
         setSubmitted(true);
       } else {
         setServerError(data.error ?? "Greška pri slanju narudžbe. Pokušajte ponovo.");
@@ -162,7 +169,14 @@ export default function OrderForm() {
                 </p>
 
                 {/* 2×2 grid */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}
+                  onFocus={() => {
+                    if (!checkoutTracked.current) {
+                      checkoutTracked.current = true;
+                      event("InitiateCheckout", { value: 59.90, currency: "BAM" });
+                    }
+                  }}
+                >
                   <InputField id="name" label="Ime i prezime" autoComplete="name" placeholder="npr. Emir Hadžić" value={fields.name} onChange={handleField} error={errors.name} />
                   <InputField id="phone" label="Broj telefona" type="tel" autoComplete="tel" placeholder="npr. 061 123 456" value={fields.phone} onChange={handleField} error={errors.phone} />
                   <InputField id="address" label="Adresa" autoComplete="street-address" placeholder="npr. Ferhadija 12" value={fields.address} onChange={handleField} error={errors.address} />

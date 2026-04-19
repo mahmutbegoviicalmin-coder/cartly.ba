@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 import SizeGuideModal from "./SizeGuideModal";
+import { event } from "@/lib/fbpixel";
 
 const SIZES = [39, 40, 41, 42, 43, 44, 45, 46, 47, 48];
 
@@ -175,6 +176,7 @@ export default function Hero() {
             {/* CTA Button */}
             <a
               href="#order"
+              onClick={() => event("AddToCart", { content_name: "Radne Patike S3 Tactical Black", value: 59.90, currency: "BAM" })}
               style={{
                 display: "flex", alignItems: "center", justifyContent: "center",
                 background: "#FF6B00", color: "#fff", borderRadius: 8,

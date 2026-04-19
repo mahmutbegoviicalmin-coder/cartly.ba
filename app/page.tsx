@@ -9,6 +9,9 @@ import FAQ from "@/components/FAQ";
 import OrderForm from "@/components/OrderForm";
 import Footer from "@/components/Footer";
 import SocialProof from "@/components/SocialProof";
+import FloatingCTA from "@/components/FloatingCTA";
+import VideoSection from "@/components/VideoSection";
+import PixelEvents from "@/components/PixelEvents";
 
 export default function Home() {
   return (
@@ -17,18 +20,19 @@ export default function Home() {
       <main>
         <Hero />
         <StatsBar />
-        <CTABanner />
+        <VideoSection />
         <Features />
         <CTABanner />
         <Gallery />
         <Reviews />
         <CTABanner />
         <FAQ />
-        <CTABanner />
         <OrderForm />
       </main>
       <Footer />
       <SocialProof />
+      <FloatingCTA />
+      <PixelEvents />
     </>
   );
 }
