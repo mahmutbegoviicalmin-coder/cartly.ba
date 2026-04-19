@@ -3,6 +3,7 @@
 import { useState, FormEvent, useRef } from "react";
 import Image from "next/image";
 import { event } from "@/lib/fbpixel";
+import SizeGuideModal from "./SizeGuideModal";
 
 const SIZES = [39, 40, 41, 42, 43, 44, 45, 46, 47, 48];
 const PRICE_PER_PAIR = 59.9;
@@ -60,6 +61,7 @@ export default function OrderForm() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const checkoutTracked = useRef(false);
 
   const totalPairs = Object.values(quantities).reduce((a, b) => a + b, 0);
@@ -148,6 +150,7 @@ export default function OrderForm() {
   }
 
   return (
+    <>
     <section id="order" style={{ backgroundColor: "#F5F5F5", padding: "80px 0" }}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
 
@@ -190,9 +193,23 @@ export default function OrderForm() {
                   <p style={{ fontSize: 16, fontWeight: 600, color: "#0A0A0A", margin: 0 }}>
                     Odaberite veličinu i količinu
                   </p>
-                  {errors.sizes && (
-                    <span style={{ fontSize: 12, color: "#ef4444" }}>{errors.sizes}</span>
-                  )}
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    {errors.sizes && (
+                      <span style={{ fontSize: 12, color: "#ef4444" }}>{errors.sizes}</span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setSizeGuideOpen(true)}
+                      style={{
+                        fontSize: 13, color: "#FF6B00", fontWeight: 500,
+                        background: "none", border: "none", cursor: "pointer",
+                        padding: 0, fontFamily: "var(--font-inter), sans-serif",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      Nisi siguran koja veličina? →
+                    </button>
+                  </div>
                 </div>
 
                 <div style={{ border: `1px solid ${errors.sizes ? "#ef4444" : "#E5E5E5"}`, borderRadius: 10, overflow: "hidden" }}>
@@ -375,5 +392,10 @@ export default function OrderForm() {
         </form>
       </div>
     </section>
+
+    {sizeGuideOpen && (
+      <SizeGuideModal onClose={() => setSizeGuideOpen(false)} />
+    )}
+    </>
   );
 }

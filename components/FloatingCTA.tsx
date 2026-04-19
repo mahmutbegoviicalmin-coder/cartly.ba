@@ -94,30 +94,6 @@ export default function FloatingCTA() {
         </div>
       </button>
 
-      <style>{`
-        @keyframes floatingPulse {
-          0%, 100% { box-shadow: 0 4px 20px rgba(255, 107, 0, 0.4); }
-          50% { box-shadow: 0 4px 32px rgba(255, 107, 0, 0.7); }
-        }
-
-        @media (max-width: 640px) {
-          .floating-cta {
-            bottom: 16px !important;
-            right: 16px !important;
-            padding: 10px 14px !important;
-            max-width: calc(100vw - 32px) !important;
-            box-sizing: border-box !important;
-          }
-          .floating-cta .fcta-main {
-            font-size: 12px !important;
-            white-space: normal !important;
-            word-break: break-word !important;
-          }
-          .floating-cta .fcta-label {
-            font-size: 9px !important;
-          }
-        }
-      `}</style>
     </>
   );
 }

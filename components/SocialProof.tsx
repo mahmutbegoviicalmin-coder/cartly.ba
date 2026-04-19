@@ -120,24 +120,6 @@ export default function SocialProof() {
         </div>
       </div>
 
-      <style>{`
-        @media (max-width: 640px) {
-          .social-proof-popup {
-            bottom: 100px !important;
-            max-width: calc(100vw - 32px) !important;
-          }
-          .social-proof-popup > div {
-            width: auto !important;
-            max-width: calc(100vw - 32px) !important;
-          }
-          .social-proof-name {
-            font-size: 13px !important;
-          }
-          .social-proof-product {
-            font-size: 11px !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }

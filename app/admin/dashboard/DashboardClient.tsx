@@ -490,12 +490,6 @@ export default function DashboardClient() {
         </div>
       </div>
 
-      <style>{`
-        @keyframes realTimePulse {
-          0%, 100% { transform: scale(1); opacity: 0.6; }
-          50% { transform: scale(2); opacity: 0; }
-        }
-      `}</style>
     </div>
   );
 }

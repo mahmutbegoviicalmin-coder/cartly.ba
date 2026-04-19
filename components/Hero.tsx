@@ -2,10 +2,7 @@
 
 import { useState, useRef } from "react";
 import Image from "next/image";
-import SizeGuideModal from "./SizeGuideModal";
 import { event } from "@/lib/fbpixel";
-
-const SIZES = [39, 40, 41, 42, 43, 44, 45, 46, 47, 48];
 
 const IMAGES = [
   { src: "/images/product-1.webp", alt: "Radne Patike S3 — pogled sprijeda" },
@@ -15,9 +12,7 @@ const IMAGES = [
 ];
 
 export default function Hero() {
-  const [selectedSize, setSelectedSize] = useState<number | null>(null);
   const [imgIndex, setImgIndex] = useState(0);
-  const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const touchStartX = useRef<number | null>(null);
 
   const prev = () => setImgIndex((i) => (i === 0 ? IMAGES.length - 1 : i - 1));
@@ -34,8 +29,12 @@ export default function Hero() {
     touchStartX.current = null;
   };
 
+  const handleCTA = () => {
+    event("AddToCart", { content_name: "Radne Patike S3 Tactical Black", value: 59.90, currency: "BAM" });
+    document.getElementById("order")?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
-    <>
     <section className="pt-16 bg-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 lg:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
@@ -136,59 +135,21 @@ export default function Hero() {
               Dizajnirana za maksimalnu zaštitu i udobnost na radnom mjestu.
             </p>
 
-            {/* Size Selector */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-semibold text-[#0A0A0A]">Veličina (EU)</span>
-                {selectedSize && (
-                  <span className="text-sm text-black/50">Odabrano: EU {selectedSize}</span>
-                )}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {SIZES.map((size) => {
-                  const selected = selectedSize === size;
-                  return (
-                    <button
-                      key={size}
-                      onClick={() => setSelectedSize(size)}
-                      className={`w-12 h-12 text-sm font-semibold border transition-all
-                        ${selected
-                          ? "bg-[#FF6B00] text-white border-[#FF6B00]"
-                          : "bg-white text-[#0A0A0A] border-black/20 hover:border-[#FF6B00]"
-                        }`}
-                    >
-                      {size}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Size guide link */}
-            <button
-              onClick={() => setSizeGuideOpen(true)}
-              className="text-left w-fit"
-              style={{ fontSize: "13px", color: "#FF6B00", fontWeight: 500 }}
-            >
-              Pronađi svoju veličinu →
-            </button>
-
             {/* CTA Button */}
-            <a
-              href="#order"
-              onClick={() => event("AddToCart", { content_name: "Radne Patike S3 Tactical Black", value: 59.90, currency: "BAM" })}
+            <button
+              onClick={handleCTA}
               style={{
                 display: "flex", alignItems: "center", justifyContent: "center",
                 background: "#FF6B00", color: "#fff", borderRadius: 8,
                 padding: "16px 40px", fontFamily: "var(--font-inter), sans-serif",
-                fontWeight: 600, fontSize: 16, textDecoration: "none",
-                transition: "background 0.15s",
+                fontWeight: 600, fontSize: 16, border: "none",
+                cursor: "pointer", transition: "background 0.15s",
               }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "#e05e00"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "#FF6B00"; }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "#e05e00"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "#FF6B00"; }}
             >
               Naruči odmah
-            </a>
+            </button>
 
             {/* Trust Badges */}
             <div className="grid grid-cols-3 gap-3 pt-2 border-t border-black/10">
@@ -220,10 +181,5 @@ export default function Hero() {
         </div>
       </div>
     </section>
-
-    {sizeGuideOpen && (
-      <SizeGuideModal onClose={() => setSizeGuideOpen(false)} />
-    )}
-  </>
   );
 }

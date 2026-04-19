@@ -1,16 +1,14 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import StatsBar from "@/components/StatsBar";
-import CTABanner from "@/components/CTABanner";
+import VideoSection from "@/components/VideoSection";
 import Features from "@/components/Features";
-import Gallery from "@/components/Gallery";
+import OrderForm from "@/components/OrderForm";
 import Reviews from "@/components/Reviews";
 import FAQ from "@/components/FAQ";
-import OrderForm from "@/components/OrderForm";
 import Footer from "@/components/Footer";
-import SocialProof from "@/components/SocialProof";
 import FloatingCTA from "@/components/FloatingCTA";
-import VideoSection from "@/components/VideoSection";
+import SocialProof from "@/components/SocialProof";
 import PixelEvents from "@/components/PixelEvents";
 
 export default function Home() {
@@ -22,16 +20,13 @@ export default function Home() {
         <StatsBar />
         <VideoSection />
         <Features />
-        <CTABanner />
-        <Gallery />
-        <Reviews />
-        <CTABanner />
-        <FAQ />
         <OrderForm />
+        <Reviews />
+        <FAQ />
       </main>
       <Footer />
-      <SocialProof />
       <FloatingCTA />
+      <SocialProof />
       <PixelEvents />
     </>
   );

@@ -220,30 +220,6 @@ export default function VideoSection() {
         </div>
       </div>
 
-      <style>{`
-        @keyframes videoPulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(255,107,0,0.4); }
-          50% { box-shadow: 0 0 0 16px rgba(255,107,0,0); }
-        }
-
-        @media (max-width: 768px) {
-          .video-section-inner {
-            flex-direction: column !important;
-            gap: 40px !important;
-          }
-          .video-col {
-            flex: none !important;
-            width: 100% !important;
-          }
-          .content-col {
-            flex: none !important;
-            width: 100% !important;
-          }
-          .content-col h2 {
-            font-size: 30px !important;
-          }
-        }
-      `}</style>
     </section>
   );
 }

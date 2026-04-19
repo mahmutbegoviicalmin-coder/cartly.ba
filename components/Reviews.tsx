@@ -24,6 +24,11 @@ const reviews = [
     rating: 5,
     text: "Dostava brza, patike tačno kao na slici. Savršeno pristaju na nogu.",
   },
+  {
+    name: "Alen F.",
+    rating: 5,
+    text: "Nosio sam ih cijelu smjenu od 10 sati, noge su mi bile kao da hodam u patikama. Nikad više klasične zaštitne cipele.",
+  },
 ];
 
 function Stars({ rating }: { rating: number }) {
@@ -57,7 +62,7 @@ export default function Reviews() {
           <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0A0A0A]">
             Šta kupci <span className="text-[#FF6B00]">kažu?</span>
           </h2>
-          <span className="text-sm text-black/40 font-medium">5 recenzija</span>
+          <span className="text-sm text-black/40 font-medium">6 recenzija</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">

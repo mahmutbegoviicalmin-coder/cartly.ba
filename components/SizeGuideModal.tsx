@@ -16,18 +16,9 @@ const sizes = [
 ];
 
 const steps = [
-  {
-    n: "1",
-    text: "Stanite uz zid — peta uz zid, stopalo ravno na podu",
-  },
-  {
-    n: "2",
-    text: "Označite najduži prst — stavite oznaku na kraju najdužeg prsta",
-  },
-  {
-    n: "3",
-    text: "Izmjerite rastojanje — od zida do oznake u centimetrima",
-  },
+  "Stanite uz zid. Peta mora biti uz zid, stopalo ravno na podu.",
+  "Označite najduži prst. Stavite oznaku na kraju najdužeg prsta.",
+  "Izmjerite rastojanje od zida do oznake u centimetrima.",
 ];
 
 interface Props {
@@ -35,7 +26,6 @@ interface Props {
 }
 
 export default function SizeGuideModal({ onClose }: Props) {
-  // Lock scroll and handle Escape key
   useEffect(() => {
     document.body.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -48,95 +38,168 @@ export default function SizeGuideModal({ onClose }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      style={{
+        position: "fixed", inset: 0, zIndex: 100,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        padding: 16,
+      }}
       role="dialog"
       aria-modal="true"
       aria-label="Pronađi svoju veličinu"
     >
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/50"
+        style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)" }}
         onClick={onClose}
         aria-hidden="true"
       />
 
       {/* Panel */}
-      <div className="relative bg-white w-full max-w-lg max-h-[90vh] overflow-y-auto z-10">
+      <div
+        style={{
+          position: "relative", zIndex: 10,
+          background: "#fff",
+          borderRadius: 16,
+          width: "100%",
+          maxWidth: 420,
+          maxHeight: "90vh",
+          overflowY: "auto",
+          overflowX: "hidden",
+          padding: 32,
+          boxSizing: "border-box",
+        }}
+      >
 
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-black/10">
-          <h2 className="text-lg font-bold text-[#0A0A0A]">
+        <div style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          marginBottom: 24,
+        }}>
+          <h2 style={{
+            fontFamily: "var(--font-inter), sans-serif",
+            fontSize: 20, fontWeight: 700, color: "#0A0A0A", margin: 0,
+          }}>
             Pronađi svoju veličinu
           </h2>
           <button
             onClick={onClose}
             aria-label="Zatvori"
-            className="w-8 h-8 flex items-center justify-center text-black/40 hover:text-black transition-colors"
+            style={{
+              width: 32, height: 32,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              background: "none", border: "none", cursor: "pointer",
+              color: "#999", padding: 0, flexShrink: 0,
+              transition: "color 0.15s",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = "#0A0A0A"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = "#999"; }}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
         </div>
 
-        <div className="px-6 py-6 flex flex-col gap-7">
+        {/* How to measure */}
+        <p style={{
+          fontFamily: "var(--font-inter), sans-serif",
+          fontSize: 12, fontWeight: 600, color: "#888",
+          textTransform: "uppercase", letterSpacing: "0.08em",
+          marginBottom: 14,
+        }}>
+          Kako izmjeriti
+        </p>
 
-          {/* Instructions */}
-          <p className="text-sm text-black/60 leading-relaxed">
-            Izmjerite dužinu stopala u centimetrima, zatim pronađite
-            odgovarajuću EU veličinu u tabeli ispod.
-          </p>
-
-          {/* Steps */}
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-black/40 mb-4">
-              Kako izmjeriti
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              {steps.map((s) => (
-                <div key={s.n} className="flex-1 flex gap-3 items-start">
-                  <span className="flex-shrink-0 w-7 h-7 rounded-full bg-[#FF6B00] text-white text-xs font-bold flex items-center justify-center">
-                    {s.n}
-                  </span>
-                  <p className="text-sm text-black/65 leading-snug pt-0.5">{s.text}</p>
-                </div>
-              ))}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 28 }}>
+          {steps.map((text, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+              <span style={{
+                flexShrink: 0,
+                width: 32, height: 32,
+                borderRadius: "50%",
+                background: "#FF6B00",
+                color: "#fff",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontFamily: "var(--font-inter), sans-serif",
+                fontSize: 13, fontWeight: 700,
+              }}>
+                {i + 1}
+              </span>
+              <p style={{
+                fontFamily: "var(--font-inter), sans-serif",
+                fontSize: 14, fontWeight: 400, color: "#555555",
+                margin: 0, lineHeight: 1.55, paddingTop: 6,
+              }}>
+                {text}
+              </p>
             </div>
-          </div>
-
-          {/* Size table */}
-          <div>
-            <div className="overflow-hidden border border-black/10">
-              {/* Table header */}
-              <div className="grid grid-cols-2 bg-[#FF6B00] px-4 py-2.5">
-                <span className="text-xs font-bold text-white uppercase tracking-wider">
-                  Dužina stopala
-                </span>
-                <span className="text-xs font-bold text-white uppercase tracking-wider text-right">
-                  EU veličina
-                </span>
-              </div>
-              {/* Rows */}
-              {sizes.map((row, i) => (
-                <div
-                  key={row.eu}
-                  className={`grid grid-cols-2 px-4 py-2.5 text-sm ${
-                    i < sizes.length - 1 ? "border-b border-black/8" : ""
-                  } ${i % 2 === 0 ? "bg-white" : "bg-[#F5F5F5]"}`}
-                >
-                  <span className="font-medium text-[#0A0A0A]">{row.cm}</span>
-                  <span className="text-right font-semibold text-[#0A0A0A]">{row.eu}</span>
-                </div>
-              ))}
-            </div>
-
-            <p className="text-xs text-black/45 mt-3 leading-relaxed">
-              Ako ste između dvije veličine, preporučujemo veću.
-            </p>
-          </div>
-
+          ))}
         </div>
+
+        {/* Size table */}
+        <div>
+          {/* Table header */}
+          <div style={{
+            display: "grid", gridTemplateColumns: "1fr 1fr",
+            paddingBottom: 8,
+            borderBottom: "1px solid #E5E5E5",
+            marginBottom: 2,
+          }}>
+            <span style={{
+              fontFamily: "var(--font-inter), sans-serif",
+              fontSize: 12, fontWeight: 600, color: "#888",
+              textTransform: "uppercase", letterSpacing: "0.07em",
+            }}>
+              Dužina stopala
+            </span>
+            <span style={{
+              fontFamily: "var(--font-inter), sans-serif",
+              fontSize: 12, fontWeight: 600, color: "#888",
+              textTransform: "uppercase", letterSpacing: "0.07em",
+              textAlign: "right",
+            }}>
+              EU veličina
+            </span>
+          </div>
+
+          {/* Rows */}
+          {sizes.map((row, i) => (
+            <div
+              key={row.eu}
+              style={{
+                display: "grid", gridTemplateColumns: "1fr 1fr",
+                padding: "10px 0",
+                borderBottom: i < sizes.length - 1 ? "1px solid #F5F5F5" : "none",
+              }}
+            >
+              <span style={{
+                fontFamily: "var(--font-inter), sans-serif",
+                fontSize: 14, fontWeight: 400, color: "#0A0A0A",
+              }}>
+                {row.cm}
+              </span>
+              <span style={{
+                fontFamily: "var(--font-inter), sans-serif",
+                fontSize: 14, fontWeight: 400, color: "#0A0A0A",
+                textAlign: "right",
+              }}>
+                {row.eu}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Note */}
+        <p style={{
+          fontFamily: "var(--font-inter), sans-serif",
+          fontSize: 12, color: "#999", fontStyle: "italic",
+          margin: "16px 0 0", lineHeight: 1.5,
+        }}>
+          Ako ste između dvije veličine, uzmite veću.
+        </p>
+
       </div>
     </div>
   );
