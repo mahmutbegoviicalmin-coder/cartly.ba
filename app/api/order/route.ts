@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { supabaseAdmin } from "@/lib/supabase-server";
 
 export async function POST(request: Request) {
   const resend = new Resend(process.env.RESEND_API_KEY);
@@ -13,8 +14,31 @@ export async function POST(request: Request) {
       .map((v) => `EU ${v.velicina} — ${v.kolicina} par(a)`)
       .join("<br/>");
     const ukupnoPari = selectedSizes.reduce((sum, v) => sum + v.kolicina, 0);
-    const ukupnoCijena = (ukupnoPari * 59.9 + 10.0).toFixed(2).replace(".", ",");
+    const cijenaProizvoda = ukupnoPari * 59.9;
+    const dostava = 10.0;
+    const ukupno = cijenaProizvoda + dostava;
+    const ukupnoCijena = ukupno.toFixed(2).replace(".", ",");
 
+    // 1. Save to Supabase
+    const { error: dbError } = await supabaseAdmin.from("orders").insert({
+      ime,
+      telefon,
+      adresa,
+      grad,
+      velicine: selectedSizes,
+      ukupno_pari: ukupnoPari,
+      cijena_proizvoda: cijenaProizvoda,
+      dostava,
+      ukupno,
+      status: "nova",
+    });
+
+    if (dbError) {
+      console.error("Supabase insert error:", dbError.message);
+      // Continue even if DB fails — still send email
+    }
+
+    // 2. Send email via Resend
     await resend.emails.send({
       from: "onboarding@resend.dev",
       to: process.env.OWNER_EMAIL!,
@@ -63,7 +87,7 @@ export async function POST(request: Request) {
 
     return Response.json({ success: true });
   } catch (error) {
-    console.error("Order email error:", error);
+    console.error("Order error:", error);
     return Response.json({ success: false, error: "Greška pri slanju narudžbe." }, { status: 500 });
   }
 }
