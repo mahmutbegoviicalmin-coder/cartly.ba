@@ -65,6 +65,7 @@ export default function FloatingCTA() {
 
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 2 }}>
           <span
+            className="fcta-label"
             style={{
               fontFamily: "var(--font-inter), sans-serif",
               fontSize: 10,
@@ -78,6 +79,7 @@ export default function FloatingCTA() {
             Ograničena ponuda
           </span>
           <span
+            className="fcta-main"
             style={{
               fontFamily: "var(--font-inter), sans-serif",
               fontSize: 15,
@@ -103,10 +105,14 @@ export default function FloatingCTA() {
           .floating-cta {
             bottom: 16px !important;
             right: 16px !important;
-            padding: 12px 20px !important;
+            padding: 10px 16px !important;
+            max-width: 200px !important;
           }
-          .floating-cta span:last-child {
-            font-size: 14px !important;
+          .floating-cta .fcta-main {
+            font-size: 12px !important;
+          }
+          .floating-cta .fcta-label {
+            font-size: 9px !important;
           }
         }
       `}</style>

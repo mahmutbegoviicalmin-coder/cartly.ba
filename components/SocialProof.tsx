@@ -56,6 +56,7 @@ export default function SocialProof() {
         transition: "transform 0.45s cubic-bezier(0.34, 1.2, 0.64, 1), opacity 0.35s ease",
         pointerEvents: visible ? "auto" : "none",
       }}
+      className="social-proof-popup"
     >
       <div
         style={{
@@ -95,6 +96,7 @@ export default function SocialProof() {
             margin: 0,
             lineHeight: 1.3,
           }}
+          className="social-proof-name"
         >
           {name} iz {city}
         </p>
@@ -107,6 +109,7 @@ export default function SocialProof() {
             margin: 0,
             lineHeight: 1.4,
           }}
+          className="social-proof-product"
         >
           Radne Patike S3 — Tactical Black
         </p>
@@ -116,6 +119,25 @@ export default function SocialProof() {
           <span style={{ fontSize: "11px", color: "#bbb" }}>upravo sada</span>
         </div>
       </div>
+
+      <style>{`
+        @media (max-width: 640px) {
+          .social-proof-popup {
+            bottom: 100px !important;
+            max-width: calc(100vw - 32px) !important;
+          }
+          .social-proof-popup > div {
+            width: auto !important;
+            max-width: calc(100vw - 32px) !important;
+          }
+          .social-proof-name {
+            font-size: 13px !important;
+          }
+          .social-proof-product {
+            font-size: 11px !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
