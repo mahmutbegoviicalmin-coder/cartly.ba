@@ -67,7 +67,7 @@ export default function Reviews() {
               className="bg-white border border-black/10 p-6 flex flex-col gap-3"
             >
               <Stars rating={r.rating} />
-              <p className="text-sm text-black/70 leading-relaxed">"{r.text}"</p>
+              <p className="text-sm text-black/70 leading-relaxed">&ldquo;{r.text}&rdquo;</p>
               <span className="text-sm font-bold text-[#0A0A0A] mt-auto pt-2 border-t border-black/8">
                 {r.name}
               </span>
