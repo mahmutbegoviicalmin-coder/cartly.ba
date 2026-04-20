@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef, FormEvent } from "react";
-import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { event } from "@/lib/fbpixel";
@@ -96,35 +95,6 @@ function HeroSocialProof() {
   );
 }
 
-// ─────────────────────────────────────────────────────────
-// Product Image with gray fallback
-// ─────────────────────────────────────────────────────────
-function ProductImage({
-  src,
-  alt,
-  fill = false,
-  className = "",
-}: {
-  src: string;
-  alt: string;
-  fill?: boolean;
-  className?: string;
-}) {
-  const [errored, setErrored] = useState(false);
-  if (errored || !src) {
-    return <div style={{ width: "100%", height: "100%", background: "#F0F0F0" }} />;
-  }
-  return (
-    <Image
-      src={src}
-      alt={alt}
-      fill={fill}
-      className={className}
-      style={{ objectFit: "cover" }}
-      onError={() => setErrored(true)}
-    />
-  );
-}
 
 // ─────────────────────────────────────────────────────────
 // FAQ Accordion Item
