@@ -175,6 +175,265 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 type Fields = { name: string; phone: string; address: string; city: string };
 type FieldErrors = Partial<Record<keyof Fields, string>>;
 
+// ─────────────────────────────────────────────────────────
+// Order Success Screen
+// ─────────────────────────────────────────────────────────
+function OrderSuccess() {
+  const [step, setStep] = useState(0);
+  // step 0 = packing, 1 = van, 2 = checkmark+confetti
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setStep(1), 1500);
+    const t2 = setTimeout(() => setStep(2), 3000);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, []);
+
+  const font = "'Inter', var(--font-inter), sans-serif";
+
+  const confettiItems = [
+    { tx: "0px",   ty: "-64px",  c: "#f97316", d: "0ms"   },
+    { tx: "45px",  ty: "-50px",  c: "#1d1d1f", d: "40ms"  },
+    { tx: "64px",  ty: "0px",    c: "#f97316", d: "60ms"  },
+    { tx: "50px",  ty: "45px",   c: "#1d1d1f", d: "80ms"  },
+    { tx: "0px",   ty: "64px",   c: "#f97316", d: "30ms"  },
+    { tx: "-50px", ty: "45px",   c: "#1d1d1f", d: "100ms" },
+    { tx: "-64px", ty: "0px",    c: "#f97316", d: "50ms"  },
+    { tx: "-45px", ty: "-50px",  c: "#1d1d1f", d: "20ms"  },
+    { tx: "30px",  ty: "-58px",  c: "#f97316", d: "120ms" },
+    { tx: "58px",  ty: "30px",   c: "#1d1d1f", d: "140ms" },
+    { tx: "-30px", ty: "58px",   c: "#f97316", d: "160ms" },
+    { tx: "-58px", ty: "-30px",  c: "#1d1d1f", d: "180ms" },
+  ];
+
+  return (
+    <>
+      <style>{`
+        @keyframes successBoxClose {
+          0%   { transform: translateY(-20px); opacity: 0; }
+          100% { transform: translateY(0);     opacity: 1; }
+        }
+        @keyframes successVanDrive {
+          0%   { transform: translateX(100px); opacity: 0; }
+          40%  { transform: translateX(0);     opacity: 1; }
+          100% { transform: translateX(-120px);opacity: 0; }
+        }
+        @keyframes successBounceIn {
+          0%   { transform: scale(0);   }
+          60%  { transform: scale(1.2); }
+          100% { transform: scale(1);   }
+        }
+        @keyframes successCheckDraw {
+          from { stroke-dashoffset: 100; }
+          to   { stroke-dashoffset: 0;   }
+        }
+        @keyframes successConfetti {
+          0%   { transform: scale(0) translate(0,0); opacity: 1; }
+          100% { transform: scale(1) translate(var(--tx), var(--ty)); opacity: 0; }
+        }
+        @keyframes successFadeUp {
+          from { opacity: 0; transform: translateY(16px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+
+      <div style={{
+        background: "#ffffff",
+        minHeight: "80vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "60px 24px",
+        fontFamily: font,
+        position: "relative",
+        overflow: "hidden",
+      }}>
+
+        {/* ── Step 0: Packing ── */}
+        {step === 0 && (
+          <div style={{ textAlign: "center", animation: "successBoxClose 0.5s ease forwards" }}>
+            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: 20 }}>
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+              <line x1="12" y1="22.08" x2="12" y2="12"/>
+            </svg>
+            <p style={{ fontSize: 16, color: "#6e6e73", fontWeight: 500 }}>Pakujemo vašu narudžbu...</p>
+          </div>
+        )}
+
+        {/* ── Step 1: Van driving ── */}
+        {step === 1 && (
+          <div style={{ textAlign: "center" }}>
+            <div style={{ animation: "successVanDrive 1.5s ease forwards", display: "inline-block", marginBottom: 20 }}>
+              <svg width="90" height="60" viewBox="0 0 24 16" fill="none" stroke="#f97316" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="1" y="2" width="14" height="9"/>
+                <polygon points="15 5 20 5 23 8 23 11 15 11 15 5"/>
+                <circle cx="4.5" cy="13" r="1.5"/>
+                <circle cx="18.5" cy="13" r="1.5"/>
+              </svg>
+            </div>
+            <p style={{ fontSize: 16, color: "#6e6e73", fontWeight: 500 }}>Predajemo kuriru...</p>
+          </div>
+        )}
+
+        {/* ── Step 2+: Checkmark + confetti + final content ── */}
+        {step === 2 && (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%" }}>
+
+            {/* Checkmark with confetti */}
+            <div style={{ position: "relative", marginBottom: 28 }}>
+              {/* Confetti dots */}
+              {confettiItems.map((c, i) => (
+                <div key={i} style={{
+                  position: "absolute",
+                  top: "50%", left: "50%",
+                  width: 8, height: 8,
+                  borderRadius: "50%",
+                  background: c.c,
+                  // @ts-expect-error css vars
+                  "--tx": c.tx,
+                  "--ty": c.ty,
+                  animation: `successConfetti 0.7s ease-out ${c.d} forwards`,
+                  transform: "scale(0)",
+                }} />
+              ))}
+
+              {/* Orange circle + checkmark */}
+              <div style={{
+                width: 72, height: 72,
+                background: "#f97316",
+                borderRadius: "50%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                animation: "successBounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards",
+                position: "relative",
+                zIndex: 1,
+              }}>
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline
+                    points="20 6 9 17 4 12"
+                    strokeDasharray="100"
+                    strokeDashoffset="100"
+                    style={{ animation: "successCheckDraw 0.5s ease 0.4s forwards" }}
+                  />
+                </svg>
+              </div>
+            </div>
+
+            {/* Heading */}
+            <h2 style={{
+              fontSize: "clamp(28px, 4vw, 40px)",
+              fontWeight: 800,
+              color: "#1d1d1f",
+              letterSpacing: "-1px",
+              margin: "0 0 12px",
+              textAlign: "center",
+              animation: "successFadeUp 0.5s ease 0.3s both",
+            }}>
+              Narudžba zaprimljena!
+            </h2>
+            <p style={{
+              fontSize: 17,
+              color: "#6e6e73",
+              margin: "0 0 36px",
+              textAlign: "center",
+              animation: "successFadeUp 0.5s ease 0.45s both",
+            }}>
+              Hvala na povjerenju! Kontaktirat ćemo vas uskoro.
+            </p>
+
+            {/* Info cards */}
+            <div style={{
+              display: "flex",
+              gap: 16,
+              flexWrap: "wrap",
+              justifyContent: "center",
+              animation: "successFadeUp 0.5s ease 0.6s both",
+            }} className="success-cards">
+              {[
+                {
+                  icon: (
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                      <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+                    </svg>
+                  ),
+                  label: "Dostava",
+                  value: "1–3 radna dana",
+                },
+                {
+                  icon: (
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4a2 2 0 0 1 1.99-2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.37a16 16 0 0 0 6.72 6.72l1.22-1.21a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+                    </svg>
+                  ),
+                  label: "Potvrda",
+                  value: "U roku od 24h",
+                },
+                {
+                  icon: (
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="2" y="6" width="20" height="12" rx="2"/>
+                      <circle cx="12" cy="12" r="2"/>
+                      <path d="M6 12h.01M18 12h.01"/>
+                    </svg>
+                  ),
+                  label: "Plaćanje",
+                  value: "Pouzećem",
+                },
+              ].map((card) => (
+                <div key={card.label} style={{
+                  background: "#f9f9f9",
+                  borderRadius: 16,
+                  padding: "20px 24px",
+                  textAlign: "center",
+                  minWidth: 160,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 8,
+                }}>
+                  {card.icon}
+                  <span style={{ fontSize: 11, color: "#aeaeb2", textTransform: "uppercase" as const, letterSpacing: "2px", fontWeight: 600 }}>
+                    {card.label}
+                  </span>
+                  <span style={{ fontSize: 15, fontWeight: 700, color: "#1d1d1f" }}>
+                    {card.value}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* CTA */}
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              style={{
+                marginTop: 32,
+                background: "#f97316",
+                color: "#fff",
+                border: "none",
+                borderRadius: 99,
+                padding: "14px 36px",
+                fontSize: 16,
+                fontWeight: 700,
+                cursor: "pointer",
+                fontFamily: font,
+                animation: "successFadeUp 0.5s ease 0.75s both",
+                transition: "opacity 0.2s",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.85"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
+            >
+              Nazad na početnu
+            </button>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
 function CameraOrderForm() {
   const [qty, setQty] = useState(1);
   const [fields, setFields] = useState<Fields>({ name: "", phone: "", address: "", city: "" });
@@ -242,28 +501,7 @@ function CameraOrderForm() {
   };
 
   if (submitted) {
-    return (
-      <div style={{ textAlign: "center", padding: "48px 0" }}>
-        <div
-          style={{
-            width: 64, height: 64, background: "#FF6B00", borderRadius: "50%",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            margin: "0 auto 24px",
-          }}
-        >
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-        </div>
-        <h3 style={{ fontSize: 26, fontWeight: 800, color: "#0A0A0A", marginBottom: 12 }}>
-          Narudžba primljena!
-        </h3>
-        <p style={{ fontSize: 15, color: "#666", lineHeight: 1.7 }}>
-          Kontaktirat ćemo vas u roku od 24 sata radi potvrde.<br />
-          Dostava 1–3 radna dana. Plaćanje pouzećem.
-        </p>
-      </div>
-    );
+    return <OrderSuccess />;
   }
 
   const inputStyle = (hasError: boolean): React.CSSProperties => ({
@@ -1510,6 +1748,18 @@ export default function KameraClient() {
 
       {/* Responsive styles */}
       <style>{`
+        /* ── Order success — mobile ── */
+        @media (max-width: 640px) {
+          .success-cards {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            width: 100% !important;
+          }
+          .success-cards > div {
+            min-width: unset !important;
+          }
+        }
+
         /* ── Purchase notification animations ── */
         @keyframes slideInLeft {
           from { transform: translateX(-120%); opacity: 0; }
