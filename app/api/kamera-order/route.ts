@@ -62,7 +62,6 @@ export async function POST(request: NextRequest) {
         ukupno,
         status: "nova",
         order_number: orderNumber,
-        notes: "GRATIS: SD kartica 64GB",
       });
 
     if (dbError) {
