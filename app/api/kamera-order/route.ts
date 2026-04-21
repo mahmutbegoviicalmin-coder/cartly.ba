@@ -66,9 +66,12 @@ export async function POST(request: NextRequest) {
       });
 
     if (dbError) {
-      console.error("Supabase insert error:", dbError);
+      console.error("Supabase insert error:", JSON.stringify(dbError, null, 2));
       return NextResponse.json(
-        { success: false, error: "Greška pri snimanju narudžbe." },
+        {
+          success: false,
+          error: `DB greška: ${dbError.message || "nepoznata greška"} (code: ${dbError.code || "?"}, details: ${dbError.details || "-"}, hint: ${dbError.hint || "-"})`,
+        },
         { status: 500 }
       );
     }
