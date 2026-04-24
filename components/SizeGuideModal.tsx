@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect } from "react";
 
@@ -76,7 +76,7 @@ export default function SizeGuideModal({ onClose }: Props) {
           marginBottom: 24,
         }}>
           <h2 style={{
-            fontFamily: "var(--font-inter), sans-serif",
+            fontFamily: "var(--font-manrope), sans-serif",
             fontSize: 20, fontWeight: 700, color: "#0A0A0A", margin: 0,
           }}>
             Pronađi svoju veličinu
@@ -104,7 +104,7 @@ export default function SizeGuideModal({ onClose }: Props) {
 
         {/* How to measure */}
         <p style={{
-          fontFamily: "var(--font-inter), sans-serif",
+          fontFamily: "var(--font-manrope), sans-serif",
           fontSize: 12, fontWeight: 600, color: "#888",
           textTransform: "uppercase", letterSpacing: "0.08em",
           marginBottom: 14,
@@ -122,13 +122,13 @@ export default function SizeGuideModal({ onClose }: Props) {
                 background: "#FF6B00",
                 color: "#fff",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontFamily: "var(--font-inter), sans-serif",
+                fontFamily: "var(--font-manrope), sans-serif",
                 fontSize: 13, fontWeight: 700,
               }}>
                 {i + 1}
               </span>
               <p style={{
-                fontFamily: "var(--font-inter), sans-serif",
+                fontFamily: "var(--font-manrope), sans-serif",
                 fontSize: 14, fontWeight: 400, color: "#555555",
                 margin: 0, lineHeight: 1.55, paddingTop: 6,
               }}>
@@ -148,14 +148,14 @@ export default function SizeGuideModal({ onClose }: Props) {
             marginBottom: 2,
           }}>
             <span style={{
-              fontFamily: "var(--font-inter), sans-serif",
+              fontFamily: "var(--font-manrope), sans-serif",
               fontSize: 12, fontWeight: 600, color: "#888",
               textTransform: "uppercase", letterSpacing: "0.07em",
             }}>
               Dužina stopala
             </span>
             <span style={{
-              fontFamily: "var(--font-inter), sans-serif",
+              fontFamily: "var(--font-manrope), sans-serif",
               fontSize: 12, fontWeight: 600, color: "#888",
               textTransform: "uppercase", letterSpacing: "0.07em",
               textAlign: "right",
@@ -175,13 +175,13 @@ export default function SizeGuideModal({ onClose }: Props) {
               }}
             >
               <span style={{
-                fontFamily: "var(--font-inter), sans-serif",
+                fontFamily: "var(--font-manrope), sans-serif",
                 fontSize: 14, fontWeight: 400, color: "#0A0A0A",
               }}>
                 {row.cm}
               </span>
               <span style={{
-                fontFamily: "var(--font-inter), sans-serif",
+                fontFamily: "var(--font-manrope), sans-serif",
                 fontSize: 14, fontWeight: 400, color: "#0A0A0A",
                 textAlign: "right",
               }}>
@@ -193,7 +193,7 @@ export default function SizeGuideModal({ onClose }: Props) {
 
         {/* Note */}
         <p style={{
-          fontFamily: "var(--font-inter), sans-serif",
+          fontFamily: "var(--font-manrope), sans-serif",
           fontSize: 12, color: "#999", fontStyle: "italic",
           margin: "16px 0 0", lineHeight: 1.5,
         }}>

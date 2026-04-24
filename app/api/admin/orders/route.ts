@@ -13,10 +13,11 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
-  const page = parseInt(searchParams.get("page") ?? "1");
-  const search = searchParams.get("search") ?? "";
+  const page     = parseInt(searchParams.get("page")   ?? "1");
+  const search   = searchParams.get("search")  ?? "";
+  const status   = searchParams.get("status")  ?? "all";
   const pageSize = 20;
-  const from = (page - 1) * pageSize;
+  const from     = (page - 1) * pageSize;
 
   let query = getSupabaseAdmin()
     .from("orders")
@@ -26,6 +27,9 @@ export async function GET(request: Request) {
 
   if (search) {
     query = query.or(`ime.ilike.%${search}%,telefon.ilike.%${search}%,grad.ilike.%${search}%`);
+  }
+  if (status && status !== "all") {
+    query = query.eq("status", status);
   }
 
   const { data, error, count } = await query;

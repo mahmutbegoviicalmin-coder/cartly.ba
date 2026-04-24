@@ -26,6 +26,15 @@ function formatDateBosnian(date: Date): string {
   return `${day}. ${month} ${year}. u ${h}:${min}`;
 }
 
+function sarajevoTime(date: Date): string {
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/Sarajevo",
+    hour:     "2-digit",
+    minute:   "2-digit",
+    hour12:   false,
+  }).format(date);
+}
+
 function fmtKM(n: number) {
   return n.toFixed(2).replace(".", ",") + " KM";
 }
@@ -81,7 +90,7 @@ export async function POST(request: NextRequest) {
       await resend.emails.send({
         from: "Cartly.ba <onboarding@resend.dev>",
         to: process.env.OWNER_EMAIL!,
-        subject: `Nova narudžba ${orderNumber} — V380 Pro Kamera`,
+        subject: `#NARUDZBA [KAMERA V380] - ${ime} - ${qty}kom - ${sarajevoTime(now)}`,
         html: `
           <div style="font-family: Inter, -apple-system, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #F0F0F0;">
             <div style="background: #FF6B00; padding: 32px 40px;">
@@ -89,11 +98,52 @@ export async function POST(request: NextRequest) {
               <p style="color: rgba(255,255,255,0.8); margin: 6px 0 0; font-size: 13px;">${orderNumber} &nbsp;·&nbsp; ${formatDateBosnian(now)}</p>
             </div>
             <div style="padding: 32px 40px;">
-              <h2 style="font-size: 13px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 16px;">Podaci kupca</h2>
-              <table style="width: 100%; border-collapse: collapse; margin-bottom: 28px;">
-                <tr><td style="padding: 7px 0; color: #888; font-size: 14px; width: 140px;">Ime i prezime</td><td style="padding: 7px 0; font-weight: 600; font-size: 14px; color: #0A0A0A;">${ime}</td></tr>
-                <tr><td style="padding: 7px 0; color: #888; font-size: 14px;">Telefon</td><td style="padding: 7px 0; font-weight: 600; font-size: 14px; color: #0A0A0A;">${telefon}</td></tr>
-                <tr><td style="padding: 7px 0; color: #888; font-size: 14px;">Adresa</td><td style="padding: 7px 0; font-weight: 600; font-size: 14px; color: #0A0A0A;">${adresa}, ${grad}</td></tr>
+              <h2 style="font-size: 13px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 12px;">Podaci kupca</h2>
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 28px;">
+                <tr>
+                  <td style="padding-bottom: 8px;">
+                    <div style="background:#F7F7F7;border-radius:8px;padding:10px 14px;">
+                      <p style="margin:0 0 3px;font-size:10px;font-weight:700;color:#AAAAAA;text-transform:uppercase;letter-spacing:0.08em;">Ime i prezime</p>
+                      <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                        <td><p style="margin:0;font-size:16px;font-weight:700;color:#0A0A0A;user-select:all;cursor:pointer;">${ime}</p></td>
+                        <td style="width:22px;text-align:right;vertical-align:middle;font-size:14px;color:#BBBBBB;padding-left:6px;">📋</td>
+                      </tr></table>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding-bottom: 8px;">
+                    <div style="background:#F7F7F7;border-radius:8px;padding:10px 14px;">
+                      <p style="margin:0 0 3px;font-size:10px;font-weight:700;color:#AAAAAA;text-transform:uppercase;letter-spacing:0.08em;">Telefon</p>
+                      <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                        <td><p style="margin:0;font-size:16px;font-weight:700;color:#0A0A0A;user-select:all;cursor:pointer;">${telefon}</p></td>
+                        <td style="width:22px;text-align:right;vertical-align:middle;font-size:14px;color:#BBBBBB;padding-left:6px;">📋</td>
+                      </tr></table>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding-bottom: 8px;">
+                    <div style="background:#F7F7F7;border-radius:8px;padding:10px 14px;">
+                      <p style="margin:0 0 3px;font-size:10px;font-weight:700;color:#AAAAAA;text-transform:uppercase;letter-spacing:0.08em;">Adresa</p>
+                      <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                        <td><p style="margin:0;font-size:16px;font-weight:700;color:#0A0A0A;user-select:all;cursor:pointer;">${adresa}</p></td>
+                        <td style="width:22px;text-align:right;vertical-align:middle;font-size:14px;color:#BBBBBB;padding-left:6px;">📋</td>
+                      </tr></table>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding-bottom: 8px;">
+                    <div style="background:#F7F7F7;border-radius:8px;padding:10px 14px;">
+                      <p style="margin:0 0 3px;font-size:10px;font-weight:700;color:#AAAAAA;text-transform:uppercase;letter-spacing:0.08em;">Grad</p>
+                      <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                        <td><p style="margin:0;font-size:16px;font-weight:700;color:#0A0A0A;user-select:all;cursor:pointer;">${grad}</p></td>
+                        <td style="width:22px;text-align:right;vertical-align:middle;font-size:14px;color:#BBBBBB;padding-left:6px;">📋</td>
+                      </tr></table>
+                    </div>
+                  </td>
+                </tr>
               </table>
               <h2 style="font-size: 13px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 16px;">Narudžba</h2>
               <table style="width: 100%; border-collapse: collapse;">

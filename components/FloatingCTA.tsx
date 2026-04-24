@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { ShoppingBag } from "lucide-react";
@@ -67,7 +67,7 @@ export default function FloatingCTA() {
           <span
             className="fcta-label"
             style={{
-              fontFamily: "var(--font-inter), sans-serif",
+              fontFamily: "var(--font-manrope), sans-serif",
               fontSize: 10,
               fontWeight: 500,
               color: "rgba(255,255,255,0.85)",
@@ -81,7 +81,7 @@ export default function FloatingCTA() {
           <span
             className="fcta-main"
             style={{
-              fontFamily: "var(--font-inter), sans-serif",
+              fontFamily: "var(--font-manrope), sans-serif",
               fontSize: 15,
               fontWeight: 700,
               color: "#fff",

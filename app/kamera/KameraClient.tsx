@@ -1,9 +1,10 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef, FormEvent } from "react";
-import Navbar from "@/components/Navbar";
+import ProductPageHeader from "@/components/ProductPageHeader";
 import Footer from "@/components/Footer";
 import { event } from "@/lib/fbpixel";
+import OrderSuccess from "@/components/OrderSuccess";
 
 const UNIT_PRICE = 129.9;
 const DELIVERY = 10.0;
@@ -57,7 +58,7 @@ function HeroSocialProof() {
         padding: "10px 20px",
         marginBottom: 28,
         width: "fit-content",
-        fontFamily: "'Inter', var(--font-inter), sans-serif",
+        fontFamily: "var(--font-manrope, sans-serif)",
       }}
     >
       {/* Left: viewers */}
@@ -123,7 +124,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
             fontSize: 15,
             fontWeight: 600,
             color: open ? "#FF6B00" : "#0A0A0A",
-            fontFamily: "var(--font-inter), sans-serif",
+            fontFamily: "var(--font-manrope, sans-serif)",
             lineHeight: 1.4,
             transition: "color 0.15s",
           }}
@@ -158,7 +159,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
             color: "rgba(0,0,0,0.6)",
             lineHeight: 1.7,
             margin: 0,
-            fontFamily: "var(--font-inter), sans-serif",
+            fontFamily: "var(--font-manrope, sans-serif)",
             paddingRight: 40,
           }}
         >
@@ -174,265 +175,6 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 // ─────────────────────────────────────────────────────────
 type Fields = { name: string; phone: string; address: string; city: string };
 type FieldErrors = Partial<Record<keyof Fields, string>>;
-
-// ─────────────────────────────────────────────────────────
-// Order Success Screen
-// ─────────────────────────────────────────────────────────
-function OrderSuccess() {
-  const [step, setStep] = useState(0);
-  // step 0 = packing, 1 = van, 2 = checkmark+confetti
-
-  useEffect(() => {
-    const t1 = setTimeout(() => setStep(1), 1500);
-    const t2 = setTimeout(() => setStep(2), 3000);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, []);
-
-  const font = "'Inter', var(--font-inter), sans-serif";
-
-  const confettiItems = [
-    { tx: "0px",   ty: "-64px",  c: "#f97316", d: "0ms"   },
-    { tx: "45px",  ty: "-50px",  c: "#1d1d1f", d: "40ms"  },
-    { tx: "64px",  ty: "0px",    c: "#f97316", d: "60ms"  },
-    { tx: "50px",  ty: "45px",   c: "#1d1d1f", d: "80ms"  },
-    { tx: "0px",   ty: "64px",   c: "#f97316", d: "30ms"  },
-    { tx: "-50px", ty: "45px",   c: "#1d1d1f", d: "100ms" },
-    { tx: "-64px", ty: "0px",    c: "#f97316", d: "50ms"  },
-    { tx: "-45px", ty: "-50px",  c: "#1d1d1f", d: "20ms"  },
-    { tx: "30px",  ty: "-58px",  c: "#f97316", d: "120ms" },
-    { tx: "58px",  ty: "30px",   c: "#1d1d1f", d: "140ms" },
-    { tx: "-30px", ty: "58px",   c: "#f97316", d: "160ms" },
-    { tx: "-58px", ty: "-30px",  c: "#1d1d1f", d: "180ms" },
-  ];
-
-  return (
-    <>
-      <style>{`
-        @keyframes successBoxClose {
-          0%   { transform: translateY(-20px); opacity: 0; }
-          100% { transform: translateY(0);     opacity: 1; }
-        }
-        @keyframes successVanDrive {
-          0%   { transform: translateX(100px); opacity: 0; }
-          40%  { transform: translateX(0);     opacity: 1; }
-          100% { transform: translateX(-120px);opacity: 0; }
-        }
-        @keyframes successBounceIn {
-          0%   { transform: scale(0);   }
-          60%  { transform: scale(1.2); }
-          100% { transform: scale(1);   }
-        }
-        @keyframes successCheckDraw {
-          from { stroke-dashoffset: 100; }
-          to   { stroke-dashoffset: 0;   }
-        }
-        @keyframes successConfetti {
-          0%   { transform: scale(0) translate(0,0); opacity: 1; }
-          100% { transform: scale(1) translate(var(--tx), var(--ty)); opacity: 0; }
-        }
-        @keyframes successFadeUp {
-          from { opacity: 0; transform: translateY(16px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
-
-      <div style={{
-        background: "#ffffff",
-        minHeight: "80vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "60px 24px",
-        fontFamily: font,
-        position: "relative",
-        overflow: "hidden",
-      }}>
-
-        {/* ── Step 0: Packing ── */}
-        {step === 0 && (
-          <div style={{ textAlign: "center", animation: "successBoxClose 0.5s ease forwards" }}>
-            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: 20 }}>
-              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-              <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-              <line x1="12" y1="22.08" x2="12" y2="12"/>
-            </svg>
-            <p style={{ fontSize: 16, color: "#6e6e73", fontWeight: 500 }}>Pakujemo vašu narudžbu...</p>
-          </div>
-        )}
-
-        {/* ── Step 1: Van driving ── */}
-        {step === 1 && (
-          <div style={{ textAlign: "center" }}>
-            <div style={{ animation: "successVanDrive 1.5s ease forwards", display: "inline-block", marginBottom: 20 }}>
-              <svg width="90" height="60" viewBox="0 0 24 16" fill="none" stroke="#f97316" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="1" y="2" width="14" height="9"/>
-                <polygon points="15 5 20 5 23 8 23 11 15 11 15 5"/>
-                <circle cx="4.5" cy="13" r="1.5"/>
-                <circle cx="18.5" cy="13" r="1.5"/>
-              </svg>
-            </div>
-            <p style={{ fontSize: 16, color: "#6e6e73", fontWeight: 500 }}>Predajemo kuriru...</p>
-          </div>
-        )}
-
-        {/* ── Step 2+: Checkmark + confetti + final content ── */}
-        {step === 2 && (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%" }}>
-
-            {/* Checkmark with confetti */}
-            <div style={{ position: "relative", marginBottom: 28 }}>
-              {/* Confetti dots */}
-              {confettiItems.map((c, i) => (
-                <div key={i} style={{
-                  position: "absolute",
-                  top: "50%", left: "50%",
-                  width: 8, height: 8,
-                  borderRadius: "50%",
-                  background: c.c,
-                  // @ts-expect-error css vars
-                  "--tx": c.tx,
-                  "--ty": c.ty,
-                  animation: `successConfetti 0.7s ease-out ${c.d} forwards`,
-                  transform: "scale(0)",
-                }} />
-              ))}
-
-              {/* Orange circle + checkmark */}
-              <div style={{
-                width: 72, height: 72,
-                background: "#f97316",
-                borderRadius: "50%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                animation: "successBounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards",
-                position: "relative",
-                zIndex: 1,
-              }}>
-                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline
-                    points="20 6 9 17 4 12"
-                    strokeDasharray="100"
-                    strokeDashoffset="100"
-                    style={{ animation: "successCheckDraw 0.5s ease 0.4s forwards" }}
-                  />
-                </svg>
-              </div>
-            </div>
-
-            {/* Heading */}
-            <h2 style={{
-              fontSize: "clamp(28px, 4vw, 40px)",
-              fontWeight: 800,
-              color: "#1d1d1f",
-              letterSpacing: "-1px",
-              margin: "0 0 12px",
-              textAlign: "center",
-              animation: "successFadeUp 0.5s ease 0.3s both",
-            }}>
-              Narudžba zaprimljena!
-            </h2>
-            <p style={{
-              fontSize: 17,
-              color: "#6e6e73",
-              margin: "0 0 36px",
-              textAlign: "center",
-              animation: "successFadeUp 0.5s ease 0.45s both",
-            }}>
-              Hvala na povjerenju! Kontaktirat ćemo vas uskoro.
-            </p>
-
-            {/* Info cards */}
-            <div style={{
-              display: "flex",
-              gap: 16,
-              flexWrap: "wrap",
-              justifyContent: "center",
-              animation: "successFadeUp 0.5s ease 0.6s both",
-            }} className="success-cards">
-              {[
-                {
-                  icon: (
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
-                      <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
-                    </svg>
-                  ),
-                  label: "Dostava",
-                  value: "1–3 radna dana",
-                },
-                {
-                  icon: (
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4a2 2 0 0 1 1.99-2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.37a16 16 0 0 0 6.72 6.72l1.22-1.21a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
-                    </svg>
-                  ),
-                  label: "Potvrda",
-                  value: "U roku od 24h",
-                },
-                {
-                  icon: (
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="2" y="6" width="20" height="12" rx="2"/>
-                      <circle cx="12" cy="12" r="2"/>
-                      <path d="M6 12h.01M18 12h.01"/>
-                    </svg>
-                  ),
-                  label: "Plaćanje",
-                  value: "Pouzećem",
-                },
-              ].map((card) => (
-                <div key={card.label} style={{
-                  background: "#f9f9f9",
-                  borderRadius: 16,
-                  padding: "20px 24px",
-                  textAlign: "center",
-                  minWidth: 160,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 8,
-                }}>
-                  {card.icon}
-                  <span style={{ fontSize: 11, color: "#aeaeb2", textTransform: "uppercase" as const, letterSpacing: "2px", fontWeight: 600 }}>
-                    {card.label}
-                  </span>
-                  <span style={{ fontSize: 15, fontWeight: 700, color: "#1d1d1f" }}>
-                    {card.value}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            {/* CTA */}
-            <button
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              style={{
-                marginTop: 32,
-                background: "#f97316",
-                color: "#fff",
-                border: "none",
-                borderRadius: 99,
-                padding: "14px 36px",
-                fontSize: 16,
-                fontWeight: 700,
-                cursor: "pointer",
-                fontFamily: font,
-                animation: "successFadeUp 0.5s ease 0.75s both",
-                transition: "opacity 0.2s",
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.85"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
-            >
-              Nazad na početnu
-            </button>
-          </div>
-        )}
-      </div>
-    </>
-  );
-}
 
 function CameraOrderForm() {
   const [qty, setQty] = useState(1);
@@ -509,7 +251,7 @@ function CameraOrderForm() {
     height: 52,
     padding: "0 16px",
     fontSize: 15,
-    fontFamily: "var(--font-inter), sans-serif",
+    fontFamily: "var(--font-manrope, sans-serif)",
     border: `1px solid ${hasError ? "#ef4444" : "#E5E5E5"}`,
     borderRadius: 8,
     background: "#F9F9F9",
@@ -528,7 +270,7 @@ function CameraOrderForm() {
 
           {/* Personal data */}
           <div style={{ background: "#fff", borderRadius: 16, padding: 32 }}>
-            <p style={{ fontSize: 18, fontWeight: 600, color: "#0A0A0A", marginBottom: 24, fontFamily: "var(--font-inter), sans-serif" }}>
+            <p style={{ fontSize: 18, fontWeight: 600, color: "#0A0A0A", marginBottom: 24, fontFamily: "var(--font-manrope, sans-serif)" }}>
               Vaši podaci
             </p>
             <div
@@ -548,7 +290,7 @@ function CameraOrderForm() {
                 { id: "city",    label: "Grad",           type: "text", autoComplete: "address-level2",  placeholder: "npr. Sarajevo" },
               ] as const).map(({ id, label, type, autoComplete, placeholder }) => (
                 <div key={id} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <label htmlFor={id} style={{ fontSize: 13, fontWeight: 500, color: "#0A0A0A", fontFamily: "var(--font-inter), sans-serif" }}>
+                  <label htmlFor={id} style={{ fontSize: 13, fontWeight: 500, color: "#0A0A0A", fontFamily: "var(--font-manrope, sans-serif)" }}>
                     {label}
                   </label>
                   <input
@@ -568,7 +310,7 @@ function CameraOrderForm() {
 
           {/* Quantity */}
           <div style={{ background: "#fff", borderRadius: 16, padding: 32 }}>
-            <p style={{ fontSize: 16, fontWeight: 600, color: "#0A0A0A", marginBottom: 20, fontFamily: "var(--font-inter), sans-serif" }}>
+            <p style={{ fontSize: 16, fontWeight: 600, color: "#0A0A0A", marginBottom: 20, fontFamily: "var(--font-manrope, sans-serif)" }}>
               Količina
             </p>
             <div
@@ -578,7 +320,7 @@ function CameraOrderForm() {
                 border: "1px solid #E5E5E5",
               }}
             >
-              <span style={{ fontSize: 15, fontWeight: 600, color: "#0A0A0A", fontFamily: "var(--font-inter), sans-serif" }}>
+              <span style={{ fontSize: 15, fontWeight: 600, color: "#0A0A0A", fontFamily: "var(--font-manrope, sans-serif)" }}>
                 V380 Pro Kamera 12MP
               </span>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -592,10 +334,10 @@ function CameraOrderForm() {
                     background: "#fff", color: qty <= 1 ? "#ccc" : "#0A0A0A",
                     fontSize: 18, cursor: qty <= 1 ? "not-allowed" : "pointer",
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    fontFamily: "var(--font-inter), sans-serif",
+                    fontFamily: "var(--font-manrope, sans-serif)",
                   }}
                 >−</button>
-                <span style={{ width: 24, textAlign: "center", fontSize: 16, fontWeight: 700, color: "#0A0A0A", fontFamily: "var(--font-inter), sans-serif" }}>
+                <span style={{ width: 24, textAlign: "center", fontSize: 16, fontWeight: 700, color: "#0A0A0A", fontFamily: "var(--font-manrope, sans-serif)" }}>
                   {qty}
                 </span>
                 <button
@@ -608,7 +350,7 @@ function CameraOrderForm() {
                     background: "#fff", color: qty >= 5 ? "#ccc" : "#0A0A0A",
                     fontSize: 18, cursor: qty >= 5 ? "not-allowed" : "pointer",
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    fontFamily: "var(--font-inter), sans-serif",
+                    fontFamily: "var(--font-manrope, sans-serif)",
                   }}
                 >+</button>
               </div>
@@ -631,10 +373,10 @@ function CameraOrderForm() {
                 <img src="/images/kamere.png" alt="V380 Pro Kamera" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
               </div>
               <div>
-                <p style={{ fontSize: 15, fontWeight: 700, color: "#0A0A0A", margin: 0, lineHeight: 1.3, fontFamily: "var(--font-inter), sans-serif" }}>
+                <p style={{ fontSize: 15, fontWeight: 700, color: "#0A0A0A", margin: 0, lineHeight: 1.3, fontFamily: "var(--font-manrope, sans-serif)" }}>
                   V380 Pro Kamera
                 </p>
-                <p style={{ fontSize: 13, color: "#999", margin: "3px 0 0", lineHeight: 1.3, fontFamily: "var(--font-inter), sans-serif" }}>
+                <p style={{ fontSize: 13, color: "#999", margin: "3px 0 0", lineHeight: 1.3, fontFamily: "var(--font-manrope, sans-serif)" }}>
                   12MP WiFi · Vanjska sigurnost
                 </p>
               </div>
@@ -644,14 +386,14 @@ function CameraOrderForm() {
 
             {/* Order lines */}
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, fontFamily: "var(--font-inter), sans-serif" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, fontFamily: "var(--font-manrope, sans-serif)" }}>
                 <span style={{ color: "#666" }}>
                   {qty}× V380 Pro Kamera
                 </span>
                 <span style={{ color: "#0A0A0A", fontWeight: 500 }}>{fmt(productTotal)}</span>
               </div>
               {/* SD card free gift line */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #f0f0f0", paddingTop: 10, marginTop: 4, fontFamily: "var(--font-inter), sans-serif" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #f0f0f0", paddingTop: 10, marginTop: 4, fontFamily: "var(--font-manrope, sans-serif)" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="12" height="12" style={{ flexShrink: 0 }}>
                     <polyline points="20 12 20 22 4 22 4 12"/>
@@ -665,14 +407,14 @@ function CameraOrderForm() {
                 <span style={{ fontSize: 13, fontWeight: 700, color: "#22c55e" }}>GRATIS</span>
               </div>
 
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, fontFamily: "var(--font-inter), sans-serif" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, fontFamily: "var(--font-manrope, sans-serif)" }}>
                 <span style={{ color: "#666" }}>Dostava</span>
                 <span style={{ color: "#0A0A0A", fontWeight: 500 }}>{fmt(DELIVERY)}</span>
               </div>
               <hr style={{ border: "none", borderTop: "1px solid #F0F0F0", margin: "4px 0" }} />
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: 15, fontWeight: 700, color: "#0A0A0A", fontFamily: "var(--font-inter), sans-serif" }}>Ukupno</span>
-                <span style={{ fontSize: 20, fontWeight: 800, color: "#FF6B00", fontFamily: "var(--font-inter), sans-serif" }}>{fmt(grandTotal)}</span>
+                <span style={{ fontSize: 15, fontWeight: 700, color: "#0A0A0A", fontFamily: "var(--font-manrope, sans-serif)" }}>Ukupno</span>
+                <span style={{ fontSize: 20, fontWeight: 800, color: "#FF6B00", fontFamily: "var(--font-manrope, sans-serif)" }}>{fmt(grandTotal)}</span>
               </div>
             </div>
 
@@ -688,7 +430,7 @@ function CameraOrderForm() {
                 width: "100%", background: loading ? "#ccc" : "#FF6B00", color: "#fff",
                 border: "none", borderRadius: 10, padding: "16px",
                 fontSize: 16, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer",
-                fontFamily: "var(--font-inter), sans-serif",
+                fontFamily: "var(--font-manrope, sans-serif)",
                 transition: "background 0.15s",
                 lineHeight: 1.3,
               }}
@@ -698,7 +440,7 @@ function CameraOrderForm() {
               {loading ? "Slanje..." : `Naruči odmah — Plaćanje pouzećem`}
             </button>
 
-            <p style={{ textAlign: "center", fontSize: 12, color: "#aaa", margin: 0, lineHeight: 1.5, fontFamily: "var(--font-inter), sans-serif" }}>
+            <p style={{ textAlign: "center", fontSize: 12, color: "#aaa", margin: 0, lineHeight: 1.5, fontFamily: "var(--font-manrope, sans-serif)" }}>
               🔒 Sigurna narudžba &bull; Euro Express &bull; 1–3 radna dana
             </p>
           </div>
@@ -786,7 +528,7 @@ function PurchaseNotif() {
         bottom: 90,
         left: 24,
         zIndex: 9999,
-        fontFamily: "'Inter', var(--font-inter), sans-serif",
+        fontFamily: "var(--font-manrope, sans-serif)",
       }}
     >
       <div
@@ -897,7 +639,7 @@ function MobileFloatingBar() {
         padding: "0 32px",
         transform: hidden ? "translateY(100%)" : "translateY(0)",
         transition: "transform 0.3s ease",
-        fontFamily: "'Inter', var(--font-inter), sans-serif",
+        fontFamily: "var(--font-manrope, sans-serif)",
       }}
       className="sticky-bar"
     >
@@ -971,7 +713,7 @@ function MobileFloatingBar() {
           fontSize: 15,
           fontWeight: 700,
           cursor: "pointer",
-          fontFamily: "'Inter', var(--font-inter), sans-serif",
+          fontFamily: "var(--font-manrope, sans-serif)",
           whiteSpace: "nowrap",
           transition: "background 0.2s",
         }}
@@ -1044,18 +786,18 @@ export default function KameraClient() {
 
   return (
     <>
-      <Navbar />
+      <ProductPageHeader ctaHref="#order" />
 
       {/* ── HERO ─────────────────────────────────────────── */}
       <section
         style={{
-          marginTop: 64,
+          marginTop: 68,
           background: "#f5f5f7",
           minHeight: "90vh",
           display: "flex",
           alignItems: "center",
           overflow: "hidden",
-          fontFamily: "'Inter', var(--font-inter), sans-serif",
+          fontFamily: "var(--font-manrope, sans-serif)",
         }}
         className="hero-section"
       >
@@ -1095,7 +837,7 @@ export default function KameraClient() {
 
             {/* H1 */}
             <h1 style={{
-              fontFamily: "'Inter', var(--font-inter), sans-serif",
+              fontFamily: "var(--font-manrope, sans-serif)",
               fontSize: "clamp(52px, 5.5vw, 88px)",
               fontWeight: 900,
               color: "#1d1d1f",
@@ -1141,7 +883,7 @@ export default function KameraClient() {
                 fontWeight: 800,
                 color: "#f97316",
                 letterSpacing: "-1px",
-                fontFamily: "'Inter', var(--font-inter), sans-serif",
+                fontFamily: "var(--font-manrope, sans-serif)",
                 lineHeight: 1,
               }}>
                 129,90 KM
@@ -1186,7 +928,7 @@ export default function KameraClient() {
                 <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
                 <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
               </svg>
-              <span style={{ fontSize: 12, fontWeight: 700, color: "#f97316", fontFamily: "'Inter', var(--font-inter), sans-serif" }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: "#f97316", fontFamily: "var(--font-manrope, sans-serif)" }}>
                 GRATIS SD kartica 64GB uz svaku narudžbu
               </span>
             </div>
@@ -1207,7 +949,7 @@ export default function KameraClient() {
                 fontSize: 17,
                 fontWeight: 700,
                 cursor: "pointer",
-                fontFamily: "'Inter', var(--font-inter), sans-serif",
+                fontFamily: "var(--font-manrope, sans-serif)",
                 transition: "opacity 0.2s",
                 width: "fit-content",
                 whiteSpace: "nowrap",
@@ -1290,7 +1032,7 @@ export default function KameraClient() {
             >
               <p
                 style={{
-                  fontFamily: "var(--font-inter), sans-serif",
+                  fontFamily: "var(--font-manrope, sans-serif)",
                   fontSize: "clamp(28px, 4vw, 40px)",
                   fontWeight: 900,
                   color: "#0A0A0A",
@@ -1302,7 +1044,7 @@ export default function KameraClient() {
               </p>
               <p
                 style={{
-                  fontFamily: "var(--font-inter), sans-serif",
+                  fontFamily: "var(--font-manrope, sans-serif)",
                   fontSize: 13,
                   color: "#888",
                   margin: 0,
@@ -1338,7 +1080,7 @@ export default function KameraClient() {
         <div style={{
           width: "50%", background: "#ffffff",
           display: "flex", flexDirection: "column", justifyContent: "center",
-          padding: "80px 72px", fontFamily: "'Inter', var(--font-inter), sans-serif",
+          padding: "80px 72px", fontFamily: "var(--font-manrope, sans-serif)",
         }} className="kf-text-col">
           <span style={{ fontSize: 11, letterSpacing: "4px", fontWeight: 600, color: "#f97316", textTransform: "uppercase" as const, marginBottom: 16, display: "block" }}>VIDNO POLJE</span>
           <h2 style={{ fontSize: "clamp(36px, 4vw, 56px)", fontWeight: 800, letterSpacing: "-2px", lineHeight: 1.0, color: "#1d1d1f", margin: "0 0 20px" }}>Nema slijepih kutova.</h2>
@@ -1362,7 +1104,7 @@ export default function KameraClient() {
         <div style={{
           width: "50%", background: "#0f0f0f",
           display: "flex", flexDirection: "column", justifyContent: "center",
-          padding: "80px 72px", fontFamily: "'Inter', var(--font-inter), sans-serif",
+          padding: "80px 72px", fontFamily: "var(--font-manrope, sans-serif)",
         }} className="kf-text-col">
           <span style={{ fontSize: 11, letterSpacing: "4px", fontWeight: 600, color: "#f97316", textTransform: "uppercase" as const, marginBottom: 16, display: "block" }}>NOĆNI VID</span>
           <h2 style={{ fontSize: "clamp(36px, 4vw, 56px)", fontWeight: 800, letterSpacing: "-2px", lineHeight: 1.0, color: "#ffffff", margin: "0 0 20px" }}>Jasno i danju i noću.</h2>
@@ -1412,7 +1154,7 @@ export default function KameraClient() {
         <div style={{
           width: "50%", background: "#ffffff",
           display: "flex", flexDirection: "column", justifyContent: "center",
-          padding: "80px 72px", fontFamily: "'Inter', var(--font-inter), sans-serif",
+          padding: "80px 72px", fontFamily: "var(--font-manrope, sans-serif)",
         }} className="kf-text-col">
           <span style={{ fontSize: 11, letterSpacing: "4px", fontWeight: 600, color: "#f97316", textTransform: "uppercase" as const, marginBottom: 16, display: "block" }}>UPRAVLJANJE</span>
           <h2 style={{ fontSize: "clamp(36px, 4vw, 56px)", fontWeight: 800, letterSpacing: "-2px", lineHeight: 1.0, color: "#1d1d1f", margin: "0 0 20px" }}>Kontrola s telefona.</h2>
@@ -1439,7 +1181,7 @@ export default function KameraClient() {
           alignItems: "center",
           justifyContent: "center",
           gap: 16,
-          fontFamily: "'Inter', var(--font-inter), sans-serif",
+          fontFamily: "var(--font-manrope, sans-serif)",
         }}
         className="sd-banner"
       >
@@ -1473,7 +1215,7 @@ export default function KameraClient() {
       </div>
 
       {/* ── INSTALLATION STEPS ───────────────────────────── */}
-      <section style={{ background: "#ffffff", padding: "100px 60px", textAlign: "center", fontFamily: "'Inter', var(--font-inter), sans-serif" }} className="install-section">
+      <section style={{ background: "#ffffff", padding: "100px 60px", textAlign: "center", fontFamily: "var(--font-manrope, sans-serif)" }} className="install-section">
 
         {/* Header */}
         <h2 style={{ fontSize: "clamp(32px, 4vw, 52px)", fontWeight: 800, letterSpacing: "-2px", color: "#1d1d1f", margin: "0 0 12px" }}>
@@ -1579,7 +1321,7 @@ export default function KameraClient() {
                 alignItems: "center",
                 justifyContent: "center",
                 margin: "0 auto 24px",
-                fontFamily: "'Inter', var(--font-inter), sans-serif",
+                fontFamily: "var(--font-manrope, sans-serif)",
               }}>
                 {step.n}
               </div>
@@ -1590,12 +1332,12 @@ export default function KameraClient() {
               </div>
 
               {/* Title */}
-              <p style={{ fontSize: 17, fontWeight: 700, color: "#1d1d1f", margin: "0 0 10px", fontFamily: "'Inter', var(--font-inter), sans-serif" }}>
+              <p style={{ fontSize: 17, fontWeight: 700, color: "#1d1d1f", margin: "0 0 10px", fontFamily: "var(--font-manrope, sans-serif)" }}>
                 {step.title}
               </p>
 
               {/* Body */}
-              <p style={{ fontSize: 14, color: "#6e6e73", lineHeight: 1.6, fontWeight: 400, margin: 0, fontFamily: "'Inter', var(--font-inter), sans-serif" }}>
+              <p style={{ fontSize: 14, color: "#6e6e73", lineHeight: 1.6, fontWeight: 400, margin: 0, fontFamily: "var(--font-manrope, sans-serif)" }}>
                 {step.body}
               </p>
             </div>
@@ -1609,7 +1351,7 @@ export default function KameraClient() {
         <div style={{ maxWidth: 1152, margin: "0 auto", padding: "0 24px" }}>
           <h2
             style={{
-              fontFamily: "var(--font-inter), sans-serif",
+              fontFamily: "var(--font-manrope, sans-serif)",
               fontSize: "clamp(22px, 4vw, 30px)",
               fontWeight: 800,
               color: "#0A0A0A",
@@ -1630,7 +1372,7 @@ export default function KameraClient() {
           <div style={{ textAlign: "center", marginBottom: 48 }}>
             <p
               style={{
-                fontFamily: "var(--font-inter), sans-serif",
+                fontFamily: "var(--font-manrope, sans-serif)",
                 fontSize: "clamp(40px, 6vw, 64px)",
                 fontWeight: 900,
                 color: "#0A0A0A",
@@ -1645,7 +1387,7 @@ export default function KameraClient() {
             </div>
             <p
               style={{
-                fontFamily: "var(--font-inter), sans-serif",
+                fontFamily: "var(--font-manrope, sans-serif)",
                 fontSize: 14,
                 color: "#888",
                 margin: 0,
@@ -1679,7 +1421,7 @@ export default function KameraClient() {
                 <Stars />
                 <p
                   style={{
-                    fontFamily: "var(--font-inter), sans-serif",
+                    fontFamily: "var(--font-manrope, sans-serif)",
                     fontSize: 15,
                     color: "#0A0A0A",
                     lineHeight: 1.65,
@@ -1692,7 +1434,7 @@ export default function KameraClient() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <span
                     style={{
-                      fontFamily: "var(--font-inter), sans-serif",
+                      fontFamily: "var(--font-manrope, sans-serif)",
                       fontSize: 14,
                       fontWeight: 700,
                       color: "#0A0A0A",
@@ -1702,7 +1444,7 @@ export default function KameraClient() {
                   </span>
                   <span
                     style={{
-                      fontFamily: "var(--font-inter), sans-serif",
+                      fontFamily: "var(--font-manrope, sans-serif)",
                       fontSize: 12,
                       color: "#aaa",
                     }}
@@ -1721,7 +1463,7 @@ export default function KameraClient() {
         <div style={{ maxWidth: 720, margin: "0 auto", padding: "80px 24px" }}>
           <h2
             style={{
-              fontFamily: "var(--font-inter), sans-serif",
+              fontFamily: "var(--font-manrope, sans-serif)",
               fontSize: "clamp(22px, 4vw, 30px)",
               fontWeight: 800,
               color: "#0A0A0A",
@@ -1747,7 +1489,7 @@ export default function KameraClient() {
       <MobileFloatingBar />
 
       {/* Responsive styles */}
-      <style>{`
+      <style suppressHydrationWarning>{`
         /* ── Order success — mobile ── */
         @media (max-width: 640px) {
           .success-cards {
@@ -1809,7 +1551,7 @@ export default function KameraClient() {
           animation: numFlash 0.4s ease forwards;
         }
       `}</style>
-      <style>{`
+      <style suppressHydrationWarning>{`
         /* ── HERO — mobile (≤768px) ── */
         @media (max-width: 768px) {
           .hero-section {

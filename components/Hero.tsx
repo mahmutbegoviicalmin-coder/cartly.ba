@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useRef } from "react";
 import Image from "next/image";
@@ -35,7 +35,7 @@ export default function Hero() {
   };
 
   return (
-    <section className="pt-16 bg-white">
+    <section className="pt-[60px] md:pt-[68px] bg-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 lg:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
 
@@ -141,7 +141,7 @@ export default function Hero() {
               style={{
                 display: "flex", alignItems: "center", justifyContent: "center",
                 background: "#FF6B00", color: "#fff", borderRadius: 8,
-                padding: "16px 40px", fontFamily: "var(--font-inter), sans-serif",
+                padding: "16px 40px", fontFamily: "var(--font-manrope), sans-serif",
                 fontWeight: 600, fontSize: 16, border: "none",
                 cursor: "pointer", transition: "background 0.15s",
               }}

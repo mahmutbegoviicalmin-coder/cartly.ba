@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { event } from "@/lib/fbpixel";
 
@@ -14,7 +14,7 @@ export default function CTABanner() {
           justifyContent: "center",
           background: "#FF6B00",
           color: "#fff",
-          fontFamily: "var(--font-inter), sans-serif",
+          fontFamily: "var(--font-manrope), sans-serif",
           fontWeight: 600,
           fontSize: 16,
           borderRadius: 8,

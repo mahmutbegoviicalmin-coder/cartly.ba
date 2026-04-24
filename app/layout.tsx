@@ -1,18 +1,18 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Manrope } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
-  variable: "--font-inter",
-  display: "swap",
+const manrope = Manrope({
+  subsets:  ["latin"],
+  weight:   ["400", "500", "600", "700", "800"],
+  variable: "--font-manrope",
+  display:  "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Radne Patike S3 — Tactical Black | Cartly.ba",
-  description: "Profesionalna zaštitna obuća S3 s čeličnom kapicom i BOA sistemom zatvaranja. Samo 59,90 KM. Naruči online, plaćanje pouzećem.",
+  title: "Cartly.ba — Online kupovina u Bosni i Hercegovini",
+  description: "Kupuj online uz brzu dostavu, plaćanje pouzećem i provjeren kvalitet. Radne patike, kamere, alati i više — dostava po cijeloj BiH.",
 };
 
 const FB_PIXEL_ID = process.env.NEXT_PUBLIC_FB_PIXEL_ID;
@@ -23,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="bs" className={inter.variable}>
+    <html lang="bs" className={manrope.variable}>
       <head>
         <Script
           id="fb-pixel"
@@ -54,7 +54,9 @@ export default function RootLayout({
           />
         </noscript>
       </head>
-      <body className="antialiased bg-white text-black font-sans">
+      <body
+        className={`${manrope.className} antialiased bg-white text-black`}
+      >
         {children}
       </body>
     </html>

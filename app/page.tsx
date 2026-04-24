@@ -1,33 +1,17 @@
-import Navbar from "@/components/Navbar";
-import Hero from "@/components/Hero";
-import StatsBar from "@/components/StatsBar";
-import VideoSection from "@/components/VideoSection";
-import Features from "@/components/Features";
-import OrderForm from "@/components/OrderForm";
-import Reviews from "@/components/Reviews";
-import FAQ from "@/components/FAQ";
+import Header from "@/components/Header";
+import HomeHero from "@/components/HomeHero";
+import HomeSections from "@/components/HomeSections";
 import Footer from "@/components/Footer";
-import FloatingCTA from "@/components/FloatingCTA";
-import SocialProof from "@/components/SocialProof";
-import PixelEvents from "@/components/PixelEvents";
 
 export default function Home() {
   return (
     <>
-      <Navbar />
+      <Header />
       <main>
-        <Hero />
-        <StatsBar />
-        <VideoSection />
-        <Features />
-        <OrderForm />
-        <Reviews />
-        <FAQ />
+        <HomeHero />
+        <HomeSections />
       </main>
       <Footer />
-      <FloatingCTA />
-      <SocialProof />
-      <PixelEvents />
     </>
   );
 }

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Image from "next/image";
@@ -111,7 +111,7 @@ export default function VideoSection() {
               width: "fit-content",
               background: "rgba(255,107,0,0.15)",
               color: "#FF6B00",
-              fontFamily: "var(--font-inter), sans-serif",
+              fontFamily: "var(--font-manrope), sans-serif",
               fontSize: 11,
               fontWeight: 600,
               letterSpacing: "0.1em",
@@ -127,7 +127,7 @@ export default function VideoSection() {
           {/* Title */}
           <h2
             style={{
-              fontFamily: "var(--font-inter), sans-serif",
+              fontFamily: "var(--font-manrope), sans-serif",
               fontSize: 40,
               fontWeight: 800,
               color: "#fff",
@@ -141,7 +141,7 @@ export default function VideoSection() {
           {/* Subtitle */}
           <p
             style={{
-              fontFamily: "var(--font-inter), sans-serif",
+              fontFamily: "var(--font-manrope), sans-serif",
               fontSize: 16,
               color: "#888888",
               marginBottom: 0,
@@ -166,7 +166,7 @@ export default function VideoSection() {
                 <Icon size={20} color="#FF6B00" strokeWidth={2} style={{ flexShrink: 0 }} />
                 <span
                   style={{
-                    fontFamily: "var(--font-inter), sans-serif",
+                    fontFamily: "var(--font-manrope), sans-serif",
                     fontSize: 15,
                     fontWeight: 500,
                     color: "#fff",
@@ -188,7 +188,7 @@ export default function VideoSection() {
               textAlign: "center",
               background: "#FF6B00",
               color: "#fff",
-              fontFamily: "var(--font-inter), sans-serif",
+              fontFamily: "var(--font-manrope), sans-serif",
               fontWeight: 700,
               fontSize: 15,
               letterSpacing: "0.04em",
@@ -208,7 +208,7 @@ export default function VideoSection() {
           {/* Below CTA */}
           <p
             style={{
-              fontFamily: "var(--font-inter), sans-serif",
+              fontFamily: "var(--font-manrope), sans-serif",
               fontSize: 12,
               color: "#555",
               textAlign: "center",

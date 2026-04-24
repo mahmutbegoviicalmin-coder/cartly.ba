@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 
@@ -78,7 +78,7 @@ export default function Navbar() {
       >
         <span
           style={{
-            fontFamily: "var(--font-inter), sans-serif",
+            fontFamily: "var(--font-manrope), sans-serif",
             fontWeight: 800,
             fontSize: 22,
             color: "#0A0A0A",
@@ -107,7 +107,7 @@ export default function Navbar() {
           <a
             href="#order"
             style={{
-              fontFamily: "var(--font-inter), sans-serif",
+              fontFamily: "var(--font-manrope), sans-serif",
               fontWeight: 600,
               fontSize: 14,
               color: "#fff",

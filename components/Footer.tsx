@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 
@@ -43,7 +43,7 @@ function FooterSocialIcon({ href, children }: { href: string; children: React.Re
 
 export default function Footer() {
   return (
-    <footer style={{ background: "#0A0A0A", fontFamily: "var(--font-inter), sans-serif" }}>
+    <footer style={{ background: "#0A0A0A", fontFamily: "var(--font-manrope), sans-serif" }}>
       <div
         style={{
           maxWidth: 1152,

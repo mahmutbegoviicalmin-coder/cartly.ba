@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
 
@@ -113,7 +113,7 @@ export default function SocialProof() {
           bottom: 90,
           left: 24,
           zIndex: 9999,
-          fontFamily: "var(--font-inter), sans-serif",
+          fontFamily: "var(--font-manrope), sans-serif",
         }}
       >
         <div

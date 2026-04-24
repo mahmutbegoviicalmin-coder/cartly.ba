@@ -19,22 +19,34 @@ export async function GET() {
 
   const sb = getSupabaseAdmin();
   const [allOrders, todayOrders, recentOrders, chartOrders] = await Promise.all([
-    sb.from("orders").select("ukupno"),
+    sb.from("orders").select("ukupno, velicine, cijena_proizvoda, ukupno_pari"),
     sb.from("orders").select("ukupno").gte("created_at", todayStart),
     sb.from("orders").select("id").gte("created_at", thirtyMinAgo),
     sb.from("orders").select("created_at, ukupno").gte("created_at", fourteenDaysAgo).order("created_at", { ascending: true }),
   ]);
 
-  const totalCount = allOrders.data?.length ?? 0;
-  const totalRevenue = allOrders.data?.reduce((sum, o) => sum + (o.ukupno ?? 0), 0) ?? 0;
-  const todayRevenue = todayOrders.data?.reduce((sum, o) => sum + (o.ukupno ?? 0), 0) ?? 0;
-  const avgOrder = totalCount > 0 ? totalRevenue / totalCount : 0;
-  const recentCount = recentOrders.data?.length ?? 0;
+  const allData = allOrders.data ?? [];
+  const totalCount  = allData.length;
+  const totalRevenue = allData.reduce((s, o) => s + (o.ukupno ?? 0), 0);
 
-  // Build 14-day chart data
+  const todayData    = todayOrders.data ?? [];
+  const todayRevenue = todayData.reduce((s, o) => s + (o.ukupno ?? 0), 0);
+  const todayCount   = todayData.length;
+  const avgOrder     = totalCount > 0 ? totalRevenue / totalCount : 0;
+  const recentCount  = recentOrders.data?.length ?? 0;
+
+  // Product breakdown — cameras have a string velicina (e.g. "V380 Pro Kamera 12MP")
+  let shoeCount = 0, cameraCount = 0;
+  for (const o of allData) {
+    const vel = o.velicine as { velicina: number | string; kolicina: number }[] | null;
+    if (typeof vel?.[0]?.velicina === "string") cameraCount++;
+    else shoeCount++;
+  }
+
+  // 14-day chart
   const chartMap: Record<string, { date: string; narudžbe: number; prihod: number }> = {};
   for (let i = 13; i >= 0; i--) {
-    const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+    const d   = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
     const key = d.toISOString().slice(0, 10);
     chartMap[key] = { date: key, narudžbe: 0, prihod: 0 };
   }
@@ -42,7 +54,7 @@ export async function GET() {
     const key = (o.created_at as string).slice(0, 10);
     if (chartMap[key]) {
       chartMap[key].narudžbe += 1;
-      chartMap[key].prihod += o.ukupno ?? 0;
+      chartMap[key].prihod   += o.ukupno ?? 0;
     }
   }
 
@@ -50,8 +62,11 @@ export async function GET() {
     totalCount,
     totalRevenue,
     todayRevenue,
+    todayCount,
     avgOrder,
     recentCount,
+    shoeCount,
+    cameraCount,
     chartData: Object.values(chartMap),
   });
 }

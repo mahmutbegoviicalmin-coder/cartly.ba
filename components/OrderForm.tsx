@@ -1,11 +1,12 @@
-"use client";
+﻿"use client";
 
 import { useState, FormEvent, useRef } from "react";
 import Image from "next/image";
 import { event } from "@/lib/fbpixel";
 import SizeGuideModal from "./SizeGuideModal";
+import OrderSuccess from "./OrderSuccess";
 
-const SIZES = [39, 40, 41, 42, 43, 44, 45, 46, 47, 48];
+const SIZES = [39, 40, 41, 42, 43, 44, 45, 46, 47];
 const PRICE_PER_PAIR = 59.9;
 const DELIVERY = 10.0;
 
@@ -39,7 +40,7 @@ function InputField({
           borderRadius: 8,
           padding: "14px 16px",
           fontSize: 15,
-          fontFamily: "var(--font-inter), sans-serif",
+          fontFamily: "var(--font-manrope), sans-serif",
           outline: "none",
           transition: "border-color 0.15s",
           width: "100%",
@@ -132,18 +133,11 @@ export default function OrderForm() {
 
   if (submitted) {
     return (
-      <section id="order" style={{ backgroundColor: "#F5F5F5", padding: "80px 0" }}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center">
-          <div style={{ width: 64, height: 64, background: "#FF6B00", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px" }}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
+      <section id="order" style={{ backgroundColor: "#F5F5F5", padding: "48px 0" }}>
+        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+          <div style={{ background: "#FFFFFF", borderRadius: 24, border: "1px solid rgba(0,0,0,0.07)", boxShadow: "0 2px 24px rgba(0,0,0,0.06)" }}>
+            <OrderSuccess />
           </div>
-          <h2 style={{ fontSize: 28, fontWeight: 800, color: "#0A0A0A", marginBottom: 12 }}>Narudžba primljena!</h2>
-          <p style={{ fontSize: 16, color: "#666", lineHeight: 1.6 }}>
-            Kontaktirat ćemo vas u roku od 24 sata radi potvrde narudžbe.<br />
-            Dostava 1–3 radna dana. Plaćanje pouzećem.
-          </p>
         </div>
       </section>
     );
@@ -203,7 +197,7 @@ export default function OrderForm() {
                       style={{
                         fontSize: 13, color: "#FF6B00", fontWeight: 500,
                         background: "none", border: "none", cursor: "pointer",
-                        padding: 0, fontFamily: "var(--font-inter), sans-serif",
+                        padding: 0, fontFamily: "var(--font-manrope), sans-serif",
                         whiteSpace: "nowrap",
                       }}
                     >
@@ -352,7 +346,7 @@ export default function OrderForm() {
                     width: "100%", background: loading ? "#ccc" : "#FF6B00", color: "#fff",
                     border: "none", borderRadius: 10, padding: "16px",
                     fontSize: 16, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer",
-                    fontFamily: "var(--font-inter), sans-serif",
+                    fontFamily: "var(--font-manrope), sans-serif",
                     transition: "background 0.15s",
                   }}
                   onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = "#e05e00"; }}
