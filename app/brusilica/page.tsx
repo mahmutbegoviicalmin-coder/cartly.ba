@@ -35,6 +35,7 @@ const ACCENT = "#FF6B00";
 // ─── Data ────────────────────────────────────────────────────────────────────
 
 const HERO_CHECKS = [
+  "Potenciometar — podesiva brzina od 3.500 do 8.500 rpm",
   "Anti-kickback zaštita i AVS Anti-Vibration sistem",
   "Kočnica — disk staje za manje od 1 sekunde",
   "Komplet: 2× M18 B5 baterija, punjač i HD kaseta",
@@ -52,7 +53,7 @@ const FEATURES = [
   { Icon: Shield,   title: "Anti-kickback zaštita",       desc: "Automatska zaštita od povratnog udarca pri blokiranju ili zahvatanju diska" },
   { Icon: Activity, title: "AVS sistem",                  desc: "Anti-vibracioni sistem smanjuje zamor i povećava preciznost pri dugotrajnom radu" },
   { Icon: Timer,    title: "Kočnica ispod 1 sekunde",     desc: "Disk se potpuno zaustavlja za manje od jedne sekunde radi maksimalne sigurnosti" },
-  { Icon: Gauge,    title: "3.500–8.500 rpm",             desc: "Podesiva brzina pruža preciznu kontrolu za svaki materijal i primjenu" },
+  { Icon: Gauge,    title: "Potenciometar",                 desc: "Podesiva brzina od 3.500 do 8.500 rpm pruža preciznu kontrolu za svaki materijal i primjenu" },
   { Icon: Circle,   title: "Promjer diska 125mm",         desc: "Standardna veličina diska, lako dostupna i kompatibilna s vodećim proizvođačima" },
   { Icon: Ruler,    title: "Dubina reza 33mm",            desc: "Maksimalna dubina reza za zahtjevne profesionalne primjene" },
 ];
@@ -65,6 +66,7 @@ const SPECS = [
   { label: "Promjer diska",                value: "125mm" },
   { label: "Šta je u kompletu",            value: "2× M18 B5 Baterija, M12-18 FC Punjač, HD Kaseta" },
   { label: "Maksimalna dubina reza",       value: "33mm" },
+  { label: "Potenciometar",                value: "Da — podesiva brzina" },
   { label: "Broj okretaja bez opterećenja",value: "3.500–8.500 rpm" },
   { label: "Standardna oprema",            value: "Sigurnosna zaštita, stezaljka, prirubnica, matica prirubnice, ključ" },
   { label: "Isporučuje se u",              value: "HD Kaseti" },
@@ -105,7 +107,7 @@ export default function BrusilicaPage() {
               >
                 Profesionalna{" "}
                 <span style={{ color: ACCENT }}>Akumulatorska</span>
-                <br />Brusilica
+                <br />Brusilica s potenciometrom
               </h1>
 
               <p className="text-[#666] text-lg mb-7 leading-relaxed">
