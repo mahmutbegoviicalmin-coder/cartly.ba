@@ -312,6 +312,10 @@ export default function DeWaltPage() {
             padding: 32px 24px !important;
             min-height: 280px !important;
           }
+          .dw-kit-img-card {
+            flex: none !important;
+            width: 100% !important;
+          }
         }
 
         /* Spinner */
@@ -831,7 +835,7 @@ export default function DeWaltPage() {
           <div className="dw-kit-grid" style={{ display: "flex", gap: 40, alignItems: "flex-start" }}>
 
             {/* Image card */}
-            <div style={{ flex: "0 0 44%", borderRadius: 20, overflow: "hidden", border: `1px solid ${C.border}`, background: "#fff", boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}>
+            <div className="dw-kit-img-card" style={{ flex: "0 0 44%", borderRadius: 20, overflow: "hidden", border: `1px solid ${C.border}`, background: "#fff", boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}>
               <div style={{ position: "relative", width: "100%", paddingBottom: "100%" }}>
                 <Image
                   src="/images/set.jpeg"
