@@ -299,11 +299,18 @@ export default function DeWaltPage() {
             transform: translateX(-50%) !important;
             bottom: calc(16px + env(safe-area-inset-bottom)) !important;
             width: 92vw !important;
-            max-width: 420px !important;
+            max-width: 380px !important;
           }
           .dw-fab {
             width: 100% !important;
             justify-content: center !important;
+          }
+          .dw-fab-urgency { display: none !important; }
+          .dw-prod-img-card {
+            flex: none !important;
+            width: 100% !important;
+            padding: 32px 24px !important;
+            min-height: 280px !important;
           }
         }
 
@@ -717,7 +724,7 @@ export default function DeWaltPage() {
           style={{ position: "fixed", bottom: 28, right: 28, zIndex: 300 }}
         >
           {/* Urgency pill above button */}
-          <div style={{ textAlign: "center", marginBottom: 8 }}>
+          <div className="dw-fab-urgency" style={{ textAlign: "center", marginBottom: 8 }}>
             <span style={{
               display:        "inline-flex",
               alignItems:     "center",
@@ -915,7 +922,7 @@ export default function DeWaltPage() {
           <div className="dw-prod-grid" style={{ display: "flex", gap: 48, alignItems: "center" }}>
 
             {/* Product image card */}
-            <div style={{ flex: "0 0 44%", background: C.yellow, borderRadius: 22, padding: "48px 40px", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 40px rgba(255,196,0,0.25)" }}>
+            <div className="dw-prod-img-card" style={{ flex: "0 0 44%", background: C.yellow, borderRadius: 22, padding: "48px 40px", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 40px rgba(255,196,0,0.25)" }}>
               <div style={{ position: "relative", width: "100%", paddingBottom: "85%", minHeight: 280 }}>
                 <Image
                   src="/images/dewalt.png"
