@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Manrope } from "next/font/google";
 import { ArrowRight, ChevronDown } from "lucide-react";
@@ -15,10 +16,18 @@ const manrope = Manrope({
 
 const ACCENT = "#FF6B00";
 
+interface SubItem {
+  label: string;
+  href:  string;
+  desc:  string;
+  badge?: string;
+  image?: string;
+}
+
 interface NavLink {
   label: string;
   href:  string;
-  sub?:  { label: string; href: string }[];
+  sub?:  SubItem[];
 }
 
 const NAV_LINKS: NavLink[] = [
@@ -26,8 +35,26 @@ const NAV_LINKS: NavLink[] = [
     label: "ALATI",
     href:  "/milwaukee-busilica",
     sub: [
-      { label: "Milwaukee M18 Bušilica",  href: "/milwaukee-busilica" },
-      { label: "Akumulatorska Brusilica", href: "/brusilica"          },
+      {
+        label: "Milwaukee M18 Bušilica",
+        href:  "/milwaukee-busilica",
+        desc:  "18V brushless, 2 baterije, punjač",
+        badge: "POPULARNO",
+        image: "/images/milw2.webp",
+      },
+      {
+        label: "Akumulatorska Brusilica",
+        href:  "/brusilica",
+        desc:  "125mm disk, AVS sistem, komplet",
+        image: "/images/brusilica.webp",
+      },
+      {
+        label: "DeWalt 28V XR Set",
+        href:  "/dewalt-busilica",
+        desc:  "Bušilica + 15+ alata u tvrdom koferu",
+        badge: "NOVO",
+        image: "/images/dewalt.png",
+      },
     ],
   },
   { label: "VIDEO NADZOR", href: "/kamera"  },
@@ -279,7 +306,7 @@ export default function Header() {
                     {/* Sub-items */}
                     {mobileExpanded === link.label && (
                       <div style={{ paddingLeft: 16, paddingBottom: 8 }}>
-                        {link.sub.map(({ label: subLabel, href: subHref }) => (
+                        {link.sub.map(({ label: subLabel, href: subHref, badge }) => (
                           <Link
                             key={subHref}
                             href={subHref}
@@ -296,7 +323,12 @@ export default function Header() {
                             }}
                           >
                             <span style={{ width: 4, height: 4, borderRadius: "50%", background: pathname === subHref ? ACCENT : "#ccc", flexShrink: 0 }} />
-                            {subLabel}
+                            <span style={{ flex: 1 }}>{subLabel}</span>
+                            {badge && (
+                              <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", color: "#fff", background: badge === "NOVO" ? "#1a1a1a" : ACCENT, padding: "2px 6px", borderRadius: 4 }}>
+                                {badge}
+                              </span>
+                            )}
                           </Link>
                         ))}
                       </div>
@@ -429,25 +461,32 @@ function DropdownNav({
         />
       </button>
 
-      {/* Dropdown panel */}
+      {/* Premium dropdown panel */}
       {open && (
         <div
           className="drop-in"
           style={{
             position:     "absolute",
-            top:          "calc(100% + 12px)",
+            top:          "calc(100% + 14px)",
             left:         "50%",
             transform:    "translateX(-50%)",
             background:   "#FFFFFF",
-            border:       "1px solid #F0EBE3",
-            borderRadius: 14,
-            boxShadow:    "0 8px 28px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.05)",
-            minWidth:     220,
-            padding:      "6px",
+            border:       "1px solid #EEEBE6",
+            borderRadius: 18,
+            boxShadow:    "0 16px 48px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06)",
+            minWidth:     320,
+            padding:      "8px",
             zIndex:       200,
           }}
         >
-          {link.sub!.map(({ label: subLabel, href: subHref }) => {
+          {/* Section label */}
+          <div style={{ padding: "8px 12px 8px", marginBottom: 4, borderBottom: "1px solid #F4F1ED" }}>
+            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#BBBBBB" }}>
+              Profesionalni alati
+            </span>
+          </div>
+
+          {link.sub!.map(({ label: subLabel, href: subHref, desc, badge, image }) => {
             const subActive = currentPath === subHref;
             return (
               <Link
@@ -456,43 +495,91 @@ function DropdownNav({
                 style={{
                   display:        "flex",
                   alignItems:     "center",
-                  gap:            10,
-                  padding:        "10px 14px",
-                  borderRadius:   10,
+                  gap:            12,
+                  padding:        "10px 12px",
+                  borderRadius:   12,
                   textDecoration: "none",
-                  fontSize:       13,
-                  fontWeight:     subActive ? 700 : 500,
-                  color:          subActive ? ACCENT : "#333333",
-                  background:     subActive ? "rgba(255,107,0,0.06)" : "transparent",
-                  transition:     "background 150ms ease, color 150ms ease",
+                  background:     subActive ? "rgba(255,107,0,0.05)" : "transparent",
+                  transition:     "background 140ms ease",
+                  marginBottom:   2,
                 }}
-                onMouseEnter={e => {
-                  if (!subActive) {
-                    (e.currentTarget as HTMLElement).style.background = "#F8F5F1";
-                    (e.currentTarget as HTMLElement).style.color = "#1a1a1a";
-                  }
-                }}
-                onMouseLeave={e => {
-                  if (!subActive) {
-                    (e.currentTarget as HTMLElement).style.background = "transparent";
-                    (e.currentTarget as HTMLElement).style.color = "#333333";
-                  }
-                }}
+                onMouseEnter={e => { if (!subActive) (e.currentTarget as HTMLElement).style.background = "#F8F5F0"; }}
+                onMouseLeave={e => { if (!subActive) (e.currentTarget as HTMLElement).style.background = "transparent"; }}
               >
-                <span
-                  style={{
-                    width:        6,
-                    height:       6,
-                    borderRadius: "50%",
-                    background:   subActive ? ACCENT : "#DDD",
-                    flexShrink:   0,
-                    transition:   "background 150ms ease",
-                  }}
-                />
-                {subLabel}
+                {/* Thumbnail */}
+                <div style={{
+                  width:          46,
+                  height:         46,
+                  borderRadius:   10,
+                  background:     subActive ? "rgba(255,107,0,0.07)" : "#F4F2EE",
+                  flexShrink:     0,
+                  position:       "relative",
+                  border:         subActive ? `1.5px solid ${ACCENT}` : "1.5px solid #EDEAE4",
+                  overflow:       "hidden",
+                }}>
+                  {image && (
+                    <Image
+                      src={image}
+                      alt={subLabel}
+                      fill
+                      sizes="46px"
+                      style={{ objectFit: "contain", padding: 5 }}
+                    />
+                  )}
+                </div>
+
+                {/* Text */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
+                    <span style={{
+                      fontSize:    13,
+                      fontWeight:  subActive ? 700 : 600,
+                      color:       subActive ? ACCENT : "#1a1a1a",
+                      lineHeight:  1,
+                      transition:  "color 140ms ease",
+                    }}>
+                      {subLabel}
+                    </span>
+                    {badge && (
+                      <span style={{
+                        fontSize:     9,
+                        fontWeight:   700,
+                        letterSpacing:"0.08em",
+                        color:        "#fff",
+                        background:   badge === "NOVO" ? "#1a1a1a" : ACCENT,
+                        padding:      "2px 6px",
+                        borderRadius: 4,
+                        flexShrink:   0,
+                      }}>
+                        {badge}
+                      </span>
+                    )}
+                  </div>
+                  {desc && (
+                    <span style={{ fontSize: 11, color: "#999", lineHeight: 1.3 }}>
+                      {desc}
+                    </span>
+                  )}
+                </div>
+
+                {/* Arrow */}
+                <ArrowRight size={13} strokeWidth={2} style={{ color: subActive ? ACCENT : "#CCC", flexShrink: 0 }} />
               </Link>
             );
           })}
+
+          {/* Footer link */}
+          <div style={{ borderTop: "1px solid #F4F1ED", padding: "8px 12px 4px", marginTop: 4 }}>
+            <Link
+              href="/proizvodi"
+              style={{ display: "flex", alignItems: "center", justifyContent: "space-between", textDecoration: "none", fontSize: 12, fontWeight: 600, color: "#AAAAAA", transition: "color 140ms ease" }}
+              onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = ACCENT}
+              onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = "#AAAAAA"}
+            >
+              Pogledaj sve proizvode
+              <ArrowRight size={12} strokeWidth={2.5} />
+            </Link>
+          </div>
         </div>
       )}
     </div>
