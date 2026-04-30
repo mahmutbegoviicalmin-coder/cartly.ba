@@ -3,8 +3,8 @@
 import { useState, useEffect, useRef, FormEvent } from "react";
 import Image from "next/image";
 import {
-  ShoppingBag, CheckCircle2, Shield, Package, Battery,
-  RefreshCw, Lock, Clock, Users, AlertCircle,
+  ShoppingBag, CheckCircle2, Shield, Package,
+  RefreshCw, Lock, Clock, AlertCircle,
   ChevronRight, Truck, CreditCard, Zap, Box, Flame,
 } from "lucide-react";
 import { event } from "@/lib/fbpixel";
