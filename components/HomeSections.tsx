@@ -66,6 +66,16 @@ const PRODUCTS = [
     discount:  53,
     hot:       true,
   },
+  {
+    slug:      "/dewalt-busilica",
+    category:  "Profesionalni alat",
+    name:      "DeWalt 28V XR Bušilica Set",
+    image:     "/images/dewalt.png",
+    price:     "69,90 KM",
+    oldPrice:  "199,90 KM",
+    discount:  65,
+    hot:       true,
+  },
 ];
 
 const SHOE_BENEFITS = [

@@ -61,6 +61,16 @@ const ALL_PRODUCTS: Product[] = [
     image:    "/images/zvucnik/zvucnik1.webp",
     hot:      false,
   },
+  {
+    name:     "DeWalt 28V XR Bušilica Set",
+    desc:     "Kompletan set — bušilica, 2 baterije, punjač i komplet alata u tvrdom koferu",
+    price:    69.90,
+    oldPrice: 199.90,
+    tag:      "ALATI",
+    href:     "/dewalt-busilica",
+    image:    "/images/dewalt.png",
+    hot:      true,
+  },
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
