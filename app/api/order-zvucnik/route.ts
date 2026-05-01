@@ -90,6 +90,7 @@ export async function POST(request: NextRequest) {
       userAgent:   getClientUA(request),
       fbc:         getFbc(request),
       fbp:         getFbp(request),
+      testCode:    process.env.META_TEST_EVENT_CODE,
     }).catch(console.error);
 
     try {

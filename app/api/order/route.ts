@@ -87,6 +87,10 @@ export async function POST(request: NextRequest) {
     }
 
     // 2. Meta CAPI
+    console.log("[DEBUG /api/order] META_ACCESS_TOKEN exists:", !!process.env.META_ACCESS_TOKEN);
+    console.log("[DEBUG /api/order] META_PIXEL_ID exists:", !!process.env.META_PIXEL_ID);
+    console.log("[DEBUG /api/order] META_TEST_EVENT_CODE:", process.env.META_TEST_EVENT_CODE ?? "(not set)");
+    console.log("[DEBUG /api/order] orderNumber:", orderNumber, "| ukupno:", ukupno);
     sendCAPIEvent({
       eventId:     orderNumber,
       eventName:   "Purchase",
@@ -98,6 +102,7 @@ export async function POST(request: NextRequest) {
       userAgent:   getClientUA(request),
       fbc:         getFbc(request),
       fbp:         getFbp(request),
+      testCode:    process.env.META_TEST_EVENT_CODE,
     }).catch(console.error);
 
     // 3. Send email via Resend

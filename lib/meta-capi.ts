@@ -115,6 +115,9 @@ export async function sendCAPIEvent(opts: CAPIOptions): Promise<void> {
 
   const url = `https://graph.facebook.com/v18.0/${pixelId}/events?access_token=${accessToken}`;
 
+  console.log("[CAPI] Sending event:", opts.eventName, "| event_id:", opts.eventId, "| pixel:", pixelId, "| testCode:", opts.testCode ?? "(none)");
+  console.log("[CAPI] Payload:", JSON.stringify(payload));
+
   try {
     const res = await fetch(url, {
       method:  "POST",
@@ -123,11 +126,12 @@ export async function sendCAPIEvent(opts: CAPIOptions): Promise<void> {
     });
 
     const json = await res.json();
+    console.log("[CAPI] HTTP status:", res.status, "| Response:", JSON.stringify(json));
 
     if (!res.ok) {
       console.error("[CAPI] Error response:", JSON.stringify(json));
     } else {
-      console.log(`[CAPI] ${opts.eventName} sent — event_id: ${opts.eventId} | fbe_count: ${json.events_received}`);
+      console.log(`[CAPI] ✅ ${opts.eventName} sent — event_id: ${opts.eventId} | events_received: ${json.events_received}`);
     }
   } catch (err) {
     // Never throw — CAPI failure must not break the order flow
