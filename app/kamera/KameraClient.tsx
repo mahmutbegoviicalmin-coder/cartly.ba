@@ -230,7 +230,7 @@ function CameraOrderForm() {
           value: grandTotal,
           currency: "BAM",
           content_name: "V380 Pro Kamera 12MP",
-        });
+        }, data.orderNumber);
         setSubmitted(true);
       } else {
         setServerError(data.error ?? "Greška pri slanju narudžbe.");

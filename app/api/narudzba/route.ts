@@ -55,6 +55,8 @@ export async function POST(request: NextRequest) {
     const now = new Date();
     const orderNumber = generateOrderNumber(now);
 
+    const ukupno = UNIT_PRICE + DELIVERY;
+
     const { error: dbError } = await getSupabaseAdmin()
       .from("orders")
       .insert({
@@ -66,7 +68,7 @@ export async function POST(request: NextRequest) {
         ukupno_pari: 1,
         cijena_proizvoda: UNIT_PRICE,
         dostava: DELIVERY,
-        ukupno: UNIT_PRICE + DELIVERY,
+        ukupno,
         status: "nova",
         order_number: orderNumber,
       });

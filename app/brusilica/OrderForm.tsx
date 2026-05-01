@@ -55,7 +55,7 @@ export default function OrderForm() {
       const json = await res.json();
       if (!res.ok || !json.success) throw new Error(json.error || "Greška pri slanju narudžbe.");
 
-      event("Purchase", { content_name: "Akumulatorska Brusilica", value: 74.9, currency: "BAM" });
+      event("Purchase", { content_name: "Akumulatorska Brusilica", value: 74.9, currency: "BAM" }, json.orderNumber);
       setSuccess(true);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Greška pri slanju narudžbe. Pokušajte ponovo.");

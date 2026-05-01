@@ -119,7 +119,7 @@ export default function OrderForm() {
           value: grandTotal,
           currency: "BAM",
           content_name: "Radne Patike S3 Tactical Black",
-        });
+        }, data.orderNumber);
         setSubmitted(true);
       } else {
         setServerError(data.error ?? "Greška pri slanju narudžbe. Pokušajte ponovo.");
