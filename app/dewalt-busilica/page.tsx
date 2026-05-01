@@ -183,7 +183,8 @@ export default function DeWaltPage() {
       const res  = await fetch("/api/dewalt-order", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
       const json = await res.json();
       if (!res.ok || !json.success) throw new Error(json.error || "Greška pri slanju.");
-      event("Purchase", { content_name: "DeWalt 28V XR Set", value: 69.9, currency: "BAM" });
+      // Pass orderNumber as eventID to deduplicate against server-side CAPI event
+      event("Purchase", { content_name: "DeWalt 28V XR Set", value: 69.9, currency: "BAM" }, json.orderNumber);
       setSuccess(true);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Greška pri slanju narudžbe. Pokušajte ponovo.");

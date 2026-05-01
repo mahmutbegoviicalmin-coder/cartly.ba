@@ -1,5 +1,7 @@
+import { NextRequest } from "next/server";
 import { Resend } from "resend";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
+import { sendCAPIEvent, getClientIP, getClientUA, getFbc, getFbp } from "@/lib/meta-capi";
 
 const BOSNIAN_MONTHS = [
   "januar", "februar", "mart", "april", "maj", "juni",
@@ -36,7 +38,7 @@ function fmt(n: number): string {
   return n.toFixed(2).replace(".", ",") + " KM";
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   const resend = new Resend(process.env.RESEND_API_KEY);
   try {
     const body = await request.json();
@@ -84,7 +86,21 @@ export async function POST(request: Request) {
       console.error("Supabase insert error:", dbError.message);
     }
 
-    // 2. Send email via Resend
+    // 2. Meta CAPI
+    sendCAPIEvent({
+      eventId:     orderNumber,
+      eventName:   "Purchase",
+      value:       ukupno,
+      currency:    "BAM",
+      contentName: "Radne Patike S3",
+      phone:       telefon,
+      ip:          getClientIP(request),
+      userAgent:   getClientUA(request),
+      fbc:         getFbc(request),
+      fbp:         getFbp(request),
+    }).catch(console.error);
+
+    // 3. Send email via Resend
     await resend.emails.send({
       from: "onboarding@resend.dev",
       to: process.env.OWNER_EMAIL!,
@@ -230,7 +246,7 @@ export async function POST(request: Request) {
       `,
     });
 
-    return Response.json({ success: true });
+    return Response.json({ success: true, orderNumber });
   } catch (error) {
     console.error("Order error:", error);
     return Response.json({ success: false, error: "Greška pri slanju narudžbe." }, { status: 500 });

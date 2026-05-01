@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { Resend } from "resend";
+import { sendCAPIEvent, getClientIP, getClientUA, getFbc, getFbp } from "@/lib/meta-capi";
 
 const UNIT_PRICE = 129.9;
 const DELIVERY = 10.0;
@@ -83,6 +84,19 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
+
+    sendCAPIEvent({
+      eventId:     orderNumber,
+      eventName:   "Purchase",
+      value:       ukupno,
+      currency:    "BAM",
+      contentName: "V380 Pro 12MP Kamera",
+      phone:       telefon,
+      ip:          getClientIP(request),
+      userAgent:   getClientUA(request),
+      fbc:         getFbc(request),
+      fbp:         getFbp(request),
+    }).catch(console.error);
 
     // Email notification
     try {
