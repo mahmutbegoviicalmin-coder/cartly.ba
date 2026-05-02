@@ -1019,35 +1019,57 @@ export default function DashboardClient() {
                   );
 
                   return (
-                    <div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: "12px 16px" }}>
                       {groupedByDay.map(([dayKey, dayOrders]) => {
-                        const isOpen    = expandedDays.has(dayKey);
-                        const dayTotal  = dayOrders.reduce((s, o) => s + o.ukupno, 0);
+                        const isOpen   = expandedDays.has(dayKey);
+                        const dayTotal = dayOrders.reduce((s, o) => s + o.ukupno, 0);
+                        const countLabel = dayOrders.length === 1 ? "1 narudžba" : dayOrders.length < 5 ? `${dayOrders.length} narudžbe` : `${dayOrders.length} narudžbi`;
                         return (
-                          <div key={dayKey} style={{ borderBottom: "1px solid #1f1f1f" }}>
+                          <div key={dayKey} style={{
+                            borderRadius: 10,
+                            border: isOpen ? "1px solid #2a2a2a" : "1px solid #1f1f1f",
+                            overflow: "hidden",
+                            background: "#111",
+                            transition: "border-color 0.14s",
+                          }}>
                             {/* Day header */}
                             <button
                               onClick={() => toggleDay(dayKey)}
                               style={{
-                                width: "100%", display: "flex", alignItems: "center", gap: 12,
-                                padding: "13px 24px", background: isOpen ? "#1f1f1f" : "transparent",
+                                width: "100%", display: "flex", alignItems: "center",
+                                padding: "12px 18px", background: "transparent",
                                 border: "none", cursor: "pointer", fontFamily: "inherit",
-                                borderBottom: isOpen ? "1px solid #2a2a2a" : "none",
-                                transition: "background 0.14s",
+                                borderBottom: isOpen ? "1px solid #1f1f1f" : "none",
+                                gap: 0,
                               }}
                             >
                               {/* Chevron */}
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                                style={{ flexShrink: 0, transform: isOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.18s" }}>
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                                style={{ flexShrink: 0, marginRight: 12, transform: isOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.18s" }}>
                                 <polyline points="9 18 15 12 9 6"/>
                               </svg>
-                              <span style={{ fontSize: 13, fontWeight: 700, color: "#d4d4d8", letterSpacing: "0.01em" }}>
+
+                              {/* Date */}
+                              <span style={{ fontSize: 14, fontWeight: 700, color: isOpen ? "#f5f5f7" : "#888", letterSpacing: "0.01em", minWidth: 100 }}>
                                 {getDayLabel(dayKey)}
                               </span>
-                              <span style={{ fontSize: 12, color: "#555" }}>—</span>
-                              <span style={{ fontSize: 12, color: "#888" }}>{dayOrders.length} {dayOrders.length === 1 ? "narudžba" : dayOrders.length < 5 ? "narudžbe" : "narudžbi"}</span>
-                              <span style={{ fontSize: 12, color: "#555" }}>—</span>
-                              <span style={{ fontSize: 13, fontWeight: 700, color: "#f97316" }}>{fmt(dayTotal)}</span>
+
+                              {/* Count pill */}
+                              <span style={{
+                                marginLeft: 14, fontSize: 11, fontWeight: 600, color: "#555",
+                                background: "#1a1a1a", border: "1px solid #252525",
+                                borderRadius: 99, padding: "2px 10px",
+                              }}>
+                                {countLabel}
+                              </span>
+
+                              {/* Spacer */}
+                              <span style={{ flex: 1 }} />
+
+                              {/* Total */}
+                              <span style={{ fontSize: 15, fontWeight: 800, color: isOpen ? "#f97316" : "#6b3a1f", letterSpacing: "-0.01em" }}>
+                                {fmt(dayTotal)}
+                              </span>
                             </button>
 
                             {/* Day orders table */}
