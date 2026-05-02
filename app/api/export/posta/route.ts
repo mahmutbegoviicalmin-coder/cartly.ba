@@ -109,32 +109,39 @@ function lookupPTT(grad: string): string {
   return CITY_PTT_OVERRIDE[key] ?? PTT_MAP.get(key) ?? "";
 }
 
-// ── Product content ───────────────────────────────────────────────────────────
+// ── Product helpers ───────────────────────────────────────────────────────────
 
 type Velicina = { velicina: number | string; kolicina: number };
 
-// Returns the human-readable content string for Napomena/Sadržaj columns
-function productContent(orderNumber: string, velicine: Velicina[]): string {
-  const prefix = (orderNumber ?? "").slice(0, 3).toUpperCase();
+function orderPrefix(orderNumber: string): string {
+  return (orderNumber ?? "").slice(0, 3).toUpperCase();
+}
+
+// Total quantity across all sizes (used for Tezina + Broj paketa for patike)
+function totalQty(velicine: Velicina[]): number {
+  return (velicine ?? []).reduce((sum, v) => sum + (v.kolicina || 0), 0);
+}
+
+// Short friendly name for Sadržaj pošiljke (col Q)
+function sadrzaj(orderNumber: string, velicine: Velicina[]): string {
+  const prefix = orderPrefix(orderNumber);
 
   if (prefix === "CRT") {
-    // Patike: list sizes with quantities, e.g. "Radne Patike S3 - vel. 42(1), 43(2)"
-    const sizes = (velicine ?? [])
-      .filter((v) => v.kolicina > 0)
-      .map((v) => `${v.velicina}(${v.kolicina})`)
-      .join(", ");
-    return sizes ? `Radne Patike S3 - vel. ${sizes}` : "Radne Patike S3";
+    const active = (velicine ?? []).filter((v) => v.kolicina > 0);
+    if (active.length === 0) return "Patike";
+    if (active.length === 1 && active[0].kolicina === 1) return `${active[0].velicina}br`;
+    return active.map((v) => `${v.velicina}br(${v.kolicina})`).join(" ");
   }
 
   const MAP: Record<string, string> = {
-    KMR: "Kamera V380 Pro",
-    MLW: "Milwaukee Bušilica M18",
-    ZQS: "Bluetooth Zvučnik",
-    DWL: "DeWalt Brusilica",
-    DWT: "DeWalt Brusilica",
+    DWL: "Bušilica žuta",
+    MLW: "Bušilica crvena",
+    ZQS: "Zvučnik",
+    KMR: "Kamera",
+    DWT: "Brusilica",
     BRS: "Brusilica",
   };
-  return MAP[prefix] ?? "Proizvod";
+  return MAP[prefix] ?? "Paket";
 }
 
 export async function GET(request: NextRequest) {
@@ -194,7 +201,9 @@ export async function GET(request: NextRequest) {
     ];
 
     const dataRows = orders.map((o) => {
-      const content = productContent(o.order_number ?? "", o.velicine ?? []);
+      const prefix  = orderPrefix(o.order_number ?? "");
+      const velicine: Velicina[] = o.velicine ?? [];
+      const qty     = prefix === "CRT" ? Math.max(1, totalQty(velicine)) : 1;
       const kontakt = (o.ime ?? "").split(" ")[0];
       return [
         o.ime ?? "",                   // Ime i prezime
@@ -203,17 +212,17 @@ export async function GET(request: NextRequest) {
         o.grad ?? "",                  // Mesto
         o.telefon ?? "",               // Telefon
         o.order_number ?? "",          // Referenca
-        1,                             // Tezina (kg)
-        1,                             // Broj paketa
+        qty,                           // Tezina (kg) — 1 kg/par for patike
+        qty,                           // Broj paketa
         o.ukupno,                      // Otkupnina (BAM)
         "",                            // (Ne koristi se)
-        content,                       // Napomena za dostavu
+        "",                            // Napomena za dostavu — always empty
         o.ukupno,                      // Vrijednost pošiljke (BAM)
         0,                             // Otezana dostava
         0,                             // Povrat otpremnice
         "",                            // (Ne koristi se)
         "",                            // (Ne koristi se)
-        content,                       // Sadržaj pošiljke
+        sadrzaj(o.order_number ?? "", velicine), // Sadržaj pošiljke
         kontakt,                       // Kontakt osoba
         0,                             // Otvaranje pošiljke
         0,                             // Obveznik plaćanja
