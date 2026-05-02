@@ -11,7 +11,90 @@ function normalize(s: string): string {
   return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
 }
 
-// Build normalized lookup map
+// Primary city PTT overrides — takes priority over ptt-bih.json.
+// Keys are already normalized (no diacritics, lowercase) for fast lookup.
+// Needed because ptt-bih.json has sub-post office codes (e.g. Mostar 88110, 88113…)
+// while Skytech Express requires only the main city code.
+const CITY_PTT_OVERRIDE: Record<string, string> = {
+  "sarajevo": "71000",
+  "banja luka": "78000",
+  "tuzla": "75000",
+  "zenica": "72000",
+  "mostar": "88000",
+  "bijeljina": "76300",
+  "brcko": "76100",
+  "brcko distrikt": "76100",
+  "prijedor": "79101",
+  "trebinje": "89101",
+  "doboj": "74000",
+  "cazin": "77220",
+  "bihac": "77000",
+  "travnik": "72270",
+  "visoko": "71300",
+  "kakanj": "72240",
+  "livno": "80101",
+  "gorazde": "73000",
+  "zvornik": "75400",
+  "konjic": "88400",
+  "bugojno": "70230",
+  "gracanica": "75320",
+  "lukavac": "75300",
+  "gradacac": "76250",
+  "orasje": "76270",
+  "vitez": "72250",
+  "srebrenica": "75430",
+  "jajce": "70101",
+  "zavidovici": "72220",
+  "maglaj": "74250",
+  "tesanj": "74260",
+  "teslic": "74270",
+  "derventa": "74400",
+  "modrica": "74480",
+  "gradiska": "78400",
+  "prnjavor": "78430",
+  "srbac": "78420",
+  "laktasi": "78250",
+  "mrkonjic grad": "70260",
+  "sipovo": "70270",
+  "kljuc": "79280",
+  "sanski most": "79260",
+  "novi grad": "79220",
+  "kozarska dubica": "79240",
+  "ljubuski": "88320",
+  "citluk": "88260",
+  "capljina": "88300",
+  "siroki brijeg": "88220",
+  "grude": "88340",
+  "posusje": "88240",
+  "stolac": "88360",
+  "neum": "88390",
+  "jablanica": "88420",
+  "prozor": "88440",
+  "ilidza": "71210",
+  "vogosca": "71320",
+  "hadzici": "71240",
+  "ilijas": "71380",
+  "breza": "71370",
+  "vares": "71330",
+  "olovo": "71340",
+  "fojnica": "71270",
+  "kresevo": "71260",
+  "kiseljak": "71250",
+  "busovaca": "72260",
+  "novi travnik": "72290",
+  "turbe": "72270",
+  "srebrenik": "75350",
+  "kladanj": "75280",
+  "kalesija": "75260",
+  "lopare": "75240",
+  "celic": "75246",
+  "banovici": "75290",
+  "zivinice": "75270",
+  "tarcin": "71244",
+  "pazaric": "71243",
+};
+
+// Build normalized fallback lookup from ptt-bih.json
 const PTT_MAP = new Map<string, string>(
   (pttData as { mjesto: string; ptt: string }[]).map(({ mjesto, ptt }) => [
     normalize(mjesto),
@@ -19,14 +102,11 @@ const PTT_MAP = new Map<string, string>(
   ])
 );
 
-// Brčko Distrikt aliases → 76100 (all normalize to "brcko" or "brcko distrikt")
-for (const alias of ["Brčko distrikt", "Brcko distrikt", "Brčko Distrikt", "Brcko", "Brčko"]) {
-  PTT_MAP.set(normalize(alias), "76100");
-}
-
+// Lookup order: CITY_PTT_OVERRIDE → ptt-bih.json → ""
 function lookupPTT(grad: string): string {
   if (!grad) return "";
-  return PTT_MAP.get(normalize(grad)) ?? "";
+  const key = normalize(grad);
+  return CITY_PTT_OVERRIDE[key] ?? PTT_MAP.get(key) ?? "";
 }
 
 // ── Product content ───────────────────────────────────────────────────────────
