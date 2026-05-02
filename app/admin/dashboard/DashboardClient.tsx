@@ -425,11 +425,8 @@ export default function DashboardClient() {
   const handleStatusFilter = (s: string) => { setStatusFilter(s); setPage(1); };
 
   const exportCSV = () => {
-    const headers = ["Datum", "Br.narudžbe", "Ime", "Telefon", "Adresa", "Grad", "Proizvod", "Količina", "Iznos(KM)", "Marža(KM)", "Status"];
+    const headers = ["Datum", "Br.narudžbe", "Ime", "Telefon", "Adresa", "Grad", "Proizvod", "Količina", "Iznos(KM)", "Status"];
     const rows = orders.map((o) => {
-      const isCam  = isCameraOrder(o.velicine);
-      const nabavna = isCam ? cameraNabavna : shoeNabavna;
-      const marza  = o.cijena_proizvoda - nabavna * o.ukupno_pari;
       return [
         `"${fmtDate(o.created_at)}"`,
         o.order_number ?? "—",
@@ -440,7 +437,6 @@ export default function DashboardClient() {
         productBadge(o.order_number).label,
         o.ukupno_pari,
         o.ukupno.toFixed(2),
-        marza.toFixed(2),
         o.status,
       ].join(",");
     });
@@ -907,11 +903,7 @@ export default function DashboardClient() {
                 {/* ── Shared row renderer ── */}
                 {(() => {
                   const renderRow = (order: Order, i: number) => {
-                    const isCam    = isCameraOrder(order.velicine);
-                    const nabavna  = isCam ? cameraNabavna : shoeNabavna;
-                    const marza    = order.cijena_proizvoda - nabavna * order.ukupno_pari;
-                    const marzaPct = order.cijena_proizvoda > 0 ? marza / order.cijena_proizvoda * 100 : 0;
-                    const st       = STATUS_STYLES[order.status] ?? { bg: "rgba(80,80,80,0.1)", color: "#555" };
+                    const st = STATUS_STYLES[order.status] ?? { bg: "rgba(80,80,80,0.1)", color: "#555" };
                     const b        = productBadge(order.order_number);
                     return (
                       <tr key={order.id} style={{ borderBottom: "1px solid #1a1a1a", background: i % 2 === 0 ? "transparent" : "#151515" }}>
@@ -927,10 +919,6 @@ export default function DashboardClient() {
                         </td>
                         <td style={{ padding: "11px 14px", color: "#666", textAlign: "center" }}>{order.ukupno_pari}</td>
                         <td style={{ padding: "11px 14px", fontWeight: 700, color: "#f97316", whiteSpace: "nowrap" }}>{fmt(order.ukupno)}</td>
-                        <td style={{ padding: "11px 14px", whiteSpace: "nowrap" }}>
-                          <span style={{ color: marza >= 0 ? "#4ade80" : "#ef4444", fontWeight: 700 }}>{fmt(marza)}</span>
-                          <span style={{ color: "#333", fontSize: 11, marginLeft: 4 }}>({marzaPct.toFixed(0)}%)</span>
-                        </td>
                         <td style={{ padding: "11px 14px" }}>
                           <select value={order.status} onChange={(e) => handleStatusChange(order.id, e.target.value)}
                             style={{ padding: "5px 10px", borderRadius: 6, border: "none", background: st.bg, color: st.color, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", outline: "none" }}>
@@ -963,7 +951,7 @@ export default function DashboardClient() {
                   const tableHead = (
                     <thead>
                       <tr style={{ borderBottom: "1px solid #1f1f1f" }}>
-                        {["Datum", "Br.", "Ime", "Telefon", "Grad", "Proizvod", "Kol.", "Iznos", "Marža", "Status", ""].map((h) => (
+                        {["Datum", "Br.", "Ime", "Telefon", "Grad", "Proizvod", "Kol.", "Iznos", "Status", ""].map((h) => (
                           <th key={h} style={{ padding: "10px 14px", textAlign: "left", fontSize: 10, fontWeight: 700, color: "#3a3a3a", textTransform: "uppercase", letterSpacing: "0.08em", whiteSpace: "nowrap" }}>
                             {h}
                           </th>
@@ -980,9 +968,9 @@ export default function DashboardClient() {
                           {tableHead}
                           <tbody>
                             {loadingOrders ? (
-                              <tr><td colSpan={11} style={{ padding: "52px", textAlign: "center", color: "#2a2a2a", fontSize: 14 }}>Učitavanje...</td></tr>
+                              <tr><td colSpan={10} style={{ padding: "52px", textAlign: "center", color: "#2a2a2a", fontSize: 14 }}>Učitavanje...</td></tr>
                             ) : orders.length === 0 ? (
-                              <tr><td colSpan={11} style={{ padding: "52px", textAlign: "center", color: "#2a2a2a", fontSize: 14 }}>{search ? "Nema rezultata." : "Nema narudžbi."}</td></tr>
+                              <tr><td colSpan={10} style={{ padding: "52px", textAlign: "center", color: "#2a2a2a", fontSize: 14 }}>{search ? "Nema rezultata." : "Nema narudžbi."}</td></tr>
                             ) : orders.map((o, i) => renderRow(o, i))}
                           </tbody>
                         </table>
