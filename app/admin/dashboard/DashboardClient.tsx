@@ -45,8 +45,6 @@ type Stats = {
 type Tab = "overview" | "orders" | "margins";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const SHOE_SELL_PRICE   = 99.90;
-const CAMERA_SELL_PRICE = 129.90;
 
 const STATUS_STYLES: Record<string, { bg: string; color: string }> = {
   nova:       { bg: "rgba(249,115,22,0.15)",  color: "#f97316" },
@@ -106,147 +104,127 @@ function getDayLabel(key: string): string {
   return `${d}.${m}.${y}.`;
 }
 
-// ─── Margin Calculator Card ───────────────────────────────────────────────────
-function MarginCard({
-  title, productTag, tagColor, sellPrice,
-  nabavna, onNabavnaChange,
-  dailyOrders, onDailyChange,
-  totalOrders,
-}: {
-  title: string;
-  productTag: string;
-  tagColor: string;
-  sellPrice: number;
-  nabavna: number;
-  onNabavnaChange: (v: number) => void;
-  dailyOrders: number;
-  onDailyChange: (v: number) => void;
-  totalOrders: number;
-}) {
-  const marza      = sellPrice - nabavna;
-  const marzaPct   = sellPrice > 0 ? (marza / sellPrice) * 100 : 0;
-  const marzaColor = marza > 0 ? "#4ade80" : marza < 0 ? "#ef4444" : "#888";
-  const totalMarza = totalOrders * marza;
+// ─── Margin Calculator ────────────────────────────────────────────────────────
+function MarginCalc() {
+  const saved = typeof window !== "undefined" ? {
+    sell:  parseFloat(localStorage.getItem("calc_sell")  ?? "99.9"),
+    cost:  parseFloat(localStorage.getItem("calc_cost")  ?? "0"),
+    daily: parseInt(localStorage.getItem("calc_daily") ?? "5", 10),
+  } : { sell: 99.9, cost: 0, daily: 5 };
 
-  const monthlyRevenue = dailyOrders * 30 * sellPrice;
-  const monthlyCost    = dailyOrders * 30 * nabavna;
-  const monthlyMarza   = dailyOrders * 30 * marza;
+  const [sell,  setSell]  = useState(saved.sell);
+  const [cost,  setCost]  = useState(saved.cost);
+  const [daily, setDaily] = useState(saved.daily);
+
+  const margin    = sell - cost;
+  const marginPct = sell > 0 ? (margin / sell) * 100 : 0;
+  const mColor    = margin > 0 ? "#4ade80" : margin < 0 ? "#ef4444" : "#555";
+  const costPct   = sell > 0 ? Math.min(100, (cost / sell) * 100) : 0;
+
+  const rev30  = daily * 30 * sell;
+  const cost30 = daily * 30 * cost;
+  const net30  = daily * 30 * margin;
+
+  const inputStyle: React.CSSProperties = {
+    width: "100%", padding: "14px 16px", background: "#0d0d0d",
+    border: "1px solid #2a2a2a", borderRadius: 10,
+    fontSize: 22, fontWeight: 800, color: "#f5f5f7", outline: "none",
+    fontFamily: "inherit", boxSizing: "border-box",
+  };
 
   return (
-    <div style={{ background: "#1a1a1a", borderRadius: 14, border: "1px solid #2a2a2a", overflow: "hidden" }}>
-      {/* Header */}
-      <div style={{ padding: "20px 24px", borderBottom: "1px solid #222", display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
-        <div>
-          <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 6, background: `${tagColor}22`, color: tagColor, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-            {productTag}
-          </span>
-          <h3 style={{ fontSize: 16, fontWeight: 700, color: "#f5f5f7", margin: "10px 0 0", letterSpacing: "-0.01em" }}>{title}</h3>
-        </div>
-        <div style={{ textAlign: "right" }}>
-          <p style={{ fontSize: 11, color: "#444", margin: "0 0 4px", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 600 }}>Narudžbi</p>
-          <p style={{ fontSize: 24, fontWeight: 800, color: "#f5f5f7", margin: 0, letterSpacing: "-0.02em" }}>{totalOrders}</p>
-        </div>
-      </div>
+    <div style={{ maxWidth: 560, margin: "0 auto" }}>
+      <div style={{ background: "#141414", borderRadius: 16, border: "1px solid #222", overflow: "hidden" }}>
 
-      <div style={{ padding: "20px 24px" }}>
-        {/* Price inputs */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 18 }}>
-          <div>
-            <label style={{ fontSize: 10, color: "#555", display: "block", marginBottom: 7, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-              Prodajna cijena
-            </label>
-            <div style={{ padding: "11px 14px", background: "#111", borderRadius: 8, border: "1px solid #2a2a2a", fontSize: 17, fontWeight: 800, color: "#f97316" }}>
-              {fmt(sellPrice)}
-            </div>
-          </div>
-          <div>
-            <label style={{ fontSize: 10, color: "#555", display: "block", marginBottom: 7, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-              Nabavna cijena
-            </label>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <input
-                type="number"
-                value={nabavna}
-                onChange={(e) => onNabavnaChange(Number(e.target.value))}
-                min={0}
-                step={0.5}
-                style={{
-                  flex: 1, padding: "11px 14px", background: "#111", borderRadius: 8,
-                  border: "1px solid #3a3a3a", fontSize: 17, fontWeight: 800, color: "#f5f5f7",
-                  outline: "none", fontFamily: "var(--font-inter), sans-serif", width: "100%",
-                }}
-                onFocus={(e) => { e.currentTarget.style.borderColor = "#f97316"; }}
-                onBlur={(e) => { e.currentTarget.style.borderColor = "#3a3a3a"; }}
-              />
-              <span style={{ color: "#444", fontSize: 12, flexShrink: 0 }}>KM</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Marža result */}
-        <div style={{
-          background: "#111", borderRadius: 10, padding: "16px 20px", marginBottom: 16,
-          border: `1px solid ${marzaColor}22`,
-        }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        {/* ── Inputs ── */}
+        <div style={{ padding: "28px 28px 0" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+            {/* Prodajna */}
             <div>
-              <p style={{ fontSize: 10, color: "#444", margin: "0 0 5px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>Marža / komad</p>
-              <p style={{ fontSize: 30, fontWeight: 900, color: marzaColor, margin: 0, letterSpacing: "-0.03em" }}>{fmt(marza)}</p>
+              <p style={{ fontSize: 10, color: "#555", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>Prodajna cijena</p>
+              <div style={{ position: "relative" }}>
+                <input
+                  type="number" value={sell} min={0} step={0.1}
+                  onChange={(e) => { const v = parseFloat(e.target.value) || 0; setSell(v); localStorage.setItem("calc_sell", String(v)); }}
+                  style={{ ...inputStyle, color: "#f97316", paddingRight: 44 }}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = "#f97316"; }}
+                  onBlur={(e)  => { e.currentTarget.style.borderColor = "#2a2a2a"; }}
+                />
+                <span style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", fontSize: 12, fontWeight: 600, color: "#444" }}>KM</span>
+              </div>
             </div>
-            <div style={{ textAlign: "right" }}>
-              <p style={{ fontSize: 10, color: "#444", margin: "0 0 5px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>Postotak</p>
-              <p style={{ fontSize: 30, fontWeight: 900, color: marzaColor, margin: 0, letterSpacing: "-0.03em" }}>{marzaPct.toFixed(1)}%</p>
+            {/* Nabavna */}
+            <div>
+              <p style={{ fontSize: 10, color: "#555", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>Nabavna cijena</p>
+              <div style={{ position: "relative" }}>
+                <input
+                  type="number" value={cost} min={0} step={0.1}
+                  onChange={(e) => { const v = parseFloat(e.target.value) || 0; setCost(v); localStorage.setItem("calc_cost", String(v)); }}
+                  style={{ ...inputStyle, paddingRight: 44 }}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = "#60a5fa"; }}
+                  onBlur={(e)  => { e.currentTarget.style.borderColor = "#2a2a2a"; }}
+                />
+                <span style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", fontSize: 12, fontWeight: 600, color: "#444" }}>KM</span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Cumulative earned */}
-        {totalOrders > 0 && (
-          <div style={{
-            background: "rgba(74,222,128,0.05)", borderRadius: 10, padding: "12px 18px", marginBottom: 16,
-            border: "1px solid rgba(74,222,128,0.12)", display: "flex", justifyContent: "space-between", alignItems: "center",
-          }}>
-            <span style={{ fontSize: 13, color: "#666", fontWeight: 500 }}>Ukupna zarada (svi)</span>
-            <span style={{ fontSize: 20, fontWeight: 800, color: "#4ade80", letterSpacing: "-0.02em" }}>{fmt(totalMarza)}</span>
-          </div>
-        )}
+        {/* ── Margin result ── */}
+        <div style={{ padding: "20px 28px" }}>
+          <div style={{ background: "#0d0d0d", borderRadius: 12, border: `1px solid ${mColor}28`, padding: "20px 24px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 16 }}>
+              <div>
+                <p style={{ fontSize: 10, color: "#444", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 6px" }}>Marža / komad</p>
+                <p style={{ fontSize: 42, fontWeight: 900, color: mColor, margin: 0, letterSpacing: "-0.03em", lineHeight: 1 }}>{fmt(margin)}</p>
+              </div>
+              <p style={{ fontSize: 42, fontWeight: 900, color: mColor, margin: 0, letterSpacing: "-0.03em", lineHeight: 1, opacity: 0.7 }}>{marginPct.toFixed(1)}%</p>
+            </div>
 
-        {/* Monthly projection */}
-        <div style={{ borderTop: "1px solid #1f1f1f", paddingTop: 16 }}>
+            {/* Visual cost/profit bar */}
+            <div style={{ height: 6, borderRadius: 99, background: "#1a1a1a", overflow: "hidden" }}>
+              <div style={{
+                height: "100%", borderRadius: 99, transition: "width 0.3s ease",
+                background: margin >= 0
+                  ? `linear-gradient(90deg, #374151 ${costPct}%, #4ade80 ${costPct}%)`
+                  : "#ef4444",
+                width: "100%",
+              }} />
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }}>
+              <span style={{ fontSize: 10, color: "#444" }}>Nabavna {costPct.toFixed(0)}%</span>
+              <span style={{ fontSize: 10, color: "#444" }}>Zarada {(100 - costPct).toFixed(0)}%</span>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Projekcija ── */}
+        <div style={{ padding: "0 28px 28px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-            <p style={{ fontSize: 10, color: "#444", margin: 0, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-              Projekcija / 30 dana
-            </p>
+            <p style={{ fontSize: 10, color: "#444", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", margin: 0 }}>Projekcija / 30 dana</p>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ fontSize: 12, color: "#555" }}>Narudžbi/dan:</span>
               <input
-                type="number"
-                value={dailyOrders}
-                onChange={(e) => onDailyChange(Math.max(1, Number(e.target.value)))}
-                min={1}
-                max={200}
-                style={{
-                  width: 56, padding: "5px 8px", background: "#111",
-                  border: "1px solid #2a2a2a", borderRadius: 6,
-                  fontSize: 14, fontWeight: 700, color: "#f5f5f7", outline: "none",
-                  fontFamily: "var(--font-inter), sans-serif", textAlign: "center",
-                }}
+                type="number" value={daily} min={1} max={500}
+                onChange={(e) => { const v = Math.max(1, parseInt(e.target.value) || 1); setDaily(v); localStorage.setItem("calc_daily", String(v)); }}
+                style={{ width: 60, padding: "5px 8px", background: "#0d0d0d", border: "1px solid #2a2a2a", borderRadius: 8, fontSize: 15, fontWeight: 700, color: "#f5f5f7", outline: "none", fontFamily: "inherit", textAlign: "center" }}
               />
             </div>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
             {[
-              { label: "Prihod", value: fmt(monthlyRevenue), color: "#f97316" },
-              { label: "Nabavna", value: fmt(monthlyCost), color: "#ef4444" },
-              { label: "Neto", value: fmt(monthlyMarza), color: "#4ade80" },
+              { label: "Prihod",   value: fmt(rev30),  color: "#f97316" },
+              { label: "Nabavna",  value: fmt(cost30), color: "#60a5fa" },
+              { label: "Neto",     value: fmt(net30),  color: "#4ade80" },
             ].map(({ label, value, color }) => (
-              <div key={label} style={{ background: "#111", borderRadius: 8, padding: "10px 12px", border: "1px solid #222" }}>
-                <p style={{ fontSize: 10, color: "#444", margin: "0 0 4px", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 600 }}>{label}</p>
-                <p style={{ fontSize: 13, fontWeight: 800, color, margin: 0, letterSpacing: "-0.01em" }}>{value}</p>
+              <div key={label} style={{ background: "#0d0d0d", borderRadius: 10, padding: "14px 16px", border: "1px solid #1f1f1f" }}>
+                <p style={{ fontSize: 10, color: "#444", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 6px" }}>{label}</p>
+                <p style={{ fontSize: 18, fontWeight: 800, color, margin: 0, letterSpacing: "-0.02em" }}>{value}</p>
               </div>
             ))}
           </div>
         </div>
+
       </div>
     </div>
   );
@@ -347,17 +325,6 @@ export default function DashboardClient() {
   };
 
   // Margins
-  const [shoeNabavna, setShoeNabavna]         = useState(45);
-  const [cameraNabavna, setCameraNabavna]     = useState(65);
-  const [shoeDailyOrders, setShoeDailyOrders] = useState(3);
-  const [cameraDailyOrders, setCameraDailyOrders] = useState(2);
-
-  useEffect(() => {
-    const sn = localStorage.getItem("cartly_shoe_nabavna");
-    const cn = localStorage.getItem("cartly_camera_nabavna");
-    if (sn) setShoeNabavna(Number(sn));
-    if (cn) setCameraNabavna(Number(cn));
-  }, []);
 
   const fetchStats = useCallback(async () => {
     setLoadingStats(true);
@@ -1081,38 +1048,7 @@ export default function DashboardClient() {
             )}
 
             {/* ══════════════════ MARGINS ══════════════════ */}
-            {activeTab === "margins" && (
-              <>
-                <p style={{ fontSize: 13, color: "#444", margin: "0 0 20px", lineHeight: 1.6 }}>
-                  Unesite nabavnu cijenu da vidite maržu po komadu i projekciju prihoda.
-                  Vrijednosti se automatski snimaju u pretraživač.
-                </p>
-                <div className="margin-grid" style={{ display: "grid", gap: 18 }}>
-                  <MarginCard
-                    title="Radne Patike S3"
-                    productTag="Patike"
-                    tagColor="#f97316"
-                    sellPrice={SHOE_SELL_PRICE}
-                    nabavna={shoeNabavna}
-                    onNabavnaChange={(v) => { setShoeNabavna(v); localStorage.setItem("cartly_shoe_nabavna", String(v)); }}
-                    dailyOrders={shoeDailyOrders}
-                    onDailyChange={setShoeDailyOrders}
-                    totalOrders={stats?.shoeCount ?? 0}
-                  />
-                  <MarginCard
-                    title="V380 Pro Kamera 12MP"
-                    productTag="Kamera"
-                    tagColor="#818cf8"
-                    sellPrice={CAMERA_SELL_PRICE}
-                    nabavna={cameraNabavna}
-                    onNabavnaChange={(v) => { setCameraNabavna(v); localStorage.setItem("cartly_camera_nabavna", String(v)); }}
-                    dailyOrders={cameraDailyOrders}
-                    onDailyChange={setCameraDailyOrders}
-                    totalOrders={stats?.cameraCount ?? 0}
-                  />
-                </div>
-              </>
-            )}
+            {activeTab === "margins" && <MarginCalc />}
 
           </main>
         </div>
