@@ -80,6 +80,21 @@ function isCameraOrder(velicine: { velicina: number | string; kolicina: number }
   return typeof velicine?.[0]?.velicina === "string";
 }
 
+const PRODUCT_MAP: Record<string, { label: string; bg: string; color: string }> = {
+  CRT: { label: "Patike",    bg: "rgba(249,115,22,0.12)",  color: "#f97316" },
+  DWL: { label: "Kamera",   bg: "rgba(129,140,248,0.12)", color: "#818cf8" },
+  KMR: { label: "Kamera",   bg: "rgba(129,140,248,0.12)", color: "#818cf8" },
+  MLW: { label: "Milwaukee", bg: "rgba(239,68,68,0.12)",   color: "#ef4444" },
+  ZQS: { label: "Zvučnik",  bg: "rgba(34,197,94,0.12)",   color: "#22c55e" },
+  DWT: { label: "DeWalt",   bg: "rgba(234,179,8,0.12)",   color: "#eab308" },
+  BRS: { label: "Brusilica", bg: "rgba(20,184,166,0.12)",  color: "#14b8a6" },
+};
+
+function productBadge(orderNumber?: string) {
+  const prefix = (orderNumber ?? "").slice(0, 3).toUpperCase();
+  return PRODUCT_MAP[prefix] ?? { label: prefix || "—", bg: "rgba(80,80,80,0.1)", color: "#555" };
+}
+
 // ─── Margin Calculator Card ───────────────────────────────────────────────────
 function MarginCard({
   title, productTag, tagColor, sellPrice,
@@ -380,7 +395,7 @@ export default function DashboardClient() {
         o.telefon,
         `"${o.adresa}"`,
         `"${o.grad}"`,
-        isCam ? "V380 Pro Kamera" : "Radne Patike S3",
+        productBadge(o.order_number).label,
         o.ukupno_pari,
         o.ukupno.toFixed(2),
         marza.toFixed(2),
@@ -835,14 +850,15 @@ export default function DashboardClient() {
                             <td style={{ padding: "11px 14px", color: "#777" }}>{order.telefon}</td>
                             <td style={{ padding: "11px 14px", color: "#777" }}>{order.grad}</td>
                             <td style={{ padding: "11px 14px" }}>
-                              <span style={{
-                                fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 5,
-                                background: isCam ? "rgba(129,140,248,0.12)" : "rgba(249,115,22,0.1)",
-                                color: isCam ? "#818cf8" : "#f97316",
-                                textTransform: "uppercase", letterSpacing: "0.05em",
-                              }}>
-                                {isCam ? "Kamera" : "Patike"}
-                              </span>
+                              {(() => { const b = productBadge(order.order_number); return (
+                                <span style={{
+                                  fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 5,
+                                  background: b.bg, color: b.color,
+                                  textTransform: "uppercase", letterSpacing: "0.05em",
+                                }}>
+                                  {b.label}
+                                </span>
+                              ); })()}
                             </td>
                             <td style={{ padding: "11px 14px", color: "#666", textAlign: "center" }}>{order.ukupno_pari}</td>
                             <td style={{ padding: "11px 14px", fontWeight: 700, color: "#f97316", whiteSpace: "nowrap" }}>{fmt(order.ukupno)}</td>
