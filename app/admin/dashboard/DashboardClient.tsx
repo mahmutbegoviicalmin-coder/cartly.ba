@@ -284,6 +284,36 @@ export default function DashboardClient() {
   const [loadingOrders, setLoadingOrders]     = useState(true);
   const pageSize = 20;
 
+  // Pošta export
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const [postaDate, setPostaDate]       = useState(todayStr);
+  const [postaLoading, setPostaLoading] = useState(false);
+
+  const exportPosta = async () => {
+    setPostaLoading(true);
+    try {
+      const res = await fetch(`/api/export/posta?date=${postaDate}`);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Greška pri eksportu." }));
+        alert(err.error ?? "Greška pri eksportu.");
+        return;
+      }
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement("a");
+      a.href     = url;
+      a.download = `Posiljke_${postaDate}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      alert("Greška pri eksportu. Pokušajte ponovo.");
+    } finally {
+      setPostaLoading(false);
+    }
+  };
+
   // Margins
   const [shoeNabavna, setShoeNabavna]         = useState(45);
   const [cameraNabavna, setCameraNabavna]     = useState(65);
@@ -386,6 +416,10 @@ export default function DashboardClient() {
           from { opacity: 0; transform: translateY(10px); }
           to   { opacity: 1; transform: translateY(0); }
         }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
+        }
         .dash-sidebar {
           width: 240px; min-height: 100vh;
           background: #0a0a0a; border-right: 1px solid #1a1a1a;
@@ -417,6 +451,7 @@ export default function DashboardClient() {
         .nav-btn:hover { color: #d4d4d8 !important; }
         .refresh-btn:hover { color: #f5f5f7 !important; border-color: #3a3a3a !important; }
         .csv-btn:hover { background: #253025 !important; }
+        .posta-btn:hover { background: #1a2535 !important; }
       `}</style>
 
       <div style={{ display: "flex", minHeight: "100vh", background: "#0f0f0f", fontFamily: "var(--font-inter), Inter, sans-serif" }}>
@@ -698,6 +733,45 @@ export default function DashboardClient() {
                       }}
                     >
                       <IconDownload /> CSV
+                    </button>
+
+                    {/* ── BH Pošta Export ── */}
+                    <input
+                      type="date"
+                      value={postaDate}
+                      onChange={(e) => setPostaDate(e.target.value)}
+                      style={{
+                        padding: "8px 12px", fontSize: 13, border: "1px solid #2a2a2a",
+                        borderRadius: 8, background: "#111", outline: "none",
+                        fontFamily: "inherit", color: "#f5f5f7",
+                        colorScheme: "dark", cursor: "pointer",
+                        transition: "border-color 0.15s",
+                      }}
+                      onFocus={(e) => { e.currentTarget.style.borderColor = "#60a5fa"; }}
+                      onBlur={(e)  => { e.currentTarget.style.borderColor = "#2a2a2a"; }}
+                    />
+                    <button
+                      onClick={exportPosta}
+                      disabled={postaLoading}
+                      className="posta-btn"
+                      style={{
+                        padding: "8px 16px", background: "#111d2e", color: "#60a5fa",
+                        border: "1px solid #1e3a5f", borderRadius: 8, fontSize: 13, fontWeight: 600,
+                        cursor: postaLoading ? "not-allowed" : "pointer", fontFamily: "inherit",
+                        display: "flex", alignItems: "center", gap: 6, transition: "background 0.15s",
+                        opacity: postaLoading ? 0.7 : 1, whiteSpace: "nowrap",
+                      }}
+                    >
+                      {postaLoading ? (
+                        <>
+                          <svg style={{ animation: "spin 1s linear infinite" }} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                          </svg>
+                          Generišem...
+                        </>
+                      ) : (
+                        <>📦 Eksportuj za Poštu</>
+                      )}
                     </button>
                   </div>
                 </div>
