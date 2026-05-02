@@ -1,6 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import * as XLSX from "xlsx";
+import pttData from "@/data/ptt-bih.json";
+
+// Build case-insensitive lookup map: grad → ptt
+const PTT_MAP = new Map<string, string>(
+  (pttData as { mjesto: string; ptt: string }[]).map(({ mjesto, ptt }) => [
+    mjesto.toLowerCase().trim(),
+    ptt,
+  ])
+);
+
+function lookupPTT(grad: string): string {
+  if (!grad) return "";
+  return PTT_MAP.get(grad.toLowerCase().trim()) ?? "";
+}
 
 // Product name from order_number prefix
 function productName(orderNumber: string): string {
@@ -77,8 +91,8 @@ export async function GET(request: NextRequest) {
       const product  = productName(o.order_number ?? "");
       const kontakt  = (o.ime ?? "").split(" ")[0];
       return [
-        o.ime ?? "",          // Ime i prezime
-        o.postanski_broj ?? "", // Ptt broj
+        o.ime ?? "",                                          // Ime i prezime
+        o.postanski_broj || lookupPTT(o.grad ?? ""),          // Ptt broj (from order or auto-lookup)
         o.adresa ?? "",       // Adresa
         o.grad ?? "",         // Mesto
         o.telefon ?? "",      // Telefon

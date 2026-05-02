@@ -1,0 +1,2318 @@
+[
+  {
+    "mjesto": "Jajce",
+    "ptt": "70101"
+  },
+  {
+    "mjesto": "Vinac",
+    "ptt": "70202"
+  },
+  {
+    "mjesto": "Divičani",
+    "ptt": "70204"
+  },
+  {
+    "mjesto": "Jezero",
+    "ptt": "70206"
+  },
+  {
+    "mjesto": "Dobretići",
+    "ptt": "70210"
+  },
+  {
+    "mjesto": "Donji Vakuf",
+    "ptt": "70220"
+  },
+  {
+    "mjesto": "Prusac",
+    "ptt": "70223"
+  },
+  {
+    "mjesto": "Torlakovac",
+    "ptt": "70224"
+  },
+  {
+    "mjesto": "Bugojno",
+    "ptt": "70230"
+  },
+  {
+    "mjesto": "Gračanica kod Bugojna",
+    "ptt": "70233"
+  },
+  {
+    "mjesto": "Vesela",
+    "ptt": "70234"
+  },
+  {
+    "mjesto": "Karadže",
+    "ptt": "70235"
+  },
+  {
+    "mjesto": "Drvetine",
+    "ptt": "70237"
+  },
+  {
+    "mjesto": "Gornji Vakuf",
+    "ptt": "70240"
+  },
+  {
+    "mjesto": "Pajić Polje",
+    "ptt": "70243"
+  },
+  {
+    "mjesto": "Mrkonjić Grad",
+    "ptt": "70260"
+  },
+  {
+    "mjesto": "Podrašnica",
+    "ptt": "70266"
+  },
+  {
+    "mjesto": "Baraći",
+    "ptt": "70267"
+  },
+  {
+    "mjesto": "Šipovo",
+    "ptt": "70270"
+  },
+  {
+    "mjesto": "Strojice",
+    "ptt": "70273"
+  },
+  {
+    "mjesto": "Pljeva",
+    "ptt": "70275"
+  },
+  {
+    "mjesto": "Uskoplje",
+    "ptt": "70280"
+  },
+  {
+    "mjesto": "Sarajevo",
+    "ptt": "71000"
+  },
+  {
+    "mjesto": "Sarajevo -Centar",
+    "ptt": "71101"
+  },
+  {
+    "mjesto": "Sarajevo -Centar",
+    "ptt": "71103"
+  },
+  {
+    "mjesto": "Sarajevo -Centar",
+    "ptt": "71104"
+  },
+  {
+    "mjesto": "Sarajevo -Centar",
+    "ptt": "71108"
+  },
+  {
+    "mjesto": "Sarajevo -Novo Sarajevo",
+    "ptt": "71120"
+  },
+  {
+    "mjesto": "Sarajevo -Novo Sarajevo",
+    "ptt": "71121"
+  },
+  {
+    "mjesto": "Sarajevo -Novo Sarajevo",
+    "ptt": "71122"
+  },
+  {
+    "mjesto": "Istočno Sarajevo",
+    "ptt": "71123"
+  },
+  {
+    "mjesto": "Sarajevo -Novo Sarajevo",
+    "ptt": "71123"
+  },
+  {
+    "mjesto": "Sarajevo -Novo Sarajevo",
+    "ptt": "71124"
+  },
+  {
+    "mjesto": "Sarajevo -Novo Sarajevo",
+    "ptt": "71125"
+  },
+  {
+    "mjesto": "Sarajevo -Stari Grad",
+    "ptt": "71140"
+  },
+  {
+    "mjesto": "Sarajevo -Stari Grad",
+    "ptt": "71141"
+  },
+  {
+    "mjesto": "Hreša",
+    "ptt": "71144"
+  },
+  {
+    "mjesto": "Sarajevo -Stari Grad",
+    "ptt": "71145"
+  },
+  {
+    "mjesto": "Sarajevo -Novi Grad",
+    "ptt": "71160"
+  },
+  {
+    "mjesto": "Sarajevo -Novi Grad",
+    "ptt": "71162"
+  },
+  {
+    "mjesto": "Sarajevo -Novi Grad",
+    "ptt": "71165"
+  },
+  {
+    "mjesto": "Sarajevo -Novi Grad",
+    "ptt": "71166"
+  },
+  {
+    "mjesto": "Sarajevo -Novi Grad",
+    "ptt": "71167"
+  },
+  {
+    "mjesto": "Ilidža",
+    "ptt": "71210"
+  },
+  {
+    "mjesto": "Kasindo",
+    "ptt": "71213"
+  },
+  {
+    "mjesto": "Blažuj",
+    "ptt": "71215"
+  },
+  {
+    "mjesto": "Rakovica",
+    "ptt": "71217"
+  },
+  {
+    "mjesto": "Trnovo",
+    "ptt": "71220"
+  },
+  {
+    "mjesto": "Delijaš",
+    "ptt": "71223"
+  },
+  {
+    "mjesto": "Kalinovik",
+    "ptt": "71230"
+  },
+  {
+    "mjesto": "Hadžići",
+    "ptt": "71240"
+  },
+  {
+    "mjesto": "Pazarić",
+    "ptt": "71243"
+  },
+  {
+    "mjesto": "Tarčin",
+    "ptt": "71244"
+  },
+  {
+    "mjesto": "Kiseljak",
+    "ptt": "71250"
+  },
+  {
+    "mjesto": "Bilalovac",
+    "ptt": "71253"
+  },
+  {
+    "mjesto": "Lepenica",
+    "ptt": "71254"
+  },
+  {
+    "mjesto": "Brestovsko",
+    "ptt": "71255"
+  },
+  {
+    "mjesto": "Kreševo",
+    "ptt": "71260"
+  },
+  {
+    "mjesto": "Fojnica",
+    "ptt": "71270"
+  },
+  {
+    "mjesto": "Gojevići",
+    "ptt": "71275"
+  },
+  {
+    "mjesto": "Visoko",
+    "ptt": "71300"
+  },
+  {
+    "mjesto": "Donje Moštre",
+    "ptt": "71305"
+  },
+  {
+    "mjesto": "Vogošća",
+    "ptt": "71320"
+  },
+  {
+    "mjesto": "Semizovac",
+    "ptt": "71321"
+  },
+  {
+    "mjesto": "Vareš",
+    "ptt": "71330"
+  },
+  {
+    "mjesto": "Vareš Majdan",
+    "ptt": "71333"
+  },
+  {
+    "mjesto": "Pržići",
+    "ptt": "71335"
+  },
+  {
+    "mjesto": "Olovo",
+    "ptt": "71340"
+  },
+  {
+    "mjesto": "Careva Ćuprija",
+    "ptt": "71347"
+  },
+  {
+    "mjesto": "Sokolac",
+    "ptt": "71350"
+  },
+  {
+    "mjesto": "Kaljina",
+    "ptt": "71355"
+  },
+  {
+    "mjesto": "Knežina",
+    "ptt": "71356"
+  },
+  {
+    "mjesto": "Sokolovići",
+    "ptt": "71357"
+  },
+  {
+    "mjesto": "Han Pijesak",
+    "ptt": "71360"
+  },
+  {
+    "mjesto": "Breza",
+    "ptt": "71370"
+  },
+  {
+    "mjesto": "Župča",
+    "ptt": "71373"
+  },
+  {
+    "mjesto": "Ilijaš",
+    "ptt": "71380"
+  },
+  {
+    "mjesto": "Nišići",
+    "ptt": "71383"
+  },
+  {
+    "mjesto": "Srednje (Ilijaš)",
+    "ptt": "71385"
+  },
+  {
+    "mjesto": "Podlugovi",
+    "ptt": "71387"
+  },
+  {
+    "mjesto": "Pale",
+    "ptt": "71420"
+  },
+  {
+    "mjesto": "Podgrab",
+    "ptt": "71425"
+  },
+  {
+    "mjesto": "Mokro",
+    "ptt": "71428"
+  },
+  {
+    "mjesto": "Zenica",
+    "ptt": "72101"
+  },
+  {
+    "mjesto": "Zenica",
+    "ptt": "72102"
+  },
+  {
+    "mjesto": "Zenica",
+    "ptt": "72112"
+  },
+  {
+    "mjesto": "Puhovac",
+    "ptt": "72207"
+  },
+  {
+    "mjesto": "Stranjani",
+    "ptt": "72209"
+  },
+  {
+    "mjesto": "Nemila",
+    "ptt": "72212"
+  },
+  {
+    "mjesto": "Topčić Polje",
+    "ptt": "72213"
+  },
+  {
+    "mjesto": "Janjići",
+    "ptt": "72215"
+  },
+  {
+    "mjesto": "Zavidovići",
+    "ptt": "72220"
+  },
+  {
+    "mjesto": "Čardak",
+    "ptt": "72224"
+  },
+  {
+    "mjesto": "Hajderovići",
+    "ptt": "72225"
+  },
+  {
+    "mjesto": "Kovači (Zavidovići)",
+    "ptt": "72226"
+  },
+  {
+    "mjesto": "Vozuća",
+    "ptt": "72227"
+  },
+  {
+    "mjesto": "Žepče",
+    "ptt": "72230"
+  },
+  {
+    "mjesto": "Begov Han",
+    "ptt": "72233"
+  },
+  {
+    "mjesto": "Željezno Polje",
+    "ptt": "72236"
+  },
+  {
+    "mjesto": "Ozimica",
+    "ptt": "72238"
+  },
+  {
+    "mjesto": "Kakanj",
+    "ptt": "72240"
+  },
+  {
+    "mjesto": "Brnjic",
+    "ptt": "72243"
+  },
+  {
+    "mjesto": "Kraljeva Sutjeska",
+    "ptt": "72244"
+  },
+  {
+    "mjesto": "Haljinići",
+    "ptt": "72245"
+  },
+  {
+    "mjesto": "Čatići",
+    "ptt": "72246"
+  },
+  {
+    "mjesto": "Bilješevo",
+    "ptt": "72248"
+  },
+  {
+    "mjesto": "Vitez",
+    "ptt": "72250"
+  },
+  {
+    "mjesto": "Stari Vitez",
+    "ptt": "72251"
+  },
+  {
+    "mjesto": "Počulica",
+    "ptt": "72252"
+  },
+  {
+    "mjesto": "Bila",
+    "ptt": "72256"
+  },
+  {
+    "mjesto": "Busovača",
+    "ptt": "72260"
+  },
+  {
+    "mjesto": "Kaćuni",
+    "ptt": "72264"
+  },
+  {
+    "mjesto": "Kaonik",
+    "ptt": "72265"
+  },
+  {
+    "mjesto": "Travnik",
+    "ptt": "72270"
+  },
+  {
+    "mjesto": "Nova Bila",
+    "ptt": "72276"
+  },
+  {
+    "mjesto": "Guča Gora",
+    "ptt": "72277"
+  },
+  {
+    "mjesto": "Dolac na Lašvi",
+    "ptt": "72278"
+  },
+  {
+    "mjesto": "Han Bila",
+    "ptt": "72281"
+  },
+  {
+    "mjesto": "Mehurići",
+    "ptt": "72282"
+  },
+  {
+    "mjesto": "Turbe",
+    "ptt": "72283"
+  },
+  {
+    "mjesto": "Karaula",
+    "ptt": "72284"
+  },
+  {
+    "mjesto": "Babanovac",
+    "ptt": "72286"
+  },
+  {
+    "mjesto": "Novi Travnik",
+    "ptt": "72290"
+  },
+  {
+    "mjesto": "Bučići",
+    "ptt": "72293"
+  },
+  {
+    "mjesto": "Goražde",
+    "ptt": "73101"
+  },
+  {
+    "mjesto": "Novo Goražde",
+    "ptt": "73110"
+  },
+  {
+    "mjesto": "Vitkovići",
+    "ptt": "73205"
+  },
+  {
+    "mjesto": "Mravinjac",
+    "ptt": "73206"
+  },
+  {
+    "mjesto": "Ilovača",
+    "ptt": "73208"
+  },
+  {
+    "mjesto": "Rogatica",
+    "ptt": "73220"
+  },
+  {
+    "mjesto": "Stjenice",
+    "ptt": "73223"
+  },
+  {
+    "mjesto": "Borike",
+    "ptt": "73225"
+  },
+  {
+    "mjesto": "Višegrad",
+    "ptt": "73240"
+  },
+  {
+    "mjesto": "Prelovo",
+    "ptt": "73245"
+  },
+  {
+    "mjesto": "Dobrun",
+    "ptt": "73247"
+  },
+  {
+    "mjesto": "Vardište",
+    "ptt": "73249"
+  },
+  {
+    "mjesto": "Ustikolina",
+    "ptt": "73250"
+  },
+  {
+    "mjesto": "Rudo",
+    "ptt": "73260"
+  },
+  {
+    "mjesto": "Bijelo Brdo",
+    "ptt": "73263"
+  },
+  {
+    "mjesto": "Uvac",
+    "ptt": "73265"
+  },
+  {
+    "mjesto": "Čajniče",
+    "ptt": "73280"
+  },
+  {
+    "mjesto": "Miljeno",
+    "ptt": "73283"
+  },
+  {
+    "mjesto": "Zaborak",
+    "ptt": "73287"
+  },
+  {
+    "mjesto": "Prača",
+    "ptt": "73290"
+  },
+  {
+    "mjesto": "Foča",
+    "ptt": "73302"
+  },
+  {
+    "mjesto": "Zavajt",
+    "ptt": "73305"
+  },
+  {
+    "mjesto": "Čelebići",
+    "ptt": "73307"
+  },
+  {
+    "mjesto": "Brod",
+    "ptt": "73309"
+  },
+  {
+    "mjesto": "Tjentište",
+    "ptt": "73311"
+  },
+  {
+    "mjesto": "Miljevina",
+    "ptt": "73313"
+  },
+  {
+    "mjesto": "Doboj",
+    "ptt": "74101"
+  },
+  {
+    "mjesto": "Matuzići",
+    "ptt": "74203"
+  },
+  {
+    "mjesto": "Brijesnica",
+    "ptt": "74206"
+  },
+  {
+    "mjesto": "Klokotnica",
+    "ptt": "74207"
+  },
+  {
+    "mjesto": "Stanari",
+    "ptt": "74208"
+  },
+  {
+    "mjesto": "Dragalovci",
+    "ptt": "74209"
+  },
+  {
+    "mjesto": "Brestovo",
+    "ptt": "74210"
+  },
+  {
+    "mjesto": "Sjenina",
+    "ptt": "74212"
+  },
+  {
+    "mjesto": "Velika Bukovica",
+    "ptt": "74213"
+  },
+  {
+    "mjesto": "Prnjavor Mali",
+    "ptt": "74214"
+  },
+  {
+    "mjesto": "Kotorsko",
+    "ptt": "74215"
+  },
+  {
+    "mjesto": "Majevac",
+    "ptt": "74216"
+  },
+  {
+    "mjesto": "Podnovlje",
+    "ptt": "74217"
+  },
+  {
+    "mjesto": "Grabovica (RS 74219)",
+    "ptt": "74219"
+  },
+  {
+    "mjesto": "Suho Polje",
+    "ptt": "74221"
+  },
+  {
+    "mjesto": "Kostajnica (Doboj)",
+    "ptt": "74222"
+  },
+  {
+    "mjesto": "Osječani",
+    "ptt": "74225"
+  },
+  {
+    "mjesto": "Usora- Žabljak",
+    "ptt": "74230"
+  },
+  {
+    "mjesto": "Maglaj",
+    "ptt": "74250"
+  },
+  {
+    "mjesto": "Kosova",
+    "ptt": "74253"
+  },
+  {
+    "mjesto": "Novi Šeher",
+    "ptt": "74254"
+  },
+  {
+    "mjesto": "Paklenica",
+    "ptt": "74255"
+  },
+  {
+    "mjesto": "Globarica",
+    "ptt": "74258"
+  },
+  {
+    "mjesto": "Tešanj",
+    "ptt": "74260"
+  },
+  {
+    "mjesto": "Skugrić",
+    "ptt": "74261"
+  },
+  {
+    "mjesto": "Jelah",
+    "ptt": "74264"
+  },
+  {
+    "mjesto": "Vitkovci Donji",
+    "ptt": "74265"
+  },
+  {
+    "mjesto": "Tešanjka",
+    "ptt": "74266"
+  },
+  {
+    "mjesto": "Teslić",
+    "ptt": "74270"
+  },
+  {
+    "mjesto": "Gornji Teslić",
+    "ptt": "74272"
+  },
+  {
+    "mjesto": "Čečava",
+    "ptt": "74274"
+  },
+  {
+    "mjesto": "Blatnica",
+    "ptt": "74275"
+  },
+  {
+    "mjesto": "Pribinić",
+    "ptt": "74276"
+  },
+  {
+    "mjesto": "Buletić",
+    "ptt": "74277"
+  },
+  {
+    "mjesto": "Ugodnovići",
+    "ptt": "74278"
+  },
+  {
+    "mjesto": "Šnjegotina Gornja",
+    "ptt": "74279"
+  },
+  {
+    "mjesto": "Petrovo",
+    "ptt": "74317"
+  },
+  {
+    "mjesto": "Usora - Sivša",
+    "ptt": "74321"
+  },
+  {
+    "mjesto": "Boljanić",
+    "ptt": "74322"
+  },
+  {
+    "mjesto": "Sočkovac",
+    "ptt": "74323"
+  },
+  {
+    "mjesto": "Derventa",
+    "ptt": "74400"
+  },
+  {
+    "mjesto": "Osinja",
+    "ptt": "74412"
+  },
+  {
+    "mjesto": "Kalenderovci",
+    "ptt": "74413"
+  },
+  {
+    "mjesto": "Mala Sočanica",
+    "ptt": "74418"
+  },
+  {
+    "mjesto": "Brod",
+    "ptt": "74450"
+  },
+  {
+    "mjesto": "Zborište",
+    "ptt": "74451"
+  },
+  {
+    "mjesto": "Vinska",
+    "ptt": "74455"
+  },
+  {
+    "mjesto": "Vukosavlje",
+    "ptt": "74470"
+  },
+  {
+    "mjesto": "Modriča",
+    "ptt": "74480"
+  },
+  {
+    "mjesto": "Dugo Polje",
+    "ptt": "74483"
+  },
+  {
+    "mjesto": "Garevac",
+    "ptt": "74484"
+  },
+  {
+    "mjesto": "Miloševac",
+    "ptt": "74485"
+  },
+  {
+    "mjesto": "Vranjak 7",
+    "ptt": "74487"
+  },
+  {
+    "mjesto": "Vranjak 8",
+    "ptt": "74488"
+  },
+  {
+    "mjesto": "Koprivna",
+    "ptt": "74489"
+  },
+  {
+    "mjesto": "Tuzla",
+    "ptt": "75000"
+  },
+  {
+    "mjesto": "Bukinje",
+    "ptt": "75203"
+  },
+  {
+    "mjesto": "Simin Han",
+    "ptt": "75207"
+  },
+  {
+    "mjesto": "Gornja Tuzla",
+    "ptt": "75208"
+  },
+  {
+    "mjesto": "Kiseljak kod Tuzle",
+    "ptt": "75211"
+  },
+  {
+    "mjesto": "Mramor",
+    "ptt": "75212"
+  },
+  {
+    "mjesto": "Lipnica",
+    "ptt": "75213"
+  },
+  {
+    "mjesto": "Ljubače",
+    "ptt": "75214"
+  },
+  {
+    "mjesto": "Husino",
+    "ptt": "75216"
+  },
+  {
+    "mjesto": "Lopare",
+    "ptt": "75240"
+  },
+  {
+    "mjesto": "Šibošnica",
+    "ptt": "75245"
+  },
+  {
+    "mjesto": "Čelić",
+    "ptt": "75246"
+  },
+  {
+    "mjesto": "Koraj",
+    "ptt": "75247"
+  },
+  {
+    "mjesto": "Piperi",
+    "ptt": "75248"
+  },
+  {
+    "mjesto": "Priboj",
+    "ptt": "75249"
+  },
+  {
+    "mjesto": "Kalesija",
+    "ptt": "75260"
+  },
+  {
+    "mjesto": "Tojšići",
+    "ptt": "75265"
+  },
+  {
+    "mjesto": "Rainci Gornji",
+    "ptt": "75268"
+  },
+  {
+    "mjesto": "Živinice",
+    "ptt": "75270"
+  },
+  {
+    "mjesto": "Dubrave Gornje",
+    "ptt": "75273"
+  },
+  {
+    "mjesto": "Dubrave Donje",
+    "ptt": "75274"
+  },
+  {
+    "mjesto": "Šerići",
+    "ptt": "75275"
+  },
+  {
+    "mjesto": "Gračanica (Živinice)",
+    "ptt": "75276"
+  },
+  {
+    "mjesto": "Kladanj",
+    "ptt": "75280"
+  },
+  {
+    "mjesto": "Stupari",
+    "ptt": "75283"
+  },
+  {
+    "mjesto": "Banovići",
+    "ptt": "75290"
+  },
+  {
+    "mjesto": "Lukavac",
+    "ptt": "75300"
+  },
+  {
+    "mjesto": "Poljice",
+    "ptt": "75303"
+  },
+  {
+    "mjesto": "Puračić",
+    "ptt": "75305"
+  },
+  {
+    "mjesto": "Turija",
+    "ptt": "75306"
+  },
+  {
+    "mjesto": "Duboštica",
+    "ptt": "75308"
+  },
+  {
+    "mjesto": "Gračanica",
+    "ptt": "75320"
+  },
+  {
+    "mjesto": "Orahovica Donja",
+    "ptt": "75323"
+  },
+  {
+    "mjesto": "Stjepan Polje",
+    "ptt": "75324"
+  },
+  {
+    "mjesto": "Malešići",
+    "ptt": "75326"
+  },
+  {
+    "mjesto": "Lukavica",
+    "ptt": "75327"
+  },
+  {
+    "mjesto": "Doborovci",
+    "ptt": "75328"
+  },
+  {
+    "mjesto": "Miričina",
+    "ptt": "75329"
+  },
+  {
+    "mjesto": "Srebrenik",
+    "ptt": "75350"
+  },
+  {
+    "mjesto": "Sladna",
+    "ptt": "75353"
+  },
+  {
+    "mjesto": "Podorašje",
+    "ptt": "75355"
+  },
+  {
+    "mjesto": "Špionica",
+    "ptt": "75356"
+  },
+  {
+    "mjesto": "Tinja",
+    "ptt": "75357"
+  },
+  {
+    "mjesto": "Duboki Potok",
+    "ptt": "75358"
+  },
+  {
+    "mjesto": "Zvornik",
+    "ptt": "75400"
+  },
+  {
+    "mjesto": "Gušteri",
+    "ptt": "75404"
+  },
+  {
+    "mjesto": "Caparde",
+    "ptt": "75405"
+  },
+  {
+    "mjesto": "Osmaci",
+    "ptt": "75406"
+  },
+  {
+    "mjesto": "Drinjača (Zvornik)",
+    "ptt": "75410"
+  },
+  {
+    "mjesto": "Sapna",
+    "ptt": "75411"
+  },
+  {
+    "mjesto": "Pilica",
+    "ptt": "75412"
+  },
+  {
+    "mjesto": "Kozluk",
+    "ptt": "75413"
+  },
+  {
+    "mjesto": "Teočak",
+    "ptt": "75414"
+  },
+  {
+    "mjesto": "Bratunac",
+    "ptt": "75420"
+  },
+  {
+    "mjesto": "Fakovići",
+    "ptt": "75423"
+  },
+  {
+    "mjesto": "Srebrenica",
+    "ptt": "75430"
+  },
+  {
+    "mjesto": "Potočari",
+    "ptt": "75433"
+  },
+  {
+    "mjesto": "Skelani",
+    "ptt": "75436"
+  },
+  {
+    "mjesto": "Vlasenica",
+    "ptt": "75440"
+  },
+  {
+    "mjesto": "Derventa",
+    "ptt": "75444"
+  },
+  {
+    "mjesto": "Nova Kasaba",
+    "ptt": "75445"
+  },
+  {
+    "mjesto": "Milići",
+    "ptt": "75446"
+  },
+  {
+    "mjesto": "Šekovići",
+    "ptt": "75450"
+  },
+  {
+    "mjesto": "Papraća",
+    "ptt": "75453"
+  },
+  {
+    "mjesto": "Tišća",
+    "ptt": "75455"
+  },
+  {
+    "mjesto": "Brčko",
+    "ptt": "76100"
+  },
+  {
+    "mjesto": "Brčko",
+    "ptt": "76101"
+  },
+  {
+    "mjesto": "Brčko",
+    "ptt": "76120"
+  },
+  {
+    "mjesto": "Bijela",
+    "ptt": "76204"
+  },
+  {
+    "mjesto": "Seonjaci",
+    "ptt": "76205"
+  },
+  {
+    "mjesto": "Brka",
+    "ptt": "76206"
+  },
+  {
+    "mjesto": "Gornji Rahić",
+    "ptt": "76207"
+  },
+  {
+    "mjesto": "Maoča",
+    "ptt": "76208"
+  },
+  {
+    "mjesto": "Šatorovići",
+    "ptt": "76209"
+  },
+  {
+    "mjesto": "Boće",
+    "ptt": "76210"
+  },
+  {
+    "mjesto": "Krepšić",
+    "ptt": "76212"
+  },
+  {
+    "mjesto": "Zovik Gornji",
+    "ptt": "76214"
+  },
+  {
+    "mjesto": "Brezovo Polje",
+    "ptt": "76216"
+  },
+  {
+    "mjesto": "Ražljevo",
+    "ptt": "76218"
+  },
+  {
+    "mjesto": "Šamac",
+    "ptt": "76230"
+  },
+  {
+    "mjesto": "Domaljevac-Granični",
+    "ptt": "76231"
+  },
+  {
+    "mjesto": "Domaljevac",
+    "ptt": "76233"
+  },
+  {
+    "mjesto": "Grebnice",
+    "ptt": "76234"
+  },
+  {
+    "mjesto": "Obudovac",
+    "ptt": "76235"
+  },
+  {
+    "mjesto": "Kornica",
+    "ptt": "76236"
+  },
+  {
+    "mjesto": "Donja Slatina",
+    "ptt": "76237"
+  },
+  {
+    "mjesto": "Gornja Slatina",
+    "ptt": "76238"
+  },
+  {
+    "mjesto": "Crkvina",
+    "ptt": "76239"
+  },
+  {
+    "mjesto": "Gradačac",
+    "ptt": "76250"
+  },
+  {
+    "mjesto": "Vučkovci",
+    "ptt": "76254"
+  },
+  {
+    "mjesto": "Pelagićevo",
+    "ptt": "76256"
+  },
+  {
+    "mjesto": "Donja Međiđa",
+    "ptt": "76257"
+  },
+  {
+    "mjesto": "Zelinja",
+    "ptt": "76259"
+  },
+  {
+    "mjesto": "Orašje",
+    "ptt": "76270"
+  },
+  {
+    "mjesto": "Matići",
+    "ptt": "76271"
+  },
+  {
+    "mjesto": "Tolisa",
+    "ptt": "76272"
+  },
+  {
+    "mjesto": "Donji Žabar",
+    "ptt": "76273"
+  },
+  {
+    "mjesto": "Donja Mahala",
+    "ptt": "76274"
+  },
+  {
+    "mjesto": "Vidovice",
+    "ptt": "76275"
+  },
+  {
+    "mjesto": "Kostrč",
+    "ptt": "76276"
+  },
+  {
+    "mjesto": "Bok",
+    "ptt": "76277"
+  },
+  {
+    "mjesto": "Lončari",
+    "ptt": "76278"
+  },
+  {
+    "mjesto": "Oštra Luka",
+    "ptt": "76279"
+  },
+  {
+    "mjesto": "Orašje-Granični",
+    "ptt": "76281"
+  },
+  {
+    "mjesto": "Odžak",
+    "ptt": "76290"
+  },
+  {
+    "mjesto": "Prud",
+    "ptt": "76292"
+  },
+  {
+    "mjesto": "Gornja Dubica",
+    "ptt": "76296"
+  },
+  {
+    "mjesto": "Donji Svilaj",
+    "ptt": "76297"
+  },
+  {
+    "mjesto": "Potočani",
+    "ptt": "76298"
+  },
+  {
+    "mjesto": "Bijeljina",
+    "ptt": "76300"
+  },
+  {
+    "mjesto": "Trnjaci",
+    "ptt": "76310"
+  },
+  {
+    "mjesto": "Dvorovi",
+    "ptt": "76311"
+  },
+  {
+    "mjesto": "Batković",
+    "ptt": "76312"
+  },
+  {
+    "mjesto": "Brodac",
+    "ptt": "76313"
+  },
+  {
+    "mjesto": "Patkovača",
+    "ptt": "76315"
+  },
+  {
+    "mjesto": "Janja",
+    "ptt": "76316"
+  },
+  {
+    "mjesto": "Glavičice",
+    "ptt": "76318"
+  },
+  {
+    "mjesto": "Suho Polje",
+    "ptt": "76321"
+  },
+  {
+    "mjesto": "Dragaljevac",
+    "ptt": "76323"
+  },
+  {
+    "mjesto": "Vršani (Bijeljina)",
+    "ptt": "76325"
+  },
+  {
+    "mjesto": "Crnjelovo",
+    "ptt": "76328"
+  },
+  {
+    "mjesto": "Velika Obarska",
+    "ptt": "76329"
+  },
+  {
+    "mjesto": "Ugljevik",
+    "ptt": "76330"
+  },
+  {
+    "mjesto": "Zabrđe",
+    "ptt": "76333"
+  },
+  {
+    "mjesto": "Trnova Donja",
+    "ptt": "76335"
+  },
+  {
+    "mjesto": "Bihać",
+    "ptt": "77000"
+  },
+  {
+    "mjesto": "Vrsta",
+    "ptt": "77203"
+  },
+  {
+    "mjesto": "Kamenica",
+    "ptt": "77204"
+  },
+  {
+    "mjesto": "Brekovica",
+    "ptt": "77205"
+  },
+  {
+    "mjesto": "Kulen Vakuf",
+    "ptt": "77206"
+  },
+  {
+    "mjesto": "Velika Gata",
+    "ptt": "77207"
+  },
+  {
+    "mjesto": "Izačić",
+    "ptt": "77208"
+  },
+  {
+    "mjesto": "Pokoj",
+    "ptt": "77209"
+  },
+  {
+    "mjesto": "Ripač",
+    "ptt": "77215"
+  },
+  {
+    "mjesto": "Cazin",
+    "ptt": "77220"
+  },
+  {
+    "mjesto": "Gornja Koprivna",
+    "ptt": "77222"
+  },
+  {
+    "mjesto": "Šturlić",
+    "ptt": "77223"
+  },
+  {
+    "mjesto": "Stijena",
+    "ptt": "77224"
+  },
+  {
+    "mjesto": "Tržačka Raštela",
+    "ptt": "77225"
+  },
+  {
+    "mjesto": "Ćoralići",
+    "ptt": "77226"
+  },
+  {
+    "mjesto": "Pećigrad",
+    "ptt": "77227"
+  },
+  {
+    "mjesto": "Ostrožac",
+    "ptt": "77228"
+  },
+  {
+    "mjesto": "Velika Kladuša",
+    "ptt": "77230"
+  },
+  {
+    "mjesto": "Vrnograč",
+    "ptt": "77231"
+  },
+  {
+    "mjesto": "Podzvizd",
+    "ptt": "77232"
+  },
+  {
+    "mjesto": "Todorovo",
+    "ptt": "77233"
+  },
+  {
+    "mjesto": "Šumatac",
+    "ptt": "77234"
+  },
+  {
+    "mjesto": "Mala Kladuša",
+    "ptt": "77235"
+  },
+  {
+    "mjesto": "Zborište",
+    "ptt": "77236"
+  },
+  {
+    "mjesto": "Bosanska Krupa",
+    "ptt": "77240"
+  },
+  {
+    "mjesto": "Jezerski",
+    "ptt": "77241"
+  },
+  {
+    "mjesto": "Varoška Rijeka",
+    "ptt": "77243"
+  },
+  {
+    "mjesto": "Otoka",
+    "ptt": "77244"
+  },
+  {
+    "mjesto": "Bužim",
+    "ptt": "77245"
+  },
+  {
+    "mjesto": "Konjodor",
+    "ptt": "77249"
+  },
+  {
+    "mjesto": "Bosanski Petrovac",
+    "ptt": "77250"
+  },
+  {
+    "mjesto": "Krnjeuša",
+    "ptt": "77253"
+  },
+  {
+    "mjesto": "Banja Luka",
+    "ptt": "78000"
+  },
+  {
+    "mjesto": "Banja Luka",
+    "ptt": "78103"
+  },
+  {
+    "mjesto": "Banja Luka",
+    "ptt": "78108"
+  },
+  {
+    "mjesto": "Banja Luka",
+    "ptt": "78114"
+  },
+  {
+    "mjesto": "Saračica",
+    "ptt": "78202"
+  },
+  {
+    "mjesto": "Goleši",
+    "ptt": "78203"
+  },
+  {
+    "mjesto": "Bronzani Majdan",
+    "ptt": "78204"
+  },
+  {
+    "mjesto": "Krupa na Vrbasu",
+    "ptt": "78206"
+  },
+  {
+    "mjesto": "Kola",
+    "ptt": "78207"
+  },
+  {
+    "mjesto": "Stričići",
+    "ptt": "78208"
+  },
+  {
+    "mjesto": "Vrbanja",
+    "ptt": "78211"
+  },
+  {
+    "mjesto": "Kuljani",
+    "ptt": "78212"
+  },
+  {
+    "mjesto": "Zalužani",
+    "ptt": "78214"
+  },
+  {
+    "mjesto": "Dragočaj",
+    "ptt": "78215"
+  },
+  {
+    "mjesto": "Potkozarje",
+    "ptt": "78216"
+  },
+  {
+    "mjesto": "Piskavica",
+    "ptt": "78217"
+  },
+  {
+    "mjesto": "Kotor Varoš",
+    "ptt": "78220"
+  },
+  {
+    "mjesto": "Maslovare",
+    "ptt": "78223"
+  },
+  {
+    "mjesto": "Šiprage",
+    "ptt": "78224"
+  },
+  {
+    "mjesto": "Vrbanjci",
+    "ptt": "78225"
+  },
+  {
+    "mjesto": "Grabovica (RS 78227)",
+    "ptt": "78227"
+  },
+  {
+    "mjesto": "Kneževo",
+    "ptt": "78230"
+  },
+  {
+    "mjesto": "Javorani",
+    "ptt": "78233"
+  },
+  {
+    "mjesto": "Imljani",
+    "ptt": "78234"
+  },
+  {
+    "mjesto": "Čelinac",
+    "ptt": "78240"
+  },
+  {
+    "mjesto": "Stara Dubrava",
+    "ptt": "78243"
+  },
+  {
+    "mjesto": "Jošavka",
+    "ptt": "78244"
+  },
+  {
+    "mjesto": "Razboj Lijevče Pošte Srpske",
+    "ptt": "78249"
+  },
+  {
+    "mjesto": "Laktaši",
+    "ptt": "78250"
+  },
+  {
+    "mjesto": "Trn",
+    "ptt": "78252"
+  },
+  {
+    "mjesto": "Slatina Ilidža",
+    "ptt": "78253"
+  },
+  {
+    "mjesto": "Aleksandrovac",
+    "ptt": "78255"
+  },
+  {
+    "mjesto": "Kriškovci",
+    "ptt": "78256"
+  },
+  {
+    "mjesto": "Gradiška",
+    "ptt": "78400"
+  },
+  {
+    "mjesto": "Turjak",
+    "ptt": "78404"
+  },
+  {
+    "mjesto": "Gornji Podgradci",
+    "ptt": "78405"
+  },
+  {
+    "mjesto": "Orahova",
+    "ptt": "78406"
+  },
+  {
+    "mjesto": "Laminci Sređani",
+    "ptt": "78407"
+  },
+  {
+    "mjesto": "Vrbaška",
+    "ptt": "78408"
+  },
+  {
+    "mjesto": "Mašići",
+    "ptt": "78410"
+  },
+  {
+    "mjesto": "Dubrave",
+    "ptt": "78411"
+  },
+  {
+    "mjesto": "Nova Topola",
+    "ptt": "78418"
+  },
+  {
+    "mjesto": "Srbac",
+    "ptt": "78420"
+  },
+  {
+    "mjesto": "Sitneši",
+    "ptt": "78422"
+  },
+  {
+    "mjesto": "Kobaš",
+    "ptt": "78423"
+  },
+  {
+    "mjesto": "Kukulje",
+    "ptt": "78424"
+  },
+  {
+    "mjesto": "Ćukali",
+    "ptt": "78427"
+  },
+  {
+    "mjesto": "Nožičko",
+    "ptt": "78428"
+  },
+  {
+    "mjesto": "Prnjavor",
+    "ptt": "78430"
+  },
+  {
+    "mjesto": "Donji Vijačani",
+    "ptt": "78432"
+  },
+  {
+    "mjesto": "Šibovska",
+    "ptt": "78433"
+  },
+  {
+    "mjesto": "Naseobina Lišnja",
+    "ptt": "78434"
+  },
+  {
+    "mjesto": "Potočani",
+    "ptt": "78435"
+  },
+  {
+    "mjesto": "Hrvaćani",
+    "ptt": "78436"
+  },
+  {
+    "mjesto": "Gornji Smrtići",
+    "ptt": "78438"
+  },
+  {
+    "mjesto": "Gornji Štrpci",
+    "ptt": "78439"
+  },
+  {
+    "mjesto": "Kulaši",
+    "ptt": "78443"
+  },
+  {
+    "mjesto": "Prijedor",
+    "ptt": "79102"
+  },
+  {
+    "mjesto": "Kozarac",
+    "ptt": "79202"
+  },
+  {
+    "mjesto": "Omarska",
+    "ptt": "79203"
+  },
+  {
+    "mjesto": "Lamovita",
+    "ptt": "79204"
+  },
+  {
+    "mjesto": "Ljubija",
+    "ptt": "79206"
+  },
+  {
+    "mjesto": "Brezičani",
+    "ptt": "79208"
+  },
+  {
+    "mjesto": "Novi Grad (Bosanski Novi)",
+    "ptt": "79220"
+  },
+  {
+    "mjesto": "Dobrljin",
+    "ptt": "79223"
+  },
+  {
+    "mjesto": "Kostajnica",
+    "ptt": "79224"
+  },
+  {
+    "mjesto": "Rudice",
+    "ptt": "79226"
+  },
+  {
+    "mjesto": "Dubovik",
+    "ptt": "79227"
+  },
+  {
+    "mjesto": "Donji Agići",
+    "ptt": "79228"
+  },
+  {
+    "mjesto": "Svodna",
+    "ptt": "79229"
+  },
+  {
+    "mjesto": "Kozarska Dubica",
+    "ptt": "79240"
+  },
+  {
+    "mjesto": "Demirovac",
+    "ptt": "79243"
+  },
+  {
+    "mjesto": "Johova",
+    "ptt": "79244"
+  },
+  {
+    "mjesto": "Knežica",
+    "ptt": "79246"
+  },
+  {
+    "mjesto": "Međuvođe",
+    "ptt": "79247"
+  },
+  {
+    "mjesto": "Sreflije",
+    "ptt": "79249"
+  },
+  {
+    "mjesto": "Sanski Most",
+    "ptt": "79260"
+  },
+  {
+    "mjesto": "Vrhpolje",
+    "ptt": "79262"
+  },
+  {
+    "mjesto": "Oštra Luka",
+    "ptt": "79263"
+  },
+  {
+    "mjesto": "Donji Kamengrad",
+    "ptt": "79266"
+  },
+  {
+    "mjesto": "Lušci Palanka",
+    "ptt": "79267"
+  },
+  {
+    "mjesto": "Stari Majdan",
+    "ptt": "79268"
+  },
+  {
+    "mjesto": "Ključ",
+    "ptt": "79280"
+  },
+  {
+    "mjesto": "Ribnik",
+    "ptt": "79283"
+  },
+  {
+    "mjesto": "Sitnica",
+    "ptt": "79283"
+  },
+  {
+    "mjesto": "Krasulje",
+    "ptt": "79284"
+  },
+  {
+    "mjesto": "Sanica Gornja",
+    "ptt": "79285"
+  },
+  {
+    "mjesto": "Previja",
+    "ptt": "79287"
+  },
+  {
+    "mjesto": "Gornji Ribnik",
+    "ptt": "79288"
+  },
+  {
+    "mjesto": "Donji Vrbljani",
+    "ptt": "79289"
+  },
+  {
+    "mjesto": "Drinić",
+    "ptt": "79290"
+  },
+  {
+    "mjesto": "Opara",
+    "ptt": "79293"
+  },
+  {
+    "mjesto": "Livno",
+    "ptt": "80101"
+  },
+  {
+    "mjesto": "Priluka",
+    "ptt": "80202"
+  },
+  {
+    "mjesto": "Lusnić",
+    "ptt": "80203"
+  },
+  {
+    "mjesto": "Lištani",
+    "ptt": "80204"
+  },
+  {
+    "mjesto": "Guber",
+    "ptt": "80205"
+  },
+  {
+    "mjesto": "Orguz",
+    "ptt": "80206"
+  },
+  {
+    "mjesto": "Vidoši",
+    "ptt": "80208"
+  },
+  {
+    "mjesto": "Podhum",
+    "ptt": "80209"
+  },
+  {
+    "mjesto": "Glamoč",
+    "ptt": "80230"
+  },
+  {
+    "mjesto": "Tomislavgrad",
+    "ptt": "80240"
+  },
+  {
+    "mjesto": "Tomislavgrad-Općina",
+    "ptt": "80241"
+  },
+  {
+    "mjesto": "Mesihovina",
+    "ptt": "80243"
+  },
+  {
+    "mjesto": "Kongora",
+    "ptt": "80244"
+  },
+  {
+    "mjesto": "Prisoje",
+    "ptt": "80245"
+  },
+  {
+    "mjesto": "Kazaginac",
+    "ptt": "80246"
+  },
+  {
+    "mjesto": "Roško Polje",
+    "ptt": "80247"
+  },
+  {
+    "mjesto": "Šujica",
+    "ptt": "80249"
+  },
+  {
+    "mjesto": "Drvar",
+    "ptt": "80260"
+  },
+  {
+    "mjesto": "Bosansko Grahovo",
+    "ptt": "80270"
+  },
+  {
+    "mjesto": "Kupres",
+    "ptt": "80320"
+  },
+  {
+    "mjesto": "Mostar",
+    "ptt": "88000"
+  },
+  {
+    "mjesto": "Mostar-Glavni telegraf",
+    "ptt": "88005"
+  },
+  {
+    "mjesto": "Mostar",
+    "ptt": "88101"
+  },
+  {
+    "mjesto": "Mostar",
+    "ptt": "88103"
+  },
+  {
+    "mjesto": "Mostar-Mehanizacija",
+    "ptt": "88104"
+  },
+  {
+    "mjesto": "Mostar-Avenija",
+    "ptt": "88105"
+  },
+  {
+    "mjesto": "Mostar-Rodoč",
+    "ptt": "88106"
+  },
+  {
+    "mjesto": "Mostar-Balinovac",
+    "ptt": "88107"
+  },
+  {
+    "mjesto": "Mostar-Cernica",
+    "ptt": "88108"
+  },
+  {
+    "mjesto": "Mostar-Cim",
+    "ptt": "88109"
+  },
+  {
+    "mjesto": "Mostar",
+    "ptt": "88110"
+  },
+  {
+    "mjesto": "Vrapčići",
+    "ptt": "88113"
+  },
+  {
+    "mjesto": "Mostar-MUP",
+    "ptt": "88121"
+  },
+  {
+    "mjesto": "Mostar-Euroherc",
+    "ptt": "88122"
+  },
+  {
+    "mjesto": "Mostar-CIPS – Pošta privremeno zatvorena",
+    "ptt": "88123"
+  },
+  {
+    "mjesto": "Blagaj",
+    "ptt": "88201"
+  },
+  {
+    "mjesto": "Buna",
+    "ptt": "88202"
+  },
+  {
+    "mjesto": "Kruševo",
+    "ptt": "88203"
+  },
+  {
+    "mjesto": "Podvelež",
+    "ptt": "88206"
+  },
+  {
+    "mjesto": "Potoci",
+    "ptt": "88208"
+  },
+  {
+    "mjesto": "Drežnica",
+    "ptt": "88215"
+  },
+  {
+    "mjesto": "Široki Brijeg",
+    "ptt": "88220"
+  },
+  {
+    "mjesto": "Široki Brijeg-ALTRA",
+    "ptt": "88221"
+  },
+  {
+    "mjesto": "Široki Brijeg-Cips",
+    "ptt": "88222"
+  },
+  {
+    "mjesto": "Ljuti Dolac",
+    "ptt": "88223"
+  },
+  {
+    "mjesto": "Jare",
+    "ptt": "88224"
+  },
+  {
+    "mjesto": "Kočerin",
+    "ptt": "88226"
+  },
+  {
+    "mjesto": "Posušje",
+    "ptt": "88240"
+  },
+  {
+    "mjesto": "Posušje-Općina",
+    "ptt": "88240"
+  },
+  {
+    "mjesto": "Posušje-Inđilović",
+    "ptt": "88241"
+  },
+  {
+    "mjesto": "Posušje-Lager",
+    "ptt": "88242"
+  },
+  {
+    "mjesto": "Broćanac",
+    "ptt": "88243"
+  },
+  {
+    "mjesto": "Rakitno",
+    "ptt": "88245"
+  },
+  {
+    "mjesto": "Vir",
+    "ptt": "88247"
+  },
+  {
+    "mjesto": "Čitluk",
+    "ptt": "88260"
+  },
+  {
+    "mjesto": "Čitluk-Euroherc",
+    "ptt": "88261"
+  },
+  {
+    "mjesto": "Blatnica",
+    "ptt": "88263"
+  },
+  {
+    "mjesto": "Međugorje-kiosk",
+    "ptt": "88264"
+  },
+  {
+    "mjesto": "Čerin",
+    "ptt": "88265"
+  },
+  {
+    "mjesto": "Međugorje",
+    "ptt": "88266"
+  },
+  {
+    "mjesto": "Međugorje",
+    "ptt": "88267"
+  },
+  {
+    "mjesto": "Biletić Polje",
+    "ptt": "88268"
+  },
+  {
+    "mjesto": "Nevesinje",
+    "ptt": "88280"
+  },
+  {
+    "mjesto": "Kifino Selo",
+    "ptt": "88283"
+  },
+  {
+    "mjesto": "Odžak",
+    "ptt": "88285"
+  },
+  {
+    "mjesto": "Zovi Do",
+    "ptt": "88286"
+  },
+  {
+    "mjesto": "Čapljina",
+    "ptt": "88300"
+  },
+  {
+    "mjesto": "Vojarna Grabovine",
+    "ptt": "88301"
+  },
+  {
+    "mjesto": "Čapljina-Euroherc",
+    "ptt": "88302"
+  },
+  {
+    "mjesto": "Domanovići",
+    "ptt": "88305"
+  },
+  {
+    "mjesto": "Gabela",
+    "ptt": "88306"
+  },
+  {
+    "mjesto": "Višići",
+    "ptt": "88307"
+  },
+  {
+    "mjesto": "Ljubuški",
+    "ptt": "88320"
+  },
+  {
+    "mjesto": "Ljubuški-Euroherc",
+    "ptt": "88321"
+  },
+  {
+    "mjesto": "Ljubuški-Općina",
+    "ptt": "88322"
+  },
+  {
+    "mjesto": "Studenci",
+    "ptt": "88323"
+  },
+  {
+    "mjesto": "Klobuk (Ljubuški)",
+    "ptt": "88324"
+  },
+  {
+    "mjesto": "Radišići",
+    "ptt": "88325"
+  },
+  {
+    "mjesto": "Vitina",
+    "ptt": "88326"
+  },
+  {
+    "mjesto": "Prolog",
+    "ptt": "88327"
+  },
+  {
+    "mjesto": "Grude",
+    "ptt": "88340"
+  },
+  {
+    "mjesto": "Grude-MUP",
+    "ptt": "88341"
+  },
+  {
+    "mjesto": "Dužice",
+    "ptt": "88342"
+  },
+  {
+    "mjesto": "Donji Mamići",
+    "ptt": "88343"
+  },
+  {
+    "mjesto": "Drinovci",
+    "ptt": "88344"
+  },
+  {
+    "mjesto": "Sovići",
+    "ptt": "88345"
+  },
+  {
+    "mjesto": "Ružići",
+    "ptt": "88347"
+  },
+  {
+    "mjesto": "Tihaljina",
+    "ptt": "88348"
+  },
+  {
+    "mjesto": "Stolac",
+    "ptt": "88360"
+  },
+  {
+    "mjesto": "Berkovići",
+    "ptt": "88363"
+  },
+  {
+    "mjesto": "Borojevići",
+    "ptt": "88365"
+  },
+  {
+    "mjesto": "Burmazi",
+    "ptt": "88366"
+  },
+  {
+    "mjesto": "Crnići",
+    "ptt": "88367"
+  },
+  {
+    "mjesto": "Hodovo",
+    "ptt": "88368"
+  },
+  {
+    "mjesto": "Ravno",
+    "ptt": "88370"
+  },
+  {
+    "mjesto": "Trebinja",
+    "ptt": "88375"
+  },
+  {
+    "mjesto": "Ljubinje",
+    "ptt": "88380"
+  },
+  {
+    "mjesto": "Neum",
+    "ptt": "88390"
+  },
+  {
+    "mjesto": "Gradac",
+    "ptt": "88392"
+  },
+  {
+    "mjesto": "Hutovo",
+    "ptt": "88394"
+  },
+  {
+    "mjesto": "Hrasno",
+    "ptt": "88395"
+  },
+  {
+    "mjesto": "Konjic",
+    "ptt": "88400"
+  },
+  {
+    "mjesto": "Podorašac",
+    "ptt": "88403"
+  },
+  {
+    "mjesto": "Čelebići",
+    "ptt": "88404"
+  },
+  {
+    "mjesto": "Boračko Jezero",
+    "ptt": "88405"
+  },
+  {
+    "mjesto": "Glavatičevo",
+    "ptt": "88406"
+  },
+  {
+    "mjesto": "Bjelimići",
+    "ptt": "88407"
+  },
+  {
+    "mjesto": "Buturović Polje",
+    "ptt": "88409"
+  },
+  {
+    "mjesto": "Jablanica",
+    "ptt": "88420"
+  },
+  {
+    "mjesto": "Glogošnica",
+    "ptt": "88422"
+  },
+  {
+    "mjesto": "Ostrožac",
+    "ptt": "88423"
+  },
+  {
+    "mjesto": "Prozor",
+    "ptt": "88440"
+  },
+  {
+    "mjesto": "Gračac",
+    "ptt": "88443"
+  },
+  {
+    "mjesto": "Uzdol",
+    "ptt": "88444"
+  },
+  {
+    "mjesto": "Doljani",
+    "ptt": "88446"
+  },
+  {
+    "mjesto": "Trebinje",
+    "ptt": "89101"
+  },
+  {
+    "mjesto": "Grab",
+    "ptt": "89201"
+  },
+  {
+    "mjesto": "Mosko",
+    "ptt": "89204"
+  },
+  {
+    "mjesto": "Lastva",
+    "ptt": "89208"
+  },
+  {
+    "mjesto": "Ljubomir",
+    "ptt": "89209"
+  },
+  {
+    "mjesto": "Bileća",
+    "ptt": "89230"
+  },
+  {
+    "mjesto": "Divin",
+    "ptt": "89233"
+  },
+  {
+    "mjesto": "Gacko",
+    "ptt": "89240"
+  },
+  {
+    "mjesto": "Avtovac",
+    "ptt": "89245"
+  },
+  {
+    "mjesto": "Fojnica",
+    "ptt": "89247"
+  }
+]
