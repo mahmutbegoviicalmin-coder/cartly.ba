@@ -70,8 +70,26 @@ export default function OrderForm() {
   const grandTotal = totalPairs > 0 ? productTotal + DELIVERY : 0;
   const selectedSizes = SIZES.filter((s) => quantities[s] > 0);
 
+  const addToCartTracked = useRef(false);
+
   const changeQty = (size: number, delta: number) => {
-    setQuantities((prev) => ({ ...prev, [size]: Math.max(0, (prev[size] ?? 0) + delta) }));
+    setQuantities((prev) => {
+      const next = { ...prev, [size]: Math.max(0, (prev[size] ?? 0) + delta) };
+      const newTotal = Object.values(next).reduce((a, b) => a + b, 0);
+      // Fire AddToCart once when first item is added
+      if (!addToCartTracked.current && newTotal > 0) {
+        addToCartTracked.current = true;
+        const newProductTotal = newTotal * PRICE_PER_PAIR;
+        event("AddToCart", {
+          content_name: "Radne Patike S3 Tactical Black",
+          content_ids: [`patike-eu${size}`],
+          content_type: "product",
+          value: newProductTotal + DELIVERY,
+          currency: "BAM",
+        });
+      }
+      return next;
+    });
     if (errors.sizes) setErrors((e) => ({ ...e, sizes: undefined }));
   };
 
@@ -170,7 +188,11 @@ export default function OrderForm() {
                   onFocus={() => {
                     if (!checkoutTracked.current) {
                       checkoutTracked.current = true;
-                      event("InitiateCheckout", { value: 59.90, currency: "BAM" });
+                      event("InitiateCheckout", {
+                        value: grandTotal > 0 ? grandTotal : PRICE_PER_PAIR + DELIVERY,
+                        currency: "BAM",
+                        num_items: totalPairs > 0 ? totalPairs : 1,
+                      });
                     }
                   }}
                 >
