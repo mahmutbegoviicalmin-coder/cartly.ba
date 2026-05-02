@@ -413,6 +413,15 @@ export default function DashboardClient() {
     });
   };
 
+  const handleDelete = async (id: string, ime: string) => {
+    if (!window.confirm(`Obrisati narudžbu od "${ime}"?\n\nOva akcija se ne može poništiti.`)) return;
+    // Optimistic remove from both lists
+    setOrders((prev) => prev.filter((o) => o.id !== id));
+    setAllOrders((prev) => prev.filter((o) => o.id !== id));
+    setTotal((prev) => Math.max(0, prev - 1));
+    await fetch(`/api/admin/orders/${id}`, { method: "DELETE" });
+  };
+
   const handleStatusFilter = (s: string) => { setStatusFilter(s); setPage(1); };
 
   const exportCSV = () => {
@@ -930,6 +939,23 @@ export default function DashboardClient() {
                             ))}
                           </select>
                         </td>
+                        <td style={{ padding: "11px 10px" }}>
+                          <button
+                            onClick={() => handleDelete(order.id, order.ime)}
+                            title="Obriši narudžbu"
+                            style={{
+                              background: "transparent", border: "none", cursor: "pointer",
+                              padding: "5px 7px", borderRadius: 6, color: "#3a3a3a",
+                              display: "flex", alignItems: "center", transition: "all 0.14s",
+                            }}
+                            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(239,68,68,0.12)"; e.currentTarget.style.color = "#ef4444"; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#3a3a3a"; }}
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
+                            </svg>
+                          </button>
+                        </td>
                       </tr>
                     );
                   };
@@ -937,7 +963,7 @@ export default function DashboardClient() {
                   const tableHead = (
                     <thead>
                       <tr style={{ borderBottom: "1px solid #1f1f1f" }}>
-                        {["Datum", "Br.", "Ime", "Telefon", "Grad", "Proizvod", "Kol.", "Iznos", "Marža", "Status"].map((h) => (
+                        {["Datum", "Br.", "Ime", "Telefon", "Grad", "Proizvod", "Kol.", "Iznos", "Marža", "Status", ""].map((h) => (
                           <th key={h} style={{ padding: "10px 14px", textAlign: "left", fontSize: 10, fontWeight: 700, color: "#3a3a3a", textTransform: "uppercase", letterSpacing: "0.08em", whiteSpace: "nowrap" }}>
                             {h}
                           </th>
@@ -954,9 +980,9 @@ export default function DashboardClient() {
                           {tableHead}
                           <tbody>
                             {loadingOrders ? (
-                              <tr><td colSpan={10} style={{ padding: "52px", textAlign: "center", color: "#2a2a2a", fontSize: 14 }}>Učitavanje...</td></tr>
+                              <tr><td colSpan={11} style={{ padding: "52px", textAlign: "center", color: "#2a2a2a", fontSize: 14 }}>Učitavanje...</td></tr>
                             ) : orders.length === 0 ? (
-                              <tr><td colSpan={10} style={{ padding: "52px", textAlign: "center", color: "#2a2a2a", fontSize: 14 }}>{search ? "Nema rezultata." : "Nema narudžbi."}</td></tr>
+                              <tr><td colSpan={11} style={{ padding: "52px", textAlign: "center", color: "#2a2a2a", fontSize: 14 }}>{search ? "Nema rezultata." : "Nema narudžbi."}</td></tr>
                             ) : orders.map((o, i) => renderRow(o, i))}
                           </tbody>
                         </table>
