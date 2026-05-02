@@ -43,7 +43,7 @@ function fmtKM(n: number) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { ime, telefon, adresa, grad, kolicina, postanski_broj } = body;
+    const { ime, telefon, adresa, grad, kolicina } = body;
 
     if (!ime || !telefon || !adresa || !grad) {
       return NextResponse.json(
@@ -65,7 +65,6 @@ export async function POST(request: NextRequest) {
         telefon,
         adresa,
         grad,
-        postanski_broj: postanski_broj ?? null,
         velicine: [{ velicina: "V380 Pro Kamera 12MP", kolicina: qty }],
         ukupno_pari: qty,
         cijena_proizvoda,

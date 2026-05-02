@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
   const resend = new Resend(process.env.RESEND_API_KEY);
   try {
     const body = await request.json();
-    const { ime, telefon, adresa, grad, velicine, postanski_broj } = body;
+    const { ime, telefon, adresa, grad, velicine } = body;
 
     const now = new Date();
     const orderNumber = generateOrderNumber(now);
@@ -73,7 +73,6 @@ export async function POST(request: NextRequest) {
       telefon,
       adresa,
       grad,
-      postanski_broj: postanski_broj ?? null,
       velicine: selectedSizes,
       ukupno_pari: ukupnoPari,
       cijena_proizvoda: cijenaProizvoda,

@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
     // ── Fetch orders ──────────────────────────────────────────────────────────
     const { data: orders, error } = await getSupabaseAdmin()
       .from("orders")
-      .select("ime, telefon, adresa, grad, ukupno, order_number, postanski_broj")
+      .select("ime, telefon, adresa, grad, ukupno, order_number")
       .gte("created_at", dayStart)
       .lte("created_at", dayEnd)
       .neq("status", "cancelled")
@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
       const kontakt  = (o.ime ?? "").split(" ")[0];
       return [
         o.ime ?? "",                                          // Ime i prezime
-        o.postanski_broj || lookupPTT(o.grad ?? ""),          // Ptt broj (from order or auto-lookup)
+        lookupPTT(o.grad ?? ""),                               // Ptt broj (auto-lookup by grad)
         o.adresa ?? "",       // Adresa
         o.grad ?? "",         // Mesto
         o.telefon ?? "",      // Telefon
