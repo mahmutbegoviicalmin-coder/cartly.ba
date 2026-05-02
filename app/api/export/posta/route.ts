@@ -217,7 +217,7 @@ export async function GET(request: NextRequest) {
         kontakt,                       // Kontakt osoba
         0,                             // Otvaranje pošiljke
         0,                             // Obveznik plaćanja
-        1,                             // Način plaćanja
+        0,                             // Način plaćanja
       ];
     });
 
