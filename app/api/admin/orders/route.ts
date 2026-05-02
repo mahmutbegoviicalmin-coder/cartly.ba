@@ -16,14 +16,18 @@ export async function GET(request: Request) {
   const page     = parseInt(searchParams.get("page")   ?? "1");
   const search   = searchParams.get("search")  ?? "";
   const status   = searchParams.get("status")  ?? "all";
+  const all      = searchParams.get("all")     === "true";
   const pageSize = 20;
   const from     = (page - 1) * pageSize;
 
   let query = getSupabaseAdmin()
     .from("orders")
     .select("*", { count: "exact" })
-    .order("created_at", { ascending: false })
-    .range(from, from + pageSize - 1);
+    .order("created_at", { ascending: false });
+
+  if (!all) {
+    query = query.range(from, from + pageSize - 1);
+  }
 
   if (search) {
     query = query.or(`ime.ilike.%${search}%,telefon.ilike.%${search}%,grad.ilike.%${search}%`);

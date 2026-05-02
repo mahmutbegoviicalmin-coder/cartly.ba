@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 
@@ -93,6 +93,17 @@ const PRODUCT_MAP: Record<string, { label: string; bg: string; color: string }> 
 function productBadge(orderNumber?: string) {
   const prefix = (orderNumber ?? "").slice(0, 3).toUpperCase();
   return PRODUCT_MAP[prefix] ?? { label: prefix || "—", bg: "rgba(80,80,80,0.1)", color: "#555" };
+}
+
+// Returns YYYY-MM-DD in Sarajevo timezone (used as group key)
+function getDayKey(iso: string): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Sarajevo" }).format(new Date(iso));
+}
+
+// Returns "DD.MM.YYYY" for display
+function getDayLabel(key: string): string {
+  const [y, m, d] = key.split("-");
+  return `${d}.${m}.${y}.`;
 }
 
 // ─── Margin Calculator Card ───────────────────────────────────────────────────
@@ -299,6 +310,12 @@ export default function DashboardClient() {
   const [loadingOrders, setLoadingOrders]     = useState(true);
   const pageSize = 20;
 
+  // View mode: flat ("sve") vs grouped by day ("po_danu")
+  const [viewMode, setViewMode]           = useState<"sve" | "po_danu">("sve");
+  const [allOrders, setAllOrders]         = useState<Order[]>([]);
+  const [loadingAll, setLoadingAll]       = useState(false);
+  const [expandedDays, setExpandedDays]   = useState<Set<string>>(new Set());
+
   // Pošta export
   const todayStr = new Date().toISOString().slice(0, 10);
   const [postaDate, setPostaDate]       = useState(todayStr);
@@ -361,8 +378,24 @@ export default function DashboardClient() {
     setLoadingOrders(false);
   }, [page, search, statusFilter, router]);
 
+  const fetchAllOrders = useCallback(async () => {
+    setLoadingAll(true);
+    const params = new URLSearchParams({ all: "true", search, status: statusFilter });
+    const res = await fetch(`/api/admin/orders?${params}`);
+    if (res.status === 401) { router.push("/admin"); return; }
+    const data = await res.json();
+    const fetched: Order[] = data.orders ?? [];
+    setAllOrders(fetched);
+    // Auto-expand most recent day only on first load (when expandedDays is empty)
+    if (fetched.length > 0) {
+      setExpandedDays((prev) => prev.size === 0 ? new Set([getDayKey(fetched[0].created_at)]) : prev);
+    }
+    setLoadingAll(false);
+  }, [search, statusFilter, router]); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => { fetchStats(); }, [fetchStats]);
-  useEffect(() => { fetchOrders(); }, [fetchOrders]);
+  useEffect(() => { if (viewMode === "sve")     fetchOrders();    }, [fetchOrders, viewMode]);
+  useEffect(() => { if (viewMode === "po_danu") fetchAllOrders(); }, [fetchAllOrders, viewMode]);
 
   const handleSearch = () => { setPage(1); setSearch(searchInput); };
 
@@ -413,6 +446,24 @@ export default function DashboardClient() {
   };
 
   const totalPages = Math.ceil(total / pageSize);
+
+  // Group allOrders by Sarajevo date for "Po danu" view
+  const groupedByDay = useMemo(() => {
+    const map = new Map<string, Order[]>();
+    for (const o of allOrders) {
+      const key = getDayKey(o.created_at);
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(o);
+    }
+    return [...map.entries()].sort((a, b) => b[0].localeCompare(a[0]));
+  }, [allOrders]);
+
+  const toggleDay = (key: string) =>
+    setExpandedDays((prev) => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
 
   const TAB_LABELS: Record<Tab, string> = {
     overview: "Pregled",
@@ -791,8 +842,37 @@ export default function DashboardClient() {
                   </div>
                 </div>
 
-                {/* Status filter pills */}
-                <div style={{ padding: "12px 24px", borderBottom: "1px solid #1f1f1f", display: "flex", gap: 7, flexWrap: "wrap" }}>
+                {/* Filter bar: view toggle + status pills */}
+                <div style={{ padding: "12px 24px", borderBottom: "1px solid #1f1f1f", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+
+                  {/* View mode toggle */}
+                  <div style={{ display: "flex", background: "#111", border: "1px solid #2a2a2a", borderRadius: 8, padding: 3, gap: 2, flexShrink: 0 }}>
+                    {(["sve", "po_danu"] as const).map((mode) => {
+                      const active = viewMode === mode;
+                      return (
+                        <button
+                          key={mode}
+                          onClick={() => {
+                            setViewMode(mode);
+                            if (mode === "po_danu") setExpandedDays(new Set()); // reset so auto-expand fires
+                          }}
+                          style={{
+                            padding: "4px 13px", borderRadius: 6, fontSize: 12, fontWeight: 600,
+                            cursor: "pointer", border: "none", fontFamily: "inherit",
+                            background: active ? "#f97316" : "transparent",
+                            color: active ? "#fff" : "#555",
+                            transition: "all 0.14s",
+                          }}
+                        >
+                          {mode === "sve" ? "Sve" : "Po danu"}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div style={{ width: 1, height: 20, background: "#2a2a2a", flexShrink: 0 }} />
+
+                  {/* Status filter pills */}
                   {["all", ...STATUS_OPTIONS].map((s) => {
                     const active = statusFilter === s;
                     const st = STATUS_STYLES[s];
@@ -815,9 +895,46 @@ export default function DashboardClient() {
                   })}
                 </div>
 
-                {/* Table */}
-                <div style={{ overflowX: "auto" }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                {/* ── Shared row renderer ── */}
+                {(() => {
+                  const renderRow = (order: Order, i: number) => {
+                    const isCam    = isCameraOrder(order.velicine);
+                    const nabavna  = isCam ? cameraNabavna : shoeNabavna;
+                    const marza    = order.cijena_proizvoda - nabavna * order.ukupno_pari;
+                    const marzaPct = order.cijena_proizvoda > 0 ? marza / order.cijena_proizvoda * 100 : 0;
+                    const st       = STATUS_STYLES[order.status] ?? { bg: "rgba(80,80,80,0.1)", color: "#555" };
+                    const b        = productBadge(order.order_number);
+                    return (
+                      <tr key={order.id} style={{ borderBottom: "1px solid #1a1a1a", background: i % 2 === 0 ? "transparent" : "#151515" }}>
+                        <td style={{ padding: "11px 14px", color: "#444", whiteSpace: "nowrap", fontSize: 12 }}>{fmtDate(order.created_at)}</td>
+                        <td style={{ padding: "11px 14px", color: "#333", fontSize: 11, fontFamily: "monospace" }}>{order.order_number ?? "—"}</td>
+                        <td style={{ padding: "11px 14px", fontWeight: 600, color: "#d4d4d8" }}>{order.ime}</td>
+                        <td style={{ padding: "11px 14px", color: "#777" }}>{order.telefon}</td>
+                        <td style={{ padding: "11px 14px", color: "#777" }}>{order.grad}</td>
+                        <td style={{ padding: "11px 14px" }}>
+                          <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 5, background: b.bg, color: b.color, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                            {b.label}
+                          </span>
+                        </td>
+                        <td style={{ padding: "11px 14px", color: "#666", textAlign: "center" }}>{order.ukupno_pari}</td>
+                        <td style={{ padding: "11px 14px", fontWeight: 700, color: "#f97316", whiteSpace: "nowrap" }}>{fmt(order.ukupno)}</td>
+                        <td style={{ padding: "11px 14px", whiteSpace: "nowrap" }}>
+                          <span style={{ color: marza >= 0 ? "#4ade80" : "#ef4444", fontWeight: 700 }}>{fmt(marza)}</span>
+                          <span style={{ color: "#333", fontSize: 11, marginLeft: 4 }}>({marzaPct.toFixed(0)}%)</span>
+                        </td>
+                        <td style={{ padding: "11px 14px" }}>
+                          <select value={order.status} onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                            style={{ padding: "5px 10px", borderRadius: 6, border: "none", background: st.bg, color: st.color, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", outline: "none" }}>
+                            {STATUS_OPTIONS.map((s) => (
+                              <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+                            ))}
+                          </select>
+                        </td>
+                      </tr>
+                    );
+                  };
+
+                  const tableHead = (
                     <thead>
                       <tr style={{ borderBottom: "1px solid #1f1f1f" }}>
                         {["Datum", "Br.", "Ime", "Telefon", "Grad", "Proizvod", "Kol.", "Iznos", "Marža", "Status"].map((h) => (
@@ -827,95 +944,103 @@ export default function DashboardClient() {
                         ))}
                       </tr>
                     </thead>
-                    <tbody>
-                      {loadingOrders ? (
-                        <tr><td colSpan={10} style={{ padding: "52px", textAlign: "center", color: "#2a2a2a", fontSize: 14 }}>Učitavanje...</td></tr>
-                      ) : orders.length === 0 ? (
-                        <tr><td colSpan={10} style={{ padding: "52px", textAlign: "center", color: "#2a2a2a", fontSize: 14 }}>{search ? "Nema rezultata." : "Nema narudžbi."}</td></tr>
-                      ) : orders.map((order, i) => {
-                        const isCam   = isCameraOrder(order.velicine);
-                        const nabavna = isCam ? cameraNabavna : shoeNabavna;
-                        const marza   = order.cijena_proizvoda - nabavna * order.ukupno_pari;
-                        const marzaPct = order.cijena_proizvoda > 0 ? marza / order.cijena_proizvoda * 100 : 0;
-                        const st = STATUS_STYLES[order.status] ?? { bg: "rgba(80,80,80,0.1)", color: "#555" };
+                  );
 
+                  // ── SVE (flat + pagination) ──────────────────────────────
+                  if (viewMode === "sve") return (
+                    <>
+                      <div style={{ overflowX: "auto" }}>
+                        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                          {tableHead}
+                          <tbody>
+                            {loadingOrders ? (
+                              <tr><td colSpan={10} style={{ padding: "52px", textAlign: "center", color: "#2a2a2a", fontSize: 14 }}>Učitavanje...</td></tr>
+                            ) : orders.length === 0 ? (
+                              <tr><td colSpan={10} style={{ padding: "52px", textAlign: "center", color: "#2a2a2a", fontSize: 14 }}>{search ? "Nema rezultata." : "Nema narudžbi."}</td></tr>
+                            ) : orders.map((o, i) => renderRow(o, i))}
+                          </tbody>
+                        </table>
+                      </div>
+                      {totalPages > 1 && (
+                        <div style={{ padding: "16px 24px", borderTop: "1px solid #1f1f1f", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+                          <span style={{ fontSize: 12, color: "#3a3a3a" }}>Stranica {page} od {totalPages}</span>
+                          <div style={{ display: "flex", gap: 5 }}>
+                            <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
+                              style={{ padding: "7px 13px", borderRadius: 7, border: "1px solid #2a2a2a", background: page === 1 ? "#111" : "#222", color: page === 1 ? "#2a2a2a" : "#777", fontSize: 12, cursor: page === 1 ? "not-allowed" : "pointer", fontFamily: "inherit" }}>←</button>
+                            {Array.from({ length: Math.min(5, totalPages) }, (_, idx) => {
+                              const p = Math.max(1, Math.min(page - 2, totalPages - 4)) + idx;
+                              return (
+                                <button key={p} onClick={() => setPage(p)}
+                                  style={{ padding: "7px 12px", borderRadius: 7, border: p === page ? "none" : "1px solid #2a2a2a", background: p === page ? "#f97316" : "#222", color: p === page ? "#fff" : "#777", fontSize: 12, cursor: "pointer", fontWeight: p === page ? 700 : 400, fontFamily: "inherit" }}>
+                                  {p}
+                                </button>
+                              );
+                            })}
+                            <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+                              style={{ padding: "7px 13px", borderRadius: 7, border: "1px solid #2a2a2a", background: page === totalPages ? "#111" : "#222", color: page === totalPages ? "#2a2a2a" : "#777", fontSize: 12, cursor: page === totalPages ? "not-allowed" : "pointer", fontFamily: "inherit" }}>→</button>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  );
+
+                  // ── PO DANU (collapsible day groups) ────────────────────
+                  if (loadingAll) return (
+                    <div style={{ padding: "52px", textAlign: "center", color: "#2a2a2a", fontSize: 14 }}>Učitavanje...</div>
+                  );
+                  if (allOrders.length === 0) return (
+                    <div style={{ padding: "52px", textAlign: "center", color: "#2a2a2a", fontSize: 14 }}>{search ? "Nema rezultata." : "Nema narudžbi."}</div>
+                  );
+
+                  return (
+                    <div>
+                      {groupedByDay.map(([dayKey, dayOrders]) => {
+                        const isOpen    = expandedDays.has(dayKey);
+                        const dayTotal  = dayOrders.reduce((s, o) => s + o.ukupno, 0);
                         return (
-                          <tr
-                            key={order.id}
-                            style={{ borderBottom: "1px solid #1a1a1a", background: i % 2 === 0 ? "transparent" : "#151515" }}
-                          >
-                            <td style={{ padding: "11px 14px", color: "#444", whiteSpace: "nowrap", fontSize: 12 }}>{fmtDate(order.created_at)}</td>
-                            <td style={{ padding: "11px 14px", color: "#333", fontSize: 11, fontFamily: "monospace" }}>{order.order_number ?? "—"}</td>
-                            <td style={{ padding: "11px 14px", fontWeight: 600, color: "#d4d4d8" }}>{order.ime}</td>
-                            <td style={{ padding: "11px 14px", color: "#777" }}>{order.telefon}</td>
-                            <td style={{ padding: "11px 14px", color: "#777" }}>{order.grad}</td>
-                            <td style={{ padding: "11px 14px" }}>
-                              {(() => { const b = productBadge(order.order_number); return (
-                                <span style={{
-                                  fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 5,
-                                  background: b.bg, color: b.color,
-                                  textTransform: "uppercase", letterSpacing: "0.05em",
-                                }}>
-                                  {b.label}
-                                </span>
-                              ); })()}
-                            </td>
-                            <td style={{ padding: "11px 14px", color: "#666", textAlign: "center" }}>{order.ukupno_pari}</td>
-                            <td style={{ padding: "11px 14px", fontWeight: 700, color: "#f97316", whiteSpace: "nowrap" }}>{fmt(order.ukupno)}</td>
-                            <td style={{ padding: "11px 14px", whiteSpace: "nowrap" }}>
-                              <span style={{ color: marza >= 0 ? "#4ade80" : "#ef4444", fontWeight: 700 }}>{fmt(marza)}</span>
-                              <span style={{ color: "#333", fontSize: 11, marginLeft: 4 }}>({marzaPct.toFixed(0)}%)</span>
-                            </td>
-                            <td style={{ padding: "11px 14px" }}>
-                              <select
-                                value={order.status}
-                                onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                                style={{
-                                  padding: "5px 10px", borderRadius: 6, border: "none",
-                                  background: st.bg, color: st.color,
-                                  fontSize: 12, fontWeight: 600, cursor: "pointer",
-                                  fontFamily: "inherit", outline: "none",
-                                }}
-                              >
-                                {STATUS_OPTIONS.map((s) => (
-                                  <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
-                                ))}
-                              </select>
-                            </td>
-                          </tr>
+                          <div key={dayKey} style={{ borderBottom: "1px solid #1f1f1f" }}>
+                            {/* Day header */}
+                            <button
+                              onClick={() => toggleDay(dayKey)}
+                              style={{
+                                width: "100%", display: "flex", alignItems: "center", gap: 12,
+                                padding: "13px 24px", background: isOpen ? "#1f1f1f" : "transparent",
+                                border: "none", cursor: "pointer", fontFamily: "inherit",
+                                borderBottom: isOpen ? "1px solid #2a2a2a" : "none",
+                                transition: "background 0.14s",
+                              }}
+                            >
+                              {/* Chevron */}
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                                style={{ flexShrink: 0, transform: isOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.18s" }}>
+                                <polyline points="9 18 15 12 9 6"/>
+                              </svg>
+                              <span style={{ fontSize: 13, fontWeight: 700, color: "#d4d4d8", letterSpacing: "0.01em" }}>
+                                {getDayLabel(dayKey)}
+                              </span>
+                              <span style={{ fontSize: 12, color: "#555" }}>—</span>
+                              <span style={{ fontSize: 12, color: "#888" }}>{dayOrders.length} {dayOrders.length === 1 ? "narudžba" : dayOrders.length < 5 ? "narudžbe" : "narudžbi"}</span>
+                              <span style={{ fontSize: 12, color: "#555" }}>—</span>
+                              <span style={{ fontSize: 13, fontWeight: 700, color: "#f97316" }}>{fmt(dayTotal)}</span>
+                            </button>
+
+                            {/* Day orders table */}
+                            {isOpen && (
+                              <div style={{ overflowX: "auto" }}>
+                                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                                  {tableHead}
+                                  <tbody>
+                                    {dayOrders.map((o, i) => renderRow(o, i))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            )}
+                          </div>
                         );
                       })}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Pagination */}
-                {totalPages > 1 && (
-                  <div style={{ padding: "16px 24px", borderTop: "1px solid #1f1f1f", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
-                    <span style={{ fontSize: 12, color: "#3a3a3a" }}>Stranica {page} od {totalPages}</span>
-                    <div style={{ display: "flex", gap: 5 }}>
-                      <button
-                        onClick={() => setPage((p) => Math.max(1, p - 1))}
-                        disabled={page === 1}
-                        style={{ padding: "7px 13px", borderRadius: 7, border: "1px solid #2a2a2a", background: page === 1 ? "#111" : "#222", color: page === 1 ? "#2a2a2a" : "#777", fontSize: 12, cursor: page === 1 ? "not-allowed" : "pointer", fontFamily: "inherit" }}
-                      >←</button>
-                      {Array.from({ length: Math.min(5, totalPages) }, (_, idx) => {
-                        const p = Math.max(1, Math.min(page - 2, totalPages - 4)) + idx;
-                        return (
-                          <button key={p} onClick={() => setPage(p)}
-                            style={{ padding: "7px 12px", borderRadius: 7, border: p === page ? "none" : "1px solid #2a2a2a", background: p === page ? "#f97316" : "#222", color: p === page ? "#fff" : "#777", fontSize: 12, cursor: "pointer", fontWeight: p === page ? 700 : 400, fontFamily: "inherit" }}>
-                            {p}
-                          </button>
-                        );
-                      })}
-                      <button
-                        onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                        disabled={page === totalPages}
-                        style={{ padding: "7px 13px", borderRadius: 7, border: "1px solid #2a2a2a", background: page === totalPages ? "#111" : "#222", color: page === totalPages ? "#2a2a2a" : "#777", fontSize: 12, cursor: page === totalPages ? "not-allowed" : "pointer", fontFamily: "inherit" }}
-                      >→</button>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
               </div>
             )}
 
