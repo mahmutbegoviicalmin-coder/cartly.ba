@@ -11,7 +11,7 @@ const PRICE_PER_PAIR = 59.9;
 const DELIVERY = 10.0;
 
 type SizeQuantities = Record<number, number>;
-type Fields = { name: string; phone: string; address: string; city: string };
+type Fields = { name: string; phone: string; address: string; postalCode: string; city: string };
 type FieldErrors = Partial<Record<keyof Fields | "sizes", string>>;
 
 function fmt(n: number) {
@@ -54,7 +54,7 @@ function InputField({
 }
 
 export default function OrderForm() {
-  const [fields, setFields] = useState<Fields>({ name: "", phone: "", address: "", city: "" });
+  const [fields, setFields] = useState<Fields>({ name: "", phone: "", address: "", postalCode: "", city: "" });
   const [quantities, setQuantities] = useState<SizeQuantities>(
     Object.fromEntries(SIZES.map((s) => [s, 0]))
   );
@@ -105,6 +105,8 @@ export default function OrderForm() {
     if (!fields.phone.trim()) e.phone = "Unesite broj telefona";
     else if (!/^[\d\s\+\-\(\)]{7,}$/.test(fields.phone)) e.phone = "Neispravan broj telefona";
     if (!fields.address.trim()) e.address = "Unesite adresu";
+    if (!fields.postalCode.trim()) e.postalCode = "Unesite poštanski broj";
+    else if (!/^\d{1,5}$/.test(fields.postalCode.trim())) e.postalCode = "Samo brojevi, max 5 cifara";
     if (!fields.city.trim()) e.city = "Unesite grad";
     if (totalPairs === 0) e.sizes = "Odaberite najmanje jedan par";
     return e;
@@ -126,6 +128,7 @@ export default function OrderForm() {
           ime: fields.name,
           telefon: fields.phone,
           adresa: fields.address,
+          postanski_broj: fields.postalCode,
           grad: fields.city,
           velicine: SIZES.map((s) => ({ velicina: s, kolicina: quantities[s] ?? 0 })),
         }),
@@ -199,6 +202,7 @@ export default function OrderForm() {
                   <InputField id="name" label="Ime i prezime" autoComplete="name" placeholder="npr. Emir Hadžić" value={fields.name} onChange={handleField} error={errors.name} />
                   <InputField id="phone" label="Broj telefona" type="tel" autoComplete="tel" placeholder="npr. 061 123 456" value={fields.phone} onChange={handleField} error={errors.phone} />
                   <InputField id="address" label="Adresa" autoComplete="street-address" placeholder="npr. Ferhadija 12" value={fields.address} onChange={handleField} error={errors.address} />
+                  <InputField id="postalCode" label="Poštanski broj" autoComplete="postal-code" placeholder="npr. 71000" value={fields.postalCode} onChange={(e) => { const v = e.target.value.replace(/\D/g, "").slice(0, 5); handleField({ ...e, target: { ...e.target, name: "postalCode", value: v } }); }} error={errors.postalCode} />
                   <InputField id="city" label="Grad" autoComplete="address-level2" placeholder="npr. Sarajevo" value={fields.city} onChange={handleField} error={errors.city} />
                 </div>
               </div>

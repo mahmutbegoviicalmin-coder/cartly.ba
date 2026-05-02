@@ -173,12 +173,12 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 // ─────────────────────────────────────────────────────────
 // Camera Order Form
 // ─────────────────────────────────────────────────────────
-type Fields = { name: string; phone: string; address: string; city: string };
+type Fields = { name: string; phone: string; address: string; postalCode: string; city: string };
 type FieldErrors = Partial<Record<keyof Fields, string>>;
 
 function CameraOrderForm() {
   const [qty, setQty] = useState(1);
-  const [fields, setFields] = useState<Fields>({ name: "", phone: "", address: "", city: "" });
+  const [fields, setFields] = useState<Fields>({ name: "", phone: "", address: "", postalCode: "", city: "" });
   const [errors, setErrors] = useState<FieldErrors>({});
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -189,7 +189,10 @@ function CameraOrderForm() {
   const grandTotal = productTotal + DELIVERY;
 
   const handleField = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+    const { name } = e.target;
+    const value = name === "postalCode"
+      ? e.target.value.replace(/\D/g, "").slice(0, 5)
+      : e.target.value;
     setFields((prev) => ({ ...prev, [name]: value }));
     if (errors[name as keyof Fields])
       setErrors((prev) => ({ ...prev, [name]: undefined }));
@@ -201,6 +204,8 @@ function CameraOrderForm() {
     if (!fields.phone.trim()) e.phone = "Unesite broj telefona";
     else if (!/^[\d\s\+\-\(\)]{7,}$/.test(fields.phone)) e.phone = "Neispravan broj";
     if (!fields.address.trim()) e.address = "Unesite adresu";
+    if (!fields.postalCode.trim()) e.postalCode = "Unesite poštanski broj";
+    else if (!/^\d{1,5}$/.test(fields.postalCode.trim())) e.postalCode = "Samo brojevi, max 5 cifara";
     if (!fields.city.trim()) e.city = "Unesite grad";
     return e;
   };
@@ -220,6 +225,7 @@ function CameraOrderForm() {
           ime: fields.name,
           telefon: fields.phone,
           adresa: fields.address,
+          postanski_broj: fields.postalCode,
           grad: fields.city,
           kolicina: qty,
         }),
@@ -284,10 +290,11 @@ function CameraOrderForm() {
               }}
             >
               {([
-                { id: "name",    label: "Ime i prezime",  type: "text", autoComplete: "name",           placeholder: "npr. Emir Hadžić" },
-                { id: "phone",   label: "Broj telefona",  type: "tel",  autoComplete: "tel",             placeholder: "npr. 061 123 456" },
-                { id: "address", label: "Adresa",         type: "text", autoComplete: "street-address",  placeholder: "npr. Ferhadija 12" },
-                { id: "city",    label: "Grad",           type: "text", autoComplete: "address-level2",  placeholder: "npr. Sarajevo" },
+                { id: "name",       label: "Ime i prezime",   type: "text", autoComplete: "name",           placeholder: "npr. Emir Hadžić" },
+                { id: "phone",      label: "Broj telefona",   type: "tel",  autoComplete: "tel",             placeholder: "npr. 061 123 456" },
+                { id: "address",    label: "Adresa",          type: "text", autoComplete: "street-address",  placeholder: "npr. Ferhadija 12" },
+                { id: "postalCode", label: "Poštanski broj",  type: "text", autoComplete: "postal-code",     placeholder: "npr. 71000" },
+                { id: "city",       label: "Grad",            type: "text", autoComplete: "address-level2",  placeholder: "npr. Sarajevo" },
               ] as const).map(({ id, label, type, autoComplete, placeholder }) => (
                 <div key={id} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   <label htmlFor={id} style={{ fontSize: 13, fontWeight: 500, color: "#0A0A0A", fontFamily: "var(--font-manrope, sans-serif)" }}>

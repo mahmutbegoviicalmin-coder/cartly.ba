@@ -40,7 +40,7 @@ function fmtKM(n: number) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { ime, adresa, grad, telefon } = body;
+    const { ime, adresa, grad, telefon, postanski_broj } = body;
 
     if (!ime || !adresa || !grad || !telefon) {
       return NextResponse.json(
@@ -62,6 +62,7 @@ export async function POST(request: NextRequest) {
         telefon,
         adresa,
         grad,
+        postanski_broj:  postanski_broj ?? null,
         velicine:        [{ velicina: "DeWalt 28V XR Set", kolicina: 1 }],
         ukupno_pari:     1,
         cijena_proizvoda,

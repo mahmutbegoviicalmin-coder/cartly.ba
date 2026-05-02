@@ -14,7 +14,7 @@ function fmtKM(n: number) {
 
 export default function OrderForm() {
   const [form, setForm] = useState({
-    ime: "", telefon: "", adresa: "", grad: "", kolicina: "1",
+    ime: "", telefon: "", adresa: "", postanski_broj: "", grad: "", kolicina: "1",
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -32,8 +32,8 @@ export default function OrderForm() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    const { ime, telefon, adresa, grad } = form;
-    if (!ime.trim() || !telefon.trim() || !adresa.trim() || !grad.trim()) {
+    const { ime, telefon, adresa, postanski_broj, grad } = form;
+    if (!ime.trim() || !telefon.trim() || !adresa.trim() || !postanski_broj.trim() || !grad.trim()) {
       setError("Molimo popunite sva obavezna polja.");
       return;
     }
@@ -42,7 +42,7 @@ export default function OrderForm() {
       const res  = await fetch("/api/order-zvucnik", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ ...form, kolicina: qty }),
+        body:    JSON.stringify({ ...form, kolicina: qty, postanski_broj: form.postanski_broj }),
       });
       const json = await res.json();
       if (!res.ok || !json.success) throw new Error(json.error || "Greška.");
@@ -99,6 +99,22 @@ export default function OrderForm() {
         <div className="sm:col-span-2 flex flex-col gap-1.5">
           <label className={labelCls}>Adresa dostave *</label>
           <input name="adresa" value={form.adresa} onChange={handleChange} placeholder="npr. Titova 12" autoComplete="street-address" className={inputCls} />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className={labelCls}>Poštanski broj *</label>
+          <input
+            name="postanski_broj"
+            value={form.postanski_broj}
+            onChange={(e) => {
+              const v = e.target.value.replace(/\D/g, "").slice(0, 5);
+              setForm(prev => ({ ...prev, postanski_broj: v }));
+              if (error) setError(null);
+            }}
+            placeholder="npr. 71000"
+            autoComplete="postal-code"
+            inputMode="numeric"
+            className={inputCls}
+          />
         </div>
         <div className="flex flex-col gap-1.5">
           <label className={labelCls}>Količina</label>

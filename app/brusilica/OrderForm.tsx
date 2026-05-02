@@ -14,16 +14,17 @@ const TRUST_ITEMS = [
 ];
 
 interface FormData {
-  ime:      string;
-  telefon:  string;
-  adresa:   string;
-  grad:     string;
-  napomena: string;
+  ime:           string;
+  telefon:       string;
+  adresa:        string;
+  postanski_broj: string;
+  grad:          string;
+  napomena:      string;
 }
 
 export default function OrderForm() {
   const [formData, setFormData] = useState<FormData>({
-    ime: "", telefon: "", adresa: "", grad: "", napomena: "",
+    ime: "", telefon: "", adresa: "", postanski_broj: "", grad: "", napomena: "",
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -37,8 +38,8 @@ export default function OrderForm() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    const { ime, telefon, adresa, grad } = formData;
-    if (!ime.trim() || !telefon.trim() || !adresa.trim() || !grad.trim()) {
+    const { ime, telefon, adresa, postanski_broj, grad } = formData;
+    if (!ime.trim() || !telefon.trim() || !adresa.trim() || !postanski_broj.trim() || !grad.trim()) {
       setError("Molimo popunite sva obavezna polja.");
       return;
     }
@@ -160,6 +161,27 @@ export default function OrderForm() {
               name="adresa" value={formData.adresa} onChange={handleChange}
               onFocus={onFocusInput} onBlur={onBlurInput}
               placeholder="npr. Titova 12" autoComplete="street-address"
+              className="w-full rounded-xl px-4 py-3 text-sm placeholder-[#bbb] outline-none transition-all duration-150"
+              style={inputBase}
+            />
+          </div>
+
+          {/* Poštanski broj */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold text-[#888] uppercase tracking-wider">
+              Poštanski broj *
+            </label>
+            <input
+              name="postanski_broj"
+              value={formData.postanski_broj}
+              onChange={(e) => {
+                const v = e.target.value.replace(/\D/g, "").slice(0, 5);
+                setFormData(prev => ({ ...prev, postanski_broj: v }));
+                if (error) setError(null);
+              }}
+              onFocus={onFocusInput} onBlur={onBlurInput}
+              placeholder="npr. 71000" autoComplete="postal-code"
+              inputMode="numeric"
               className="w-full rounded-xl px-4 py-3 text-sm placeholder-[#bbb] outline-none transition-all duration-150"
               style={inputBase}
             />

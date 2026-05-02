@@ -11,6 +11,7 @@ const BEBAS: React.CSSProperties = { fontFamily: "var(--font-manrope, sans-serif
 interface FormData {
   ime: string;
   adresa: string;
+  postanski_broj: string;
   grad: string;
   telefon: string;
 }
@@ -19,6 +20,7 @@ export default function OrderForm() {
   const [formData, setFormData] = useState<FormData>({
     ime: "",
     adresa: "",
+    postanski_broj: "",
     grad: "",
     telefon: "",
   });
@@ -34,8 +36,8 @@ export default function OrderForm() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    const { ime, adresa, grad, telefon } = formData;
-    if (!ime.trim() || !adresa.trim() || !grad.trim() || !telefon.trim()) {
+    const { ime, adresa, postanski_broj, grad, telefon } = formData;
+    if (!ime.trim() || !adresa.trim() || !postanski_broj.trim() || !grad.trim() || !telefon.trim()) {
       setError("Molimo popunite sva polja.");
       return;
     }
@@ -47,7 +49,7 @@ export default function OrderForm() {
       const res = await fetch("/api/narudzba", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ime, adresa, grad, telefon }),
+        body: JSON.stringify({ ime, adresa, postanski_broj, grad, telefon }),
       });
       const json = await res.json();
       if (!res.ok || !json.success) {
@@ -134,6 +136,29 @@ export default function OrderForm() {
                 border: "1.5px solid #E5E2DC",
                 background: "#FAFAF8",
               }}
+              onFocus={(e) => { e.target.style.borderColor = ACCENT; e.target.style.background = "#fff"; }}
+              onBlur={(e) => { e.target.style.borderColor = "#E5E2DC"; e.target.style.background = "#FAFAF8"; }}
+            />
+          </div>
+
+          {/* Poštanski broj */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold text-[#888] uppercase tracking-wider">
+              Poštanski broj *
+            </label>
+            <input
+              name="postanski_broj"
+              value={formData.postanski_broj}
+              onChange={(e) => {
+                const v = e.target.value.replace(/\D/g, "").slice(0, 5);
+                setFormData(prev => ({ ...prev, postanski_broj: v }));
+                if (error) setError(null);
+              }}
+              placeholder="npr. 71000"
+              autoComplete="postal-code"
+              inputMode="numeric"
+              className="w-full rounded-xl px-4 py-3 text-sm text-[#1a1a1a] placeholder-[#bbb] outline-none transition-all duration-150"
+              style={{ border: "1.5px solid #E5E2DC", background: "#FAFAF8" }}
               onFocus={(e) => { e.target.style.borderColor = ACCENT; e.target.style.background = "#fff"; }}
               onBlur={(e) => { e.target.style.borderColor = "#E5E2DC"; e.target.style.background = "#FAFAF8"; }}
             />

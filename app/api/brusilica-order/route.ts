@@ -40,7 +40,7 @@ function fmtKM(n: number) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { ime, telefon, adresa, grad, napomena } = body;
+    const { ime, telefon, adresa, grad, napomena, postanski_broj } = body;
 
     if (!ime || !telefon || !adresa || !grad) {
       return NextResponse.json(
@@ -61,6 +61,7 @@ export async function POST(request: NextRequest) {
         telefon,
         adresa,
         grad,
+        postanski_broj:  postanski_broj ?? null,
         velicine:        [{ velicina: "Akumulatorska Brusilica", kolicina: 1 }],
         ukupno_pari:     1,
         cijena_proizvoda,

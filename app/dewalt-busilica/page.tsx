@@ -112,7 +112,7 @@ export default function DeWaltPage() {
   const [notifIdx,   setNotifIdx]   = useState(0);
   const [notifShow,  setNotifShow]  = useState(false);
   const [viewers,    setViewers]    = useState(0);
-  const [form,       setForm]       = useState({ ime: "", adresa: "", grad: "", telefon: "" });
+  const [form,       setForm]       = useState({ ime: "", adresa: "", postanski_broj: "", grad: "", telefon: "" });
   const [loading,    setLoading]    = useState(false);
   const [success,    setSuccess]    = useState(false);
   const [error,      setError]      = useState<string | null>(null);
@@ -169,14 +169,17 @@ export default function DeWaltPage() {
   }
 
   function onChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setForm(p => ({ ...p, [e.target.name]: e.target.value }));
+    const value = e.target.name === "postanski_broj"
+      ? e.target.value.replace(/\D/g, "").slice(0, 5)
+      : e.target.value;
+    setForm(p => ({ ...p, [e.target.name]: value }));
     if (error) setError(null);
   }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    const { ime, adresa, grad, telefon } = form;
-    if (!ime.trim() || !adresa.trim() || !grad.trim() || !telefon.trim()) { setError("Molimo popunite sva obavezna polja."); return; }
+    const { ime, adresa, postanski_broj, grad, telefon } = form;
+    if (!ime.trim() || !adresa.trim() || !postanski_broj.trim() || !grad.trim() || !telefon.trim()) { setError("Molimo popunite sva obavezna polja."); return; }
     if (!/^[0-9+\s\-()]{6,}$/.test(telefon.trim())) { setError("Unesite ispravan broj telefona."); return; }
     setLoading(true); setError(null);
     try {
@@ -1169,10 +1172,11 @@ export default function DeWaltPage() {
                 <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                   {(
                     [
-                      { name: "ime",     label: "Ime i prezime",  placeholder: "npr. Emir Hadžić",  type: "text", autoComplete: "name" },
-                      { name: "adresa",  label: "Adresa dostave", placeholder: "npr. Titova 12",    type: "text", autoComplete: "street-address" },
-                      { name: "grad",    label: "Grad",           placeholder: "npr. Sarajevo",     type: "text", autoComplete: "address-level2" },
-                      { name: "telefon", label: "Broj telefona",  placeholder: "npr. 061 123 456",  type: "tel",  autoComplete: "tel" },
+                      { name: "ime",             label: "Ime i prezime",   placeholder: "npr. Emir Hadžić",  type: "text", autoComplete: "name" },
+                      { name: "adresa",          label: "Adresa dostave",  placeholder: "npr. Titova 12",    type: "text", autoComplete: "street-address" },
+                      { name: "postanski_broj",  label: "Poštanski broj",  placeholder: "npr. 71000",        type: "text", autoComplete: "postal-code" },
+                      { name: "grad",            label: "Grad",            placeholder: "npr. Sarajevo",     type: "text", autoComplete: "address-level2" },
+                      { name: "telefon",         label: "Broj telefona",   placeholder: "npr. 061 123 456",  type: "tel",  autoComplete: "tel" },
                     ] as const
                   ).map(f => (
                     <div key={f.name}>
