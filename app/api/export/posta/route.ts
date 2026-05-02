@@ -70,6 +70,8 @@ const CITY_PTT_OVERRIDE: Record<string, string> = {
   "neum": "88390",
   "jablanica": "88420",
   "prozor": "88440",
+  "prozor rama": "88440",
+  "velika kladusa": "77230",
   "ilidza": "71210",
   "vogosca": "71320",
   "hadzici": "71240",
