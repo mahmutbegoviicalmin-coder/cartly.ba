@@ -107,23 +107,16 @@ function getDayLabel(key: string): string {
 // ─── Margin Calculator ────────────────────────────────────────────────────────
 function MarginCalc() {
   const saved = typeof window !== "undefined" ? {
-    sell:  parseFloat(localStorage.getItem("calc_sell")  ?? "99.9"),
-    cost:  parseFloat(localStorage.getItem("calc_cost")  ?? "0"),
-    daily: parseInt(localStorage.getItem("calc_daily") ?? "5", 10),
-  } : { sell: 99.9, cost: 0, daily: 5 };
+    sell: parseFloat(localStorage.getItem("calc_sell") ?? "99.9"),
+    cost: parseFloat(localStorage.getItem("calc_cost") ?? "0"),
+  } : { sell: 99.9, cost: 0 };
 
   const [sell,  setSell]  = useState(saved.sell);
   const [cost,  setCost]  = useState(saved.cost);
-  const [daily, setDaily] = useState(saved.daily);
-
   const margin    = sell - cost;
   const marginPct = sell > 0 ? (margin / sell) * 100 : 0;
   const mColor    = margin > 0 ? "#4ade80" : margin < 0 ? "#ef4444" : "#555";
   const costPct   = sell > 0 ? Math.min(100, (cost / sell) * 100) : 0;
-
-  const rev30  = daily * 30 * sell;
-  const cost30 = daily * 30 * cost;
-  const net30  = daily * 30 * margin;
 
   const inputStyle: React.CSSProperties = {
     width: "100%", padding: "14px 16px", background: "#0d0d0d",
@@ -198,32 +191,6 @@ function MarginCalc() {
           </div>
         </div>
 
-        {/* ── Projekcija ── */}
-        <div style={{ padding: "0 28px 28px" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-            <p style={{ fontSize: 10, color: "#444", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", margin: 0 }}>Projekcija / 30 dana</p>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 12, color: "#555" }}>Narudžbi/dan:</span>
-              <input
-                type="number" value={daily} min={1} max={500}
-                onChange={(e) => { const v = Math.max(1, parseInt(e.target.value) || 1); setDaily(v); localStorage.setItem("calc_daily", String(v)); }}
-                style={{ width: 60, padding: "5px 8px", background: "#0d0d0d", border: "1px solid #2a2a2a", borderRadius: 8, fontSize: 15, fontWeight: 700, color: "#f5f5f7", outline: "none", fontFamily: "inherit", textAlign: "center" }}
-              />
-            </div>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
-            {[
-              { label: "Prihod",   value: fmt(rev30),  color: "#f97316" },
-              { label: "Nabavna",  value: fmt(cost30), color: "#60a5fa" },
-              { label: "Neto",     value: fmt(net30),  color: "#4ade80" },
-            ].map(({ label, value, color }) => (
-              <div key={label} style={{ background: "#0d0d0d", borderRadius: 10, padding: "14px 16px", border: "1px solid #1f1f1f" }}>
-                <p style={{ fontSize: 10, color: "#444", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 6px" }}>{label}</p>
-                <p style={{ fontSize: 18, fontWeight: 800, color, margin: 0, letterSpacing: "-0.02em" }}>{value}</p>
-              </div>
-            ))}
-          </div>
-        </div>
 
       </div>
     </div>
