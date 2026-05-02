@@ -109,14 +109,18 @@ function MarginCalc() {
   const saved = typeof window !== "undefined" ? {
     sell: parseFloat(localStorage.getItem("calc_sell") ?? "99.9"),
     cost: parseFloat(localStorage.getItem("calc_cost") ?? "0"),
-  } : { sell: 99.9, cost: 0 };
+    qty:  parseInt(localStorage.getItem("calc_qty")  ?? "1", 10),
+  } : { sell: 99.9, cost: 0, qty: 1 };
 
-  const [sell,  setSell]  = useState(saved.sell);
-  const [cost,  setCost]  = useState(saved.cost);
+  const [sell, setSell] = useState(saved.sell);
+  const [cost, setCost] = useState(saved.cost);
+  const [qty,  setQty]  = useState(saved.qty);
+
   const margin    = sell - cost;
   const marginPct = sell > 0 ? (margin / sell) * 100 : 0;
   const mColor    = margin > 0 ? "#4ade80" : margin < 0 ? "#ef4444" : "#555";
   const costPct   = sell > 0 ? Math.min(100, (cost / sell) * 100) : 0;
+  const totalNet  = margin * qty;
 
   const inputStyle: React.CSSProperties = {
     width: "100%", padding: "14px 16px", background: "#0d0d0d",
@@ -131,7 +135,7 @@ function MarginCalc() {
 
         {/* ── Inputs ── */}
         <div style={{ padding: "28px 28px 0" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
             {/* Prodajna */}
             <div>
               <p style={{ fontSize: 10, color: "#555", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>Prodajna cijena</p>
@@ -159,6 +163,17 @@ function MarginCalc() {
                 />
                 <span style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", fontSize: 12, fontWeight: 600, color: "#444" }}>KM</span>
               </div>
+            </div>
+            {/* Prodano komada */}
+            <div>
+              <p style={{ fontSize: 10, color: "#555", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>Prodano komada</p>
+              <input
+                type="number" value={qty} min={0} step={1}
+                onChange={(e) => { const v = Math.max(0, parseInt(e.target.value) || 0); setQty(v); localStorage.setItem("calc_qty", String(v)); }}
+                style={{ ...inputStyle }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = "#4ade80"; }}
+                onBlur={(e)  => { e.currentTarget.style.borderColor = "#2a2a2a"; }}
+              />
             </div>
           </div>
         </div>
@@ -188,6 +203,13 @@ function MarginCalc() {
               <span style={{ fontSize: 10, color: "#444" }}>Nabavna {costPct.toFixed(0)}%</span>
               <span style={{ fontSize: 10, color: "#444" }}>Zarada {(100 - costPct).toFixed(0)}%</span>
             </div>
+
+            {qty > 0 && (
+              <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid #1a1a1a", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: 11, color: "#555", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>Ukupna zarada ({qty} kom)</span>
+                <span style={{ fontSize: 28, fontWeight: 900, color: mColor, letterSpacing: "-0.02em" }}>{fmt(totalNet)}</span>
+              </div>
+            )}
           </div>
         </div>
 
