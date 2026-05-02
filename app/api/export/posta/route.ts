@@ -3,28 +3,56 @@ import { getSupabaseAdmin } from "@/lib/supabase-server";
 import * as XLSX from "xlsx";
 import pttData from "@/data/ptt-bih.json";
 
-// Build case-insensitive lookup map: grad → ptt
+// ── PTT Lookup ────────────────────────────────────────────────────────────────
+
+// Strip diacritics and lowercase — enables accent-insensitive matching
+// "Ljubuski" === "Ljubuški", "Brcko" === "Brčko", etc.
+function normalize(s: string): string {
+  return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+}
+
+// Build normalized lookup map
 const PTT_MAP = new Map<string, string>(
   (pttData as { mjesto: string; ptt: string }[]).map(({ mjesto, ptt }) => [
-    mjesto.toLowerCase().trim(),
+    normalize(mjesto),
     ptt,
   ])
 );
 
-function lookupPTT(grad: string): string {
-  if (!grad) return "";
-  return PTT_MAP.get(grad.toLowerCase().trim()) ?? "";
+// Brčko Distrikt aliases → 76100 (all normalize to "brcko" or "brcko distrikt")
+for (const alias of ["Brčko distrikt", "Brcko distrikt", "Brčko Distrikt", "Brcko", "Brčko"]) {
+  PTT_MAP.set(normalize(alias), "76100");
 }
 
-// Product name from order_number prefix
-function productName(orderNumber: string): string {
+function lookupPTT(grad: string): string {
+  if (!grad) return "";
+  return PTT_MAP.get(normalize(grad)) ?? "";
+}
+
+// ── Product content ───────────────────────────────────────────────────────────
+
+type Velicina = { velicina: number | string; kolicina: number };
+
+// Returns the human-readable content string for Napomena/Sadržaj columns
+function productContent(orderNumber: string, velicine: Velicina[]): string {
   const prefix = (orderNumber ?? "").slice(0, 3).toUpperCase();
+
+  if (prefix === "CRT") {
+    // Patike: list sizes with quantities, e.g. "Radne Patike S3 - vel. 42(1), 43(2)"
+    const sizes = (velicine ?? [])
+      .filter((v) => v.kolicina > 0)
+      .map((v) => `${v.velicina}(${v.kolicina})`)
+      .join(", ");
+    return sizes ? `Radne Patike S3 - vel. ${sizes}` : "Radne Patike S3";
+  }
+
   const MAP: Record<string, string> = {
-    CRT: "Radne Patike S3",
-    MLW: "Milwaukee Bušilica",
-    ZQS: "Bluetooth Zvučnik",
+    DWL: "Kamera V380 Pro",
     KMR: "Kamera V380 Pro",
+    MLW: "Milwaukee Bušilica M18",
+    ZQS: "Bluetooth Zvučnik",
     DWT: "DeWalt Brusilica",
+    BRS: "Brusilica",
   };
   return MAP[prefix] ?? "Proizvod";
 }
@@ -35,19 +63,17 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const dateParam = searchParams.get("date") ?? new Date().toISOString().slice(0, 10);
 
-    // Validate format YYYY-MM-DD
     if (!/^\d{4}-\d{2}-\d{2}$/.test(dateParam)) {
       return NextResponse.json({ error: "Invalid date format. Use YYYY-MM-DD." }, { status: 400 });
     }
 
-    // Day boundaries in UTC (Sarajevo is UTC+1/+2; close enough for daily export)
     const dayStart = `${dateParam}T00:00:00.000Z`;
     const dayEnd   = `${dateParam}T23:59:59.999Z`;
 
     // ── Fetch orders ──────────────────────────────────────────────────────────
     const { data: orders, error } = await getSupabaseAdmin()
       .from("orders")
-      .select("ime, telefon, adresa, grad, ukupno, order_number")
+      .select("ime, telefon, adresa, grad, ukupno, order_number, velicine")
       .gte("created_at", dayStart)
       .lte("created_at", dayEnd)
       .neq("status", "cancelled")
@@ -88,37 +114,36 @@ export async function GET(request: NextRequest) {
     ];
 
     const dataRows = orders.map((o) => {
-      const product  = productName(o.order_number ?? "");
-      const kontakt  = (o.ime ?? "").split(" ")[0];
+      const content = productContent(o.order_number ?? "", o.velicine ?? []);
+      const kontakt = (o.ime ?? "").split(" ")[0];
       return [
-        o.ime ?? "",                                          // Ime i prezime
-        lookupPTT(o.grad ?? ""),                               // Ptt broj (auto-lookup by grad)
-        o.adresa ?? "",       // Adresa
-        o.grad ?? "",         // Mesto
-        o.telefon ?? "",      // Telefon
-        o.order_number ?? "", // Referenca
-        1,                    // Tezina (kg)
-        1,                    // Broj paketa
-        o.ukupno,             // Otkupnina (BAM)
-        "",                   // (Ne koristi se)
-        product,              // Napomena za dostavu
-        o.ukupno,             // Vrijednost pošiljke (BAM)
-        0,                    // Otezana dostava
-        0,                    // Povrat otpremnice
-        "",                   // (Ne koristi se)
-        "",                   // (Ne koristi se)
-        product,              // Sadržaj pošiljke
-        kontakt,              // Kontakt osoba
-        0,                    // Otvaranje pošiljke
-        0,                    // Obveznik plaćanja
-        1,                    // Način plaćanja
+        o.ime ?? "",                   // Ime i prezime
+        lookupPTT(o.grad ?? ""),       // Ptt broj
+        o.adresa ?? "",                // Adresa
+        o.grad ?? "",                  // Mesto
+        o.telefon ?? "",               // Telefon
+        o.order_number ?? "",          // Referenca
+        1,                             // Tezina (kg)
+        1,                             // Broj paketa
+        o.ukupno,                      // Otkupnina (BAM)
+        "",                            // (Ne koristi se)
+        content,                       // Napomena za dostavu
+        o.ukupno,                      // Vrijednost pošiljke (BAM)
+        0,                             // Otezana dostava
+        0,                             // Povrat otpremnice
+        "",                            // (Ne koristi se)
+        "",                            // (Ne koristi se)
+        content,                       // Sadržaj pošiljke
+        kontakt,                       // Kontakt osoba
+        0,                             // Otvaranje pošiljke
+        0,                             // Obveznik plaćanja
+        1,                             // Način plaćanja
       ];
     });
 
     const sheet1Data = [HEADERS, ...dataRows];
     const ws1 = XLSX.utils.aoa_to_sheet(sheet1Data);
 
-    // Column widths
     ws1["!cols"] = [
       { wch: 28 }, // Ime i prezime
       { wch: 12 }, // Ptt broj
@@ -130,13 +155,13 @@ export async function GET(request: NextRequest) {
       { wch: 12 }, // Broj paketa
       { wch: 16 }, // Otkupnina
       { wch: 14 }, // Ne koristi se
-      { wch: 24 }, // Napomena
+      { wch: 36 }, // Napomena (wider for size strings)
       { wch: 22 }, // Vrijednost
       { wch: 16 }, // Otezana dostava
       { wch: 18 }, // Povrat otpremnice
       { wch: 14 }, // Ne koristi se
       { wch: 14 }, // Ne koristi se
-      { wch: 24 }, // Sadržaj
+      { wch: 36 }, // Sadržaj (wider for size strings)
       { wch: 16 }, // Kontakt osoba
       { wch: 18 }, // Otvaranje
       { wch: 18 }, // Obveznik
@@ -145,9 +170,9 @@ export async function GET(request: NextRequest) {
 
     // ── Sheet 2 — Legenda ─────────────────────────────────────────────────────
     const sheet2Data = [
-      ["Kolona",     "Povrat otpremnice",  "Obveznik plaćanja",                      "Način plaćanja"],
-      ["Vrijednosti","0-NE",               "0-Pošiljalac",                            "0-Gotovinski"],
-      ["",           "1-DA",               "1-Primalac (Trenutno nije dozvoljeno)",   "1-Žiralno"],
+      ["Kolona",      "Povrat otpremnice",  "Obveznik plaćanja",                      "Način plaćanja"],
+      ["Vrijednosti", "0-NE",               "0-Pošiljalac",                            "0-Gotovinski"],
+      ["",            "1-DA",               "1-Primalac (Trenutno nije dozvoljeno)",   "1-Žiralno"],
     ];
     const ws2 = XLSX.utils.aoa_to_sheet(sheet2Data);
     ws2["!cols"] = [{ wch: 14 }, { wch: 22 }, { wch: 42 }, { wch: 18 }];
@@ -159,13 +184,11 @@ export async function GET(request: NextRequest) {
 
     const buf = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
 
-    const filename = `Posiljke_${dateParam}.xlsx`;
-
     return new NextResponse(buf, {
       status: 200,
       headers: {
         "Content-Type":        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        "Content-Disposition": `attachment; filename="${filename}"`,
+        "Content-Disposition": `attachment; filename="Posiljke_${dateParam}.xlsx"`,
         "Content-Length":      String(buf.length),
         "Cache-Control":       "no-store",
       },
