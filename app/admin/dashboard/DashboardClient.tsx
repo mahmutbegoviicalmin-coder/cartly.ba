@@ -82,10 +82,10 @@ function isCameraOrder(velicine: { velicina: number | string; kolicina: number }
 
 const PRODUCT_MAP: Record<string, { label: string; bg: string; color: string }> = {
   CRT: { label: "Patike",    bg: "rgba(249,115,22,0.12)",  color: "#f97316" },
-  DWL: { label: "Kamera",   bg: "rgba(129,140,248,0.12)", color: "#818cf8" },
   KMR: { label: "Kamera",   bg: "rgba(129,140,248,0.12)", color: "#818cf8" },
   MLW: { label: "Milwaukee", bg: "rgba(239,68,68,0.12)",   color: "#ef4444" },
   ZQS: { label: "Zvučnik",  bg: "rgba(34,197,94,0.12)",   color: "#22c55e" },
+  DWL: { label: "DeWalt",   bg: "rgba(234,179,8,0.12)",   color: "#eab308" },
   DWT: { label: "DeWalt",   bg: "rgba(234,179,8,0.12)",   color: "#eab308" },
   BRS: { label: "Brusilica", bg: "rgba(20,184,166,0.12)",  color: "#14b8a6" },
 };

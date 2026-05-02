@@ -47,10 +47,10 @@ function productContent(orderNumber: string, velicine: Velicina[]): string {
   }
 
   const MAP: Record<string, string> = {
-    DWL: "Kamera V380 Pro",
     KMR: "Kamera V380 Pro",
     MLW: "Milwaukee Bušilica M18",
     ZQS: "Bluetooth Zvučnik",
+    DWL: "DeWalt Brusilica",
     DWT: "DeWalt Brusilica",
     BRS: "Brusilica",
   };

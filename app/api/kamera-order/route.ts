@@ -11,7 +11,7 @@ function generateOrderNumber(date: Date): string {
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
   const rand = String(Math.floor(Math.random() * 9000) + 1000);
-  return `CRT-${y}${m}${d}-${rand}`;
+  return `KMR-${y}${m}${d}-${rand}`;
 }
 
 function formatDateBosnian(date: Date): string {
