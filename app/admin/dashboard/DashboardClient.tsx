@@ -74,9 +74,6 @@ function fmtShortDate(iso: string) {
   return d.toLocaleDateString("bs-BA", { day: "2-digit", month: "2-digit" });
 }
 
-function isCameraOrder(velicine: { velicina: number | string; kolicina: number }[]) {
-  return typeof velicine?.[0]?.velicina === "string";
-}
 
 const PRODUCT_MAP: Record<string, { label: string; bg: string; color: string }> = {
   CRT: { label: "Patike",    bg: "rgba(249,115,22,0.12)",  color: "#f97316" },
@@ -380,31 +377,6 @@ export default function DashboardClient() {
 
   const handleStatusFilter = (s: string) => { setStatusFilter(s); setPage(1); };
 
-  const exportCSV = () => {
-    const headers = ["Datum", "Br.narudžbe", "Ime", "Telefon", "Adresa", "Grad", "Proizvod", "Količina", "Iznos(KM)", "Status"];
-    const rows = orders.map((o) => {
-      return [
-        `"${fmtDate(o.created_at)}"`,
-        o.order_number ?? "—",
-        `"${o.ime}"`,
-        o.telefon,
-        `"${o.adresa}"`,
-        `"${o.grad}"`,
-        productBadge(o.order_number).label,
-        o.ukupno_pari,
-        o.ukupno.toFixed(2),
-        o.status,
-      ].join(",");
-    });
-    const csv  = [headers.join(","), ...rows].join("\n");
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement("a");
-    a.href     = url;
-    a.download = `cartly-narudžbe-${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
 
   const totalPages = Math.ceil(total / pageSize);
 
@@ -416,13 +388,13 @@ export default function DashboardClient() {
       if (!map.has(key)) map.set(key, []);
       map.get(key)!.push(o);
     }
-    return [...map.entries()].sort((a, b) => b[0].localeCompare(a[0]));
+    return Array.from(map.entries()).sort((a, b) => b[0].localeCompare(a[0]));
   }, [allOrders]);
 
   const toggleDay = (key: string) =>
     setExpandedDays((prev) => {
       const next = new Set(prev);
-      next.has(key) ? next.delete(key) : next.add(key);
+      if (next.has(key)) { next.delete(key); } else { next.add(key); }
       return next;
     });
 
