@@ -213,13 +213,13 @@ export async function GET(request: NextRequest) {
         o.adresa ?? "",                // Adresa
         o.grad ?? "",                  // Mesto
         o.telefon ?? "",               // Telefon
-        o.order_number ?? "",          // Referenca
+        "",                            // Referenca
         qty,                           // Tezina (kg) — 1 kg/par for patike
         qty,                           // Broj paketa
         o.ukupno,                      // Otkupnina (BAM)
         "",                            // (Ne koristi se)
         "",                            // Napomena za dostavu — always empty
-        o.ukupno,                      // Vrijednost pošiljke (BAM)
+        0,                             // Vrijednost pošiljke (BAM)
         0,                             // Otezana dostava
         0,                             // Povrat otpremnice
         "",                            // (Ne koristi se)

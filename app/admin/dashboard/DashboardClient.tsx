@@ -717,52 +717,40 @@ export default function DashboardClient() {
               <div style={{ background: "#1a1a1a", borderRadius: 14, border: "1px solid #242424", overflow: "hidden" }}>
 
                 {/* Table toolbar */}
-                <div style={{ padding: "18px 24px", borderBottom: "1px solid #1f1f1f", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-                  <h2 style={{ fontSize: 14, fontWeight: 700, color: "#f5f5f7", margin: 0 }}>
-                    Sve narudžbe
-                    {total > 0 && <span style={{ fontSize: 12, color: "#3a3a3a", marginLeft: 8, fontWeight: 400 }}>({total} ukupno)</span>}
-                  </h2>
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                    <input
-                      type="text"
-                      placeholder="Pretraži ime, telefon, grad..."
-                      value={searchInput}
-                      onChange={(e) => setSearchInput(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                      style={{
-                        padding: "8px 14px", fontSize: 13, border: "1px solid #2a2a2a",
-                        borderRadius: 8, background: "#111", outline: "none", width: 220,
-                        fontFamily: "inherit", color: "#f5f5f7", transition: "border-color 0.15s",
-                      }}
-                      onFocus={(e) => { e.currentTarget.style.borderColor = "#f97316"; }}
-                      onBlur={(e)  => { e.currentTarget.style.borderColor = "#2a2a2a"; }}
-                    />
+                <div style={{ padding: "16px 24px", borderBottom: "1px solid #1f1f1f", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                  {/* Search */}
+                  <input
+                    type="text"
+                    placeholder="Pretraži ime, telefon, grad..."
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                    style={{
+                      padding: "8px 14px", fontSize: 13, border: "1px solid #2a2a2a",
+                      borderRadius: 8, background: "#111", outline: "none", width: 220,
+                      fontFamily: "inherit", color: "#f5f5f7", transition: "border-color 0.15s",
+                    }}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = "#f97316"; }}
+                    onBlur={(e)  => { e.currentTarget.style.borderColor = "#2a2a2a"; }}
+                  />
+                  <button
+                    onClick={handleSearch}
+                    style={{ padding: "8px 18px", background: "#f97316", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}
+                  >
+                    Traži
+                  </button>
+                  {search && (
                     <button
-                      onClick={handleSearch}
-                      style={{ padding: "8px 16px", background: "#f97316", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}
-                    >
-                      Traži
-                    </button>
-                    {search && (
-                      <button
-                        onClick={() => { setSearch(""); setSearchInput(""); setPage(1); }}
-                        style={{ padding: "8px 12px", background: "#222", color: "#666", border: "1px solid #2a2a2a", borderRadius: 8, fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}
-                      >✕</button>
-                    )}
-                    <button
-                      onClick={exportCSV}
-                      className="csv-btn"
-                      style={{
-                        padding: "8px 16px", background: "#192319", color: "#4ade80",
-                        border: "1px solid #223022", borderRadius: 8, fontSize: 13, fontWeight: 600,
-                        cursor: "pointer", fontFamily: "inherit",
-                        display: "flex", alignItems: "center", gap: 6, transition: "background 0.15s",
-                      }}
-                    >
-                      <IconDownload /> CSV
-                    </button>
+                      onClick={() => { setSearch(""); setSearchInput(""); setPage(1); }}
+                      style={{ padding: "8px 12px", background: "#222", color: "#666", border: "1px solid #2a2a2a", borderRadius: 8, fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}
+                    >✕</button>
+                  )}
 
-                    {/* ── BH Pošta Export ── */}
+                  {/* Spacer */}
+                  <span style={{ flex: 1 }} />
+
+                  {/* ── BH Pošta Export ── */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <input
                       type="date"
                       value={postaDate}
@@ -782,10 +770,10 @@ export default function DashboardClient() {
                       disabled={postaLoading}
                       className="posta-btn"
                       style={{
-                        padding: "8px 16px", background: "#111d2e", color: "#60a5fa",
+                        padding: "8px 18px", background: "#111d2e", color: "#60a5fa",
                         border: "1px solid #1e3a5f", borderRadius: 8, fontSize: 13, fontWeight: 600,
                         cursor: postaLoading ? "not-allowed" : "pointer", fontFamily: "inherit",
-                        display: "flex", alignItems: "center", gap: 6, transition: "background 0.15s",
+                        display: "flex", alignItems: "center", gap: 7, transition: "background 0.15s",
                         opacity: postaLoading ? 0.7 : 1, whiteSpace: "nowrap",
                       }}
                     >
@@ -797,7 +785,10 @@ export default function DashboardClient() {
                           Generišem...
                         </>
                       ) : (
-                        <>📦 Eksportuj za Poštu</>
+                        <>
+                          <IconDownload />
+                          Eksportuj za Poštu
+                        </>
                       )}
                     </button>
                   </div>

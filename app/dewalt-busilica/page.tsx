@@ -183,7 +183,7 @@ export default function DeWaltPage() {
     if (!/^[0-9+\s\-()]{6,}$/.test(telefon.trim())) { setError("Unesite ispravan broj telefona."); return; }
     setLoading(true); setError(null);
     try {
-      const res  = await fetch("/api/dewalt-order", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
+      const res  = await fetch("/api/dewalt-order", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ime: form.ime, adresa: form.adresa, grad: form.grad, telefon: form.telefon }) });
       const json = await res.json();
       if (!res.ok || !json.success) throw new Error(json.error || "Greška pri slanju.");
       // Pass orderNumber as eventID to deduplicate against server-side CAPI event

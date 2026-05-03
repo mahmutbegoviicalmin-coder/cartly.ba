@@ -42,7 +42,7 @@ export default function OrderForm() {
       const res  = await fetch("/api/order-zvucnik", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ ...form, kolicina: qty, postanski_broj: form.postanski_broj }),
+        body:    JSON.stringify({ ime: form.ime, telefon: form.telefon, adresa: form.adresa, grad: form.grad, kolicina: qty }),
       });
       const json = await res.json();
       if (!res.ok || !json.success) throw new Error(json.error || "Greška.");

@@ -51,7 +51,7 @@ export default function OrderForm() {
       const res = await fetch("/api/brusilica-order", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify(formData),
+        body:    JSON.stringify({ ime: formData.ime, telefon: formData.telefon, adresa: formData.adresa, grad: formData.grad, napomena: formData.napomena }),
       });
       const json = await res.json();
       if (!res.ok || !json.success) throw new Error(json.error || "Greška pri slanju narudžbe.");

@@ -225,7 +225,6 @@ function CameraOrderForm() {
           ime: fields.name,
           telefon: fields.phone,
           adresa: fields.address,
-          postanski_broj: fields.postalCode,
           grad: fields.city,
           kolicina: qty,
         }),

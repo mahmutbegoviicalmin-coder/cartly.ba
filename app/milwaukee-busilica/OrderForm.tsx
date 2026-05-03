@@ -49,7 +49,7 @@ export default function OrderForm() {
       const res = await fetch("/api/narudzba", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ime, adresa, postanski_broj, grad, telefon }),
+        body: JSON.stringify({ ime, adresa, grad, telefon }),
       });
       const json = await res.json();
       if (!res.ok || !json.success) {

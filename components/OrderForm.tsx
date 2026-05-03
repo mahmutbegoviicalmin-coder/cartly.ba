@@ -128,7 +128,6 @@ export default function OrderForm() {
           ime: fields.name,
           telefon: fields.phone,
           adresa: fields.address,
-          postanski_broj: fields.postalCode,
           grad: fields.city,
           velicine: SIZES.map((s) => ({ velicina: s, kolicina: quantities[s] ?? 0 })),
         }),
