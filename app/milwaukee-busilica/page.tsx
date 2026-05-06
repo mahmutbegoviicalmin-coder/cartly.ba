@@ -295,8 +295,9 @@ export default function MilwaukeePage() {
 
         @media (max-width: 900px) {
           .mw-hero-grid   { flex-direction: column !important; }
-          .mw-hero-visual { width: 100% !important; max-width: 400px !important; flex: none !important; align-self: center !important; }
-          .mw-hero-copy   { max-width: 100% !important; padding-bottom: 32px !important; padding-top: 16px !important; }
+          .mw-hero-visual { width: 100% !important; max-width: 360px !important; flex: none !important; align-self: center !important; margin-top: -16px !important; }
+          .mw-hero-img-wrap { padding-bottom: 80% !important; margin-top: 0 !important; }
+          .mw-hero-copy   { max-width: 100% !important; padding-bottom: 0 !important; padding-top: 16px !important; }
           .mw-hero-bg-text{ display: none !important; }
           .mw-kit-grid    { flex-direction: column !important; }
           .mw-prod-grid   { flex-direction: column !important; }
@@ -370,7 +371,7 @@ export default function MilwaukeePage() {
         {/* Main grid */}
         <div className="mw-hero-grid" style={{
           position: "relative", zIndex: 1, maxWidth: MAXW, margin: "0 auto",
-          padding: "48px 32px 0", display: "flex", gap: 40,
+          padding: "48px 28px 0", display: "flex", gap: 40,
           minHeight: "calc(100vh - 72px - 48px)",
         }}>
 
@@ -474,31 +475,38 @@ export default function MilwaukeePage() {
           </div>
 
           {/* RIGHT: Product image */}
-          <div className="mw-hero-visual" style={{ flex: "0 0 56%", position: "relative", alignSelf: "flex-start", marginTop: "0px" }}>
-            {/* White glow behind drill */}
+          <div className="mw-hero-visual" style={{ flex: "0 0 54%", position: "relative", alignSelf: "flex-start", marginTop: "0px" }}>
+            {/* Strong white halo behind drill */}
+            <div aria-hidden="true" style={{
+              position: "absolute", top: "42%", left: "50%", transform: "translate(-50%, -50%)",
+              width: "80%", height: "80%",
+              background: "radial-gradient(circle, rgba(255,255,255,0.32) 0%, rgba(255,240,240,0.15) 42%, transparent 68%)",
+              filter: "blur(36px)", zIndex: 0, pointerEvents: "none",
+            }} />
+            {/* Outer soft halo — second layer for depth */}
             <div aria-hidden="true" style={{
               position: "absolute", top: "45%", left: "50%", transform: "translate(-50%, -50%)",
-              width: "70%", height: "70%",
-              background: "radial-gradient(circle, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.08) 50%, transparent 72%)",
-              filter: "blur(48px)", zIndex: 0, pointerEvents: "none",
+              width: "110%", height: "110%",
+              background: "radial-gradient(circle, rgba(255,220,220,0.12) 0%, transparent 65%)",
+              filter: "blur(60px)", zIndex: 0, pointerEvents: "none",
             }} />
-            {/* Shadow ellipse */}
+            {/* Ground shadow */}
             <div aria-hidden="true" style={{
-              position: "absolute", bottom: "3%", left: "18%", right: "18%",
-              height: "4%", background: "rgba(0,0,0,0.22)", borderRadius: "50%",
-              filter: "blur(16px)", zIndex: 0,
+              position: "absolute", bottom: "4%", left: "20%", right: "20%",
+              height: "4%", background: "rgba(0,0,0,0.25)", borderRadius: "50%",
+              filter: "blur(14px)", zIndex: 0,
             }} />
             {/* Drill image */}
-            <div style={{ position: "relative", width: "100%", paddingBottom: "115%", zIndex: 1, marginTop: "32px" }}>
+            <div className="mw-hero-img-wrap" style={{ position: "relative", width: "100%", paddingBottom: "115%", zIndex: 1, marginTop: "24px" }}>
               <Image
                 src="/images/milwaukee.png"
                 alt="Milwaukee M18 Bušilica"
                 fill
-                sizes="(max-width:900px) 85vw, 56vw"
+                sizes="(max-width:900px) 85vw, 54vw"
                 style={{
                   objectFit: "contain", objectPosition: "center top",
-                  filter: "drop-shadow(0 0 48px rgba(255,255,255,0.18)) drop-shadow(-4px 28px 36px rgba(0,0,0,0.4))",
-                  transform: "rotate(2deg) scale(1.05)", transformOrigin: "center top",
+                  filter: "drop-shadow(0 0 40px rgba(255,255,255,0.55)) drop-shadow(0 0 80px rgba(255,255,255,0.2)) drop-shadow(-2px 24px 32px rgba(0,0,0,0.45))",
+                  transform: "rotate(2deg) scale(1.04)", transformOrigin: "center top",
                 }}
                 priority
               />
