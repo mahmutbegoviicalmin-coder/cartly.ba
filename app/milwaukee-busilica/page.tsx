@@ -243,8 +243,8 @@ export default function MilwaukeePage() {
           to   { opacity: 1; transform: translateY(0)    scale(1); }
         }
         @keyframes mw-fab-glow {
-          0%,100% { box-shadow: 0 8px 32px rgba(0,0,0,0.28), 0 0  8px 0px rgba(204,0,0,0.18); }
-          50%      { box-shadow: 0 12px 40px rgba(0,0,0,0.32), 0 0 22px 4px rgba(204,0,0,0.28); }
+          0%,100% { box-shadow: 0 6px 28px rgba(204,0,0,0.22), 0 2px 8px rgba(0,0,0,0.1); }
+          50%      { box-shadow: 0 10px 36px rgba(204,0,0,0.32), 0 4px 16px rgba(0,0,0,0.12); }
         }
         @keyframes mw-icon-pulse {
           0%,100% { box-shadow: 0 0 0 0 rgba(204,0,0,0.45); }
@@ -258,7 +258,7 @@ export default function MilwaukeePage() {
         }
         .mw-fab:hover {
           transform: translateY(-4px) scale(1.03) !important;
-          box-shadow: 0 20px 52px rgba(0,0,0,0.35), 0 0 32px 8px rgba(204,0,0,0.32) !important;
+          box-shadow: 0 16px 48px rgba(204,0,0,0.35), 0 4px 16px rgba(0,0,0,0.12) !important;
           animation-play-state: paused !important;
         }
         .mw-fab:active { transform: scale(0.95) !important; transition-duration: 80ms !important; }
@@ -347,7 +347,7 @@ export default function MilwaukeePage() {
           2. HERO
       ════════════════════════════════════════════════════════ */}
       <section style={{
-        background: "radial-gradient(circle at 70% 40%, #FF2222 0%, #CC0000 40%, #A80000 70%, #7A0000 100%)",
+        background: "radial-gradient(circle at 65% 35%, #E83030 0%, #CC0000 38%, #A30000 68%, #6B0000 100%)",
         paddingTop: 72, position: "relative", overflow: "hidden",
         minHeight: "calc(100vh - 72px)",
       }}>
@@ -471,22 +471,22 @@ export default function MilwaukeePage() {
           </div>
 
           {/* RIGHT: Product image */}
-          <div className="mw-hero-visual" style={{ flex: "0 0 56%", position: "relative", alignSelf: "flex-start", marginTop: "-48px" }}>
-            {/* Red glow behind drill */}
+          <div className="mw-hero-visual" style={{ flex: "0 0 56%", position: "relative", alignSelf: "flex-start", marginTop: "0px" }}>
+            {/* White glow behind drill */}
             <div aria-hidden="true" style={{
-              position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
-              width: "85%", height: "85%",
-              background: "radial-gradient(circle, rgba(255,100,100,0.45) 0%, rgba(180,0,0,0.2) 48%, transparent 72%)",
-              filter: "blur(52px)", zIndex: 0, pointerEvents: "none",
+              position: "absolute", top: "45%", left: "50%", transform: "translate(-50%, -50%)",
+              width: "70%", height: "70%",
+              background: "radial-gradient(circle, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.08) 50%, transparent 72%)",
+              filter: "blur(48px)", zIndex: 0, pointerEvents: "none",
             }} />
             {/* Shadow ellipse */}
             <div aria-hidden="true" style={{
               position: "absolute", bottom: "3%", left: "18%", right: "18%",
-              height: "4%", background: "rgba(0,0,0,0.28)", borderRadius: "50%",
+              height: "4%", background: "rgba(0,0,0,0.22)", borderRadius: "50%",
               filter: "blur(16px)", zIndex: 0,
             }} />
             {/* Drill image */}
-            <div style={{ position: "relative", width: "100%", paddingBottom: "110%", zIndex: 1 }}>
+            <div style={{ position: "relative", width: "100%", paddingBottom: "115%", zIndex: 1, marginTop: "32px" }}>
               <Image
                 src="/images/milwaukee.png"
                 alt="Milwaukee M18 Bušilica"
@@ -494,8 +494,8 @@ export default function MilwaukeePage() {
                 sizes="(max-width:900px) 85vw, 56vw"
                 style={{
                   objectFit: "contain", objectPosition: "center top",
-                  filter: "drop-shadow(-4px 24px 32px rgba(0,0,0,0.35))",
-                  transform: "rotate(3deg) scale(1.08)", transformOrigin: "center top",
+                  filter: "drop-shadow(0 0 48px rgba(255,255,255,0.18)) drop-shadow(-4px 28px 36px rgba(0,0,0,0.4))",
+                  transform: "rotate(2deg) scale(1.05)", transformOrigin: "center top",
                 }}
                 priority
               />
@@ -513,9 +513,14 @@ export default function MilwaukeePage() {
         opacity: notifShow ? 1 : 0, transition: "transform 350ms ease, opacity 350ms ease",
         pointerEvents: "none",
       }}>
-        <div style={{ background: C.black, borderLeft: `3px solid ${C.red}`, borderRadius: 10, padding: "11px 16px", display: "flex", alignItems: "center", gap: 10, boxShadow: "0 8px 32px rgba(0,0,0,0.22)" }}>
-          <ShoppingBag size={14} strokeWidth={2} style={{ color: C.red, flexShrink: 0 }} />
-          <span style={{ fontSize: 13, color: C.white, fontFamily: INTER, fontWeight: 500 }}>{NOTIFS[notifIdx]}</span>
+        <div style={{ background: "#fff", borderLeft: `3px solid ${C.red}`, borderRadius: 12, padding: "12px 16px", display: "flex", alignItems: "center", gap: 10, boxShadow: "0 8px 40px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.08)" }}>
+          <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(204,0,0,0.08)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <ShoppingBag size={13} strokeWidth={2} style={{ color: C.red }} />
+          </div>
+          <div>
+            <span style={{ fontSize: 13, color: "#1a1a1a", fontFamily: INTER, fontWeight: 600, display: "block", lineHeight: 1.2 }}>{NOTIFS[notifIdx]}</span>
+            <span style={{ fontSize: 11, color: "#aaa", fontFamily: INTER, fontWeight: 400 }}>Milwaukee M18 Set</span>
+          </div>
         </div>
       </div>
 
@@ -527,9 +532,10 @@ export default function MilwaukeePage() {
           <div className="mw-fab-urgency" style={{ textAlign: "center", marginBottom: 8 }}>
             <span style={{
               display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontFamily: INTER,
-              fontWeight: 600, color: "rgba(255,255,255,0.88)", background: "rgba(10,10,10,0.72)",
-              backdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.1)",
+              fontWeight: 600, color: "#555", background: "rgba(255,255,255,0.95)",
+              backdropFilter: "blur(10px)", border: "1px solid rgba(0,0,0,0.08)",
               padding: "4px 12px 4px 8px", borderRadius: 999, letterSpacing: "0.02em", whiteSpace: "nowrap",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
             }}>
               <Flame size={12} strokeWidth={2} style={{ color: "#f97316", flexShrink: 0 }} />
               Ponuda ističe uskoro
@@ -538,22 +544,22 @@ export default function MilwaukeePage() {
 
           <button onClick={scrollToForm} className="mw-fab" style={{
             display: "flex", alignItems: "center", gap: 12,
-            background: "linear-gradient(145deg, #1c1c1c 0%, #0B0B0B 100%)", color: C.white,
-            fontFamily: SORA, border: "1px solid rgba(255,255,255,0.09)", borderRadius: 999,
-            padding: "13px 22px 13px 14px", cursor: "pointer", whiteSpace: "nowrap",
+            background: "#fff", color: C.black,
+            fontFamily: SORA, border: "1px solid rgba(0,0,0,0.07)", borderRadius: 999,
+            padding: "11px 20px 11px 11px", cursor: "pointer", whiteSpace: "nowrap",
           }}>
             <div className="mw-fab-icon" style={{
-              width: 40, height: 40, borderRadius: "50%",
-              background: "rgba(204,0,0,0.15)", border: "1px solid rgba(204,0,0,0.35)",
+              width: 38, height: 38, borderRadius: "50%",
+              background: C.red,
               display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
             }}>
-              <ShoppingBag size={17} strokeWidth={2} style={{ color: C.red }} />
+              <ShoppingBag size={16} strokeWidth={2} style={{ color: "#fff" }} />
             </div>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", lineHeight: 1 }}>
-              <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.025em", marginBottom: 3 }}>Naruči odmah</span>
-              <span style={{ fontSize: 13, fontWeight: 600, color: C.red, letterSpacing: "-0.01em" }}>69,90 KM</span>
+              <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 3, color: C.black }}>Naruči odmah</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: C.red, letterSpacing: "-0.01em" }}>69,90 KM</span>
             </div>
-            <ChevronRight size={16} strokeWidth={2.5} style={{ color: "rgba(255,255,255,0.35)", marginLeft: 4, flexShrink: 0 }} />
+            <ChevronRight size={15} strokeWidth={2.5} style={{ color: "#ccc", marginLeft: 4, flexShrink: 0 }} />
           </button>
         </div>
       )}
@@ -579,7 +585,7 @@ export default function MilwaukeePage() {
             <div className="mw-kit-img-card" style={{ flex: "0 0 44%", borderRadius: 20, overflow: "hidden", border: `1px solid ${C.border}`, background: "#fff", boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}>
               <div style={{ position: "relative", width: "100%", paddingBottom: "100%" }}>
                 <Image
-                  src="/images/milw2.webp"
+                  src="/images/setmilw.jpg"
                   alt="Milwaukee M18 Set"
                   fill
                   sizes="(max-width:900px) 100vw, 44vw"
@@ -659,14 +665,14 @@ export default function MilwaukeePage() {
           <div className="mw-prod-grid" style={{ display: "flex", gap: 48, alignItems: "center" }}>
 
             {/* Product image card */}
-            <div className="mw-prod-img-card" style={{ flex: "0 0 44%", background: C.red, borderRadius: 22, padding: "48px 40px", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 40px rgba(204,0,0,0.25)" }}>
+            <div className="mw-prod-img-card" style={{ flex: "0 0 44%", background: C.white, borderRadius: 22, padding: "48px 40px", display: "flex", alignItems: "center", justifyContent: "center", border: `1.5px solid ${C.border}`, boxShadow: "0 4px 32px rgba(0,0,0,0.06)" }}>
               <div style={{ position: "relative", width: "100%", paddingBottom: "85%", minHeight: 280 }}>
                 <Image
                   src="/images/milwaukee.png"
                   alt="Milwaukee M18 Bušilica"
                   fill
                   sizes="(max-width:900px) 90vw, 44vw"
-                  style={{ objectFit: "contain", filter: "drop-shadow(0 16px 40px rgba(0,0,0,0.25))" }}
+                  style={{ objectFit: "contain", filter: "drop-shadow(0 12px 32px rgba(0,0,0,0.14))" }}
                 />
               </div>
             </div>
