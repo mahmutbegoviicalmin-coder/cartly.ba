@@ -104,7 +104,7 @@ export default function MilwaukeePage() {
   const [notifIdx,   setNotifIdx]   = useState(0);
   const [notifShow,  setNotifShow]  = useState(false);
   const [viewers,    setViewers]    = useState(0);
-  const [form,       setForm]       = useState({ ime: "", adresa: "", grad: "", telefon: "" });
+  const [form,       setForm]       = useState({ ime: "", adresa: "", postanski_broj: "", grad: "", telefon: "" });
   const [loading,    setLoading]    = useState(false);
   const [success,    setSuccess]    = useState(false);
   const [error,      setError]      = useState<string | null>(null);
@@ -156,14 +156,17 @@ export default function MilwaukeePage() {
   }
 
   function onChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setForm(p => ({ ...p, [e.target.name]: e.target.value }));
+    const value = e.target.name === "postanski_broj"
+      ? e.target.value.replace(/\D/g, "").slice(0, 5)
+      : e.target.value;
+    setForm(p => ({ ...p, [e.target.name]: value }));
     if (error) setError(null);
   }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    const { ime, adresa, grad, telefon } = form;
-    if (!ime.trim() || !adresa.trim() || !grad.trim() || !telefon.trim()) { setError("Molimo popunite sva obavezna polja."); return; }
+    const { ime, adresa, postanski_broj, grad, telefon } = form;
+    if (!ime.trim() || !adresa.trim() || !postanski_broj.trim() || !grad.trim() || !telefon.trim()) { setError("Molimo popunite sva obavezna polja."); return; }
     if (!/^[0-9+\s\-()]{6,}$/.test(telefon.trim())) { setError("Unesite ispravan broj telefona."); return; }
     setLoading(true); setError(null);
     try {
@@ -585,7 +588,7 @@ export default function MilwaukeePage() {
             <div className="mw-kit-img-card" style={{ flex: "0 0 44%", borderRadius: 20, overflow: "hidden", border: `1px solid ${C.border}`, background: "#fff", boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}>
               <div style={{ position: "relative", width: "100%", paddingBottom: "100%" }}>
                 <Image
-                  src="/images/setmilw.jpg"
+                  src="/images/setmilw.jpeg"
                   alt="Milwaukee M18 Set"
                   fill
                   sizes="(max-width:900px) 100vw, 44vw"
@@ -808,10 +811,11 @@ export default function MilwaukeePage() {
                 </h3>
                 <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                   {([
-                    { name: "ime",     label: "Ime i prezime",  placeholder: "npr. Emir Hadžić",  type: "text", autoComplete: "name" },
-                    { name: "adresa",  label: "Adresa dostave", placeholder: "npr. Titova 12",    type: "text", autoComplete: "street-address" },
-                    { name: "grad",    label: "Grad",           placeholder: "npr. Sarajevo",     type: "text", autoComplete: "address-level2" },
-                    { name: "telefon", label: "Broj telefona",  placeholder: "npr. 061 123 456",  type: "tel",  autoComplete: "tel" },
+                    { name: "ime",            label: "Ime i prezime",  placeholder: "npr. Emir Hadžić",  type: "text", autoComplete: "name" },
+                    { name: "adresa",         label: "Adresa dostave", placeholder: "npr. Titova 12",    type: "text", autoComplete: "street-address" },
+                    { name: "postanski_broj", label: "Poštanski broj", placeholder: "npr. 71000",        type: "text", autoComplete: "postal-code" },
+                    { name: "grad",           label: "Grad",           placeholder: "npr. Sarajevo",     type: "text", autoComplete: "address-level2" },
+                    { name: "telefon",        label: "Broj telefona",  placeholder: "npr. 061 123 456",  type: "tel",  autoComplete: "tel" },
                   ] as const).map(f => (
                     <div key={f.name}>
                       <label style={{ display: "block", fontSize: 12, fontFamily: SORA, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "#888", marginBottom: 7 }}>
@@ -903,7 +907,7 @@ export default function MilwaukeePage() {
             cartly<span style={{ color: C.red }}>.</span>ba
           </span>
           <p style={{ fontSize: 13, fontFamily: INTER, color: "rgba(255,255,255,0.35)" }}>
-            © 2026 — Sve cijene uključuju PDV. Dostava 1–3 radna dana.
+            © 2026 — Dostava 1–3 radna dana. Plaćanje pouzećem.
           </p>
         </div>
       </footer>
