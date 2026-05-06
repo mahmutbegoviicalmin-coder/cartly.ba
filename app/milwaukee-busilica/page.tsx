@@ -1,576 +1,907 @@
-﻿import type { Metadata } from "next";
-import { ChevronRight } from "lucide-react";
-import ProductPageHeader from "@/components/ProductPageHeader";
-import FaqAccordion from "./FaqAccordion";
-import HeroGallery from "./HeroGallery";
-import OrderForm from "./OrderForm";
-import SocialProofToast from "./SocialProofToast";
-import FloatingOrderBar from "./FloatingOrderBar";
-import PixelEvents from "./PixelEvents";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Milwaukee M18 Bušilica — Profesionalni Alat | Cartly.ba",
-  description:
-    "Milwaukee M18 bežična bušilica — 18V, uključena baterija, 150Nm. Naruči online, dostava 10 KM po cijeloj BiH. Plaćanje pouzećem.",
+import { useState, useEffect, useRef, FormEvent } from "react";
+import Image from "next/image";
+import {
+  ShoppingBag, CheckCircle2, Shield, Package,
+  RefreshCw, Lock, Clock, AlertCircle,
+  ChevronRight, Truck, CreditCard, Zap, Box, Flame,
+} from "lucide-react";
+import { event } from "@/lib/fbpixel";
+
+// ─── Design tokens ────────────────────────────────────────────────────────────
+const C = {
+  red:    "#CC0000",
+  redDk:  "#A80000",
+  black:  "#0B0B0B",
+  white:  "#FFFFFF",
+  bgSoft: "#F5F3EE",
+  muted:  "#5F5F5F",
+  border: "#E4E2DC",
+  green:  "#16A34A",
 };
+const SORA  = "var(--font-sora, 'Sora', sans-serif)";
+const INTER = "var(--font-inter, 'Inter', sans-serif)";
+const MAXW  = 1200;
 
-// ─── Podaci ───────────────────────────────────────────────────────────────────
+// ─── Countdown ────────────────────────────────────────────────────────────────
+function useCountdown() {
+  const [t, setT] = useState({ h: 8, m: 0, s: 0 });
+  useEffect(() => {
+    const KEY = "milw_cdown_end";
+    let end: number;
+    try {
+      const s = localStorage.getItem(KEY);
+      end = s && parseInt(s, 10) > Date.now()
+        ? parseInt(s, 10)
+        : Date.now() + 8 * 3_600_000;
+      localStorage.setItem(KEY, String(end));
+    } catch { end = Date.now() + 3 * 3_600_000; }
+    const tick = () => {
+      const d = Math.max(0, end - Date.now());
+      setT({ h: Math.floor(d / 3_600_000), m: Math.floor((d % 3_600_000) / 60_000), s: Math.floor((d % 60_000) / 1_000) });
+    };
+    tick();
+    const id = setInterval(tick, 1_000);
+    return () => clearInterval(id);
+  }, []);
+  return t;
+}
+const pad = (n: number) => String(n).padStart(2, "0");
 
-const FEATURES = [
-  {
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-      </svg>
-    ),
-    title: "Brushless motor",
-    desc: "Duži vijek trajanja, manje održavanja",
-  },
-  {
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="1" y="6" width="15" height="13" rx="2" />
-        <path d="M16 10l4-2v10l-4-2" />
-      </svg>
-    ),
-    title: "18V M18 platforma",
-    desc: "Kompatibilnost s cijelim M18 ekosistemom",
-  },
-  {
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="4" y1="6" x2="20" y2="6" /><line x1="4" y1="12" x2="14" y2="12" /><line x1="4" y1="18" x2="18" y2="18" />
-      </svg>
-    ),
-    title: "2-brzinski mjenjač",
-    desc: "Preciznost za svaki zadatak",
-  },
-  {
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-      </svg>
-    ),
-    title: "LED osvjetljenje",
-    desc: "Vidljivost u tamnim prostorima",
-  },
-  {
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-      </svg>
-    ),
-    title: "Anti-vibracijski sistem",
-    desc: "Komfor pri dugotrajnoj upotrebi",
-  },
-  {
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="2" y="7" width="16" height="10" rx="2" /><path d="M22 11v2" /><line x1="6" y1="11" x2="6" y2="13" strokeWidth="2" /><line x1="10" y1="11" x2="10" y2="13" strokeWidth="2" />
-      </svg>
-    ),
-    title: "Uključena baterija",
-    desc: "Spreman za rad odmah iz kutije",
-  },
+// ─── Data ─────────────────────────────────────────────────────────────────────
+const NOTIFS = [
+  "Mirza iz Sarajeva upravo naručio",
+  "Haris iz Mostara upravo naručio",
+  "Alen iz Banja Luke upravo naručio",
+  "Dino iz Bihaća upravo naručio",
+  "Emir iz Zenice upravo naručio",
+  "Adnan iz Tuzle upravo naručio",
+  "Kenan iz Travnika upravo naručio",
+  "Sead iz Brčkog upravo naručio",
+  "Jasmin iz Živinica upravo naručio",
+  "Nedim iz Goražda upravo naručio",
+  "Faruk iz Sarajeva upravo naručio",
+  "Tarik iz Kaknja upravo naručio",
 ];
 
-const SPEC_GRID = [
-  {
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-      </svg>
-    ),
-    label: "Napon",
-    value: "18V",
-  },
-  {
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10" />
-        <circle cx="12" cy="12" r="3" />
-        <line x1="12" y1="2" x2="12" y2="5" />
-        <line x1="12" y1="19" x2="12" y2="22" />
-        <line x1="2" y1="12" x2="5" y2="12" />
-        <line x1="19" y1="12" x2="22" y2="12" />
-      </svg>
-    ),
-    label: "Maks. bušenje",
-    value: "10 mm",
-  },
-  {
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="2" y="7" width="20" height="11" rx="2" />
-        <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
-        <line x1="12" y1="12" x2="12" y2="12" strokeWidth="2.5" />
-      </svg>
-    ),
-    label: "Baterije",
-    value: "2× uključene",
-  },
-  {
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
-      </svg>
-    ),
-    label: "Moment",
-    value: "150 Nm",
-  },
-  {
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
-      </svg>
-    ),
-    label: "Tip",
-    value: "Bežična",
-  },
-  {
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-        <polyline points="9,22 9,12 15,12 15,22" />
-      </svg>
-    ),
-    label: "Namjena",
-    value: "Kućna / DIY",
-  },
-  {
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="2" y="3" width="20" height="14" rx="2" />
-        <path d="M8 21h8M12 17v4" />
-      </svg>
-    ),
-    label: "Garancija",
-    value: "6 mjeseci",
-  },
-  {
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="1" y="6" width="15" height="13" rx="2" />
-        <path d="M16 10l4-2v10l-4-2" />
-      </svg>
-    ),
-    label: "Stanje",
-    value: "Novo",
-  },
+const KIT_COL1 = [
+  { text: "Milwaukee M18 Bušilica/odvijač",    star: true  },
+  { text: "2× 18V M18 Li-Ion baterija",         star: true  },
+  { text: "M18/M12 brzi punjač",               star: true  },
+  { text: "Set burgija — drvo, metal, beton",  star: true  },
+  { text: "Bit set za odvijanje (10 kom)",      star: false },
+  { text: "Magnetski nosač bita",              star: false },
+  { text: "Adapter za udar",                   star: false },
+];
+const KIT_COL2 = [
+  { text: "Kaiš za sigurnosno nošenje",        star: false },
+  { text: "Razina libela",                     star: false },
+  { text: "PVC izolir traka",                  star: false },
+  { text: "Kutija šrafova i tiplova",          star: false },
+  { text: "LED osvjetljenje radnog mjesta",    star: false },
+  { text: "Uputstvo za korištenje (BS/HR)",    star: false },
+  { text: "Prenosivi kofer M18",               star: true  },
 ];
 
-const ZASTO = [
-  {
-    num: "01",
-    title: "Kvalitet provjeren",
-    desc: "Milwaukee alat s potvrđenim kvalitetom i certifikatima.",
-  },
-  {
-    num: "02",
-    title: "Garancija 6 mjeseci",
-    desc: "Servis i zamjena dijelova u garantnom roku — bez skrivenih uvjeta.",
-  },
-  {
-    num: "03",
-    title: "Brza dostava",
-    desc: "Dostava na kućnu adresu u roku 24–48h na cijeloj teritoriji BiH.",
-  },
+const BENEFITS = [
+  { Icon: Box,        title: "Kompletan set",         desc: "Sve u jednom — bušilica, baterije, burgije i kofer." },
+  { Icon: Zap,        title: "Brushless motor",        desc: "Veća efikasnost, duži vijek, manje održavanja." },
+  { Icon: Shield,     title: "Za svakoga",             desc: "Idealno za kuću, renovaciju i profesionalne majstore." },
+  { Icon: CreditCard, title: "Plaćanje pouzećem",      desc: "Plaćate tek kada preuzmete paket." },
 ];
 
-const TRUST = [
-  "Dostava 10,00 KM",
-  "Povrat 14 dana",
-  "Plaćanje pouzećem",
-  "Garancija 6 mjeseci",
+const DRILL_SPECS = [
+  "18V M18 Li-Ion platforma — kompatibilna s cijelim M18 ekosistemom",
+  "Brushless motor — veća efikasnost i duži vijek trajanja",
+  "2 brzinska stepena za precizan rad na svakom materijalu",
+  "2 baterije + punjač uključeni u cijenu",
 ];
 
-const HERO_STAVKE = [
-  "18V brushless motor",
-  "Bežični dizajn — 150 Nm",
-  "U setu: 2 baterije, punjač i prenosivi kofer",
-  "LED osvjetljenje radnog mjesta",
-];
-
-// ─── Stilski pomoćnici ────────────────────────────────────────────────────────
-const BEBAS: React.CSSProperties = { fontFamily: "var(--font-manrope, sans-serif)" };
-const ACCENT = "#E8460A";
-
-// ─── Stranica ─────────────────────────────────────────────────────────────────
+// ─── Page component ───────────────────────────────────────────────────────────
 export default function MilwaukeePage() {
+  const [headerVis,  setHeaderVis]  = useState(true);
+  const [notifIdx,   setNotifIdx]   = useState(0);
+  const [notifShow,  setNotifShow]  = useState(false);
+  const [viewers,    setViewers]    = useState(0);
+  const [form,       setForm]       = useState({ ime: "", adresa: "", grad: "", telefon: "" });
+  const [loading,    setLoading]    = useState(false);
+  const [success,    setSuccess]    = useState(false);
+  const [error,      setError]      = useState<string | null>(null);
+  const lastY          = useRef(0);
+  const checkoutFired  = useRef(false);
+  const timer          = useCountdown();
+
+  useEffect(() => {
+    event("ViewContent", {
+      content_name: "Milwaukee M18 Bušilica Set",
+      content_ids:  ["milwaukee-m18-set"],
+      content_type: "product",
+      value:        69.9,
+      currency:     "BAM",
+    });
+  }, []);
+
+  useEffect(() => {
+    const fn = () => {
+      const y = window.scrollY;
+      setHeaderVis(y < 80 || y < lastY.current);
+      lastY.current = y;
+    };
+    window.addEventListener("scroll", fn, { passive: true });
+    return () => window.removeEventListener("scroll", fn);
+  }, []);
+
+  useEffect(() => {
+    const cycle = () => {
+      setNotifShow(true);
+      setTimeout(() => { setNotifShow(false); setTimeout(() => setNotifIdx(i => (i + 1) % NOTIFS.length), 500); }, 4_000);
+    };
+    const id = setInterval(cycle, 30_000);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    const rand = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
+    setViewers(rand(68, 94));
+    const id = setInterval(() => {
+      setViewers(v => Math.min(110, Math.max(52, v + rand(-4, 5))));
+    }, rand(22_000, 38_000));
+    return () => clearInterval(id);
+  }, []);
+
+  function scrollToForm() {
+    if (!checkoutFired.current) { checkoutFired.current = true; event("InitiateCheckout", { value: 69.9, currency: "BAM" }); }
+    document.getElementById("narudzba")?.scrollIntoView({ behavior: "smooth" });
+  }
+
+  function onChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setForm(p => ({ ...p, [e.target.name]: e.target.value }));
+    if (error) setError(null);
+  }
+
+  async function onSubmit(e: FormEvent) {
+    e.preventDefault();
+    const { ime, adresa, grad, telefon } = form;
+    if (!ime.trim() || !adresa.trim() || !grad.trim() || !telefon.trim()) { setError("Molimo popunite sva obavezna polja."); return; }
+    if (!/^[0-9+\s\-()]{6,}$/.test(telefon.trim())) { setError("Unesite ispravan broj telefona."); return; }
+    setLoading(true); setError(null);
+    try {
+      const res  = await fetch("/api/narudzba", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ime, adresa, grad, telefon }) });
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.error || "Greška pri slanju.");
+      event("Purchase", { content_name: "Milwaukee M18 Bušilica Set", value: 69.9, currency: "BAM" }, json.orderNumber);
+      setSuccess(true);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Greška pri slanju narudžbe. Pokušajte ponovo.");
+    } finally { setLoading(false); }
+  }
+
   return (
-    <>
-      <PixelEvents />
-      <ProductPageHeader ctaHref="#narudzba" />
+    <div style={{ background: C.white, color: C.black, overflowX: "hidden" }}>
 
-      <main className="overflow-x-hidden text-[#1a1a1a] pt-16">
+      {/* ── Global styles ─────────────────────────────────── */}
+      <style suppressHydrationWarning>{`
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+          --red:    ${C.red};
+          --black:  ${C.black};
+          --bgSoft: ${C.bgSoft};
+          --border: ${C.border};
+          --muted:  ${C.muted};
+          --maxw:   ${MAXW}px;
+          --sec-py: clamp(64px, 8vw, 100px);
+          --sora:   ${SORA};
+          --inter:  ${INTER};
+        }
+        .mw-h    { font-family: var(--sora); }
+        .mw-body { font-family: var(--inter); }
 
-        {/* ═══════════════════════════════════════════════════════════
-            1. HERO  —  #F8F7F4
-        ═══════════════════════════════════════════════════════════ */}
-        <section
-          className="px-6 md:px-12 lg:px-20 xl:px-28 py-20 md:py-28"
-          style={{ background: "#F8F7F4" }}
-        >
-          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-center">
+        .mw-hero-cta {
+          background: #0B0B0B;
+          color: #fff;
+          transition: background 220ms ease, color 220ms ease, transform 200ms ease;
+        }
+        .mw-hero-cta:hover {
+          background: #fff;
+          color: #CC0000;
+          transform: scale(1.03);
+        }
 
-            {/* ── Lijevo: tekst ──────────────────────────────── */}
-            <div>
-              {/* Label */}
-              <p
-                className="text-xs font-bold tracking-[0.22em] uppercase mb-6"
-                style={{ color: ACCENT }}
-              >
-                Milwaukee Tool — M18 Platforma
+        @media (min-width: 901px) {
+          .mw-hero-copy { flex: 1; }
+          .mw-hero-grid { align-items: center !important; }
+        }
+
+        @keyframes mw-pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+        .mw-pulse { animation: mw-pulse 2s ease-in-out infinite; }
+
+        @keyframes mw-success-in {
+          from { opacity: 0; transform: translateY(28px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes mw-check-pop {
+          0%   { transform: scale(0) rotate(-10deg); opacity: 0; }
+          65%  { transform: scale(1.18) rotate(2deg); }
+          100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        @keyframes mw-check-ring {
+          0%   { box-shadow: 0 0 0 0 rgba(34,197,94,0.5); }
+          60%  { box-shadow: 0 0 0 14px rgba(34,197,94,0); }
+          100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+        }
+        .mw-success-card { animation: mw-success-in 0.55s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .mw-check-icon {
+          animation:
+            mw-check-pop  0.6s cubic-bezier(0.175,0.885,0.32,1.275) 0.15s both,
+            mw-check-ring 1.4s ease 0.75s;
+        }
+        .mw-success-secondary:hover { background: rgba(0,0,0,0.07) !important; }
+
+        @keyframes mw-fab-in {
+          from { opacity: 0; transform: translateY(20px) scale(0.92); }
+          to   { opacity: 1; transform: translateY(0)    scale(1); }
+        }
+        @keyframes mw-fab-glow {
+          0%,100% { box-shadow: 0 8px 32px rgba(0,0,0,0.28), 0 0  8px 0px rgba(204,0,0,0.18); }
+          50%      { box-shadow: 0 12px 40px rgba(0,0,0,0.32), 0 0 22px 4px rgba(204,0,0,0.28); }
+        }
+        @keyframes mw-icon-pulse {
+          0%,100% { box-shadow: 0 0 0 0 rgba(204,0,0,0.45); }
+          60%      { box-shadow: 0 0 0 7px rgba(204,0,0,0); }
+        }
+        .mw-fab {
+          animation:
+            mw-fab-in   0.55s cubic-bezier(0.22,1,0.36,1) 1.4s both,
+            mw-fab-glow 3.2s ease-in-out 2.2s infinite;
+          transition: transform 200ms cubic-bezier(0.22,1,0.36,1), box-shadow 200ms ease;
+        }
+        .mw-fab:hover {
+          transform: translateY(-4px) scale(1.03) !important;
+          box-shadow: 0 20px 52px rgba(0,0,0,0.35), 0 0 32px 8px rgba(204,0,0,0.32) !important;
+          animation-play-state: paused !important;
+        }
+        .mw-fab:active { transform: scale(0.95) !important; transition-duration: 80ms !important; }
+        .mw-fab-icon { animation: mw-icon-pulse 2.4s ease-out 3s infinite; }
+
+        @media (max-width: 640px) {
+          .mw-fab-wrap {
+            left: 50% !important; right: auto !important;
+            transform: translateX(-50%) !important;
+            bottom: calc(16px + env(safe-area-inset-bottom)) !important;
+            width: 92vw !important; max-width: 380px !important;
+          }
+          .mw-fab { width: 100% !important; justify-content: center !important; }
+          .mw-fab-urgency { display: none !important; }
+          .mw-prod-img-card { flex: none !important; width: 100% !important; padding: 32px 24px !important; min-height: 280px !important; }
+          .mw-kit-img-card  { flex: none !important; width: 100% !important; }
+        }
+
+        @keyframes mw-spin { to { transform: rotate(360deg); } }
+        .mw-spin { animation: mw-spin .75s linear infinite; }
+
+        .mw-btn:hover { opacity: .88; transform: translateY(-1px); }
+        .mw-btn       { transition: opacity 200ms, transform 200ms; }
+
+        .mw-input:focus { border-color: ${C.red} !important; }
+        .mw-input { transition: border-color 150ms; }
+        input:-webkit-autofill {
+          -webkit-box-shadow: 0 0 0 30px #fff inset !important;
+          -webkit-text-fill-color: ${C.black} !important;
+        }
+
+        @media (max-width: 900px) {
+          .mw-hero-grid   { flex-direction: column !important; }
+          .mw-hero-visual { width: 100% !important; max-width: 400px !important; flex: none !important; align-self: center !important; }
+          .mw-hero-copy   { max-width: 100% !important; padding-bottom: 32px !important; padding-top: 16px !important; }
+          .mw-hero-bg-text{ display: none !important; }
+          .mw-kit-grid    { flex-direction: column !important; }
+          .mw-prod-grid   { flex-direction: column !important; }
+          .mw-form-grid   { flex-direction: column !important; }
+          .mw-form-summary{ flex: none !important; width: 100% !important; }
+          .mw-why-grid    { grid-template-columns: 1fr 1fr !important; }
+          .mw-kit-cols    { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 540px) {
+          .mw-why-grid    { grid-template-columns: 1fr !important; }
+          .mw-header-btn  { font-size: 13px !important; padding: 9px 16px !important; }
+        }
+      `}</style>
+
+      {/* ════════════════════════════════════════════════════════
+          1. HEADER
+      ════════════════════════════════════════════════════════ */}
+      <header style={{
+        position: "fixed", top: 0, left: 0, right: 0, zIndex: 200,
+        background: C.black,
+        transform: headerVis ? "translateY(0)" : "translateY(-100%)",
+        transition: "transform 300ms ease",
+      }}>
+        <div style={{ maxWidth: MAXW, margin: "0 auto", padding: "0 24px", height: 72, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+            <a href="/" style={{ textDecoration: "none" }}>
+              <span className="mw-h" style={{ fontSize: 20, fontWeight: 800, color: C.white, letterSpacing: "-0.02em" }}>
+                cartly<span style={{ color: C.red }}>.</span>ba
+              </span>
+            </a>
+            <a
+              href="/"
+              style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 13, fontFamily: INTER, fontWeight: 500, color: "rgba(255,255,255,0.45)", textDecoration: "none", letterSpacing: "0.01em", transition: "color 150ms" }}
+              onMouseEnter={e => (e.currentTarget.style.color = "rgba(255,255,255,0.85)")}
+              onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.45)")}
+            >
+              ← Početna
+            </a>
+          </div>
+          <button
+            onClick={scrollToForm}
+            className="mw-btn mw-header-btn"
+            style={{ background: C.red, color: C.white, fontFamily: SORA, fontWeight: 700, fontSize: 14, letterSpacing: "0.01em", border: "none", borderRadius: 999, padding: "11px 24px", cursor: "pointer" }}
+          >
+            Naruči odmah
+          </button>
+        </div>
+      </header>
+
+      {/* ════════════════════════════════════════════════════════
+          2. HERO
+      ════════════════════════════════════════════════════════ */}
+      <section style={{
+        background: "radial-gradient(circle at 70% 40%, #FF2222 0%, #CC0000 40%, #A80000 70%, #7A0000 100%)",
+        paddingTop: 72, position: "relative", overflow: "hidden",
+        minHeight: "calc(100vh - 72px)",
+      }}>
+        {/* Edge vignette */}
+        <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0, background: "radial-gradient(ellipse 130% 110% at 50% 50%, transparent 45%, rgba(0,0,0,0.22) 100%)" }} />
+
+        {/* Background "M18" — decorative */}
+        <div className="mw-hero-bg-text" aria-hidden="true" style={{
+          position: "absolute", right: "-2%", top: "50%", transform: "translateY(-50%)",
+          fontSize: "clamp(160px, 28vw, 400px)", fontWeight: 800, fontFamily: SORA,
+          color: "rgba(255,255,255,0.05)", letterSpacing: "-0.06em", lineHeight: 0.85,
+          userSelect: "none", pointerEvents: "none", zIndex: 0, filter: "blur(4px)",
+        }}>
+          M18
+        </div>
+
+        {/* Main grid */}
+        <div className="mw-hero-grid" style={{
+          position: "relative", zIndex: 1, maxWidth: MAXW, margin: "0 auto",
+          padding: "48px 32px 0", display: "flex", gap: 40,
+          minHeight: "calc(100vh - 72px - 48px)",
+        }}>
+
+          {/* LEFT: Copy */}
+          <div className="mw-hero-copy" style={{ maxWidth: 520, paddingBottom: 72, paddingTop: 20 }}>
+            {/* Badge */}
+            <div style={{
+              display: "inline-flex", alignItems: "center",
+              background: "rgba(0,0,0,0.35)", borderRadius: 6, padding: "5px 13px",
+              fontSize: 11, fontWeight: 700, letterSpacing: "0.09em", textTransform: "uppercase",
+              fontFamily: SORA, color: "#fff", marginBottom: 24,
+              border: "1px solid rgba(255,255,255,0.15)",
+            }}>
+              Milwaukee M18 — Kompletan Set
+            </div>
+
+            {/* H1 */}
+            <h1 className="mw-h" style={{
+              fontSize: "clamp(40px, 5.5vw, 68px)", fontWeight: 800, lineHeight: 1.04,
+              letterSpacing: "-0.035em", color: C.white, marginBottom: 16,
+            }}>
+              Sve što ti treba.<br />
+              U jednom koferu.
+            </h1>
+
+            {/* Subtext */}
+            <p style={{ fontSize: 17, fontFamily: INTER, color: "rgba(255,255,255,0.75)", lineHeight: 1.65, marginBottom: 32, maxWidth: 460 }}>
+              Bušilica, baterije, punjač i komplet burgija — sve spremno za rad odmah.
+            </p>
+
+            {/* Price block */}
+            <div style={{ marginBottom: 28 }}>
+              <span style={{ fontSize: 14, fontFamily: INTER, color: "rgba(255,255,255,0.45)", textDecoration: "line-through", display: "block", marginBottom: 4, fontWeight: 500 }}>
+                179,90 KM
+              </span>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 14, flexWrap: "wrap", marginBottom: 8 }}>
+                <span className="mw-h" style={{ fontSize: "clamp(52px, 7vw, 84px)", fontWeight: 900, color: C.white, letterSpacing: "-0.05em", lineHeight: 1 }}>
+                  69,90 KM
+                </span>
+                <span style={{ background: "#16A34A", color: "#fff", fontSize: 13, fontWeight: 700, fontFamily: SORA, padding: "5px 12px", borderRadius: 6, alignSelf: "center" }}>
+                  -61%
+                </span>
+              </div>
+              <p style={{ fontSize: 13, fontFamily: INTER, color: "rgba(255,255,255,0.45)", display: "flex", alignItems: "center", gap: 5, fontWeight: 500 }}>
+                <Truck size={13} strokeWidth={2} /> +10,00 KM dostava
               </p>
+            </div>
 
-              {/* Naslov */}
-              <h1
-                className="text-[#1a1a1a] mb-5 font-extrabold"
-                style={{ fontSize: "clamp(48px, 8vw, 88px)", lineHeight: 1.0, letterSpacing: "-0.04em" }}
-              >
-                Milwaukee<br />
-                M18 Bušilica
-              </h1>
+            {/* CTA */}
+            <button onClick={scrollToForm} className="mw-hero-cta" style={{
+              display: "flex", alignItems: "center", gap: 8, fontFamily: SORA, fontWeight: 700,
+              fontSize: 16, border: "none", borderRadius: 14, padding: "17px 30px",
+              cursor: "pointer", marginBottom: 20, width: "fit-content",
+            }}>
+              Naruči odmah — 69,90 KM
+              <ChevronRight size={18} strokeWidth={2.5} />
+            </button>
 
-              {/* Tagline */}
-              <p className="text-[#4a4a4a] text-lg mb-7 leading-relaxed">
-                Profesionalna snaga. Kompaktni dizajn.
-              </p>
+            {/* Countdown */}
+            <div style={{
+              display: "inline-flex", alignItems: "center", gap: 10,
+              background: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,255,255,0.15)",
+              borderRadius: 10, padding: "11px 18px", marginBottom: 20,
+              backdropFilter: "blur(6px)",
+            }}>
+              <Clock size={14} strokeWidth={2} style={{ color: "rgba(255,255,255,0.5)", flexShrink: 0 }} />
+              <span style={{ fontSize: 13, fontFamily: INTER, color: "rgba(255,255,255,0.65)", fontWeight: 500, whiteSpace: "nowrap" }}>
+                Ponuda završava za:
+              </span>
+              <span className="mw-h" style={{ fontSize: 20, fontWeight: 700, color: C.white, letterSpacing: "0.03em" }}>
+                {pad(timer.h)}:{pad(timer.m)}:{pad(timer.s)}
+              </span>
+            </div>
 
-              {/* Karakteristike lista */}
-              <ul className="mb-8 space-y-2.5">
-                {HERO_STAVKE.map((stavka) => (
-                  <li key={stavka} className="flex items-start gap-2.5 text-[#4a4a4a] text-sm">
-                    <span className="font-bold text-sm flex-shrink-0 mt-0.5" style={{ color: ACCENT }}>✓</span>
-                    {stavka}
-                  </li>
-                ))}
-              </ul>
-
-              {/* Cijena */}
-              <div className="mb-8">
-                <span className="text-[#aaa] line-through text-sm font-medium">179,90 KM</span>
-                <div className="mt-0.5 flex items-end gap-3">
-                  <span
-                    className="leading-none"
-                    style={{ ...BEBAS, fontSize: "clamp(48px, 7vw, 72px)", color: ACCENT }}
-                  >
-                    69,90 KM
-                  </span>
-                  <span
-                    className="mb-1 text-xs font-bold px-2.5 py-1 rounded-full text-white"
-                    style={{ background: "#16a34a" }}
-                  >
-                    −61%
-                  </span>
+            {/* Trust row */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px 22px", marginBottom: 18 }}>
+              {[
+                { Icon: CreditCard, text: "Plaćanje pouzećem"  },
+                { Icon: Truck,      text: "Brza dostava"        },
+                { Icon: Package,    text: "Ograničena količina" },
+              ].map(({ Icon, text }) => (
+                <div key={text} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontFamily: INTER, color: "rgba(255,255,255,0.55)", fontWeight: 500 }}>
+                  <Icon size={13} strokeWidth={2} />
+                  <span>{text}</span>
                 </div>
-                <p className="text-[#16a34a] text-xs font-semibold mt-1.5">
-                  Uštedite 110 KM · Ograničena ponuda
+              ))}
+            </div>
+
+            {/* Live viewers */}
+            {viewers > 0 && (
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,0,0,0.22)", borderRadius: 999, padding: "7px 14px" }}>
+                <span style={{ position: "relative", display: "inline-flex" }}>
+                  <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#ef4444", display: "block" }} />
+                  <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "#ef4444", opacity: 0.4, animation: "mw-pulse 1.8s ease-in-out infinite", transform: "scale(2)" }} />
+                </span>
+                <span style={{ fontSize: 13, fontFamily: INTER, fontWeight: 600, color: "rgba(255,255,255,0.75)" }}>
+                  <strong style={{ color: C.white }}>{viewers}</strong> osoba trenutno gleda ovaj proizvod
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* RIGHT: Product image */}
+          <div className="mw-hero-visual" style={{ flex: "0 0 56%", position: "relative", alignSelf: "flex-start", marginTop: "-48px" }}>
+            {/* Red glow behind drill */}
+            <div aria-hidden="true" style={{
+              position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
+              width: "85%", height: "85%",
+              background: "radial-gradient(circle, rgba(255,100,100,0.45) 0%, rgba(180,0,0,0.2) 48%, transparent 72%)",
+              filter: "blur(52px)", zIndex: 0, pointerEvents: "none",
+            }} />
+            {/* Shadow ellipse */}
+            <div aria-hidden="true" style={{
+              position: "absolute", bottom: "3%", left: "18%", right: "18%",
+              height: "4%", background: "rgba(0,0,0,0.28)", borderRadius: "50%",
+              filter: "blur(16px)", zIndex: 0,
+            }} />
+            {/* Drill image */}
+            <div style={{ position: "relative", width: "100%", paddingBottom: "110%", zIndex: 1 }}>
+              <Image
+                src="/images/milwaukee.png"
+                alt="Milwaukee M18 Bušilica"
+                fill
+                sizes="(max-width:900px) 85vw, 56vw"
+                style={{
+                  objectFit: "contain", objectPosition: "center top",
+                  filter: "drop-shadow(-4px 24px 32px rgba(0,0,0,0.35))",
+                  transform: "rotate(3deg) scale(1.08)", transformOrigin: "center top",
+                }}
+                priority
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════════════════════
+          FLOATING NOTIFICATION
+      ════════════════════════════════════════════════════════ */}
+      <div style={{
+        position: "fixed", bottom: 20, left: 20, zIndex: 300, maxWidth: 280,
+        transform: notifShow ? "translateY(0)" : "translateY(12px)",
+        opacity: notifShow ? 1 : 0, transition: "transform 350ms ease, opacity 350ms ease",
+        pointerEvents: "none",
+      }}>
+        <div style={{ background: C.black, borderLeft: `3px solid ${C.red}`, borderRadius: 10, padding: "11px 16px", display: "flex", alignItems: "center", gap: 10, boxShadow: "0 8px 32px rgba(0,0,0,0.22)" }}>
+          <ShoppingBag size={14} strokeWidth={2} style={{ color: C.red, flexShrink: 0 }} />
+          <span style={{ fontSize: 13, color: C.white, fontFamily: INTER, fontWeight: 500 }}>{NOTIFS[notifIdx]}</span>
+        </div>
+      </div>
+
+      {/* ════════════════════════════════════════════════════════
+          FLOATING CTA — bottom right
+      ════════════════════════════════════════════════════════ */}
+      {!success && (
+        <div className="mw-fab-wrap" style={{ position: "fixed", bottom: 28, right: 28, zIndex: 300 }}>
+          <div className="mw-fab-urgency" style={{ textAlign: "center", marginBottom: 8 }}>
+            <span style={{
+              display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontFamily: INTER,
+              fontWeight: 600, color: "rgba(255,255,255,0.88)", background: "rgba(10,10,10,0.72)",
+              backdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.1)",
+              padding: "4px 12px 4px 8px", borderRadius: 999, letterSpacing: "0.02em", whiteSpace: "nowrap",
+            }}>
+              <Flame size={12} strokeWidth={2} style={{ color: "#f97316", flexShrink: 0 }} />
+              Ponuda ističe uskoro
+            </span>
+          </div>
+
+          <button onClick={scrollToForm} className="mw-fab" style={{
+            display: "flex", alignItems: "center", gap: 12,
+            background: "linear-gradient(145deg, #1c1c1c 0%, #0B0B0B 100%)", color: C.white,
+            fontFamily: SORA, border: "1px solid rgba(255,255,255,0.09)", borderRadius: 999,
+            padding: "13px 22px 13px 14px", cursor: "pointer", whiteSpace: "nowrap",
+          }}>
+            <div className="mw-fab-icon" style={{
+              width: 40, height: 40, borderRadius: "50%",
+              background: "rgba(204,0,0,0.15)", border: "1px solid rgba(204,0,0,0.35)",
+              display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+            }}>
+              <ShoppingBag size={17} strokeWidth={2} style={{ color: C.red }} />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", lineHeight: 1 }}>
+              <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.025em", marginBottom: 3 }}>Naruči odmah</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: C.red, letterSpacing: "-0.01em" }}>69,90 KM</span>
+            </div>
+            <ChevronRight size={16} strokeWidth={2.5} style={{ color: "rgba(255,255,255,0.35)", marginLeft: 4, flexShrink: 0 }} />
+          </button>
+        </div>
+      )}
+
+      {/* ════════════════════════════════════════════════════════
+          3. PACKAGE SECTION
+      ════════════════════════════════════════════════════════ */}
+      <section style={{ background: C.white, padding: "var(--sec-py) 24px", borderTop: `1px solid ${C.border}` }}>
+        <div style={{ maxWidth: MAXW, margin: "0 auto" }}>
+
+          <div style={{ marginBottom: 48 }}>
+            <span style={{ fontFamily: SORA, fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: C.white, background: C.red, padding: "4px 10px", borderRadius: 4, display: "inline-block", marginBottom: 16 }}>
+              Sadržaj paketa
+            </span>
+            <h2 className="mw-h" style={{ fontSize: "clamp(28px, 4vw, 48px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.1, color: C.black }}>
+              Šta dobijate u paketu?
+            </h2>
+          </div>
+
+          <div className="mw-kit-grid" style={{ display: "flex", gap: 40, alignItems: "flex-start" }}>
+
+            {/* Image card */}
+            <div className="mw-kit-img-card" style={{ flex: "0 0 44%", borderRadius: 20, overflow: "hidden", border: `1px solid ${C.border}`, background: "#fff", boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}>
+              <div style={{ position: "relative", width: "100%", paddingBottom: "100%" }}>
+                <Image
+                  src="/images/milw2.webp"
+                  alt="Milwaukee M18 Set"
+                  fill
+                  sizes="(max-width:900px) 100vw, 44vw"
+                  style={{ objectFit: "contain", padding: "16px" }}
+                />
+              </div>
+            </div>
+
+            {/* Checklist */}
+            <div style={{ flex: 1 }}>
+              {/* Callout */}
+              <div style={{ background: C.red, border: `1.5px solid rgba(0,0,0,0.08)`, borderRadius: 14, padding: "18px 22px", marginBottom: 28 }}>
+                <p className="mw-h" style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-0.02em", color: C.white, marginBottom: 4 }}>
+                  2 baterije + punjač uključeni
+                </p>
+                <p style={{ fontSize: 14, color: "rgba(255,255,255,0.7)", fontFamily: INTER }}>
+                  Radite bez zastoja — dok se jedna puni, koristite drugu.
                 </p>
               </div>
 
-              {/* CTA */}
-              <a
-                href="#narudzba"
-                className="inline-flex items-center gap-2 bg-[#E8460A] hover:bg-[#cc3d08] text-white font-bold text-lg px-8 py-4 rounded-full transition-colors duration-150"
-              >
-                Naruči odmah
-                <ChevronRight className="w-5 h-5" />
-              </a>
-
-              {/* Trust row */}
-              <div className="flex flex-wrap items-center gap-3 mt-4">
-                <span className="flex items-center gap-1.5 text-[#888] text-xs">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                  </svg>
-                  Sigurna narudžba
-                </span>
-                <span className="text-[#ddd]">·</span>
-                <span className="flex items-center gap-1.5 text-[#888] text-xs">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="1" y="3" width="15" height="13" rx="1" /><path d="M16 8l4-2v10l-4-2" /><circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" />
-                  </svg>
-                  Dostava 10,00 KM
-                </span>
-                <span className="text-[#ddd]">·</span>
-                <span className="flex items-center gap-1.5 text-[#888] text-xs">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" />
-                  </svg>
-                  Povrat 14 dana
-                </span>
-              </div>
-
-              {/* "U setu dolazi" pill block */}
-              <div
-                className="mt-5 rounded-xl px-4 py-3"
-                style={{ background: "#fff", border: "1px solid #E5E2DC" }}
-              >
-                <p
-                  className="text-[#888] font-medium mb-2"
-                  style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase" }}
-                >
-                  U setu dolazi:
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {["2× Baterija 18V", "Punjač", "Prenosivi kofer", "Milwaukee M18 Bušilica"].map((item) => (
-                    <span
-                      key={item}
-                      className="text-[#1a1a1a]"
-                      style={{
-                        background: "#F8F7F4",
-                        border: "1px solid #E5E2DC",
-                        borderRadius: 9999,
-                        padding: "4px 12px",
-                        fontSize: 13,
-                      }}
-                    >
-                      {item}
+              {/* Two-column kit list */}
+              <div className="mw-kit-cols" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 24px", marginBottom: 28 }}>
+                {[...KIT_COL1, ...KIT_COL2].map(({ text, star }) => (
+                  <div key={text} style={{ display: "flex", alignItems: "flex-start", gap: 9 }}>
+                    <CheckCircle2
+                      size={16} strokeWidth={2.5}
+                      style={{ color: star ? C.red : "#AAAAAA", flexShrink: 0, marginTop: 3 }}
+                    />
+                    <span style={{ fontSize: 14, fontFamily: INTER, fontWeight: star ? 600 : 400, color: star ? C.black : C.muted, lineHeight: 1.45 }}>
+                      {text}
                     </span>
+                  </div>
+                ))}
+              </div>
+
+              <button onClick={scrollToForm} className="mw-btn" style={{ display: "inline-flex", alignItems: "center", gap: 7, background: C.black, color: C.white, fontFamily: SORA, fontWeight: 700, fontSize: 15, border: "none", borderRadius: 10, padding: "14px 24px", cursor: "pointer" }}>
+                Naruči set <ChevronRight size={16} strokeWidth={2.5} />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════════════════════
+          4. BENEFITS SECTION
+      ════════════════════════════════════════════════════════ */}
+      <section style={{ background: C.bgSoft, padding: "var(--sec-py) 24px", borderTop: `1px solid ${C.border}` }}>
+        <div style={{ maxWidth: MAXW, margin: "0 auto" }}>
+          <div style={{ marginBottom: 44 }}>
+            <span style={{ fontFamily: SORA, fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: C.muted, display: "inline-block", marginBottom: 14 }}>
+              Prednosti seta
+            </span>
+            <h2 className="mw-h" style={{ fontSize: "clamp(26px, 3.8vw, 44px)", fontWeight: 800, letterSpacing: "-0.03em", color: C.black }}>
+              Zašto ovaj set?
+            </h2>
+          </div>
+
+          <div className="mw-why-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+            {BENEFITS.map(({ Icon, title, desc }) => (
+              <div key={title} style={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 18, padding: "24px 22px", boxShadow: "0 2px 16px rgba(0,0,0,0.04)" }}>
+                <div style={{ width: 44, height: 44, borderRadius: 11, background: C.red, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 18 }}>
+                  <Icon size={20} strokeWidth={2} style={{ color: C.white }} />
+                </div>
+                <h3 className="mw-h" style={{ fontSize: 17, fontWeight: 700, letterSpacing: "-0.02em", color: C.black, marginBottom: 8 }}>{title}</h3>
+                <p style={{ fontSize: 14, fontFamily: INTER, color: C.muted, lineHeight: 1.6 }}>{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════════════════════
+          5. PRODUCT FEATURE SECTION
+      ════════════════════════════════════════════════════════ */}
+      <section style={{ background: C.white, padding: "var(--sec-py) 24px", borderTop: `1px solid ${C.border}` }}>
+        <div style={{ maxWidth: MAXW, margin: "0 auto" }}>
+          <div className="mw-prod-grid" style={{ display: "flex", gap: 48, alignItems: "center" }}>
+
+            {/* Product image card */}
+            <div className="mw-prod-img-card" style={{ flex: "0 0 44%", background: C.red, borderRadius: 22, padding: "48px 40px", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 40px rgba(204,0,0,0.25)" }}>
+              <div style={{ position: "relative", width: "100%", paddingBottom: "85%", minHeight: 280 }}>
+                <Image
+                  src="/images/milwaukee.png"
+                  alt="Milwaukee M18 Bušilica"
+                  fill
+                  sizes="(max-width:900px) 90vw, 44vw"
+                  style={{ objectFit: "contain", filter: "drop-shadow(0 16px 40px rgba(0,0,0,0.25))" }}
+                />
+              </div>
+            </div>
+
+            {/* Specs */}
+            <div style={{ flex: 1 }}>
+              <span style={{ fontFamily: INTER, fontSize: 12, fontWeight: 600, color: "#999", letterSpacing: "0.06em", textTransform: "uppercase", display: "block", marginBottom: 8 }}>
+                SKU: M18 BLPD3 — 18V M18 Platform
+              </span>
+              <h2 className="mw-h" style={{ fontSize: "clamp(26px, 3.5vw, 44px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.1, color: C.black, marginBottom: 24 }}>
+                Milwaukee M18<br />bušilica/odvijač
+              </h2>
+              <div style={{ marginBottom: 32 }}>
+                {DRILL_SPECS.map(spec => (
+                  <div key={spec} style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 14 }}>
+                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: C.red, border: `2px solid ${C.redDk}`, flexShrink: 0, marginTop: 6 }} />
+                    <span style={{ fontSize: 15, fontFamily: INTER, color: "#444", lineHeight: 1.5 }}>{spec}</span>
+                  </div>
+                ))}
+              </div>
+              <button onClick={scrollToForm} className="mw-btn" style={{ display: "inline-flex", alignItems: "center", gap: 8, background: C.red, color: C.white, fontFamily: SORA, fontWeight: 700, fontSize: 15, border: "none", borderRadius: 10, padding: "14px 26px", cursor: "pointer" }}>
+                Naruči odmah <ChevronRight size={16} strokeWidth={2.5} />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════════════════════
+          6. SCARCITY STRIP
+      ════════════════════════════════════════════════════════ */}
+      <section style={{ background: C.black, padding: "24px" }}>
+        <div style={{ maxWidth: MAXW, margin: "0 auto" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12, marginBottom: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div className="mw-pulse" style={{ width: 8, height: 8, borderRadius: "50%", background: "#EF4444", flexShrink: 0 }} />
+              <span className="mw-h" style={{ fontSize: "clamp(15px, 2vw, 19px)", fontWeight: 700, color: C.white }}>
+                Preostalo još <span style={{ color: C.red }}>9 komada</span> na lageru
+              </span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, color: "rgba(255,255,255,0.38)", fontSize: 12, fontFamily: INTER }}>
+              <RefreshCw size={12} strokeWidth={2} />
+              Zalihe se ažuriraju u realnom vremenu
+            </div>
+          </div>
+          <div style={{ height: 7, background: "rgba(255,255,255,0.1)", borderRadius: 999, overflow: "hidden" }}>
+            <div style={{ height: "100%", width: "88%", background: `linear-gradient(90deg, ${C.red}, #FF3333)`, borderRadius: 999 }} />
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }}>
+            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", fontFamily: INTER }}>Rasprodano 88%</span>
+            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", fontFamily: INTER }}>Preostalo 12%</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════════════════════
+          7. ORDER SECTION
+      ════════════════════════════════════════════════════════ */}
+      <section id="narudzba" style={{ background: C.bgSoft, padding: "var(--sec-py) 24px", borderTop: `1px solid ${C.border}` }}>
+        <div style={{ maxWidth: MAXW, margin: "0 auto" }}>
+
+          <div style={{ marginBottom: 48 }}>
+            <span style={{ fontFamily: SORA, fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: C.muted, display: "inline-block", marginBottom: 14 }}>
+              Narudžba
+            </span>
+            <h2 className="mw-h" style={{ fontSize: "clamp(28px, 4vw, 48px)", fontWeight: 800, letterSpacing: "-0.03em", color: C.black }}>
+              Naručite odmah
+            </h2>
+          </div>
+
+          {success ? (
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <div className="mw-success-card" style={{
+                background: "#ffffff", borderRadius: 24,
+                padding: "clamp(32px, 5vw, 52px) clamp(24px, 5vw, 48px)",
+                textAlign: "center", maxWidth: 580, width: "100%",
+                boxShadow: "0 12px 48px rgba(0,0,0,0.09)",
+                display: "flex", flexDirection: "column", alignItems: "center",
+              }}>
+                <div className="mw-check-icon" style={{
+                  width: 72, height: 72, borderRadius: "50%",
+                  background: "linear-gradient(135deg, #4ade80 0%, #16a34a 100%)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  marginBottom: 28, flexShrink: 0, boxShadow: "0 8px 24px rgba(34,197,94,0.3)",
+                }}>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </div>
+
+                <h3 className="mw-h" style={{ fontSize: "clamp(22px, 3.5vw, 30px)", fontWeight: 800, letterSpacing: "-0.03em", color: C.black, marginBottom: 14, lineHeight: 1.1 }}>
+                  Narudžba uspješno zaprimljena
+                </h3>
+                <p style={{ fontSize: 16, fontFamily: INTER, color: "#555", lineHeight: 1.7, marginBottom: 8, maxWidth: 420 }}>
+                  Hvala vam na povjerenju. Vaša narudžba je uspješno evidentirana i trenutno se obrađuje.
+                </p>
+                <p style={{ fontSize: 14, fontFamily: INTER, color: "#999", lineHeight: 1.6, marginBottom: 36, maxWidth: 400 }}>
+                  Kontaktirat ćemo vas u najkraćem roku radi potvrde i isporuke.
+                </p>
+
+                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "10px 24px", marginBottom: 32, paddingBottom: 32, borderBottom: "1px solid rgba(0,0,0,0.06)", width: "100%" }}>
+                  {["Brza dostava (1–3 dana)", "Plaćanje pouzećem", "Provjeren kvalitet"].map((text) => (
+                    <div key={text} style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 13, fontFamily: INTER, color: "#444", fontWeight: 500 }}>
+                      <div style={{ width: 20, height: 20, borderRadius: "50%", background: "rgba(34,197,94,0.12)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      </div>
+                      {text}
+                    </div>
                   ))}
                 </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 10, width: "100%" }}>
+                  <button onClick={() => window.location.href = "/"} className="mw-btn" style={{ width: "100%", background: C.black, color: C.white, fontFamily: SORA, fontWeight: 700, fontSize: 15, border: "none", borderRadius: 12, padding: "17px", cursor: "pointer" }}>
+                    Vrati se na početnu
+                  </button>
+                  <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="mw-btn mw-success-secondary" style={{ width: "100%", background: "rgba(0,0,0,0.04)", color: "#666", fontFamily: SORA, fontWeight: 600, fontSize: 14, border: "1px solid rgba(0,0,0,0.08)", borderRadius: 12, padding: "15px", cursor: "pointer", transition: "background 200ms" }}>
+                    Pregled proizvoda
+                  </button>
+                </div>
               </div>
             </div>
+          ) : (
+            <div className="mw-form-grid" style={{ display: "flex", gap: 28, alignItems: "flex-start" }}>
 
-            {/* ── Desno: galerija s thumbnailima ───────────── */}
-            <div className="relative flex justify-center lg:justify-end pt-6 pb-8">
-              <HeroGallery />
-            </div>
-          </div>
-        </section>
-
-        {/* ═══════════════════════════════════════════════════════════
-            2. SPECIFIKACIJE I KARAKTERISTIKE  —  #FFFFFF
-        ═══════════════════════════════════════════════════════════ */}
-        <section className="bg-white px-6 md:px-12 lg:px-20 xl:px-28 py-24 border-t border-[#E5E2DC]">
-          <div className="max-w-7xl mx-auto">
-
-            {/* Naslov */}
-            <div className="mb-12">
-              <p className="text-xs font-bold tracking-[0.22em] uppercase mb-3" style={{ color: ACCENT }}>
-                Tehničke karakteristike
-              </p>
-              <h2
-                className="text-[#1a1a1a] leading-none"
-                style={{ ...BEBAS, fontSize: "clamp(48px, 7vw, 80px)" }}
+              {/* Form */}
+              <form onSubmit={onSubmit} style={{ flex: 1, background: C.white, border: `1px solid ${C.border}`, borderRadius: 20, padding: "32px" }}
+                onFocus={() => { if (!checkoutFired.current) { checkoutFired.current = true; event("InitiateCheckout", { value: 69.9, currency: "BAM" }); } }}
               >
-                SPECIFIKACIJE I KARAKTERISTIKE
-              </h2>
-            </div>
+                <h3 className="mw-h" style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", color: C.black, marginBottom: 24 }}>
+                  Podaci za dostavu
+                </h3>
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                  {([
+                    { name: "ime",     label: "Ime i prezime",  placeholder: "npr. Emir Hadžić",  type: "text", autoComplete: "name" },
+                    { name: "adresa",  label: "Adresa dostave", placeholder: "npr. Titova 12",    type: "text", autoComplete: "street-address" },
+                    { name: "grad",    label: "Grad",           placeholder: "npr. Sarajevo",     type: "text", autoComplete: "address-level2" },
+                    { name: "telefon", label: "Broj telefona",  placeholder: "npr. 061 123 456",  type: "tel",  autoComplete: "tel" },
+                  ] as const).map(f => (
+                    <div key={f.name}>
+                      <label style={{ display: "block", fontSize: 12, fontFamily: SORA, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "#888", marginBottom: 7 }}>
+                        {f.label} <span style={{ color: C.black }}>*</span>
+                      </label>
+                      <input
+                        name={f.name} type={f.type} value={form[f.name]} onChange={onChange}
+                        placeholder={f.placeholder} autoComplete={f.autoComplete}
+                        className="mw-input"
+                        style={{ width: "100%", background: C.bgSoft, border: `1.5px solid ${C.border}`, borderRadius: 10, padding: "13px 16px", fontSize: 15, fontFamily: INTER, color: C.black, outline: "none" }}
+                      />
+                    </div>
+                  ))}
 
-            {/* 2×4 spec kartice */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
-              {SPEC_GRID.map(({ icon, label, value }) => (
-                <div
-                  key={label}
-                  className="bg-white rounded-2xl p-5 flex flex-col items-start gap-3"
-                  style={{ border: "1px solid #E5E2DC" }}
-                >
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ background: "rgba(232,70,10,0.07)", color: ACCENT }}
-                  >
-                    {icon}
-                  </div>
-                  <div>
-                    <p className="text-xs text-[#aaa] font-medium mb-0.5">{label}</p>
-                    <p className="text-sm font-bold text-[#1a1a1a] leading-tight">{value}</p>
+                  {error && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 9, background: "rgba(204,0,0,0.06)", border: "1px solid rgba(204,0,0,0.18)", borderRadius: 10, padding: "12px 16px" }}>
+                      <AlertCircle size={16} strokeWidth={2} style={{ color: C.red, flexShrink: 0 }} />
+                      <span style={{ fontSize: 14, fontFamily: INTER, color: C.red, fontWeight: 500 }}>{error}</span>
+                    </div>
+                  )}
+
+                  <button type="submit" disabled={loading} className="mw-btn" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: loading ? "rgba(11,11,11,0.5)" : C.black, color: C.white, fontFamily: SORA, fontWeight: 700, fontSize: 17, border: "none", borderRadius: 12, padding: "18px", cursor: loading ? "not-allowed" : "pointer", width: "100%", marginTop: 4 }}>
+                    {loading ? (
+                      <>
+                        <svg className="mw-spin" style={{ width: 18, height: 18 }} viewBox="0 0 24 24" fill="none">
+                          <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.2)" strokeWidth="3" />
+                          <path d="M12 2a10 10 0 0 1 10 10" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
+                        </svg>
+                        Slanje narudžbe...
+                      </>
+                    ) : (
+                      <>Potvrdi narudžbu <ChevronRight size={18} strokeWidth={2.5} /></>
+                    )}
+                  </button>
+
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
+                    <Lock size={13} strokeWidth={2} style={{ color: "#bbb" }} />
+                    <span style={{ fontSize: 13, fontFamily: INTER, color: "#bbb" }}>Sigurna narudžba. Plaćanje pouzećem.</span>
                   </div>
                 </div>
-              ))}
-            </div>
+              </form>
 
-            {/* Separator */}
-            <div className="border-t border-[#E5E2DC] my-10" />
-
-            {/* 2×3 feature lista */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {FEATURES.map(({ icon, title, desc }) => (
-                <div
-                  key={title}
-                  className="flex items-start gap-4 rounded-2xl p-6"
-                  style={{ background: "#F8F7F4", border: "1px solid #E5E2DC" }}
-                >
-                  <div
-                    className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
-                    style={{ background: "rgba(232,70,10,0.08)", color: ACCENT }}
-                  >
-                    {icon}
-                  </div>
-                  <div>
-                    <p className="font-bold text-[#1a1a1a] text-sm leading-tight mb-1">{title}</p>
-                    <p className="text-[#888] text-sm leading-relaxed">{desc}</p>
+              {/* Summary */}
+              <div className="mw-form-summary" style={{ flex: "0 0 340px" }}>
+                <div style={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 20, padding: "26px 24px", marginBottom: 14, borderTop: `4px solid ${C.red}` }}>
+                  <h4 className="mw-h" style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#999", marginBottom: 20 }}>
+                    Sažetak narudžbe
+                  </h4>
+                  {[
+                    { label: "Milwaukee M18 Set", value: "69,90 KM" },
+                    { label: "Dostava",            value: "10,00 KM" },
+                    { label: "Plaćanje",           value: "Pouzećem" },
+                  ].map(({ label, value }) => (
+                    <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 13 }}>
+                      <span style={{ fontSize: 14, fontFamily: INTER, color: C.muted }}>{label}</span>
+                      <span style={{ fontSize: 14, fontFamily: INTER, fontWeight: 600, color: C.black }}>{value}</span>
+                    </div>
+                  ))}
+                  <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 18, display: "flex", justifyContent: "space-between", alignItems: "baseline", marginTop: 4 }}>
+                    <span className="mw-h" style={{ fontSize: 17, fontWeight: 700, color: C.black }}>Ukupno</span>
+                    <span className="mw-h" style={{ fontSize: 40, fontWeight: 800, letterSpacing: "-0.04em", color: C.black, lineHeight: 1 }}>
+                      79,90 KM
+                    </span>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
 
-        {/* ═══════════════════════════════════════════════════════════
-            3. ZAŠTO ODABRATI  —  #F2F0EB
-        ═══════════════════════════════════════════════════════════ */}
-        <section
-          className="px-6 md:px-12 lg:px-20 xl:px-28 py-24 border-t border-[#E5E2DC]"
-          style={{ background: "#F2F0EB" }}
-        >
-          <div className="max-w-7xl mx-auto">
-
-            {/* Naslov */}
-            <div className="mb-14">
-              <p className="text-xs font-bold tracking-[0.22em] uppercase mb-3" style={{ color: ACCENT }}>
-                Prednosti
-              </p>
-              <h2
-                className="text-[#1a1a1a] leading-none"
-                style={{ ...BEBAS, fontSize: "clamp(48px, 7vw, 80px)" }}
-              >
-                ZAŠTO ODABRATI OVAJ ALAT?
-              </h2>
-            </div>
-
-            {/* 3 kartice */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {ZASTO.map(({ num, title, desc }) => (
-                <div
-                  key={num}
-                  className="relative bg-white rounded-2xl p-8 pb-10 overflow-hidden"
-                  style={{ border: "1px solid #E5E2DC" }}
-                >
-                  <div
-                    className="leading-none mb-3"
-                    style={{ ...BEBAS, fontSize: 80, color: ACCENT }}
-                  >
-                    {num}
-                  </div>
-                  <h3 className="text-[#1a1a1a] font-bold text-lg mb-2 leading-tight">{title}</h3>
-                  <p className="text-[#666] text-sm leading-relaxed">{desc}</p>
-                  <div
-                    className="absolute bottom-0 left-0 right-0 h-[2px]"
-                    style={{ background: ACCENT }}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ═══════════════════════════════════════════════════════════
-            4. FAQ  —  #FFFFFF
-        ═══════════════════════════════════════════════════════════ */}
-        <section className="bg-white px-6 md:px-12 lg:px-20 xl:px-28 py-24 border-t border-[#E5E2DC]">
-          <div className="max-w-3xl mx-auto">
-            <div className="text-center mb-14">
-              <p className="text-xs font-bold tracking-[0.22em] uppercase mb-3" style={{ color: ACCENT }}>
-                Pitanja
-              </p>
-              <h2
-                className="text-[#1a1a1a] leading-none"
-                style={{ ...BEBAS, fontSize: "clamp(48px, 7vw, 80px)" }}
-              >
-                ČESTO POSTAVLJANA<br />PITANJA
-              </h2>
-            </div>
-            <FaqAccordion />
-          </div>
-        </section>
-
-        {/* ═══════════════════════════════════════════════════════════
-            5. CTA BANNER  —  #E8460A
-        ═══════════════════════════════════════════════════════════ */}
-        <section
-          className="px-6 md:px-12 lg:px-20 xl:px-28 py-20 md:py-28"
-          style={{ background: ACCENT }}
-        >
-          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-
-            {/* Lijevo */}
-            <div>
-              <h2
-                className="text-white leading-[0.9] mb-10"
-                style={{ ...BEBAS, fontSize: "clamp(52px, 8vw, 92px)" }}
-              >
-                NARUČI DANAS.<br />DOSTAVA SUTRA.
-              </h2>
-              <div className="grid grid-cols-2 gap-3">
-                {TRUST.map((label) => (
-                  <div key={label} className="flex items-center gap-2.5">
-                    <span className="text-white font-bold text-sm flex-shrink-0">✓</span>
-                    <span className="text-white/90 font-medium text-sm">{label}</span>
+                {[
+                  { Icon: CreditCard, text: "Plaćanje pouzećem pri preuzimanju" },
+                  { Icon: Lock,       text: "Sigurna narudžba"                  },
+                  { Icon: Truck,      text: "Dostava 1–3 radna dana"            },
+                ].map(({ Icon, text }) => (
+                  <div key={text} style={{ display: "flex", alignItems: "center", gap: 12, background: C.white, border: `1px solid ${C.border}`, borderRadius: 12, padding: "13px 16px", marginBottom: 8 }}>
+                    <Icon size={16} strokeWidth={2} style={{ color: C.black, flexShrink: 0 }} />
+                    <span style={{ fontSize: 13, fontFamily: INTER, color: C.muted }}>{text}</span>
                   </div>
                 ))}
               </div>
             </div>
+          )}
+        </div>
+      </section>
 
-            {/* Desno */}
-            <div className="flex flex-col gap-5 lg:items-end">
-              <div className="lg:text-right">
-                <p className="text-white/50 text-sm font-medium line-through mb-1">179,90 KM</p>
-                <p
-                  className="text-white leading-none"
-                  style={{ ...BEBAS, fontSize: "clamp(72px, 10vw, 108px)" }}
-                >
-                  69,90 KM
-                </p>
-                <p className="text-white/60 text-xs mt-2">
-                  + dostava 10,00 KM · Ograničena ponuda
-                </p>
-              </div>
-              <a
-                href="#narudzba"
-                className="inline-flex items-center gap-3 bg-white font-bold text-lg px-10 py-5 rounded-full hover:bg-white/90 transition-colors duration-150"
-                style={{ color: ACCENT }}
-              >
-                Naruči odmah
-                <ChevronRight className="w-5 h-5" />
-              </a>
-              <p className="text-white/40 text-xs lg:text-right">
-                Plaćanje pouzećem · Nema skrivenih troškova
-              </p>
-            </div>
-          </div>
-        </section>
+      {/* ════════════════════════════════════════════════════════
+          8. FOOTER
+      ════════════════════════════════════════════════════════ */}
+      <footer style={{ background: C.black, padding: "28px 24px" }}>
+        <div style={{ maxWidth: MAXW, margin: "0 auto", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+          <span className="mw-h" style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-0.02em", color: C.white }}>
+            cartly<span style={{ color: C.red }}>.</span>ba
+          </span>
+          <p style={{ fontSize: 13, fontFamily: INTER, color: "rgba(255,255,255,0.35)" }}>
+            © 2026 — Sve cijene uključuju PDV. Dostava 1–3 radna dana.
+          </p>
+        </div>
+      </footer>
 
-        {/* ═══════════════════════════════════════════════════════════
-            6. NARUDŽBA FORMA  —  #F8F7F4
-        ═══════════════════════════════════════════════════════════ */}
-        <section
-          id="narudzba"
-          className="px-6 md:px-12 lg:px-20 xl:px-28 py-24 border-t border-[#E5E2DC]"
-          style={{ background: "#F8F7F4" }}
-        >
-          <div className="max-w-7xl mx-auto">
-            <div className="mb-12">
-              <p className="text-xs font-bold tracking-[0.22em] uppercase mb-3" style={{ color: ACCENT }}>
-                Narudžba
-              </p>
-              <h2
-                className="text-[#1a1a1a] leading-none"
-                style={{ ...BEBAS, fontSize: "clamp(48px, 7vw, 80px)" }}
-              >
-                NARUČI ODMAH
-              </h2>
-              <p className="text-[#666] mt-3 text-base max-w-lg">
-                Popunite formu i mi ćemo vas kontaktirati radi potvrde. Dostava za 24–48h.
-              </p>
-            </div>
-            <OrderForm />
-          </div>
-        </section>
-
-        {/* ─── Podnožje ──────────────────────────────────────────── */}
-        <footer
-          className="px-6 md:px-12 lg:px-20 xl:px-28 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 border-t"
-          style={{ background: "#F8F7F4", borderColor: "#E5E2DC" }}
-        >
-          <span className="text-[#888] text-sm">© 2025 Cartly.ba — Sva prava zadržana</span>
-        </footer>
-      </main>
-
-      {/* Fixed UI elemeni */}
-      <SocialProofToast />
-      <FloatingOrderBar />
-    </>
+    </div>
   );
 }
