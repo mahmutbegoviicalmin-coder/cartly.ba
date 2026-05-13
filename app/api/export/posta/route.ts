@@ -11,6 +11,131 @@ function normalize(s: string): string {
   return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
 }
 
+// Correct city names typed without diacritics → proper Bosnian spelling
+const CITY_PROPER_NAME: Record<string, string> = {
+  "sarajevo": "Sarajevo",
+  "banja luka": "Banja Luka",
+  "tuzla": "Tuzla",
+  "zenica": "Zenica",
+  "mostar": "Mostar",
+  "bijeljina": "Bijeljina",
+  "brcko": "Brčko",
+  "brcko distrikt": "Brčko Distrikt",
+  "prijedor": "Prijedor",
+  "trebinje": "Trebinje",
+  "doboj": "Doboj",
+  "cazin": "Cazin",
+  "bihac": "Bihać",
+  "travnik": "Travnik",
+  "visoko": "Visoko",
+  "kakanj": "Kakanj",
+  "livno": "Livno",
+  "gorazde": "Goražde",
+  "zvornik": "Zvornik",
+  "konjic": "Konjic",
+  "bugojno": "Bugojno",
+  "gracanica": "Gračanica",
+  "lukavac": "Lukavac",
+  "gradacac": "Gradačac",
+  "orasje": "Orašje",
+  "vitez": "Vitez",
+  "srebrenica": "Srebrenica",
+  "jajce": "Jajce",
+  "zavidovici": "Zavidovići",
+  "maglaj": "Maglaj",
+  "tesanj": "Tešanj",
+  "teslic": "Teslić",
+  "derventa": "Derventa",
+  "modrica": "Modriča",
+  "gradiska": "Gradiška",
+  "prnjavor": "Prnjavor",
+  "srbac": "Srbac",
+  "laktasi": "Laktaši",
+  "mrkonjic grad": "Mrkonjić Grad",
+  "sipovo": "Šipovo",
+  "kljuc": "Ključ",
+  "sanski most": "Sanski Most",
+  "novi grad": "Novi Grad",
+  "kozarska dubica": "Kozarska Dubica",
+  "ljubuski": "Ljubuški",
+  "citluk": "Čitluk",
+  "capljina": "Čapljina",
+  "siroki brijeg": "Široki Brijeg",
+  "grude": "Grude",
+  "posusje": "Posušje",
+  "stolac": "Stolac",
+  "neum": "Neum",
+  "jablanica": "Jablanica",
+  "prozor": "Prozor",
+  "prozor rama": "Prozor-Rama",
+  "velika kladusa": "Velika Kladuša",
+  "ilidza": "Ilidža",
+  "vogosca": "Vogošća",
+  "hadzici": "Hadžići",
+  "ilijas": "Ilijaš",
+  "breza": "Breza",
+  "vares": "Vareš",
+  "olovo": "Olovo",
+  "fojnica": "Fojnica",
+  "kresevo": "Kreševo",
+  "kiseljak": "Kiseljak",
+  "busovaca": "Busovača",
+  "novi travnik": "Novi Travnik",
+  "turbe": "Turbe",
+  "srebrenik": "Srebrenik",
+  "kladanj": "Kladanj",
+  "kalesija": "Kalesija",
+  "lopare": "Lopare",
+  "celic": "Čelić",
+  "banovici": "Banovići",
+  "zivinice": "Živinice",
+  "tarcin": "Tarčin",
+  "pazaric": "Pazarić",
+  "kotor varos": "Kotor Varoš",
+  "tomislavgrad": "Tomislavgrad",
+  "sanica": "Sanica",
+  "glamoc": "Glamoč",
+  "drvar": "Drvar",
+  "kupres": "Kupres",
+  "gacko": "Gacko",
+  "nevesinje": "Nevesinje",
+  "kalinovik": "Kalinovik",
+  "foca": "Foča",
+  "visegrad": "Višegrad",
+  "rudo": "Rudo",
+  "cajnice": "Čajniče",
+  "pale": "Pale",
+  "sokolac": "Sokolac",
+  "han pijesak": "Han Pijesak",
+  "vlasenica": "Vlasenica",
+  "bratunac": "Bratunac",
+  "milici": "Milići",
+  "osmaci": "Osmaci",
+  "sekovici": "Šekovići",
+  "zepce": "Žepče",
+  "usora": "Usora",
+  "doboj istok": "Doboj Istok",
+  "doboj jug": "Doboj Jug",
+  "banja luka": "Banja Luka",
+  "kotor varos": "Kotor Varoš",
+  "skender vakuf": "Skender Vakuf",
+  "celinac": "Čelinac",
+  "knezevo": "Kneževo",
+  "srbac": "Srbac",
+  "kostajnica": "Kostajnica",
+  "novi grad": "Novi Grad",
+  "derventa": "Derventa",
+  "samac": "Šamac",
+  "pelagicevo": "Pelagićevo",
+  "vukosavlje": "Vukosavlje",
+};
+
+function correctCityName(grad: string): string {
+  if (!grad) return "";
+  const key = normalize(grad);
+  return CITY_PROPER_NAME[key] ?? grad;
+}
+
 // Primary city PTT overrides — takes priority over ptt-bih.json.
 // Keys are already normalized (no diacritics, lowercase) for fast lookup.
 // Needed because ptt-bih.json has sub-post office codes (e.g. Mostar 88110, 88113…)
@@ -142,6 +267,7 @@ function sadrzaj(orderNumber: string, velicine: Velicina[]): string {
     KMR: "Kamera",
     DWT: "Brusilica",
     BRS: "Brusilica",
+    CCT: "Čelična Četka 1+1",
   };
   return MAP[prefix] ?? "Paket";
 }
@@ -159,21 +285,48 @@ export async function GET(request: NextRequest) {
     const dayStart = `${dateParam}T00:00:00.000Z`;
     const dayEnd   = `${dateParam}T23:59:59.999Z`;
 
-    // ── Fetch orders ──────────────────────────────────────────────────────────
-    const { data: orders, error } = await getSupabaseAdmin()
-      .from("orders")
-      .select("ime, telefon, adresa, grad, ukupno, order_number, velicine")
-      .gte("created_at", dayStart)
-      .lte("created_at", dayEnd)
-      .neq("status", "cancelled")
-      .order("created_at", { ascending: true });
+    // ── Fetch orders (both tables in parallel) ────────────────────────────────
+    const sb = getSupabaseAdmin();
+    const [{ data: rawOrders, error }, { data: rawCetka, error: cetkaError }] = await Promise.all([
+      sb.from("orders")
+        .select("ime, telefon, adresa, grad, ukupno, order_number, velicine")
+        .gte("created_at", dayStart)
+        .lte("created_at", dayEnd)
+        .neq("status", "cancelled")
+        .order("created_at", { ascending: true }),
+      sb.from("cetka_orders")
+        .select("ime, telefon, adresa, grad, ukupno, order_number, broj_setova")
+        .gte("created_at", dayStart)
+        .lte("created_at", dayEnd)
+        .neq("status", "cancelled")
+        .order("created_at", { ascending: true }),
+    ]);
 
     if (error) {
       console.error("[posta export] Supabase error:", error.message);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
+    if (cetkaError) {
+      console.error("[posta export] Cetka Supabase error:", cetkaError.message);
+    }
 
-    if (!orders || orders.length === 0) {
+    // Normalise cetka rows to match the orders shape
+    const normalisedCetka = ((rawCetka ?? []) as {
+      ime: string; telefon: string; adresa: string; grad: string;
+      ukupno: number; order_number: string; broj_setova: number;
+    }[]).map((o) => ({
+      ime: o.ime,
+      telefon: o.telefon,
+      adresa: o.adresa,
+      grad: o.grad,
+      ukupno: o.ukupno,
+      order_number: o.order_number,
+      velicine: [{ velicina: "Čelična Četka 1+1 GRATIS", kolicina: o.broj_setova }] as Velicina[],
+    }));
+
+    const orders = [...(rawOrders ?? []), ...normalisedCetka];
+
+    if (orders.length === 0) {
       return NextResponse.json({ error: `Nema narudžbi za ${dateParam}.` }, { status: 404 });
     }
 
@@ -209,9 +362,9 @@ export async function GET(request: NextRequest) {
       const kontakt = (o.ime ?? "").split(" ")[0];
       return [
         o.ime ?? "",                   // Ime i prezime
-        lookupPTT(o.grad ?? ""),       // Ptt broj
-        o.adresa ?? "",                // Adresa
-        o.grad ?? "",                  // Mesto
+        lookupPTT(o.grad ?? ""),            // Ptt broj
+        o.adresa ?? "",                    // Adresa
+        correctCityName(o.grad ?? ""),     // Mesto
         o.telefon ?? "",               // Telefon
         "",                            // Referenca
         qty,                           // Tezina (kg) — 1 kg/par for patike
