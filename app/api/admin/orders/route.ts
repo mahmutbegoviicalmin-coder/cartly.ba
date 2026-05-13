@@ -13,34 +13,69 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
-  const page     = parseInt(searchParams.get("page")   ?? "1");
+  const page     = parseInt(searchParams.get("page") ?? "1");
   const search   = searchParams.get("search")  ?? "";
   const status   = searchParams.get("status")  ?? "all";
   const all      = searchParams.get("all")     === "true";
   const pageSize = 20;
-  const from     = (page - 1) * pageSize;
 
-  let query = getSupabaseAdmin()
-    .from("orders")
-    .select("*", { count: "exact" })
-    .order("created_at", { ascending: false });
+  const sb = getSupabaseAdmin();
 
-  if (!all) {
-    query = query.range(from, from + pageSize - 1);
-  }
+  // ── Fetch from both tables in parallel ──────────────────────────────────────
+
+  let qOrders = sb.from("orders").select("*").order("created_at", { ascending: false });
+  let qCetka  = sb.from("cetka_orders").select("*").order("created_at", { ascending: false });
 
   if (search) {
-    query = query.or(`ime.ilike.%${search}%,telefon.ilike.%${search}%,grad.ilike.%${search}%`);
+    const f = `ime.ilike.%${search}%,telefon.ilike.%${search}%,grad.ilike.%${search}%`;
+    qOrders = qOrders.or(f);
+    qCetka  = qCetka.or(f);
   }
   if (status && status !== "all") {
-    query = query.eq("status", status);
+    qOrders = qOrders.eq("status", status);
+    qCetka  = qCetka.eq("status", status);
   }
 
-  const { data, error, count } = await query;
+  const [resOrders, resCetka] = await Promise.all([qOrders, qCetka]);
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+  // ── Normalise cetka rows to match the shared Order shape ────────────────────
+  // Prefix cetka IDs with "cetka_" so PATCH/DELETE knows which table to use.
+  type RawCetka = {
+    id: string; created_at: string; order_number?: string;
+    ime: string; telefon: string; adresa: string; grad: string;
+    extra_set: boolean; broj_setova: number;
+    cijena_proizvoda: number; dostava: number; ukupno: number; status: string;
+  };
 
-  return NextResponse.json({ orders: data, total: count ?? 0, page, pageSize });
+  const normalisedCetka = ((resCetka.data ?? []) as RawCetka[]).map((o) => ({
+    id:               `cetka_${o.id}`,
+    created_at:       o.created_at,
+    order_number:     o.order_number,
+    ime:              o.ime,
+    telefon:          o.telefon,
+    adresa:           o.adresa,
+    grad:             o.grad,
+    // Map to the same velicine shape the dashboard uses for display
+    velicine: [{ velicina: "Čelična Četka 1+1 GRATIS", kolicina: o.broj_setova }],
+    ukupno_pari:      o.broj_setova,
+    cijena_proizvoda: o.cijena_proizvoda,
+    dostava:          o.dostava,
+    ukupno:           o.ukupno,
+    status:           o.status,
+  }));
+
+  // ── Merge + sort by date desc ────────────────────────────────────────────────
+  const merged = [
+    ...(resOrders.data ?? []),
+    ...normalisedCetka,
+  ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+  const total = merged.length;
+
+  // ── Paginate in JS (only when not fetching all) ──────────────────────────────
+  const paginated = all
+    ? merged
+    : merged.slice((page - 1) * pageSize, page * pageSize);
+
+  return NextResponse.json({ orders: paginated, total, page, pageSize });
 }

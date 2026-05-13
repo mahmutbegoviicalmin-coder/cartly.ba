@@ -71,6 +71,16 @@ const ALL_PRODUCTS: Product[] = [
     image:    "/images/dewalt.png",
     hot:      true,
   },
+  {
+    name:     "Čelična Četka za Trimer",
+    desc:     "Profesionalna čelična četka — uklanja korov, suhu travu i korijenje. 1+1 GRATIS",
+    price:    19.90,
+    oldPrice: 39.90,
+    tag:      "VRTLARSTVO",
+    href:     "/celicna-cetka",
+    image:    "/celicnacetka.jpeg",
+    hot:      true,
+  },
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -286,13 +296,14 @@ function EmptyState({ onReset }: { onReset: () => void }) {
 }
 
 // ─── Mobile filter panel ──────────────────────────────────────────────────────
-import { Wrench, Camera, HardHat, Speaker, ChevronDown, RotateCcw } from "lucide-react";
+import { Wrench, Camera, HardHat, Speaker, Leaf, ChevronDown, RotateCcw } from "lucide-react";
 
 const MOBILE_CATEGORIES = [
   { label: "ALATI",        Icon: Wrench   },
   { label: "VIDEO NADZOR", Icon: Camera   },
   { label: "RADNA OBUĆA",  Icon: HardHat  },
   { label: "DOM",          Icon: Speaker  },
+  { label: "VRTLARSTVO",   Icon: Leaf     },
 ];
 
 const SORT_OPTIONS = [

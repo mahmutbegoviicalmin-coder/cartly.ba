@@ -39,6 +39,7 @@ type Stats = {
   recentCount: number;
   shoeCount: number;
   cameraCount: number;
+  cetkaCount: number;
   chartData: { date: string; narudžbe: number; prihod: number }[];
 };
 
@@ -83,6 +84,7 @@ const PRODUCT_MAP: Record<string, { label: string; bg: string; color: string }> 
   DWL: { label: "DeWalt",   bg: "rgba(234,179,8,0.12)",   color: "#eab308" },
   DWT: { label: "DeWalt",   bg: "rgba(234,179,8,0.12)",   color: "#eab308" },
   BRS: { label: "Brusilica", bg: "rgba(20,184,166,0.12)",  color: "#14b8a6" },
+  CCT: { label: "Četka",    bg: "rgba(52,211,153,0.12)",  color: "#34d399" },
 };
 
 function productBadge(orderNumber?: string) {
@@ -613,6 +615,7 @@ export default function DashboardClient() {
                     { label: "Prosječna narudžba",  value: loadingStats ? "—" : fmt(stats?.avgOrder ?? 0),         sub: "po narudžbi",   accent: false },
                     { label: "Patike S3",           value: loadingStats ? "—" : String(stats?.shoeCount ?? 0),     sub: "narudžbi",      accent: false },
                     { label: "V380 Kamera",         value: loadingStats ? "—" : String(stats?.cameraCount ?? 0),   sub: "narudžbi",      accent: false },
+                    { label: "Čelična Četka",       value: loadingStats ? "—" : String(stats?.cetkaCount ?? 0),    sub: "narudžbi",      accent: false },
                   ].map(({ label, value, sub, accent }) => (
                     <div key={label} style={{ background: "#1a1a1a", borderRadius: 12, padding: "20px 22px", border: "1px solid #242424" }}>
                       <p style={{ fontSize: 10, color: "#484848", margin: "0 0 10px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.09em" }}>{label}</p>

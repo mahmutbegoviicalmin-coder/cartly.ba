@@ -1,6 +1,6 @@
 "use client";
 
-import { SlidersHorizontal, ChevronDown, Wrench, Camera, HardHat, Speaker, RotateCcw } from "lucide-react";
+import { SlidersHorizontal, ChevronDown, Wrench, Camera, HardHat, Speaker, Leaf, RotateCcw } from "lucide-react";
 
 export interface FilterState {
   categories: string[];
@@ -14,6 +14,7 @@ const CATEGORIES = [
   { label: "VIDEO NADZOR", Icon: Camera   },
   { label: "RADNA OBUĆA",  Icon: HardHat  },
   { label: "DOM",          Icon: Speaker  },
+  { label: "VRTLARSTVO",   Icon: Leaf     },
 ];
 
 const SORT_OPTIONS = [

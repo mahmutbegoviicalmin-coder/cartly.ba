@@ -7,6 +7,14 @@ function isAuthenticated() {
   return cookieStore.get("admin_session")?.value === "authenticated";
 }
 
+/** Cetka order IDs are prefixed with "cetka_" to identify the correct table. */
+function resolveTable(id: string): { table: "orders" | "cetka_orders"; realId: string } {
+  if (id.startsWith("cetka_")) {
+    return { table: "cetka_orders", realId: id.replace("cetka_", "") };
+  }
+  return { table: "orders", realId: id };
+}
+
 export async function PATCH(
   request: Request,
   { params }: { params: { id: string } }
@@ -16,16 +24,17 @@ export async function PATCH(
   }
 
   const { status } = await request.json();
-
   const validStatuses = ["nova", "potvrđena", "poslana", "isporučena"];
   if (!validStatuses.includes(status)) {
     return NextResponse.json({ error: "Invalid status" }, { status: 400 });
   }
 
+  const { table, realId } = resolveTable(params.id);
+
   const { error } = await getSupabaseAdmin()
-    .from("orders")
+    .from(table)
     .update({ status })
-    .eq("id", params.id);
+    .eq("id", realId);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -42,10 +51,12 @@ export async function DELETE(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const { table, realId } = resolveTable(params.id);
+
   const { error } = await getSupabaseAdmin()
-    .from("orders")
+    .from(table)
     .delete()
-    .eq("id", params.id);
+    .eq("id", realId);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
