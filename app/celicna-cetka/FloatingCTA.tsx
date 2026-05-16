@@ -43,37 +43,47 @@ export default function FloatingCTA() {
           })
         }
         style={{
-          /* layout */
           position:       "fixed",
           bottom:         20,
           right:          "clamp(12px,3vw,20px)",
           zIndex:         9997,
           display:        "flex",
           alignItems:     "center",
-          gap:            9,
-          /* visuals */
+          gap:            10,
           background:     "linear-gradient(135deg,#FF7A20 0%,#FF5000 100%)",
           color:          "#fff",
           fontWeight:     800,
           fontSize:       "clamp(13px,2vw,15px)",
-          borderRadius:   16,
-          padding:        "13px clamp(16px,3vw,22px)",
+          borderRadius:   18,
+          padding:        "14px clamp(18px,3vw,26px)",
           textDecoration: "none",
           whiteSpace:     "nowrap",
           fontFamily:     "var(--font-manrope),sans-serif",
           letterSpacing:  "-0.01em",
-          /* scroll show/hide — only transition, no competing animation */
           opacity:        visible ? 1 : 0,
           transform:      visible ? "translateY(0)" : "translateY(24px)",
           transition:     "opacity 0.28s ease, transform 0.28s ease",
           pointerEvents:  visible ? "auto" : "none",
         }}
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        {/* cart icon */}
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
           <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
         </svg>
-        Naruči 1+1 GRATIS — 19,90 KM
+
+        {/* text + price pill */}
+        <span style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
+          <span style={{ fontSize: "clamp(14px,2.2vw,16px)", fontWeight: 900 }}>Naruči odmah</span>
+          <span style={{ fontSize: "clamp(11px,1.6vw,12px)", fontWeight: 600, opacity: 0.85 }}>
+            19,90 KM · Plaćanje pouzećem
+          </span>
+        </span>
+
+        {/* arrow */}
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
       </a>
     </>
   );

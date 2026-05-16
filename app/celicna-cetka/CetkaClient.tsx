@@ -17,7 +17,7 @@ const IMAGES = [
 ];
 
 const PRICE_BASE  = 19.90;
-const PRICE_EXTRA = 19.90;
+const PRICE_EXTRA = 10.00;
 const PRICE_OLD   = 39.90;
 const DELIVERY    = 10.00;
 
@@ -138,7 +138,7 @@ const REVIEWS = [
     name:   "Nermin J.",
     city:   "Zenica",
     rating: 5,
-    text:   "1+1 gratis je odlično, jednu poklonio bratu. Obojica koristimo već skoro mjesec i nema ni traga habanja. Za ovu cijenu je besmisleno ne naručiti. Iskreno nisam očekivao ovoliko od ovako jeftine stvari.",
+    text:   "Naručio jednu, pa odmah naručio drugu za brata. Obojica koristimo već skoro mjesec i nema ni traga habanja. Za ovu cijenu je besmisleno ne naručiti. Iskreno nisam očekivao ovoliko kvaliteta.",
     date:   "25. april 2026.",
   },
   {
@@ -400,11 +400,11 @@ export default function CetkaClient() {
                 {/* badges */}
                 <div style={{
                   position: "absolute", top: 14, left: 14,
-                  background: ACCENT, color: "#fff",
+                  background: "#16A34A", color: "#fff",
                   fontSize: 12, fontWeight: 800, borderRadius: 8,
                   padding: "5px 11px", zIndex: 2,
-                  boxShadow: "0 3px 10px rgba(255,107,0,0.35)",
-                }}>1+1 GRATIS</div>
+                  boxShadow: "0 3px 10px rgba(22,163,74,0.35)",
+                }}>−50% POPUST</div>
 
                 <div style={{
                   position: "absolute", top: 14, right: 14,
@@ -526,23 +526,6 @@ export default function CetkaClient() {
                   </div>
                 )}
 
-                {/* 1+1 highlight */}
-                <div style={{
-                  display: "flex", alignItems: "center", gap: 9,
-                  background: "rgba(22,163,74,0.07)",
-                  border: "1px solid rgba(22,163,74,0.2)",
-                  borderRadius: 10, padding: "9px 14px",
-                }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M20 12v10H4V12"/><path d="M22 7H2v5h20V7z"/>
-                    <path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
-                    <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
-                  </svg>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: "#16A34A" }}>
-                    1+1 GRATIS — naručite jednu, dobijate dvije!
-                  </span>
-                </div>
-
                 {/* CTA */}
                 <a
                   href="#narudzba"
@@ -562,7 +545,7 @@ export default function CetkaClient() {
                     <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
                     <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
                   </svg>
-                  Naruči odmah — 1+1 GRATIS
+                  Naruči odmah · 19,90 KM
                 </a>
               </div>
 
@@ -644,7 +627,7 @@ export default function CetkaClient() {
 
             {[
               { src: "/celicnacetka.jpeg",  label: "Čelične žice visokog kvaliteta", badge: null },
-              { src: "/celicnacetka1.jpg",  label: null,                              badge: "1+1 GRATIS" },
+              { src: "/celicnacetka1.jpg",  label: "Čelične žice kaljenog čelika",     badge: null },
               { src: "/1.jpg",              label: "Laka montaža",                   badge: null },
               { src: "/2.jpg",              label: "Profesionalni rezultati",         badge: null },
             ].map((item, i) => (
@@ -789,7 +772,7 @@ export default function CetkaClient() {
           <div style={{ textAlign: "center", marginBottom: 36 }}>
             <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: ACCENT, display: "block", marginBottom: 12 }}>Narudžba</span>
             <h2 style={{ fontSize: "clamp(24px,4vw,40px)", fontWeight: 800, color: "#0A0A0A", letterSpacing: "-0.025em", lineHeight: 1.1, margin: "0 0 10px", fontFamily: "var(--font-manrope), sans-serif" }}>
-              Naruči 1+1 GRATIS
+              Naruči odmah
             </h2>
             <p style={{ fontSize: 15, color: "#777", margin: 0, lineHeight: 1.6 }}>
               Plaćanje pouzećem · Dostava 10 KM · Cijelom BiH
@@ -833,10 +816,10 @@ export default function CetkaClient() {
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 14, fontWeight: 700, color: "#0A0A0A", lineHeight: 1.3 }}>
-                    Da, želim još jedan set (2 četke)
+                    Da, dodajem još jednu četku
                   </div>
                   <div style={{ fontSize: 12, color: "#888", marginTop: 3 }}>
-                    Ukupno 4 četke — savršeno za poklon ili rezervu · 19,90 KM
+                    Savršeno za rezervu ili poklon — samo +10,00 KM
                   </div>
                 </div>
                 <span style={{ fontSize: 15, fontWeight: 800, color: ACCENT, flexShrink: 0 }}>
@@ -849,7 +832,7 @@ export default function CetkaClient() {
             <div style={{ background: "#F7F7F5", border: "1px solid rgba(0,0,0,0.07)", borderRadius: 14, overflow: "hidden" }}>
               <div style={{ padding: "11px 16px", display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
                 <span style={{ fontSize: 13, color: "#666" }}>
-                  {extraSet ? "2 seta (4 četke)" : "1 set (2 četke) — 1+1 GRATIS"}
+                  {extraSet ? "2× Čelična Četka za Trimer" : "Čelična Četka za Trimer"}
                 </span>
                 <span style={{ fontSize: 13, fontWeight: 600, color: "#0A0A0A" }}>{fmt(productTotal)}</span>
               </div>

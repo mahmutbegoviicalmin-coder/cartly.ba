@@ -39,7 +39,7 @@ function fmt(n: number): string {
 }
 
 const PRICE_BASE  = 19.90;
-const PRICE_EXTRA = 19.90;
+const PRICE_EXTRA = 10.00;
 const DELIVERY    = 10.00;
 
 export async function POST(request: NextRequest) {
@@ -59,8 +59,8 @@ export async function POST(request: NextRequest) {
     const ukupno           = cijenaProizvoda + DELIVERY;
 
     const setLabel = extraSet
-      ? "2 seta (4 četke — 2+2 GRATIS)"
-      : "1 set (2 četke — 1+1 GRATIS)";
+      ? "2× Čelična Četka za Trimer"
+      : "Čelična Četka za Trimer";
 
     // 1. Save to Supabase
     const { error: dbError } = await getSupabaseAdmin().from("cetka_orders").insert({
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
             <td>
               <p style="margin:0 0 4px;font-size:12px;font-weight:600;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:0.08em;">Nova narudžba</p>
               <h1 style="margin:0 0 6px;font-size:26px;font-weight:800;color:#ffffff;line-height:1.2;">Čelična Četka za Trimer</h1>
-              <p style="margin:0;font-size:13px;color:rgba(255,255,255,0.8);">1+1 GRATIS · Vrtlarstvo</p>
+              <p style="margin:0;font-size:13px;color:rgba(255,255,255,0.8);">Vrtlarstvo · Profesionalni alat</p>
             </td>
             <td align="right" style="vertical-align:top;">
               <p style="margin:0 0 4px;font-size:11px;color:rgba(255,255,255,0.6);text-align:right;">Broj narudžbe</p>
@@ -164,8 +164,8 @@ export async function POST(request: NextRequest) {
           </tr>
           ${extraSet ? `
           <tr style="background:#FFF8F5;">
-            <td style="padding:8px 16px;font-size:12px;color:#16A34A;font-weight:600;border-bottom:1px solid #F0F0F0;">Ustednja (extra set)</td>
-            <td style="padding:8px 16px;font-size:12px;color:#16A34A;font-weight:700;text-align:right;border-bottom:1px solid #F0F0F0;">−${fmt(PRICE_BASE - PRICE_EXTRA)} po setu</td>
+            <td style="padding:8px 16px;font-size:12px;color:#16A34A;font-weight:600;border-bottom:1px solid #F0F0F0;">Dodatna četka (uštednja)</td>
+            <td style="padding:8px 16px;font-size:12px;color:#16A34A;font-weight:700;text-align:right;border-bottom:1px solid #F0F0F0;">+${fmt(PRICE_EXTRA)}</td>
           </tr>` : ""}
           <tr>
             <td style="padding:10px 16px;font-size:13px;color:#666;border-bottom:1px solid #F0F0F0;">Dostava</td>
