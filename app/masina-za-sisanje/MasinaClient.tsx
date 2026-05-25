@@ -5,9 +5,8 @@ import Image from "next/image";
 import { event } from "@/lib/fbpixel";
 
 const ACCENT    = "#FF6B00";
-const PRICE     = 89.90;
-const OLD_PRICE = 169.90;
-const DELIVERY  = 10.00;
+const PRICE    = 89.90;
+const DELIVERY = 10.00;
 
 /* ─── Types ─────────────────────────────────────────── */
 type Fields = { ime: string; telefon: string; adresa: string; grad: string };
