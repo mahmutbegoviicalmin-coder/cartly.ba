@@ -69,6 +69,7 @@ export interface CAPIOptions {
   userAgent?:  string;
   fbc?:        string;
   fbp?:        string;
+  externalId?: string; // stable per-browser ID from localStorage (_crt_eid)
   testCode?:   string; // META_TEST_EVENT_CODE — only for Test Events tool
 }
 
@@ -87,8 +88,9 @@ export async function sendCAPIEvent(opts: CAPIOptions): Promise<void> {
   if (opts.email)     userData.em                  = hashEmail(opts.email);
   if (opts.ip)        userData.client_ip_address   = opts.ip;
   if (opts.userAgent) userData.client_user_agent   = opts.userAgent;
-  if (opts.fbc)       userData.fbc                 = opts.fbc;
-  if (opts.fbp)       userData.fbp                 = opts.fbp;
+  if (opts.fbc)        userData.fbc                 = opts.fbc;
+  if (opts.fbp)        userData.fbp                 = opts.fbp;
+  if (opts.externalId) userData.external_id         = sha256(opts.externalId);
 
   const payload: Record<string, unknown> = {
     data: [
@@ -113,7 +115,7 @@ export async function sendCAPIEvent(opts: CAPIOptions): Promise<void> {
     payload.test_event_code = opts.testCode;
   }
 
-  const url = `https://graph.facebook.com/v18.0/${pixelId}/events?access_token=${accessToken}`;
+  const url = `https://graph.facebook.com/v21.0/${pixelId}/events?access_token=${accessToken}`;
 
   try {
     const res = await fetch(url, {
