@@ -30,6 +30,28 @@ export default function RootLayout({
           strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
+              // 1. Manually capture fbclid → _fbc cookie (fallback before pixel.js loads)
+              (function() {
+                try {
+                  var fbclid = new URLSearchParams(window.location.search).get('fbclid');
+                  if (fbclid && !document.cookie.match(/(^|;)\s*_fbc=/)) {
+                    var fbc = 'fb.1.' + Date.now() + '.' + fbclid;
+                    document.cookie = '_fbc=' + fbc + '; path=/; max-age=7776000; SameSite=Lax';
+                  }
+                } catch(e) {}
+              })();
+
+              // 2. Stable external_id (per browser) — improves cross-session match quality
+              var _eid = '';
+              try {
+                _eid = localStorage.getItem('_crt_eid') || '';
+                if (!_eid) {
+                  _eid = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+                  localStorage.setItem('_crt_eid', _eid);
+                }
+              } catch(e) {}
+
+              // 3. Load pixel
               !function(f,b,e,v,n,t,s)
               {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
               n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -38,7 +60,9 @@ export default function RootLayout({
               t.src=v;s=b.getElementsByTagName(e)[0];
               s.parentNode.insertBefore(t,s)}(window, document,'script',
               'https://connect.facebook.net/en_US/fbevents.js');
-              fbq('init', '${FB_PIXEL_ID}');
+
+              // 4. Init with external_id for better match quality
+              fbq('init', '${FB_PIXEL_ID}', _eid ? { external_id: _eid } : {});
               fbq('track', 'PageView');
             `,
           }}

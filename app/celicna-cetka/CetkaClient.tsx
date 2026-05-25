@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useRef, useEffect, FormEvent } from "react";
 import Image from "next/image";
@@ -10,10 +10,10 @@ import OrderSuccess from "@/components/OrderSuccess";
 const ACCENT = "#FF6B00";
 
 const IMAGES = [
-  { src: "/celicnacetka.jpeg", alt: "Čelična Četka za Trimer — glavni prikaz" },
-  { src: "/celicnacetka1.jpg", alt: "Čelična Četka za Trimer — detalj četke" },
-  { src: "/1.jpg",             alt: "Čelična Četka za Trimer — montaža" },
-  { src: "/2.jpg",             alt: "Čelična Četka za Trimer — u upotrebi" },
+  { src: "/celicnacetka.jpeg", alt: "Čelična Četka za Trimer · glavni prikaz" },
+  { src: "/celicnacetka1.jpg", alt: "Čelična Četka za Trimer · detalj četke" },
+  { src: "/1.jpg",             alt: "Čelična Četka za Trimer · montaža" },
+  { src: "/2.jpg",             alt: "Čelična Četka za Trimer · u upotrebi" },
 ];
 
 const PRICE_BASE  = 19.90;
@@ -71,7 +71,7 @@ const FEATURES = [
   },
   {
     title: "Odgovara svim trimerima",
-    desc:  "Univerzalni adapter — montaža za manje od 60 sekundi na bilo koji standardni trimer.",
+    desc:  "Univerzalni adapter · montaža za manje od 60 sekundi na bilo koji standardni trimer.",
     svg: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
@@ -90,7 +90,7 @@ const FEATURES = [
   },
   {
     title: "Sigurna i balansirana rotacija",
-    desc:  "Dizajnirana za minimalne vibracije — nema bacanja debrisa, nema opasnosti.",
+    desc:  "Dizajnirana za minimalne vibracije · nema bacanja debrisa, nema opasnosti.",
     svg: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="10"/>
@@ -131,7 +131,7 @@ const REVIEWS = [
     name:   "Emir K.",
     city:   "Tuzla",
     rating: 5,
-    text:   "Nisam bio siguran hoće li odgovarati na moj Stihl trimer, ali odgovaralo je savršeno. Montaža 5 minuta. Razlika je ogromna — više ne kupujem niti uopće. Preporučam svima koji imaju problem sa korovom uz zidove i ivičnjake.",
+    text:   "Nisam bio siguran hoće li odgovarati na moj Stihl trimer, ali odgovaralo je savršeno. Montaža 5 minuta. Razlika je ogromna · više ne kupujem niti uopće. Preporučam svima koji imaju problem sa korovom uz zidove i ivičnjake.",
     date:   "19. april 2026.",
   },
   {
@@ -152,7 +152,7 @@ const REVIEWS = [
     name:   "Tarik M.",
     city:   "Banja Luka",
     rating: 5,
-    text:   "Moja žena mi kupila za Birthday i bio sam skeptičan iskreno. Ali kad sam probao — nestvaran osjećaj moći! Travnjak izgleda fantastično. Naručujem drugu za rezervu odmah.",
+    text:   "Moja žena mi kupila za Birthday i bio sam skeptičan iskreno. Ali kad sam probao · nestvaran osjećaj moći! Travnjak izgleda fantastično. Naručujem drugu za rezervu odmah.",
     date:   "7. maj 2026.",
   },
   {
@@ -452,7 +452,7 @@ export default function CetkaClient() {
               </h1>
 
               <p style={{ fontSize: 16, color: "#5A5A5A", lineHeight: 1.65, margin: 0 }}>
-                Profesionalna čelična četka eliminira korov, suhu travu i korijenje — bez habanja, bez pauzi. Jedan alat, trajni rezultati.
+                Profesionalna čelična četka eliminira korov, suhu travu i korijenje · bez habanja, bez pauzi. Jedan alat, trajni rezultati.
               </p>
 
               {/* Viewer count */}
@@ -679,9 +679,9 @@ export default function CetkaClient() {
           </div>
           <div className="steps-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "clamp(12px,2vw,24px)" }}>
             {[
-              { step: "01", title: "Montiraj na trimer", desc: "Skinite staru nit ili disk i montirajte četku za manje od 60 sekundi — radi sa svim standardnim trimerima.", svg: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> },
+              { step: "01", title: "Montiraj na trimer", desc: "Skinite staru nit ili disk i montirajte četku za manje od 60 sekundi · radi sa svim standardnim trimerima.", svg: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> },
               { step: "02", title: "Pokosi i iskopaj", desc: "Čelične žice sijeku najtvrdokorniji korov i iskopavaju korijenje tamo gdje obična nit ne može doći.", svg: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg> },
-              { step: "03", title: "Uživaj u rezultatima", desc: "Savršen travnjak bez herbicida. Četka traje cijelu sezonu bez zamjene — isplati se svakim danom.", svg: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> },
+              { step: "03", title: "Uživaj u rezultatima", desc: "Savršen travnjak bez herbicida. Četka traje cijelu sezonu bez zamjene · isplati se svakim danom.", svg: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> },
             ].map(s => (
               <div key={s.step} style={{
                 background: "#FFFFFF", border: "1px solid rgba(0,0,0,0.07)",
@@ -819,7 +819,7 @@ export default function CetkaClient() {
                     Da, dodajem još jednu četku
                   </div>
                   <div style={{ fontSize: 12, color: "#888", marginTop: 3 }}>
-                    Savršeno za rezervu ili poklon — samo +10,00 KM
+                    Savršeno za rezervu ili poklon · samo +10,00 KM
                   </div>
                 </div>
                 <span style={{ fontSize: 15, fontWeight: 800, color: ACCENT, flexShrink: 0 }}>
@@ -877,7 +877,7 @@ export default function CetkaClient() {
                     <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
                     <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
                   </svg>
-                  Naruči — Plaćanje pouzećem
+                  Naruči · Plaćanje pouzećem
                 </>
               )}
             </button>

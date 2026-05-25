@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { Sora, Inter } from "next/font/google";
 
 const sora = Sora({
@@ -16,7 +16,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title:       "DeWalt 28V XR Bušilica — Kompletan Set | Cartly.ba",
+  title:       "DeWalt 28V XR Bušilica · Kompletan Set | Cartly.ba",
   description: "DeWalt 28V XR akumulatorska bušilica sa 2 baterije, punjačem i kompletnim setom alata u tvrdom koferu. Dostava 1–3 dana po cijeloj BiH.",
 };
 

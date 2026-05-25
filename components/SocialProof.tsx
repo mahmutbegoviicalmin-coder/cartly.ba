@@ -1,28 +1,28 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, useRef } from "react";
 
 const notifications = [
-  { name: "Mirza",   city: "Sarajeva",  gender: "m" },
-  { name: "Amra",    city: "Mostara",   gender: "f" },
-  { name: "Edin",    city: "Tuzle",     gender: "m" },
-  { name: "Lejla",   city: "Zenice",    gender: "f" },
-  { name: "Tarik",   city: "Banje Luke",gender: "m" },
-  { name: "Selma",   city: "Bihaća",    gender: "f" },
-  { name: "Adnan",   city: "Travnika",  gender: "m" },
-  { name: "Amina",   city: "Goražda",   gender: "f" },
-  { name: "Haris",   city: "Konjica",   gender: "m" },
-  { name: "Dženana", city: "Brčkog",    gender: "f" },
-  { name: "Kenan",   city: "Mostara",   gender: "m" },
-  { name: "Sanela",  city: "Sarajeva",  gender: "f" },
-  { name: "Damir",   city: "Tuzle",     gender: "m" },
-  { name: "Emina",   city: "Zenice",    gender: "f" },
-  { name: "Nedim",   city: "Tuzle",     gender: "m" },
-  { name: "Azra",    city: "Sarajeva",  gender: "f" },
-  { name: "Jasmin",  city: "Banje Luke",gender: "m" },
-  { name: "Merima",  city: "Travnika",  gender: "f" },
-  { name: "Senad",   city: "Bihaća",    gender: "m" },
-  { name: "Lamija",  city: "Konjica",   gender: "f" },
+  { name: "Mirza",  city: "Sarajeva"    },
+  { name: "Edin",   city: "Tuzle"       },
+  { name: "Tarik",  city: "Banje Luke"  },
+  { name: "Adnan",  city: "Bihaća"      },
+  { name: "Haris",  city: "Konjica"     },
+  { name: "Kenan",  city: "Mostara"     },
+  { name: "Damir",  city: "Zenice"      },
+  { name: "Nedim",  city: "Tuzle"       },
+  { name: "Jasmin", city: "Banje Luke"  },
+  { name: "Senad",  city: "Bihaća"      },
+  { name: "Amar",   city: "Travnika"    },
+  { name: "Eldin",  city: "Sarajeva"    },
+  { name: "Faruk",  city: "Goražda"     },
+  { name: "Mahir",  city: "Brčkog"      },
+  { name: "Denis",  city: "Lukavca"     },
+  { name: "Amer",   city: "Zenice"      },
+  { name: "Aldin",  city: "Cazina"      },
+  { name: "Dino",   city: "Mostara"     },
+  { name: "Anes",   city: "Živinica"    },
+  { name: "Sanel",  city: "Doboja"      },
 ] as const;
 
 export default function SocialProof() {
@@ -49,10 +49,10 @@ export default function SocialProof() {
 
     hideTimer.current = setTimeout(() => {
       setLeaving(true);
-      setTimeout(() => setVisible(false), 420);
-    }, 4000);
+      setTimeout(() => setVisible(false), 380);
+    }, 4500);
 
-    cycleTimer.current = setTimeout(show, 30000);
+    cycleTimer.current = setTimeout(show, 28000);
   };
 
   useEffect(() => {
@@ -67,94 +67,93 @@ export default function SocialProof() {
   const dismiss = () => {
     if (hideTimer.current) clearTimeout(hideTimer.current);
     setLeaving(true);
-    setTimeout(() => setVisible(false), 420);
+    setTimeout(() => setVisible(false), 380);
   };
 
   if (!visible) return null;
 
   const p = notifications[current];
-  const action = p.gender === "f"
-    ? "upravo naručila Radne Patike S3"
-    : "upravo naručio Radne Patike S3";
 
   return (
     <>
-      <style>{`
-        @keyframes spSlideIn {
-          from { transform: translateX(-120%); opacity: 0; }
-          to   { transform: translateX(0);     opacity: 1; }
+      <style suppressHydrationWarning>{`
+        @keyframes spIn {
+          from { transform: translateY(16px) scale(0.96); opacity: 0; }
+          to   { transform: translateY(0)    scale(1);    opacity: 1; }
         }
-        @keyframes spSlideOut {
-          from { transform: translateX(0);     opacity: 1; }
-          to   { transform: translateX(-120%); opacity: 0; }
+        @keyframes spOut {
+          from { transform: translateY(0)    scale(1);    opacity: 1; }
+          to   { transform: translateY(12px) scale(0.95); opacity: 0; }
         }
-        @keyframes spShrink {
+        @keyframes spProgress {
           from { width: 100%; }
           to   { width: 0%; }
         }
+        .sp-toast {
+          animation: ${leaving ? "spOut 0.38s ease forwards" : "spIn 0.38s cubic-bezier(0.22,1,0.36,1) forwards"};
+        }
         @media (max-width: 640px) {
-          .sp-wrap {
-            bottom: 80px !important;
+          .sp-root {
+            bottom: calc(130px + env(safe-area-inset-bottom)) !important;
             left: 12px !important;
             right: 12px !important;
-          }
-          .sp-wrap > div {
-            min-width: unset !important;
-            max-width: 100% !important;
-            width: 100% !important;
           }
         }
       `}</style>
 
       <div
-        className="sp-wrap"
+        className="sp-root"
         style={{
           position: "fixed",
-          bottom: 90,
-          left: 24,
-          zIndex: 9999,
+          bottom: 96,
+          left: 20,
+          zIndex: 9997,
           fontFamily: "var(--font-manrope), sans-serif",
+          maxWidth: 300,
         }}
       >
         <div
+          className="sp-toast"
           style={{
-            background: "#ffffff",
+            background: "rgba(12,12,12,0.90)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
             borderRadius: 14,
-            padding: "14px 18px",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)",
-            border: "1px solid rgba(0,0,0,0.06)",
+            border: "1px solid rgba(255,255,255,0.09)",
+            padding: "10px 14px 10px 10px",
             display: "flex",
             alignItems: "center",
-            gap: 14,
-            minWidth: 280,
-            maxWidth: 320,
+            gap: 10,
             position: "relative",
             overflow: "hidden",
-            animation: leaving
-              ? "spSlideOut 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) forwards"
-              : "spSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.16)",
           }}
         >
           {/* Avatar */}
           <div style={{
-            width: 42, height: 42, borderRadius: "50%", flexShrink: 0,
-            background: "linear-gradient(135deg, #f97316, #ea580c)",
+            width: 36, height: 36, borderRadius: 10, flexShrink: 0,
+            background: "linear-gradient(135deg, #FF6B00, #E85E00)",
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 16, fontWeight: 800, color: "#fff",
+            fontSize: 14, fontWeight: 800, color: "#fff",
           }}>
             {p.name[0]}
           </div>
 
           {/* Text */}
           <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#1d1d1f", lineHeight: 1.3 }}>
-              {p.name} iz {p.city}
+            <p style={{
+              margin: 0, fontSize: 12, fontWeight: 700,
+              color: "#fff", lineHeight: 1.3,
+              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+            }}>
+              <span style={{ color: "#FF7A30" }}>{p.name}</span>
+              {" "}iz {p.city} naručio
             </p>
-            <p style={{ margin: "2px 0 0", fontSize: 12, color: "#6e6e73", fontWeight: 400, lineHeight: 1.3 }}>
-              {action}
-            </p>
-            <p style={{ margin: "4px 0 0", fontSize: 11, color: "#aeaeb2", fontWeight: 500 }}>
-              Prije nekoliko minuta
+            <p style={{
+              margin: "2px 0 0", fontSize: 11,
+              color: "rgba(255,255,255,0.45)", lineHeight: 1.2,
+            }}>
+              Radne Patike S3 · prije par minuta
             </p>
           </div>
 
@@ -162,10 +161,9 @@ export default function SocialProof() {
           <button
             onClick={dismiss}
             style={{
-              position: "absolute", top: 8, right: 10,
               background: "none", border: "none",
-              fontSize: 14, color: "#aeaeb2", cursor: "pointer", lineHeight: 1,
-              padding: 0,
+              color: "rgba(255,255,255,0.30)", cursor: "pointer",
+              fontSize: 16, lineHeight: 1, padding: "0 0 0 4px", flexShrink: 0,
             }}
             aria-label="Zatvori"
           >
@@ -176,9 +174,10 @@ export default function SocialProof() {
           {!leaving && (
             <div style={{
               position: "absolute", bottom: 0, left: 0,
-              height: 2, background: "#f97316",
+              height: 2,
+              background: "linear-gradient(90deg, #FF6B00, #FF9A3C)",
               borderRadius: "0 0 14px 14px",
-              animation: "spShrink 4s linear forwards",
+              animation: "spProgress 4.5s linear forwards",
             }} />
           )}
         </div>

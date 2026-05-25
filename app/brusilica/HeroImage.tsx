@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
@@ -19,7 +19,7 @@ export default function HeroImage() {
   const [stockLeft, setStockLeft] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Randomise on mount — different every page load
+  // Randomise on mount · different every page load
   useEffect(() => {
     setViewers(randomBetween(9, 28));
     const pct  = randomBetween(12, 43);   // always below 50 %

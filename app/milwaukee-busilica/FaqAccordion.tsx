@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 
@@ -13,7 +13,7 @@ const PITANJA = [
   },
   {
     q: "Je li pogodna za kućnu upotrebu?",
-    a: "Da, idealna je za sve DIY projekte u domaćinstvu — montaža namještaja, bušenje zidova, vijčanje i sl.",
+    a: "Da, idealna je za sve DIY projekte u domaćinstvu · montaža namještaja, bušenje zidova, vijčanje i sl.",
   },
   {
     q: "Koliko iznosi dostava?",

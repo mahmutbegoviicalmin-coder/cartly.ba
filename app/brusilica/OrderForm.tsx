@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useRef, FormEvent } from "react";
 import { ChevronRight, Truck, CreditCard, RotateCcw } from "lucide-react";
@@ -8,7 +8,7 @@ import OrderSuccess from "@/components/OrderSuccess";
 const ACCENT = "#FF6B00";
 
 const TRUST_ITEMS = [
-  { Icon: Truck,      title: "Dostava 10,00 KM",  desc: "Cijela BiH — 1–3 radna dana"  },
+  { Icon: Truck,      title: "Dostava 10,00 KM",  desc: "Cijela BiH · 1–3 radna dana"  },
   { Icon: CreditCard, title: "Plaćanje pouzećem",  desc: "Platite pri preuzimanju"       },
   { Icon: RotateCcw,  title: "Povrat 14 dana",     desc: "Bez pitanja i bez troškova"   },
 ];

@@ -1,13 +1,13 @@
-"use client";
+﻿"use client";
 
 import { useState, useRef } from "react";
 import Image from "next/image";
 
 const images = [
-  { src: "/images/product-1.webp", alt: "Radne Patike S3 — pogled sprijeda" },
-  { src: "/images/product-2.webp", alt: "Radne Patike S3 — BOA sistem detalj" },
-  { src: "/images/product-3.webp", alt: "Radne Patike S3 — đon detalj" },
-  { src: "/images/product-4.webp", alt: "Radne Patike S3 — bočni pogled" },
+  { src: "/images/product-1.webp", alt: "Radne Patike S3 · pogled sprijeda" },
+  { src: "/images/product-2.webp", alt: "Radne Patike S3 · BOA sistem detalj" },
+  { src: "/images/product-3.webp", alt: "Radne Patike S3 · đon detalj" },
+  { src: "/images/product-4.webp", alt: "Radne Patike S3 · bočni pogled" },
 ];
 
 export default function Gallery() {

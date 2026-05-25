@@ -1,13 +1,13 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 
 const IMAGES = [
-  { src: "/images/milw1.webp", alt: "Milwaukee M18 Bušilica — pogled 1" },
-  { src: "/images/milw2.webp", alt: "Milwaukee M18 Bušilica — pogled 2" },
-  { src: "/images/milw3.webp", alt: "Milwaukee M18 Bušilica — pogled 3" },
-  { src: "/images/milw4.webp", alt: "Milwaukee M18 Bušilica — pogled 4" },
+  { src: "/images/milw1.webp", alt: "Milwaukee M18 Bušilica · pogled 1" },
+  { src: "/images/milw2.webp", alt: "Milwaukee M18 Bušilica · pogled 2" },
+  { src: "/images/milw3.webp", alt: "Milwaukee M18 Bušilica · pogled 3" },
+  { src: "/images/milw4.webp", alt: "Milwaukee M18 Bušilica · pogled 4" },
 ];
 
 const ACCENT = "#E8460A";
@@ -44,7 +44,7 @@ export default function HeroGallery() {
           style={{ aspectRatio: "4/5", background: "#F2F0EB" }}
           aria-label="Povećaj sliku"
         >
-          {/* Na stanju badge — inside image container */}
+          {/* Na stanju badge · inside image container */}
           <div
             className="absolute top-4 right-4 z-10 bg-white rounded-xl shadow-md px-3 py-2 flex items-center gap-2"
             style={{ border: "1px solid #f0ede8" }}

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef, FormEvent } from "react";
 import Image from "next/image";
@@ -8,6 +8,9 @@ import {
   ChevronRight, Truck, CreditCard, Zap, Box, Flame,
 } from "lucide-react";
 import { event } from "@/lib/fbpixel";
+
+// ─── Out-of-stock flag ────────────────────────────────────────────────────────
+const OUT_OF_STOCK = true;
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const C = {
@@ -87,14 +90,14 @@ const KIT_COL2 = [
   { text: "Skalpel / krojački nož",           star: false },
   { text: "Metar 3m",                         star: false },
   { text: "PVC izolir traka",                 star: false },
-  { text: "Set burgija — drvo, metal, beton", star: false },
+  { text: "Set burgija · drvo, metal, beton", star: false },
   { text: "Kutija šrafova, tiplova i pribora",star: false },
   { text: "Tvrdi kofer za prenošenje",        star: true  },
 ];
 
 const BENEFITS = [
   { Icon: Box,     title: "Sve u jednom koferu",       desc: "15+ alata uredno složenih u tvrdom koferu." },
-  { Icon: Zap,     title: "Spremno za rad odmah",       desc: "Raspakuj i kreni — baterije i punjač uključeni." },
+  { Icon: Zap,     title: "Spremno za rad odmah",       desc: "Raspakuj i kreni · baterije i punjač uključeni." },
   { Icon: Shield,  title: "Praktično za svakoga",       desc: "Za kuću, renovaciju i profesionalne majstore." },
   { Icon: CreditCard, title: "Plaćanje pouzećem",       desc: "Plaćate tek kada preuzmete paket." },
 ];
@@ -120,7 +123,7 @@ export default function DeWaltPage() {
   const checkoutFired  = useRef(false);
   const timer          = useCountdown();
 
-  // ViewContent — fires once on mount
+  // ViewContent · fires once on mount
   useEffect(() => {
     event("ViewContent", {
       content_name:     "DeWalt 28V XR Set",
@@ -150,7 +153,7 @@ export default function DeWaltPage() {
     return () => clearInterval(id);
   }, []);
 
-  // Viewer count — random on mount, fluctuates every ~30s
+  // Viewer count · random on mount, fluctuates every ~30s
   useEffect(() => {
     const rand = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
     setViewers(rand(74, 97));
@@ -265,7 +268,7 @@ export default function DeWaltPage() {
         }
         .dw-success-secondary:hover { background: rgba(0,0,0,0.07) !important; }
 
-        /* Floating CTA — premium FAB */
+        /* Floating CTA · premium FAB */
         @keyframes dw-fab-in {
           from { opacity: 0; transform: translateY(20px) scale(0.92); }
           to   { opacity: 1; transform: translateY(0)    scale(1); }
@@ -393,13 +396,22 @@ export default function DeWaltPage() {
               ← Početna
             </a>
           </div>
-          <button
-            onClick={scrollToForm}
-            className="dw-btn dw-header-btn"
-            style={{ background: C.yellow, color: C.black, fontFamily: SORA, fontWeight: 700, fontSize: 14, letterSpacing: "0.01em", border: "none", borderRadius: 999, padding: "11px 24px", cursor: "pointer" }}
-          >
-            Naruči odmah
-          </button>
+          {OUT_OF_STOCK ? (
+            <span
+              className="dw-header-btn"
+              style={{ background: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.55)", fontFamily: SORA, fontWeight: 700, fontSize: 14, letterSpacing: "0.01em", borderRadius: 999, padding: "11px 24px", display: "inline-block" }}
+            >
+              Rasprodano
+            </span>
+          ) : (
+            <button
+              onClick={scrollToForm}
+              className="dw-btn dw-header-btn"
+              style={{ background: C.yellow, color: C.black, fontFamily: SORA, fontWeight: 700, fontSize: 14, letterSpacing: "0.01em", border: "none", borderRadius: 999, padding: "11px 24px", cursor: "pointer" }}
+            >
+              Naruči odmah
+            </button>
+          )}
         </div>
       </header>
 
@@ -424,7 +436,7 @@ export default function DeWaltPage() {
           background:    "radial-gradient(ellipse 130% 110% at 50% 50%, transparent 45%, rgba(0,0,0,0.14) 100%)",
         }} />
 
-        {/* Background "XR" — purely decorative, behind drill */}
+        {/* Background "XR" · purely decorative, behind drill */}
         <div
           className="dw-hero-bg-text"
           aria-hidden="true"
@@ -483,7 +495,7 @@ export default function DeWaltPage() {
               color:         C.yellow,
               marginBottom:  24,
             }}>
-              DeWalt 28V XR — Kompletan Set
+              DeWalt 28V XR · Kompletan Set
             </div>
 
             {/* H1 */}
@@ -511,7 +523,7 @@ export default function DeWaltPage() {
               marginBottom: 32,
               maxWidth:     460,
             }}>
-              Bušilica, baterije, punjač i komplet dodataka — sve spremno za rad odmah.
+              Bušilica, baterije, punjač i komplet dodataka · sve spremno za rad odmah.
             </p>
 
             {/* Price block */}
@@ -567,27 +579,49 @@ export default function DeWaltPage() {
             </div>
 
             {/* CTA */}
-            <button
-              onClick={scrollToForm}
-              className="dw-hero-cta"
-              style={{
-                display:      "flex",
-                alignItems:   "center",
-                gap:          8,
-                fontFamily:   SORA,
-                fontWeight:   700,
-                fontSize:     16,
-                border:       "none",
-                borderRadius: 14,
-                padding:      "17px 30px",
-                cursor:       "pointer",
-                marginBottom: 20,
-                width:        "fit-content",
-              }}
-            >
-              Naruči odmah — 69,90 KM
-              <ChevronRight size={18} strokeWidth={2.5} />
-            </button>
+            {OUT_OF_STOCK ? (
+              <div
+                style={{
+                  display:      "inline-flex",
+                  alignItems:   "center",
+                  gap:          10,
+                  background:   "rgba(0,0,0,0.08)",
+                  border:       "1.5px solid rgba(0,0,0,0.15)",
+                  borderRadius: 14,
+                  padding:      "17px 30px",
+                  marginBottom: 20,
+                  fontFamily:   SORA,
+                  fontWeight:   700,
+                  fontSize:     16,
+                  color:        "rgba(0,0,0,0.45)",
+                }}
+              >
+                <AlertCircle size={18} strokeWidth={2} />
+                Nema na stanju
+              </div>
+            ) : (
+              <button
+                onClick={scrollToForm}
+                className="dw-hero-cta"
+                style={{
+                  display:      "flex",
+                  alignItems:   "center",
+                  gap:          8,
+                  fontFamily:   SORA,
+                  fontWeight:   700,
+                  fontSize:     16,
+                  border:       "none",
+                  borderRadius: 14,
+                  padding:      "17px 30px",
+                  cursor:       "pointer",
+                  marginBottom: 20,
+                  width:        "fit-content",
+                }}
+              >
+                Naruči odmah · 69,90 KM
+                <ChevronRight size={18} strokeWidth={2.5} />
+              </button>
+            )}
 
             {/* Countdown */}
             <div style={{
@@ -685,7 +719,7 @@ export default function DeWaltPage() {
               filter:       "blur(16px)",
               zIndex:       0,
             }} />
-            {/* Drill — tall container so image fills full hero height */}
+            {/* Drill · tall container so image fills full hero height */}
             <div style={{ position: "relative", width: "100%", paddingBottom: "110%", zIndex: 1 }}>
               <Image
                 src="/images/dewalt.png"
@@ -724,9 +758,9 @@ export default function DeWaltPage() {
       </div>
 
       {/* ════════════════════════════════════════════════════════
-          FLOATING CTA — bottom right
+          FLOATING CTA · bottom right
       ════════════════════════════════════════════════════════ */}
-      {!success && (
+      {!success && !OUT_OF_STOCK && (
         <div
           className="dw-fab-wrap"
           style={{ position: "fixed", bottom: 28, right: 28, zIndex: 300 }}
@@ -859,7 +893,7 @@ export default function DeWaltPage() {
                   2 baterije + punjač uključeni
                 </p>
                 <p style={{ fontSize: 14, color: "rgba(0,0,0,0.6)", fontFamily: INTER }}>
-                  Radite bez zastoja — dok se jedna puni, koristite drugu.
+                  Radite bez zastoja · dok se jedna puni, koristite drugu.
                 </p>
               </div>
 
@@ -945,7 +979,7 @@ export default function DeWaltPage() {
             {/* Specs */}
             <div style={{ flex: 1 }}>
               <span style={{ fontFamily: INTER, fontSize: 12, fontWeight: 600, color: "#999", letterSpacing: "0.06em", textTransform: "uppercase", display: "block", marginBottom: 8 }}>
-                SKU: DCD778S2T — 28V XR Platform
+                SKU: DCD778S2T · 28V XR Platform
               </span>
               <h2 className="dw-h" style={{ fontSize: "clamp(26px, 3.5vw, 44px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.1, color: C.black, marginBottom: 24 }}>
                 DeWalt 28V XR<br />bušilica/odvijač
@@ -958,13 +992,20 @@ export default function DeWaltPage() {
                   </div>
                 ))}
               </div>
-              <button
-                onClick={scrollToForm}
-                className="dw-btn"
-                style={{ display: "inline-flex", alignItems: "center", gap: 8, background: C.yellow, color: C.black, fontFamily: SORA, fontWeight: 700, fontSize: 15, border: `1.5px solid rgba(0,0,0,0.15)`, borderRadius: 10, padding: "14px 26px", cursor: "pointer" }}
-              >
-                Naruči odmah <ChevronRight size={16} strokeWidth={2.5} />
-              </button>
+              {OUT_OF_STOCK ? (
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,0,0,0.06)", border: "1.5px solid rgba(0,0,0,0.12)", borderRadius: 10, padding: "14px 26px", fontFamily: SORA, fontWeight: 700, fontSize: 15, color: "rgba(0,0,0,0.38)" }}>
+                  <AlertCircle size={16} strokeWidth={2} />
+                  Nema na stanju
+                </div>
+              ) : (
+                <button
+                  onClick={scrollToForm}
+                  className="dw-btn"
+                  style={{ display: "inline-flex", alignItems: "center", gap: 8, background: C.yellow, color: C.black, fontFamily: SORA, fontWeight: 700, fontSize: 15, border: `1.5px solid rgba(0,0,0,0.15)`, borderRadius: 10, padding: "14px 26px", cursor: "pointer" }}
+                >
+                  Naruči odmah <ChevronRight size={16} strokeWidth={2.5} />
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -977,9 +1018,12 @@ export default function DeWaltPage() {
         <div style={{ maxWidth: MAXW, margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12, marginBottom: 12 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div className="dw-pulse" style={{ width: 8, height: 8, borderRadius: "50%", background: "#EF4444", flexShrink: 0 }} />
+              <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#EF4444", flexShrink: 0 }} />
               <span className="dw-h" style={{ fontSize: "clamp(15px, 2vw, 19px)", fontWeight: 700, color: C.white }}>
-                Preostalo još <span style={{ color: C.yellow }}>12 komada</span> na lageru
+                {OUT_OF_STOCK
+                  ? <><span style={{ color: "#EF4444" }}>Rasprodano</span> · trenutno nema na stanju</>
+                  : <>Preostalo još <span style={{ color: C.yellow }}>12 komada</span> na lageru</>
+                }
               </span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 6, color: "rgba(255,255,255,0.38)", fontSize: 12, fontFamily: INTER }}>
@@ -988,11 +1032,11 @@ export default function DeWaltPage() {
             </div>
           </div>
           <div style={{ height: 7, background: "rgba(255,255,255,0.1)", borderRadius: 999, overflow: "hidden" }}>
-            <div style={{ height: "100%", width: "82%", background: `linear-gradient(90deg, ${C.yellow}, #FFD740)`, borderRadius: 999 }} />
+            <div style={{ height: "100%", width: OUT_OF_STOCK ? "100%" : "82%", background: OUT_OF_STOCK ? "linear-gradient(90deg, #EF4444, #DC2626)" : `linear-gradient(90deg, ${C.yellow}, #FFD740)`, borderRadius: 999 }} />
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }}>
-            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", fontFamily: INTER }}>Rasprodano 82%</span>
-            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", fontFamily: INTER }}>Preostalo 18%</span>
+            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", fontFamily: INTER }}>{OUT_OF_STOCK ? "Rasprodano 100%" : "Rasprodano 82%"}</span>
+            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", fontFamily: INTER }}>{OUT_OF_STOCK ? "Preostalo 0%" : "Preostalo 18%"}</span>
           </div>
         </div>
       </section>
@@ -1005,14 +1049,89 @@ export default function DeWaltPage() {
 
           <div style={{ marginBottom: 48 }}>
             <span style={{ fontFamily: SORA, fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: C.muted, display: "inline-block", marginBottom: 14 }}>
-              Narudžba
+              {OUT_OF_STOCK ? "Dostupnost" : "Narudžba"}
             </span>
             <h2 className="dw-h" style={{ fontSize: "clamp(28px, 4vw, 48px)", fontWeight: 800, letterSpacing: "-0.03em", color: C.black }}>
-              Naručite odmah
+              {OUT_OF_STOCK ? "Nema na stanju" : "Naručite odmah"}
             </h2>
           </div>
 
-          {success ? (
+          {OUT_OF_STOCK ? (
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <div
+                style={{
+                  background:    C.white,
+                  borderRadius:  24,
+                  padding:       "clamp(32px, 5vw, 52px) clamp(24px, 5vw, 48px)",
+                  textAlign:     "center",
+                  maxWidth:      580,
+                  width:         "100%",
+                  boxShadow:     "0 12px 48px rgba(0,0,0,0.07)",
+                  border:        `1px solid ${C.border}`,
+                  display:       "flex",
+                  flexDirection: "column",
+                  alignItems:    "center",
+                }}
+              >
+                {/* Icon */}
+                <div style={{
+                  width:          72,
+                  height:         72,
+                  borderRadius:   "50%",
+                  background:     "rgba(239,68,68,0.08)",
+                  border:         "1.5px solid rgba(239,68,68,0.2)",
+                  display:        "flex",
+                  alignItems:     "center",
+                  justifyContent: "center",
+                  marginBottom:   28,
+                  flexShrink:     0,
+                }}>
+                  <AlertCircle size={32} strokeWidth={1.75} style={{ color: "#EF4444" }} />
+                </div>
+
+                <h3
+                  className="dw-h"
+                  style={{
+                    fontSize:      "clamp(22px, 3.5vw, 30px)",
+                    fontWeight:    800,
+                    letterSpacing: "-0.03em",
+                    color:         C.black,
+                    marginBottom:  14,
+                    lineHeight:    1.1,
+                  }}
+                >
+                  Trenutno rasprodano
+                </h3>
+
+                <p style={{ fontSize: 16, fontFamily: INTER, color: "#555", lineHeight: 1.7, marginBottom: 8, maxWidth: 400 }}>
+                  DeWalt 28V XR Set je trenutno rasprodan. Pratite nas za povratak zaliha ili pogledajte ostale proizvode.
+                </p>
+                <p style={{ fontSize: 14, fontFamily: INTER, color: "#999", lineHeight: 1.6, marginBottom: 36, maxWidth: 380 }}>
+                  Hvala na interesu · radimo na dopuni zaliha.
+                </p>
+
+                <button
+                  onClick={() => window.location.href = "/"}
+                  className="dw-btn"
+                  style={{
+                    width:        "100%",
+                    maxWidth:     340,
+                    background:   C.black,
+                    color:        C.white,
+                    fontFamily:   SORA,
+                    fontWeight:   700,
+                    fontSize:     15,
+                    border:       "none",
+                    borderRadius: 12,
+                    padding:      "17px",
+                    cursor:       "pointer",
+                  }}
+                >
+                  Pogledaj ostale proizvode
+                </button>
+              </div>
+            </div>
+          ) : success ? (
             <div style={{ display: "flex", justifyContent: "center" }}>
               <div
                 className="dw-success-card"
@@ -1277,7 +1396,7 @@ export default function DeWaltPage() {
             cartly<span style={{ color: C.yellow }}>.</span>ba
           </span>
           <p style={{ fontSize: 13, fontFamily: INTER, color: "rgba(255,255,255,0.35)" }}>
-            © 2026 — Sve cijene uključuju PDV. Dostava 1–3 radna dana.
+            © 2026 · Sve cijene uključuju PDV. Dostava 1–3 radna dana.
           </p>
         </div>
       </footer>

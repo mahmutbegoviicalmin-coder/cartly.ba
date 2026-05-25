@@ -1,13 +1,13 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Image from "next/image";
 
 const IMAGES = [
-  { src: "/images/zvucnik/zvucnik1.webp", alt: "Bluetooth Zvučnik ZQS-6239 — pogled 1" },
-  { src: "/images/zvucnik/zvucnik2.webp", alt: "Bluetooth Zvučnik ZQS-6239 — pogled 2" },
-  { src: "/images/zvucnik/zvucnik3.webp", alt: "Bluetooth Zvučnik ZQS-6239 — pogled 3" },
-  { src: "/images/zvucnik/zvucnik4.webp", alt: "Bluetooth Zvučnik ZQS-6239 — pogled 4" },
+  { src: "/images/zvucnik/zvucnik1.webp", alt: "Bluetooth Zvučnik ZQS-6239 · pogled 1" },
+  { src: "/images/zvucnik/zvucnik2.webp", alt: "Bluetooth Zvučnik ZQS-6239 · pogled 2" },
+  { src: "/images/zvucnik/zvucnik3.webp", alt: "Bluetooth Zvučnik ZQS-6239 · pogled 3" },
+  { src: "/images/zvucnik/zvucnik4.webp", alt: "Bluetooth Zvučnik ZQS-6239 · pogled 4" },
 ];
 
 const ACCENT = "#FF6B00";

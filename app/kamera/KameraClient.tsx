@@ -364,7 +364,7 @@ function CameraOrderForm() {
           </div>
         </div>
 
-        {/* ── Right Column — Summary ── */}
+        {/* ── Right Column · Summary ── */}
         <div style={{ flex: "1 1 40%" }} className="w-full lg:sticky lg:top-20">
           <div
             style={{
@@ -443,7 +443,7 @@ function CameraOrderForm() {
               onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = "#E85E00"; }}
               onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = "#FF6B00"; }}
             >
-              {loading ? "Slanje..." : `Naruči odmah — Plaćanje pouzećem`}
+              {loading ? "Slanje..." : `Naruči odmah · Plaćanje pouzećem`}
             </button>
 
             <p style={{ textAlign: "center", fontSize: 12, color: "#aaa", margin: 0, lineHeight: 1.5, fontFamily: "var(--font-manrope, sans-serif)" }}>
@@ -706,7 +706,7 @@ function MobileFloatingBar() {
 
       </div>
 
-      {/* RIGHT — CTA */}
+      {/* RIGHT · CTA */}
       <button
         onClick={handleClick}
         style={{
@@ -741,7 +741,7 @@ const reviews = [
   },
   {
     name: "Sanel M.",
-    text: "Postavio sam je na ulaz vikendice. Noćni vid me iznenadio — vidi se sve kao danju.",
+    text: "Postavio sam je na ulaz vikendice. Noćni vid me iznenadio · vidi se sve kao danju.",
     date: "11. april 2026.",
   },
   {
@@ -753,7 +753,7 @@ const reviews = [
 
 const faqs = [
   { q: "Treba li mi poseban router?", a: "Ne. Kamera se spaja na standardni 2.4GHz WiFi bez potrebe za posebnom opremom." },
-  { q: "Je li vodootporna?", a: "Da, IP66 certifikat — otporna na kišu, snijeg i prašinu. Pogodna za vanjsku montažu." },
+  { q: "Je li vodootporna?", a: "Da, IP66 certifikat · otporna na kišu, snijeg i prašinu. Pogodna za vanjsku montažu." },
   { q: "Može li snimati lokalno?", a: "Da, podržava microSD karticu do 128GB za lokalno snimanje bez cloud pretplate." },
   { q: "Kako naručiti?", a: "Popunite formu iznad, naš tim vas kontaktira u roku od 24h radi potvrde i dostave." },
 ];
@@ -988,7 +988,7 @@ export default function KameraClient() {
               zIndex: 0,
             }} />
 
-            {/* Camera image — floats directly on bg, no container */}
+            {/* Camera image · floats directly on bg, no container */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/images/kamere.png"
@@ -1091,7 +1091,7 @@ export default function KameraClient() {
           <span style={{ fontSize: 11, letterSpacing: "4px", fontWeight: 600, color: "#f97316", textTransform: "uppercase" as const, marginBottom: 16, display: "block" }}>VIDNO POLJE</span>
           <h2 style={{ fontSize: "clamp(36px, 4vw, 56px)", fontWeight: 800, letterSpacing: "-2px", lineHeight: 1.0, color: "#1d1d1f", margin: "0 0 20px" }}>Nema slijepih kutova.</h2>
           <p style={{ fontSize: 18, lineHeight: 1.65, color: "#6e6e73", margin: "0 0 32px", fontWeight: 400 }}>
-            Tri neovisna sočiva pokrivaju cijeli prostor simultano — bez ručnog pomicanja.
+            Tri neovisna sočiva pokrivaju cijeli prostor simultano · bez ručnog pomicanja.
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {["Trostruko neovisno sočivo", "360° horizontalno pokrivanje", "PTZ kontrola u realnom vremenu", "Auto-tracking pokreta"].map((f) => (
@@ -1496,7 +1496,7 @@ export default function KameraClient() {
 
       {/* Responsive styles */}
       <style suppressHydrationWarning>{`
-        /* ── Order success — mobile ── */
+        /* ── Order success · mobile ── */
         @media (max-width: 640px) {
           .success-cards {
             flex-direction: column !important;
@@ -1558,7 +1558,7 @@ export default function KameraClient() {
         }
       `}</style>
       <style suppressHydrationWarning>{`
-        /* ── HERO — mobile (≤768px) ── */
+        /* ── HERO · mobile (≤768px) ── */
         @media (max-width: 768px) {
           .hero-section {
             align-items: flex-start !important;
@@ -1605,7 +1605,7 @@ export default function KameraClient() {
           }
         }
 
-        /* ── HERO — tablet (768px–1024px) ── */
+        /* ── HERO · tablet (768px–1024px) ── */
         @media (min-width: 768px) and (max-width: 1024px) {
           .hero-inner {
             padding: 0 32px !important;
@@ -1621,7 +1621,7 @@ export default function KameraClient() {
           }
         }
 
-        /* ── Feature sections — tablet + mobile (≤900px) ── */
+        /* ── Feature sections · tablet + mobile (≤900px) ── */
         @media (max-width: 900px) {
           .kf-section {
             flex-direction: column !important;
@@ -1645,7 +1645,7 @@ export default function KameraClient() {
           }
         }
 
-        /* ── Feature sections — mobile (≤480px) ── */
+        /* ── Feature sections · mobile (≤480px) ── */
         @media (max-width: 480px) {
           .kf-img-col {
             height: 240px !important;
@@ -1665,7 +1665,7 @@ export default function KameraClient() {
           }
         }
 
-        /* ── Sticky bar — mobile (<640px) ── */
+        /* ── Sticky bar · mobile (<640px) ── */
         @media (max-width: 640px) {
           .sticky-bar {
             padding: 0 16px !important;
@@ -1682,7 +1682,7 @@ export default function KameraClient() {
           }
         }
 
-        /* ── SD promo banner — mobile ── */
+        /* ── SD promo banner · mobile ── */
         @media (max-width: 640px) {
           .sd-banner {
             flex-direction: column !important;
@@ -1695,7 +1695,7 @@ export default function KameraClient() {
           }
         }
 
-        /* ── Installation steps — tablet (600–900px) ── */
+        /* ── Installation steps · tablet (600–900px) ── */
         @media (max-width: 900px) and (min-width: 600px) {
           .install-grid {
             grid-template-columns: repeat(2, 1fr) !important;
@@ -1705,7 +1705,7 @@ export default function KameraClient() {
           }
         }
 
-        /* ── Installation steps — mobile (<600px) ── */
+        /* ── Installation steps · mobile (<600px) ── */
         @media (max-width: 599px) {
           .install-section {
             padding: 64px 20px !important;
@@ -1721,7 +1721,7 @@ export default function KameraClient() {
           }
         }
 
-        /* ── Other sections — mobile ── */
+        /* ── Other sections · mobile ── */
         @media (max-width: 768px) {
           .reviews-grid {
             grid-template-columns: 1fr !important;

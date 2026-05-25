@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 
@@ -13,7 +13,7 @@ const faqs = [
   },
   {
     q: "Mogu li platiti karticom ili samo pouzećem?",
-    a: "Trenutno je dostupno isključivo plaćanje pouzećem — plaćate kuriru pri preuzimanju paketa. Plaćanje karticom uskoro dolazi.",
+    a: "Trenutno je dostupno isključivo plaćanje pouzećem · plaćate kuriru pri preuzimanju paketa. Plaćanje karticom uskoro dolazi.",
   },
   {
     q: "Šta ako mi veličina ne odgovara ili nisam zadovoljan proizvodom?",

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import {
   Battery,
   Zap,
@@ -25,7 +25,7 @@ import SocialProofToast  from "./SocialProofToast";
 import PixelEvents       from "./PixelEvents";
 
 export const metadata: Metadata = {
-  title: "Profesionalna Akumulatorska Brusilica — Komplet | Cartly.ba",
+  title: "Profesionalna Akumulatorska Brusilica · Komplet | Cartly.ba",
   description:
     "Akumulatorska brusilica sa 2× M18 B5 baterije, M12-18 FC punjačem i HD kaserom. Anti-kickback zaštita, AVS sistem, kočnica ispod 1s. Dostava 1–3 dana po cijeloj BiH.",
 };
@@ -35,9 +35,9 @@ const ACCENT = "#FF6B00";
 // ─── Data ────────────────────────────────────────────────────────────────────
 
 const HERO_CHECKS = [
-  "Potenciometar — podesiva brzina od 3.500 do 8.500 rpm",
+  "Potenciometar · podesiva brzina od 3.500 do 8.500 rpm",
   "Anti-kickback zaštita i AVS Anti-Vibration sistem",
-  "Kočnica — disk staje za manje od 1 sekunde",
+  "Kočnica · disk staje za manje od 1 sekunde",
   "Komplet: 2× M18 B5 baterija, punjač i HD kaseta",
   "Deadman sigurnosni prekidač",
 ];
@@ -66,7 +66,7 @@ const SPECS = [
   { label: "Promjer diska",                value: "125mm" },
   { label: "Šta je u kompletu",            value: "2× M18 B5 Baterija, M12-18 FC Punjač, HD Kaseta" },
   { label: "Maksimalna dubina reza",       value: "33mm" },
-  { label: "Potenciometar",                value: "Da — podesiva brzina" },
+  { label: "Potenciometar",                value: "Da · podesiva brzina" },
   { label: "Broj okretaja bez opterećenja",value: "3.500–8.500 rpm" },
   { label: "Standardna oprema",            value: "Sigurnosna zaštita, stezaljka, prirubnica, matica prirubnice, ključ" },
   { label: "Isporučuje se u",              value: "HD Kaseti" },
@@ -84,7 +84,7 @@ export default function BrusilicaPage() {
       <main className="overflow-x-hidden">
 
         {/* ═══════════════════════════════════════════════════════
-            1. HERO — cream/light
+            1. HERO · cream/light
         ═══════════════════════════════════════════════════════ */}
         <section
           className="px-6 md:px-12 lg:px-20 xl:px-28 py-16 md:py-24"
@@ -98,7 +98,7 @@ export default function BrusilicaPage() {
                 className="text-xs font-bold tracking-[0.22em] uppercase mb-5"
                 style={{ color: ACCENT }}
               >
-                Profesionalni alat — M18 platforma
+                Profesionalni alat · M18 platforma
               </p>
 
               <h1
@@ -204,7 +204,7 @@ export default function BrusilicaPage() {
         </section>
 
         {/* ═══════════════════════════════════════════════════════
-            2. WHAT'S IN THE BOX — white
+            2. WHAT'S IN THE BOX · white
         ═══════════════════════════════════════════════════════ */}
         <section className="bg-white px-6 md:px-12 lg:px-20 xl:px-28 py-20 md:py-24 border-t border-[#E5E2DC]">
           <div className="max-w-7xl mx-auto">
@@ -245,7 +245,7 @@ export default function BrusilicaPage() {
         </section>
 
         {/* ═══════════════════════════════════════════════════════
-            3. KEY FEATURES — cream
+            3. KEY FEATURES · cream
         ═══════════════════════════════════════════════════════ */}
         <section
           className="px-6 md:px-12 lg:px-20 xl:px-28 py-20 md:py-24 border-t border-[#E5E2DC]"
@@ -289,7 +289,7 @@ export default function BrusilicaPage() {
         </section>
 
         {/* ═══════════════════════════════════════════════════════
-            4. FULL SPECS TABLE — white, responsive
+            4. FULL SPECS TABLE · white, responsive
         ═══════════════════════════════════════════════════════ */}
         <section className="bg-white px-6 md:px-12 lg:px-20 xl:px-28 py-20 md:py-24 border-t border-[#E5E2DC]">
           <div className="max-w-4xl mx-auto">
@@ -316,7 +316,7 @@ export default function BrusilicaPage() {
                     borderBottom: i < SPECS.length - 1 ? "1px solid #F0EDE8" : "none",
                   }}
                 >
-                  {/* Mobile: stacked — Desktop: 2-col */}
+                  {/* Mobile: stacked · Desktop: 2-col */}
                   <div className="block sm:grid sm:grid-cols-2 sm:gap-6 sm:items-center">
                     <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#AAAAAA] mb-0.5 sm:mb-0 sm:text-sm sm:font-medium sm:normal-case sm:tracking-normal sm:text-[#666]">
                       {label}
@@ -330,7 +330,7 @@ export default function BrusilicaPage() {
         </section>
 
         {/* ═══════════════════════════════════════════════════════
-            5. ORDER FORM — cream/light
+            5. ORDER FORM · cream/light
         ═══════════════════════════════════════════════════════ */}
         <section
           id="narudzba"
@@ -358,7 +358,7 @@ export default function BrusilicaPage() {
         </section>
 
         {/* ═══════════════════════════════════════════════════════
-            6. FAQ — white
+            6. FAQ · white
         ═══════════════════════════════════════════════════════ */}
         <section className="bg-white px-6 md:px-12 lg:px-20 xl:px-28 py-20 md:py-24 border-t border-[#E5E2DC]">
           <div className="max-w-3xl mx-auto">
@@ -389,7 +389,7 @@ export default function BrusilicaPage() {
             cartly<span style={{ color: ACCENT }}>.</span>ba
           </span>
           <p className="text-[#aaa] text-xs font-medium">
-            © 2026 Cartly.ba — Dostava 10 KM · Plaćanje pouzećem
+            © 2026 Cartly.ba · Dostava 10 KM · Plaćanje pouzećem
           </p>
         </footer>
       </main>

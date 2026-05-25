@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
@@ -26,7 +26,7 @@ const COMBOS: { name: string; cityGen: string }[] = [
   { name: "Muhamed", cityGen: "Bugojna"    },
 ];
 
-/* Only simple, natural-sounding messages — no "Nova narudžba" prefix */
+/* Only simple, natural-sounding messages · no "Nova narudžba" prefix */
 const TEMPLATES = [
   (n: string, c: string) => `${n} iz ${c} je upravo naručio`,
   (n: string, c: string) => `${n} iz ${c} je upravo naručio 1+1 GRATIS`,

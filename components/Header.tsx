@@ -52,8 +52,14 @@ const NAV_LINKS: NavLink[] = [
         label: "DeWalt 28V XR Set",
         href:  "/dewalt-busilica",
         desc:  "Bušilica + 15+ alata u tvrdom koferu",
-        badge: "NOVO",
         image: "/images/dewalt.png",
+      },
+      {
+        label: "Mašina za Šišanje Ovaca 850W",
+        href:  "/masina-za-sisanje",
+        desc:  "Kofer, rezervni nož GRATIS, mazivo · 850W",
+        badge: "NOVO",
+        image: "/masina1.jpeg",
       },
     ],
   },
@@ -97,7 +103,7 @@ export default function Header() {
 
   return (
     <>
-      <style>{`
+      <style suppressHydrationWarning>{`
         .nav-link::after {
           content: '';
           position: absolute;

@@ -1,734 +1,475 @@
-"use client";
+﻿"use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowRight, ChevronLeft, ChevronRight,
-  Truck, Banknote, ShieldCheck, PackageCheck,
-  Shield, Zap, Feather, Volume2, Bluetooth, Gift,
-} from "lucide-react";
 
-const AUTOPLAY_MS = 5500;
+const MAN = "var(--font-manrope), sans-serif";
+const ACC = "#FF6B00";
 
-// ─── Slide data ────────────────────────────────────────────────────────────────
-const SLIDES = [
-  {
-    badge:          "Akcija do kraja aprila",
-    badgeBg:        "rgba(255,107,0,0.10)",
-    badgeColor:     "#FF6B00",
-    headline:       "Uštedi na top\nproizvodima do kraja\naprila.",
-    headlineMobile: "Uštedi na top\nproizvodima.",
-    sub:            "Od radne obuće do praktičnih uređaja za dom i svakodnevnicu. Poruči brzo i jednostavno uz plaćanje pouzećem.",
-    subMobile:      "Brza dostava, plaćanje pouzećem i provjeren kvalitet na svakom koraku.",
-    features: [
-      { Icon: Truck,        label: "Dostava 24–48h"      },
-      { Icon: Banknote,     label: "Plaćanje pouzećem"   },
-      { Icon: ShieldCheck,  label: "Provjeren kvalitet"  },
-      { Icon: PackageCheck, label: "Laka narudžba"       },
-    ],
-    cta:        "Pogledaj ponudu",
-    ctaHref:    "/proizvodi",
-    visual:     "collage",
-    bg:         "#FAFAF7",
-    accentColor: "#FF6B00",
-  },
-  {
-    badge:          "Radna obuća S3",
-    badgeBg:        "rgba(255,107,0,0.10)",
-    badgeColor:     "#FF6B00",
-    headline:       "Sigurnost i udobnost\nza cijeli radni dan.",
-    headlineMobile: "Sigurnost i udobnost\nza cijeli radni dan.",
-    sub:            "Čelična kapica, anti-slip đon i stabilnost na koju možeš računati u svakom koraku.",
-    subMobile:      "Čelična kapica, anti-slip đon i stabilnost na svakom terenu.",
-    features: [
-      { Icon: Shield,  label: "Čelična kapica"       },
-      { Icon: Zap,     label: "Anti-slip đon"         },
-      { Icon: Feather, label: "Lagan i udoban model" },
-    ],
-    cta:        "Naruči odmah",
-    ctaHref:    "/radne-patike",
-    visual:     "/images/patike-hero.png",
-    bg:         "#FAF8F4",
-    accentColor: "#FF6B00",
-  },
-  {
-    badge:          "Bluetooth zvučnik",
-    badgeBg:        "rgba(124,58,237,0.10)",
-    badgeColor:     "#7C3AED",
-    headline:       "Jak zvuk i zabava\ngdje god da si.",
-    headlineMobile: "Jak zvuk i zabava\ngdje god da si.",
-    sub:            "Praktičan bluetooth zvučnik za kuću, druženja i pokret, sa modernim dizajnom i snažnim zvukom.",
-    subMobile:      "Bluetooth zvučnik za kuću, poklon i svaku prigodu.",
-    features: [
-      { Icon: Volume2,   label: "Snažan zvuk"    },
-      { Icon: Bluetooth, label: "Bluetooth 5.0"  },
-      { Icon: Gift,      label: "Idealan poklon" },
-    ],
-    cta:        "Pogledaj proizvod",
-    ctaHref:    "/zvucnik",
-    visual:     "/images/zvucnik/zvucnik1.webp",
-    bg:         "#F8F6FC",
-    accentColor: "#7C3AED",
-  },
-];
+// ─── SVG trust icons ───────────────────────────────────────────────────────────
+const T = {
+  truck: (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/>
+      <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+    </svg>
+  ),
+  card: (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+    </svg>
+  ),
+  ref: (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/>
+    </svg>
+  ),
+  shield: (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    </svg>
+  ),
+};
 
 const TRUST = [
-  { Icon: Truck,        label: "Ekspresna dostava 24–48h", color: "#3B82F6", bg: "rgba(59,130,246,0.08)"  },
-  { Icon: Banknote,     label: "Plaćanje pouzećem",        color: "#16A34A", bg: "rgba(22,163,74,0.08)"   },
-  { Icon: ShieldCheck,  label: "Provjeren kvalitet",       color: "#FF6B00", bg: "rgba(255,107,0,0.08)"   },
-  { Icon: PackageCheck, label: "Jednostavna narudžba",     color: "#7C3AED", bg: "rgba(124,58,237,0.08)"  },
+  { icon: T.truck,  text: "Dostava 24–48h"     },
+  { icon: T.card,   text: "Pouzećem"            },
+  { icon: T.ref,    text: "Povrat 14 dana"      },
+  { icon: T.shield, text: "Provjeren kvalitet"  },
+] as { icon: JSX.Element; text: string }[];
+
+// ─── Product card data ─────────────────────────────────────────────────────────
+interface CardData {
+  src:        string;
+  name:       string;
+  sub:        string;
+  price:      string;
+  old:        string;
+  href:       string;
+  discount:   number;
+  posStyle:   React.CSSProperties;
+  rotate:     string;
+  imgH:       number;
+  sizes:      string;
+  large:      boolean;
+}
+
+const CARDS: CardData[] = [
+  {
+    src:      "/images/product-1.webp",
+    name:     "Radne Patike S3",
+    sub:      "Zaštitna obuća · EN ISO 20345",
+    price:    "59,90 KM",
+    old:      "139,90 KM",
+    href:     "/radne-patike",
+    discount: 57,
+    posStyle: { left: 0, top: 0, width: "53%", height: "100%", zIndex: 2 },
+    rotate:   "-2.5deg",
+    imgH:     196,
+    sizes:    "280px",
+    large:    true,
+  },
+  {
+    src:      "/images/milwaukee.png",
+    name:     "Milwaukee M18",
+    sub:      "Profesionalni alat",
+    price:    "69,90 KM",
+    old:      "299,90 KM",
+    href:     "/milwaukee-busilica",
+    discount: 77,
+    posStyle: { right: 0, top: 0, width: "44%", height: "48%", zIndex: 1 },
+    rotate:   "2deg",
+    imgH:     112,
+    sizes:    "200px",
+    large:    false,
+  },
+  {
+    src:      "/images/kamere.png",
+    name:     "Sigurnosna Kamera",
+    sub:      "Video nadzor 12MP",
+    price:    "89,90 KM",
+    old:      "149,90 KM",
+    href:     "/kamera",
+    discount: 40,
+    posStyle: { right: 0, bottom: 0, width: "44%", height: "50%", zIndex: 1 },
+    rotate:   "-1.5deg",
+    imgH:     112,
+    sizes:    "200px",
+    large:    false,
+  },
 ];
 
-// ─── Root component ────────────────────────────────────────────────────────────
-export default function HomeHero() {
-  const [current, setCurrent] = useState(0);
-  const [fading,  setFading]  = useState(false);
-  const [paused,  setPaused]  = useState(false);
-  const timer       = useRef<ReturnType<typeof setInterval> | null>(null);
-  const touchStartX = useRef<number | null>(null);
-
-  const go = useCallback((idx: number) => {
-    if (fading) return;
-    setFading(true);
-    setTimeout(() => {
-      setCurrent((idx + SLIDES.length) % SLIDES.length);
-      setFading(false);
-    }, 280);
-  }, [fading]);
-
-  const prev = useCallback(() => go(current - 1), [current, go]);
-  const next = useCallback(() => go(current + 1), [current, go]);
-
-  useEffect(() => {
-    if (paused) return;
-    timer.current = setInterval(next, AUTOPLAY_MS);
-    return () => { if (timer.current) clearInterval(timer.current); };
-  }, [paused, next]);
-
-  const slide = SLIDES[current];
-
-  const onTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
-  const onTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX.current === null) return;
-    const diff = touchStartX.current - e.changedTouches[0].clientX;
-    if (Math.abs(diff) > 44) { if (diff > 0) next(); else prev(); }
-    touchStartX.current = null;
-  };
+// ─── Product card component ────────────────────────────────────────────────────
+function ProductCard({ card }: { card: CardData }) {
+  const [hov, setHov] = useState(false);
 
   return (
-    <section className="w-full px-3 pt-5 pb-0 lg:px-5 lg:pt-7" style={{ background: "#F5F2EE" }}>
+    <Link
+      href={card.href}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        position:       "absolute",
+        ...card.posStyle,
+        display:        "flex",
+        flexDirection:  "column",
+        background:     "#FFFFFF",
+        borderRadius:   24,
+        overflow:       "hidden",
+        textDecoration: "none",
+        transform:      hov
+          ? "rotate(0deg) scale(1.045) translateY(-10px)"
+          : `rotate(${card.rotate})`,
+        boxShadow:      hov
+          ? "0 32px 80px rgba(0,0,0,0.15), 0 8px 24px rgba(0,0,0,0.07)"
+          : "0 8px 36px rgba(0,0,0,0.09), 0 2px 6px rgba(0,0,0,0.04)",
+        transition:     "transform 360ms cubic-bezier(0.22,1,0.36,1), box-shadow 360ms ease",
+      }}
+    >
+      {/* Discount badge */}
+      <div style={{
+        position:      "absolute",
+        top:           12,
+        right:         12,
+        background:    "#111",
+        color:         "#fff",
+        fontSize:      10,
+        fontWeight:    800,
+        letterSpacing: "0.04em",
+        padding:       "3px 9px",
+        borderRadius:  8,
+        zIndex:        3,
+        fontFamily:    MAN,
+      }}>
+        -{card.discount}%
+      </div>
 
-      {/* ════════════════════════════════════════════════════
-          MOBILE HERO  (visible below lg)
-      ════════════════════════════════════════════════════ */}
-      <div
-        className="block lg:hidden rounded-[20px] overflow-hidden"
-        style={{
-          background:  slide.bg,
-          border:      "1px solid rgba(0,0,0,0.055)",
-          boxShadow:   "0 2px 24px rgba(0,0,0,0.07)",
-          transition:  "background 500ms ease",
-        }}
-        onTouchStart={onTouchStart}
-        onTouchEnd={onTouchEnd}
-      >
-        <div
-          style={{
-            opacity:    fading ? 0 : 1,
-            transform:  fading ? "translateY(6px)" : "translateY(0)",
-            transition: "opacity 280ms ease, transform 280ms ease",
-          }}
-        >
-          {/* ── Text block ── */}
-          <div className="px-5 pt-6 pb-4">
-
-            {/* Badge */}
-            <span
-              className="inline-flex items-center gap-1.5 mb-3"
-              style={{
-                fontSize:      10,
-                fontWeight:    700,
-                letterSpacing: "0.10em",
-                textTransform: "uppercase",
-                color:         slide.accentColor,
-                background:    slide.badgeBg,
-                borderRadius:  999,
-                padding:       "4px 11px",
-              }}
-            >
-              <span style={{
-                width: 5, height: 5, borderRadius: "50%",
-                background: slide.accentColor, flexShrink: 0,
-              }} />
-              {slide.badge}
-            </span>
-
-            {/* Headline */}
-            <h2
-              className="mb-2.5"
-              style={{
-                fontSize:      "clamp(24px, 7.2vw, 32px)",
-                fontWeight:    800,
-                color:         "#0F0F0F",
-                lineHeight:    1.1,
-                letterSpacing: "-0.028em",
-                whiteSpace:    "pre-line",
-              }}
-            >
-              {slide.headlineMobile}
-            </h2>
-
-            {/* Subtitle */}
-            <p
-              className="mb-4"
-              style={{
-                fontSize:   13.5,
-                color:      "#6B6B6B",
-                lineHeight: 1.6,
-                fontWeight: 400,
-              }}
-            >
-              {slide.subMobile}
-            </p>
-
-            {/* Feature badges */}
-            <div className="flex flex-wrap gap-1.5 mb-4">
-              {slide.features.map(({ Icon, label }) => (
-                <span
-                  key={label}
-                  className="inline-flex items-center gap-1"
-                  style={{
-                    fontSize:     11,
-                    fontWeight:   600,
-                    color:        "#2A2A2A",
-                    background:   "rgba(0,0,0,0.045)",
-                    borderRadius: 7,
-                    padding:      "5px 9px",
-                    border:       "1px solid rgba(0,0,0,0.06)",
-                  }}
-                >
-                  <Icon size={11} strokeWidth={2.2} color={slide.accentColor} />
-                  {label}
-                </span>
-              ))}
-            </div>
-
-            {/* CTA */}
-            <MobileCTA href={slide.ctaHref} label={slide.cta} color={slide.accentColor} />
-          </div>
-
-          {/* ── Product image ── */}
-          <div className="px-6 pb-2" style={{ position: "relative" }}>
-            {slide.visual === "collage"
-              ? <MobileCollage />
-              : <MobileProductImage src={slide.visual} alt={slide.badge} accentColor={slide.accentColor} />
-            }
-          </div>
-
-          {/* ── Dot indicators ── */}
-          <div className="flex items-center justify-center gap-1.5 pb-5 pt-2">
-            {SLIDES.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => go(i)}
-                aria-label={`Slide ${i + 1}`}
-                style={{
-                  width:        i === current ? 20 : 6,
-                  height:       6,
-                  borderRadius: 999,
-                  background:   i === current ? slide.accentColor : "rgba(0,0,0,0.15)",
-                  border:       "none",
-                  cursor:       "pointer",
-                  padding:      0,
-                  transition:   "all 360ms ease",
-                }}
-              />
-            ))}
-          </div>
+      {/* Image */}
+      <div style={{
+        flex:           "1 1 auto",
+        display:        "flex",
+        alignItems:     "center",
+        justifyContent: "center",
+        padding:        card.large ? "32px 24px 18px" : "18px 16px 12px",
+        position:       "relative",
+      }}>
+        <div aria-hidden style={{
+          position:      "absolute",
+          inset:         0,
+          background:    "radial-gradient(ellipse at 50% 85%, rgba(255,107,0,0.09) 0%, transparent 70%)",
+          pointerEvents: "none",
+        }} />
+        <div style={{ position: "relative", width: "100%", height: card.imgH, zIndex: 1 }}>
+          <Image
+            src={card.src}
+            alt={card.name}
+            fill
+            style={{ objectFit: "contain", mixBlendMode: "multiply" }}
+            sizes={card.sizes}
+          />
         </div>
       </div>
 
-      {/* ════════════════════════════════════════════════════
-          DESKTOP HERO  (visible lg and above)
-      ════════════════════════════════════════════════════ */}
-      <div
-        className="hidden lg:block relative"
+      {/* Info strip */}
+      <div style={{
+        padding:   card.large ? "14px 20px 20px" : "10px 15px 15px",
+        borderTop: "1px solid #F0F0EE",
+      }}>
+        <p style={{
+          fontSize:      9,
+          fontWeight:    700,
+          color:         "rgba(0,0,0,0.36)",
+          letterSpacing: "0.10em",
+          textTransform: "uppercase",
+          fontFamily:    MAN,
+          margin:        "0 0 3px",
+        }}>
+          {card.sub}
+        </p>
+        <p style={{
+          fontSize:   card.large ? 14 : 12,
+          fontWeight: 800,
+          color:      "#0A0A0A",
+          fontFamily: MAN,
+          margin:     "0 0 6px",
+          lineHeight: 1.2,
+        }}>
+          {card.name}
+        </p>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
+          <span style={{
+            fontSize:      card.large ? 18 : 14,
+            fontWeight:    900,
+            color:         ACC,
+            fontFamily:    MAN,
+            letterSpacing: "-0.03em",
+          }}>
+            {card.price}
+          </span>
+          <span style={{
+            fontSize:       11,
+            color:          "rgba(0,0,0,0.26)",
+            textDecoration: "line-through",
+            fontFamily:     MAN,
+          }}>
+            {card.old}
+          </span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+// ─── Hero ──────────────────────────────────────────────────────────────────────
+export default function HomeHero() {
+  const [viewers, setViewers] = useState(0);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const r = (a: number, b: number) => Math.floor(Math.random() * (b - a + 1)) + a;
+    setViewers(r(54, 91));
+    const id = setInterval(
+      () => setViewers(v => Math.min(138, Math.max(36, v + r(-4, 6)))),
+      r(18_000, 32_000),
+    );
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <>
+      <style suppressHydrationWarning>{`
+        @keyframes hh-dot  { 0%,100%{opacity:1} 50%{opacity:.2} }
+        @keyframes hh-in   { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes hh-shine {
+          0%   { background-position: -200% center; }
+          100% { background-position:  200% center; }
+        }
+        @keyframes hh-bar-in { from{transform:scaleX(0)} to{transform:scaleX(1)} }
+
+        .hh-dot      { animation: hh-dot 2.2s ease-in-out infinite; }
+        .hh-left-in  { animation: hh-in 0.65s cubic-bezier(0.22,1,0.36,1) 0.06s both; }
+        .hh-right-in { animation: hh-in 0.65s cubic-bezier(0.22,1,0.36,1) 0.22s both; }
+        .hh-bar      {
+          animation: hh-bar-in 0.55s cubic-bezier(0.22,1,0.36,1) 0.50s both;
+          transform-origin: left center;
+        }
+
+        /* "Odmah." gradient sweep */
+        .hh-odmah {
+          background: linear-gradient(100deg, ${ACC} 18%, #FFAC55 50%, ${ACC} 82%);
+          background-size: 200% 100%;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          animation: hh-shine 3.5s ease-in-out 1.4s infinite;
+        }
+
+        /* CTA hover */
+        .hh-cta {
+          transition: transform 240ms cubic-bezier(0.22,1,0.36,1),
+                      box-shadow 240ms ease, filter 180ms ease;
+        }
+        .hh-cta:hover {
+          transform: translateY(-4px) scale(1.04) !important;
+          box-shadow: 0 20px 52px rgba(255,72,0,0.40) !important;
+          filter: brightness(1.07);
+        }
+        .hh-cta:active { transform: scale(0.95) !important; }
+
+        /* Responsive */
+        @media (max-width: 960px) {
+          .hh-wrap   { flex-direction: column !important; gap: 44px !important; padding: 52px 22px 60px !important; }
+          .hh-left   { max-width: 100% !important; flex: none !important; }
+          .hh-right  { flex: none !important; width: 100% !important; height: 400px !important; }
+          .hh-h1a    { font-size: clamp(36px, 9vw, 58px) !important; }
+          .hh-odmah  { font-size: clamp(56px,14vw, 88px) !important; }
+        }
+        @media (max-width: 520px) {
+          .hh-right  { height: 340px !important; }
+          .hh-trust  { gap: 6px 10px !important; }
+        }
+      `}</style>
+
+      <section
         style={{
-          maxWidth:     1320,
-          margin:       "0 auto",
-          borderRadius: 28,
-          overflow:     "hidden",
-          background:   slide.bg,
-          border:       "1px solid rgba(0,0,0,0.055)",
-          boxShadow:    "0 2px 48px rgba(0,0,0,0.07)",
-          transition:   "background 500ms ease",
+          backgroundColor: "#FAFAF7",
+          backgroundImage: "radial-gradient(circle, rgba(0,0,0,0.042) 1px, transparent 1px)",
+          backgroundSize:  "32px 32px",
+          borderBottom:    "1px solid rgba(0,0,0,0.06)",
         }}
-        onMouseEnter={() => setPaused(true)}
-        onMouseLeave={() => setPaused(false)}
       >
         <div
-          className="flex flex-row"
+          className="hh-wrap"
           style={{
-            minHeight:  560,
-            opacity:    fading ? 0 : 1,
-            transform:  fading ? "translateY(10px)" : "translateY(0)",
-            transition: "opacity 300ms ease, transform 300ms ease",
+            maxWidth:   1280,
+            margin:     "0 auto",
+            padding:    "72px 56px 80px 60px",
+            display:    "flex",
+            gap:        72,
+            alignItems: "center",
           }}
         >
-          {/* Left: text */}
+          {/* ── LEFT ─────────────────────────────────────────────────── */}
           <div
-            className="flex flex-col justify-center"
-            style={{ flex: "0 0 52%", padding: "60px 56px 52px" }}
+            className="hh-left-in hh-left"
+            style={{ flex: "0 0 42%", maxWidth: "42%", display: "flex", flexDirection: "column" }}
           >
-            <div style={{ marginBottom: 24 }}>
-              <span style={{
-                display:       "inline-flex",
-                alignItems:    "center",
-                gap:           7,
-                fontSize:      11,
-                fontWeight:    700,
-                letterSpacing: "0.11em",
-                textTransform: "uppercase",
-                color:         slide.accentColor,
-                background:    slide.badgeBg,
-                borderRadius:  999,
-                padding:       "6px 14px",
-              }}>
-                <span style={{
-                  width: 6, height: 6, borderRadius: "50%",
-                  background: slide.accentColor, flexShrink: 0,
-                }} />
-                {slide.badge}
+            {/* Live pill */}
+            <div style={{
+              display:        "inline-flex",
+              alignItems:     "center",
+              gap:            8,
+              background:     "rgba(255,255,255,0.9)",
+              border:         "1px solid rgba(0,0,0,0.08)",
+              borderRadius:   999,
+              padding:        "6px 14px",
+              width:          "fit-content",
+              marginBottom:   22,
+              boxShadow:      "0 1px 6px rgba(0,0,0,0.06)",
+              backdropFilter: "blur(8px)",
+            }}>
+              <span className="hh-dot" style={{
+                width: 7, height: 7, borderRadius: "50%",
+                background: "#22C55E", flexShrink: 0,
+              }} />
+              <span style={{ fontSize: 12, fontWeight: 600, color: "#555", fontFamily: MAN }}>
+                {mounted && viewers > 0
+                  ? <><strong style={{ color: "#111" }}>{viewers}</strong> osoba na sajtu</>
+                  : "Brza dostava · Plaćanje pouzećem"
+                }
               </span>
             </div>
 
-            <h2 style={{
-              fontSize:      "clamp(36px, 4.2vw, 58px)",
-              fontWeight:    800,
-              color:         "#0F0F0F",
-              lineHeight:    1.08,
-              letterSpacing: "-0.03em",
-              marginBottom:  22,
-              whiteSpace:    "pre-line",
-            }}>
-              {slide.headline}
-            </h2>
+            {/* Brand accent bar */}
+            <div
+              className="hh-bar"
+              style={{
+                width:        52,
+                height:       3,
+                background:   `linear-gradient(90deg, ${ACC}, #FFA04A)`,
+                borderRadius: 99,
+                marginBottom: 20,
+              }}
+            />
 
+            {/* Headline */}
+            <h1 style={{ margin: "0 0 28px", lineHeight: 1 }}>
+              <span
+                className="hh-h1a"
+                style={{
+                  display:       "block",
+                  fontSize:      "clamp(40px, 4.8vw, 68px)",
+                  fontWeight:    900,
+                  color:         "#0A0A0A",
+                  letterSpacing: "-0.04em",
+                  fontFamily:    MAN,
+                  lineHeight:    1.05,
+                  marginBottom:  6,
+                }}
+              >
+                Sve što ti treba.
+              </span>
+              <span
+                className="hh-odmah"
+                style={{
+                  display:       "block",
+                  fontSize:      "clamp(62px, 7.4vw, 104px)",
+                  fontWeight:    900,
+                  letterSpacing: "-0.055em",
+                  fontFamily:    MAN,
+                  lineHeight:    0.9,
+                }}
+              >
+                Odmah.
+              </span>
+            </h1>
+
+            {/* Subtext */}
             <p style={{
-              fontSize:     15.5,
-              color:        "#6B6B6B",
-              lineHeight:   1.7,
-              marginBottom: 28,
-              maxWidth:     420,
-              fontWeight:   400,
+              fontSize:     15,
+              color:        "#888",
+              lineHeight:   1.75,
+              fontFamily:   MAN,
+              maxWidth:     380,
+              margin:       "0 0 36px",
             }}>
-              {slide.sub}
+              Radna obuća, alati, video nadzor —<br />
+              naruči online, plati tek kad paket stigne.
             </p>
 
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 36 }}>
-              {slide.features.map(({ Icon, label }) => (
+            {/* CTA */}
+            <Link
+              href="/proizvodi"
+              className="hh-cta"
+              style={{
+                display:        "inline-flex",
+                alignItems:     "center",
+                gap:            10,
+                background:     "linear-gradient(135deg, #FF7A20 0%, #FF4800 100%)",
+                color:          "#fff",
+                fontFamily:     MAN,
+                fontWeight:     800,
+                fontSize:       15,
+                textDecoration: "none",
+                borderRadius:   14,
+                padding:        "16px 32px",
+                width:          "fit-content",
+                marginBottom:   32,
+                boxShadow:      "0 8px 28px rgba(255,72,0,0.28)",
+                letterSpacing:  "0.01em",
+              }}
+            >
+              Pogledaj ponudu
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+                <polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </Link>
+
+            {/* Trust row */}
+            <div
+              className="hh-trust"
+              style={{
+                display:    "flex",
+                flexWrap:   "wrap",
+                gap:        "8px 20px",
+                borderTop:  "1px solid rgba(0,0,0,0.07)",
+                paddingTop: 24,
+              }}
+            >
+              {TRUST.map(({ icon, text }) => (
                 <span
-                  key={label}
+                  key={text}
                   style={{
-                    display:      "inline-flex",
-                    alignItems:   "center",
-                    gap:          6,
-                    fontSize:     12,
-                    fontWeight:   600,
-                    color:        "#2A2A2A",
-                    background:   "rgba(0,0,0,0.045)",
-                    borderRadius: 8,
-                    padding:      "7px 12px",
-                    border:       "1px solid rgba(0,0,0,0.06)",
+                    display:    "inline-flex",
+                    alignItems: "center",
+                    gap:        6,
+                    fontSize:   12,
+                    fontWeight: 600,
+                    color:      "#888",
+                    fontFamily: MAN,
                   }}
                 >
-                  <Icon size={13} strokeWidth={2.2} color={slide.accentColor} />
-                  {label}
+                  <span style={{ color: ACC }}>{icon}</span>
+                  {text}
                 </span>
               ))}
             </div>
-
-            <SliderCTA href={slide.ctaHref} label={slide.cta} color={slide.accentColor} />
-
-            <div style={{ display: "flex", gap: 7, marginTop: 44 }}>
-              {SLIDES.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => go(i)}
-                  aria-label={`Slide ${i + 1}`}
-                  style={{
-                    width:        i === current ? 26 : 7,
-                    height:       7,
-                    borderRadius: 999,
-                    background:   i === current ? slide.accentColor : "rgba(0,0,0,0.14)",
-                    border:       "none",
-                    cursor:       "pointer",
-                    padding:      0,
-                    transition:   "all 380ms ease",
-                  }}
-                />
-              ))}
-            </div>
           </div>
 
-          {/* Right: visual */}
-          <div style={{
-            flex:           "1 1 48%",
-            position:       "relative",
-            minHeight:      340,
-            display:        "flex",
-            alignItems:     "center",
-            justifyContent: "center",
-            padding:        "48px 52px 48px 16px",
-          }}>
-            {slide.visual === "collage"
-              ? <ProductCollage />
-              : <ProductImage src={slide.visual} alt={slide.badge} accentColor={slide.accentColor} />
-            }
+          {/* ── RIGHT · staggered product cards ──────────────────────── */}
+          <div
+            className="hh-right-in hh-right"
+            style={{ flex: 1, position: "relative", height: 520 }}
+          >
+            {CARDS.map(card => (
+              <ProductCard key={card.name} card={card} />
+            ))}
           </div>
         </div>
-
-        <NavArrow direction="prev" onClick={prev} />
-        <NavArrow direction="next" onClick={next} />
-      </div>
-
-      {/* ─── Trust row ────────────────────────────────────────────── */}
-      <div style={{ maxWidth: 1320, margin: "0 auto", padding: "12px 0 28px" }}>
-        <div className="grid grid-cols-2 lg:grid-cols-4" style={{ gap: 8 }}>
-          {TRUST.map(({ Icon, label, color, bg }) => (
-            <TrustCard key={label} Icon={Icon} label={label} color={color} bg={bg} />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─── Mobile CTA (full-width) ───────────────────────────────────────────────────
-function MobileCTA({ href, label, color }: { href: string; label: string; color: string }) {
-  const isOrange = color === "#FF6B00";
-  const grad = isOrange
-    ? "linear-gradient(135deg, #FF7A20 0%, #FF5000 100%)"
-    : `linear-gradient(135deg, #8B5CF6 0%, ${color} 100%)`;
-  const shadow = isOrange
-    ? "0 4px 18px rgba(255,80,0,0.32)"
-    : "0 4px 18px rgba(124,58,237,0.28)";
-
-  return (
-    <Link
-      href={href}
-      className="flex items-center justify-center gap-2 w-full rounded-xl font-bold text-white"
-      style={{
-        background:     grad,
-        boxShadow:      shadow,
-        padding:        "13px 20px",
-        fontSize:       14,
-        letterSpacing:  "0.01em",
-        textDecoration: "none",
-        fontFamily:     "inherit",
-      }}
-    >
-      {label}
-      <ArrowRight size={15} strokeWidth={2.5} />
-    </Link>
-  );
-}
-
-// ─── Mobile product image ──────────────────────────────────────────────────────
-function MobileProductImage({ src, alt, accentColor }: { src: string; alt: string; accentColor: string }) {
-  return (
-    <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", maxHeight: 200 }}>
-      {/* Glow */}
-      <div style={{
-        position:     "absolute",
-        inset:        "15%",
-        borderRadius: "50%",
-        background:   accentColor,
-        opacity:      0.07,
-        filter:       "blur(40px)",
-        zIndex:       0,
-      }} />
-      <div style={{ position: "relative", zIndex: 1, width: "100%", height: "100%" }}>
-        <Image
-          src={src}
-          alt={alt}
-          fill
-          style={{ objectFit: "contain", objectPosition: "center" }}
-          sizes="(max-width: 1024px) 80vw, 420px"
-          priority
-        />
-      </div>
-    </div>
-  );
-}
-
-// ─── Mobile collage (slide 1) ──────────────────────────────────────────────────
-function MobileCollage() {
-  const cards = [
-    { src: "/images/product-1.webp",       label: "Radne patike", r: "-3deg"  },
-    { src: "/images/kamere.png",            label: "Kamera",       r: "2.5deg" },
-    { src: "/images/milw2.webp",            label: "Milwaukee",    r: "3deg"   },
-    { src: "/images/zvucnik/zvucnik1.webp", label: "Zvučnik",      r: "-2deg"  },
-  ];
-
-  return (
-    <div style={{
-      display:             "grid",
-      gridTemplateColumns: "1fr 1fr",
-      gap:                 10,
-      width:               "100%",
-    }}>
-      {cards.map(({ src, label, r }) => (
-        <div
-          key={label}
-          style={{
-            background:     "#FFFFFF",
-            borderRadius:   14,
-            border:         "1px solid rgba(0,0,0,0.07)",
-            boxShadow:      "0 3px 14px rgba(0,0,0,0.07)",
-            padding:        12,
-            display:        "flex",
-            alignItems:     "center",
-            justifyContent: "center",
-            aspectRatio:    "1/1",
-            transform:      `rotate(${r})`,
-          }}
-        >
-          <div style={{ position: "relative", width: "78%", aspectRatio: "1/1" }}>
-            <Image
-              src={src}
-              alt={label}
-              fill
-              style={{ objectFit: "contain" }}
-              sizes="120px"
-            />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ─── Desktop product image ─────────────────────────────────────────────────────
-function ProductImage({ src, alt, accentColor }: { src: string; alt: string; accentColor: string }) {
-  return (
-    <div style={{ position: "relative", width: "100%", maxWidth: 400 }}>
-      <div style={{
-        position:     "absolute",
-        inset:        "12%",
-        borderRadius: "50%",
-        background:   accentColor,
-        opacity:      0.07,
-        filter:       "blur(60px)",
-        zIndex:       0,
-      }} />
-      <div style={{ position: "relative", zIndex: 1, width: "100%", aspectRatio: "1/1" }}>
-        <Image
-          src={src}
-          alt={alt}
-          fill
-          style={{ objectFit: "contain", objectPosition: "center" }}
-          sizes="(max-width: 1024px) 80vw, 420px"
-          priority
-        />
-      </div>
-    </div>
-  );
-}
-
-// ─── Desktop collage ───────────────────────────────────────────────────────────
-function ProductCollage() {
-  const cards = [
-    { src: "/images/product-1.webp",        label: "Radne patike", r: "-4deg",  tx: "-8px",  ty: "8px"  },
-    { src: "/images/kamere.png",             label: "Kamera",       r: "3.5deg", tx: "8px",   ty: "4px"  },
-    { src: "/images/milw2.webp",             label: "Milwaukee",    r: "4deg",   tx: "-4px",  ty: "-8px" },
-    { src: "/images/zvucnik/zvucnik1.webp",  label: "Zvučnik",      r: "-3deg",  tx: "6px",   ty: "-4px" },
-  ];
-
-  return (
-    <div style={{
-      display:             "grid",
-      gridTemplateColumns: "1fr 1fr",
-      gap:                 14,
-      width:               "100%",
-      maxWidth:            380,
-    }}>
-      {cards.map(({ src, label, r, tx, ty }) => (
-        <div
-          key={label}
-          style={{
-            background:     "#FFFFFF",
-            borderRadius:   18,
-            border:         "1px solid rgba(0,0,0,0.07)",
-            boxShadow:      "0 4px 20px rgba(0,0,0,0.08)",
-            padding:        16,
-            display:        "flex",
-            alignItems:     "center",
-            justifyContent: "center",
-            aspectRatio:    "1/1",
-            transform:      `rotate(${r}) translate(${tx}, ${ty})`,
-            transition:     "transform 300ms ease",
-          }}
-        >
-          <div style={{ position: "relative", width: "80%", aspectRatio: "1/1" }}>
-            <Image
-              src={src}
-              alt={label}
-              fill
-              style={{ objectFit: "contain" }}
-              sizes="160px"
-            />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ─── Desktop CTA ───────────────────────────────────────────────────────────────
-function SliderCTA({ href, label, color }: { href: string; label: string; color: string }) {
-  const [hovered, setHovered] = useState(false);
-  const [pressed, setPressed] = useState(false);
-
-  const isOrange = color === "#FF6B00";
-  const grad = isOrange
-    ? "linear-gradient(135deg, #FF7A20 0%, #FF5000 100%)"
-    : `linear-gradient(135deg, #8B5CF6 0%, ${color} 100%)`;
-  const shadow = isOrange
-    ? hovered ? "0 8px 32px rgba(255,80,0,0.42), 0 2px 8px rgba(255,80,0,0.22)" : "0 4px 18px rgba(255,80,0,0.30)"
-    : hovered ? "0 8px 32px rgba(124,58,237,0.40), 0 2px 8px rgba(124,58,237,0.20)" : "0 4px 18px rgba(124,58,237,0.28)";
-
-  return (
-    <Link
-      href={href}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => { setHovered(false); setPressed(false); }}
-      onMouseDown={() => setPressed(true)}
-      onMouseUp={() => setPressed(false)}
-      style={{
-        display:        "inline-flex",
-        alignItems:     "center",
-        gap:            10,
-        background:     grad,
-        color:          "white",
-        fontWeight:     700,
-        fontSize:       15,
-        letterSpacing:  "0.01em",
-        borderRadius:   14,
-        padding:        "15px 30px",
-        textDecoration: "none",
-        alignSelf:      "flex-start",
-        userSelect:     "none",
-        transform:      pressed ? "scale(0.96)" : hovered ? "scale(1.04)" : "scale(1)",
-        boxShadow:      shadow,
-        filter:         hovered ? "brightness(1.06)" : "brightness(1)",
-        transition:     "transform 240ms ease-out, box-shadow 240ms ease-out, filter 200ms ease",
-        fontFamily:     "inherit",
-      }}
-    >
-      {label}
-      <ArrowRight
-        size={17}
-        strokeWidth={2.5}
-        style={{
-          transform:  hovered ? "translateX(3px)" : "translateX(0)",
-          transition: "transform 240ms ease-out",
-        }}
-      />
-    </Link>
-  );
-}
-
-// ─── Desktop nav arrow ─────────────────────────────────────────────────────────
-function NavArrow({ direction, onClick }: { direction: "prev" | "next"; onClick: () => void }) {
-  const [hovered, setHovered] = useState(false);
-  const isNext = direction === "next";
-
-  return (
-    <button
-      onClick={onClick}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      aria-label={isNext ? "Sljedeći" : "Prethodni"}
-      style={{
-        position:       "absolute",
-        top:            "50%",
-        transform:      `translateY(-50%) scale(${hovered ? 1.1 : 1})`,
-        [isNext ? "right" : "left"]: 18,
-        width:          44,
-        height:         44,
-        borderRadius:   "50%",
-        background:     hovered ? "#FFFFFF" : "rgba(255,255,255,0.80)",
-        border:         "1px solid rgba(0,0,0,0.09)",
-        boxShadow:      hovered ? "0 4px 24px rgba(0,0,0,0.13)" : "0 2px 10px rgba(0,0,0,0.07)",
-        cursor:         "pointer",
-        display:        "flex",
-        alignItems:     "center",
-        justifyContent: "center",
-        color:          "#2A2A2A",
-        transition:     "all 200ms ease",
-        zIndex:         10,
-        backdropFilter: "blur(8px)",
-      }}
-    >
-      {isNext
-        ? <ChevronRight size={20} strokeWidth={2} />
-        : <ChevronLeft  size={20} strokeWidth={2} />
-      }
-    </button>
-  );
-}
-
-// ─── Trust card ────────────────────────────────────────────────────────────────
-function TrustCard({ Icon, label, color, bg }: {
-  Icon:  React.ElementType;
-  label: string;
-  color: string;
-  bg:    string;
-}) {
-  const [hovered, setHovered] = useState(false);
-
-  return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        display:      "flex",
-        alignItems:   "center",
-        gap:          12,
-        background:   "#FFFFFF",
-        border:       "1px solid rgba(0,0,0,0.07)",
-        borderRadius: 16,
-        padding:      "13px 16px",
-        cursor:       "default",
-        transform:    hovered ? "translateY(-3px)" : "translateY(0)",
-        boxShadow:    hovered ? "0 8px 28px rgba(0,0,0,0.08)" : "0 1px 4px rgba(0,0,0,0.04)",
-        transition:   "transform 220ms ease, box-shadow 220ms ease",
-      }}
-    >
-      <div style={{
-        width:          38,
-        height:         38,
-        borderRadius:   11,
-        background:     bg,
-        display:        "flex",
-        alignItems:     "center",
-        justifyContent: "center",
-        flexShrink:     0,
-      }}>
-        <Icon size={17} color={color} strokeWidth={2} />
-      </div>
-      <span style={{
-        fontSize:   12.5,
-        fontWeight: 600,
-        color:      "#2A2A2A",
-        lineHeight: 1.35,
-      }}>
-        {label}
-      </span>
-    </div>
+      </section>
+    </>
   );
 }

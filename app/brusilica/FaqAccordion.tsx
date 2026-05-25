@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { Plus } from "lucide-react";
@@ -12,7 +12,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "Kako plaćam?",
-    a: "Plaćanje se vrši pouzećem pri preuzimanju paketa od kurira. Ne trebate plaćati unaprijed — platite samo kada dobijete paket.",
+    a: "Plaćanje se vrši pouzećem pri preuzimanju paketa od kurira. Ne trebate plaćati unaprijed · platite samo kada dobijete paket.",
   },
   {
     q: "Da li mogu vratiti proizvod?",

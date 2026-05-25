@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef, FormEvent } from "react";
 import Image from "next/image";
@@ -69,7 +69,7 @@ const KIT_COL1 = [
   { text: "Milwaukee M18 Bušilica/odvijač",    star: true  },
   { text: "2× 18V M18 Li-Ion baterija",         star: true  },
   { text: "M18/M12 brzi punjač",               star: true  },
-  { text: "Set burgija — drvo, metal, beton",  star: true  },
+  { text: "Set burgija · drvo, metal, beton",  star: true  },
   { text: "Bit set za odvijanje (10 kom)",      star: false },
   { text: "Magnetski nosač bita",              star: false },
   { text: "Adapter za udar",                   star: false },
@@ -85,15 +85,15 @@ const KIT_COL2 = [
 ];
 
 const BENEFITS = [
-  { Icon: Box,        title: "Kompletan set",         desc: "Sve u jednom — bušilica, baterije, burgije i kofer." },
+  { Icon: Box,        title: "Kompletan set",         desc: "Sve u jednom · bušilica, baterije, burgije i kofer." },
   { Icon: Zap,        title: "Brushless motor",        desc: "Veća efikasnost, duži vijek, manje održavanja." },
   { Icon: Shield,     title: "Za svakoga",             desc: "Idealno za kuću, renovaciju i profesionalne majstore." },
   { Icon: CreditCard, title: "Plaćanje pouzećem",      desc: "Plaćate tek kada preuzmete paket." },
 ];
 
 const DRILL_SPECS = [
-  "18V M18 Li-Ion platforma — kompatibilna s cijelim M18 ekosistemom",
-  "Brushless motor — veća efikasnost i duži vijek trajanja",
+  "18V M18 Li-Ion platforma · kompatibilna s cijelim M18 ekosistemom",
+  "Brushless motor · veća efikasnost i duži vijek trajanja",
   "2 brzinska stepena za precizan rad na svakom materijalu",
   "2 baterije + punjač uključeni u cijenu",
 ];
@@ -358,7 +358,7 @@ export default function MilwaukeePage() {
         {/* Edge vignette */}
         <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0, background: "radial-gradient(ellipse 130% 110% at 50% 50%, transparent 45%, rgba(0,0,0,0.22) 100%)" }} />
 
-        {/* Background "M18" — decorative */}
+        {/* Background "M18" · decorative */}
         <div className="mw-hero-bg-text" aria-hidden="true" style={{
           position: "absolute", right: "-2%", top: "50%", transform: "translateY(-50%)",
           fontSize: "clamp(160px, 28vw, 400px)", fontWeight: 800, fontFamily: SORA,
@@ -385,7 +385,7 @@ export default function MilwaukeePage() {
               fontFamily: SORA, color: "#fff", marginBottom: 24,
               border: "1px solid rgba(255,255,255,0.15)",
             }}>
-              Milwaukee M18 — Kompletan Set
+              Milwaukee M18 · Kompletan Set
             </div>
 
             {/* H1 */}
@@ -399,7 +399,7 @@ export default function MilwaukeePage() {
 
             {/* Subtext */}
             <p style={{ fontSize: 17, fontFamily: INTER, color: "rgba(255,255,255,0.75)", lineHeight: 1.65, marginBottom: 32, maxWidth: 460 }}>
-              Bušilica, baterije, punjač i komplet burgija — sve spremno za rad odmah.
+              Bušilica, baterije, punjač i komplet burgija · sve spremno za rad odmah.
             </p>
 
             {/* Price block */}
@@ -426,7 +426,7 @@ export default function MilwaukeePage() {
               fontSize: 16, border: "none", borderRadius: 14, padding: "17px 30px",
               cursor: "pointer", marginBottom: 20, width: "fit-content",
             }}>
-              Naruči odmah — 69,90 KM
+              Naruči odmah · 69,90 KM
               <ChevronRight size={18} strokeWidth={2.5} />
             </button>
 
@@ -483,7 +483,7 @@ export default function MilwaukeePage() {
               background: "radial-gradient(circle, rgba(255,255,255,0.32) 0%, rgba(255,240,240,0.15) 42%, transparent 68%)",
               filter: "blur(36px)", zIndex: 0, pointerEvents: "none",
             }} />
-            {/* Outer soft halo — second layer for depth */}
+            {/* Outer soft halo · second layer for depth */}
             <div aria-hidden="true" style={{
               position: "absolute", top: "45%", left: "50%", transform: "translate(-50%, -50%)",
               width: "110%", height: "110%",
@@ -536,7 +536,7 @@ export default function MilwaukeePage() {
       </div>
 
       {/* ════════════════════════════════════════════════════════
-          FLOATING CTA — bottom right
+          FLOATING CTA · bottom right
       ════════════════════════════════════════════════════════ */}
       {!success && (
         <div className="mw-fab-wrap" style={{ position: "fixed", bottom: 28, right: 28, zIndex: 300 }}>
@@ -613,7 +613,7 @@ export default function MilwaukeePage() {
                   2 baterije + punjač uključeni
                 </p>
                 <p style={{ fontSize: 14, color: "rgba(255,255,255,0.7)", fontFamily: INTER }}>
-                  Radite bez zastoja — dok se jedna puni, koristite drugu.
+                  Radite bez zastoja · dok se jedna puni, koristite drugu.
                 </p>
               </div>
 
@@ -691,7 +691,7 @@ export default function MilwaukeePage() {
             {/* Specs */}
             <div style={{ flex: 1 }}>
               <span style={{ fontFamily: INTER, fontSize: 12, fontWeight: 600, color: "#999", letterSpacing: "0.06em", textTransform: "uppercase", display: "block", marginBottom: 8 }}>
-                SKU: M18 BLPD3 — 18V M18 Platform
+                SKU: M18 BLPD3 · 18V M18 Platform
               </span>
               <h2 className="mw-h" style={{ fontSize: "clamp(26px, 3.5vw, 44px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.1, color: C.black, marginBottom: 24 }}>
                 Milwaukee M18<br />bušilica/odvijač
@@ -915,7 +915,7 @@ export default function MilwaukeePage() {
             cartly<span style={{ color: C.red }}>.</span>ba
           </span>
           <p style={{ fontSize: 13, fontFamily: INTER, color: "rgba(255,255,255,0.35)" }}>
-            © 2026 — Dostava 1–3 radna dana. Plaćanje pouzećem.
+            © 2026 · Dostava 1–3 radna dana. Plaćanje pouzećem.
           </p>
         </div>
       </footer>

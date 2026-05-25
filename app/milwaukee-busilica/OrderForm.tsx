@@ -306,7 +306,7 @@ export default function OrderForm() {
               </svg>
             ),
             title: "Dostava 10,00 KM",
-            desc: "Cijela BiH — 24–48h",
+            desc: "Cijela BiH · 24–48h",
           },
           {
             svg: (

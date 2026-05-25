@@ -8,7 +8,7 @@ import FloatingCTA      from "./FloatingCTA";
 import PixelEvents      from "./PixelEvents";
 
 export const metadata: Metadata = {
-  title:       "Bluetooth Zvučnik ZQS-6239 — 40W, Bežični Mikrofon | Cartly.ba",
+  title:       "Bluetooth Zvučnik ZQS-6239 · 40W, Bežični Mikrofon | Cartly.ba",
   description: "Bluetooth zvučnik ZQS-6239 sa bežičnim mikrofonom, 40W, IPX5, USB-C, FM radio. 59,90 KM. Plaćanje pouzećem. Dostava Brza Pošta.",
 };
 
@@ -127,10 +127,10 @@ export default function ZvucnikPage() {
         <section className="bg-white px-5 md:px-10 lg:px-16 xl:px-24 py-14 md:py-20 border-b border-gray-100">
           <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
 
-            {/* LEFT — image gallery */}
+            {/* LEFT · image gallery */}
             <ImageGallery />
 
-            {/* RIGHT — product info */}
+            {/* RIGHT · product info */}
             <div className="flex flex-col gap-6">
 
               {/* Live viewer count */}
@@ -369,7 +369,7 @@ export default function ZvucnikPage() {
 
         {/* ─── Footer ──────────────────────────────────────────────── */}
         <footer className="px-5 py-8 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-gray-200 text-xs text-gray-400 bg-white">
-          <span>© 2025 Cartly.ba — Sva prava zadržana</span>
+          <span>© 2025 Cartly.ba · Sva prava zadržana</span>
           <span>Bluetooth Zvučnik ZQS-6239</span>
         </footer>
       </main>

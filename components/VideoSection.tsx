@@ -9,11 +9,11 @@ const VIDEO_ID = "079Ngl6w5eQ";
 
 const features = [
   { Icon: ShieldCheck, text: "Čelična kapica certificirana po EN ISO 20345 S3" },
-  { Icon: Zap,         text: "Kevlar đon — zaštita od proboja do 1.100 N" },
-  { Icon: Droplets,    text: "Vodootporna membrana — noge ostaju suhe" },
-  { Icon: Feather,     text: "Svega 650g — upola lakše od klasičnih zaštitnih cipela" },
-  { Icon: Settings,    text: "BOA sistem — precizno podešavanje za 3 sekunde" },
-  { Icon: Grip,        text: "SRC anti-klizajući đon — grip na svakoj podlozi" },
+  { Icon: Zap,         text: "Kevlar đon · zaštita od proboja do 1.100 N" },
+  { Icon: Droplets,    text: "Vodootporna membrana · noge ostaju suhe" },
+  { Icon: Feather,     text: "Svega 650g · upola lakše od klasičnih zaštitnih cipela" },
+  { Icon: Settings,    text: "BOA sistem · precizno podešavanje za 3 sekunde" },
+  { Icon: Grip,        text: "SRC anti-klizajući đon · grip na svakoj podlozi" },
 ];
 
 export default function VideoSection() {
@@ -34,7 +34,7 @@ export default function VideoSection() {
         className="video-section-inner"
       >
 
-        {/* LEFT — VIDEO */}
+        {/* LEFT · VIDEO */}
         <div
           style={{ flex: "0 0 45%", display: "flex", justifyContent: "center" }}
           className="video-col"
@@ -62,7 +62,7 @@ export default function VideoSection() {
               <>
                 <Image
                   src={`https://img.youtube.com/vi/${VIDEO_ID}/maxresdefault.jpg`}
-                  alt="Video recenzija — Radne Patike S3"
+                  alt="Video recenzija · Radne Patike S3"
                   fill
                   style={{ objectFit: "cover" }}
                   unoptimized
@@ -101,7 +101,7 @@ export default function VideoSection() {
           </div>
         </div>
 
-        {/* RIGHT — CONTENT */}
+        {/* RIGHT · CONTENT */}
         <div style={{ flex: "0 0 55%", display: "flex", flexDirection: "column", gap: 0 }} className="content-col">
 
           {/* Badge */}

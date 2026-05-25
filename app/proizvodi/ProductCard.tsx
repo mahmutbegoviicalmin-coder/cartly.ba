@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Image from "next/image";
@@ -57,7 +57,7 @@ export default function ProductCard({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* ── Stretched invisible link — entire card is clickable ── */}
+      {/* ── Stretched invisible link · entire card is clickable ── */}
       <Link
         href={product.href}
         className="absolute inset-0 z-0"
@@ -82,7 +82,7 @@ export default function ProductCard({
           </div>
         )}
 
-        {/* Najprodavanije — top left */}
+        {/* Najprodavanije · top left */}
         {product.hot && (
           <span
             className="absolute top-2.5 left-2.5 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10.5px] font-semibold select-none"
@@ -100,7 +100,7 @@ export default function ProductCard({
           </span>
         )}
 
-        {/* Discount — top right */}
+        {/* Discount · top right */}
         <span
           className="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-full text-[11px] font-bold text-white select-none"
           style={{
@@ -148,7 +148,7 @@ export default function ProductCard({
         {/* ── Price block ── */}
         <div className="flex flex-col gap-1.5 mt-auto pt-1">
 
-          {/* Row 1: current + old — always inline, never wrap */}
+          {/* Row 1: current + old · always inline, never wrap */}
           <div className="flex items-end gap-2 flex-nowrap overflow-hidden">
             <span
               className="text-[18px] sm:text-[20px] font-extrabold leading-none whitespace-nowrap shrink-0"
@@ -174,7 +174,7 @@ export default function ProductCard({
           </span>
         </div>
 
-        {/* CTA — z-10 so it sits above the stretched bg link */}
+        {/* CTA · z-10 so it sits above the stretched bg link */}
         <div className="relative z-10 mt-1">
           <CTALink href={product.href} name={product.name} price={product.price} />
         </div>

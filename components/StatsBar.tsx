@@ -2,86 +2,116 @@
 
 import { useEffect, useRef, useState } from "react";
 
-interface Stat {
-  target: number;
-  label: string;
-  format: (n: number) => string;
-  isStar?: boolean;
-}
+const ACCENT = "#FF6B00";
 
-const stats: Stat[] = [
+const stats = [
   {
-    target: 1200,
-    label: "zadovoljnih kupaca",
-    format: (n) => {
-      const rounded = Math.round(n);
-      return rounded >= 1000
-        ? Math.floor(rounded / 100) / 10 + ".000+"
-        : rounded + "+";
-    },
+    target:  1200,
+    format:  (n: number) => Math.round(n) >= 1000 ? "1.200+" : Math.round(n) + "+",
+    label:   "Zadovoljnih kupaca",
+    icon: (
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+    ),
   },
   {
-    target: 48,
-    label: "prosječna ocjena",
-    isStar: true,
-    format: (n) => (n / 10).toFixed(1),
+    target:  48,
+    format:  (n: number) => (n / 10).toFixed(1),
+    label:   "Prosječna ocjena",
+    icon: (
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+      </svg>
+    ),
   },
   {
-    target: 14,
-    label: "garancija povrata",
-    format: (n) => Math.round(n) + " dana",
-  },
-  {
-    target: 200,
-    label: "zaštita čeličnog vrha",
-    format: (n) => Math.round(n) + "J",
+    target:  14,
+    format:  (n: number) => Math.round(n) + " dana",
+    label:   "Garancija povrata",
+    icon: (
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        <polyline points="9 12 11 14 15 10"/>
+      </svg>
+    ),
   },
 ];
 
 function useCountUp(target: number, duration: number, active: boolean) {
   const [value, setValue] = useState(0);
   const raf = useRef<number | null>(null);
-
   useEffect(() => {
     if (!active) return;
     const start = performance.now();
     const tick = (now: number) => {
-      const progress = Math.min((now - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setValue(eased * target);
-      if (progress < 1) raf.current = requestAnimationFrame(tick);
+      const p = Math.min((now - start) / duration, 1);
+      setValue((1 - Math.pow(1 - p, 3)) * target);
+      if (p < 1) raf.current = requestAnimationFrame(tick);
     };
     raf.current = requestAnimationFrame(tick);
     return () => { if (raf.current) cancelAnimationFrame(raf.current); };
   }, [active, target, duration]);
-
   return value;
 }
 
-function StatItem({ stat, active, index }: { stat: Stat; active: boolean; index: number }) {
-  const raw = useCountUp(stat.target, 1500, active);
-  const display = stat.format(raw);
+function StatItem({ stat, active, isLast }: { stat: typeof stats[number]; active: boolean; isLast: boolean }) {
+  const raw = useCountUp(stat.target, 1400, active);
 
   return (
-    <div className={`stats-item stats-item-${index}`}>
-      {/* Number + optional star */}
-      <div className="stats-number-row">
-        <span className="stats-number">{display}</span>
-        {stat.isStar && (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="stats-star"
-            viewBox="0 0 24 24"
-            fill="white"
-            aria-hidden="true"
-          >
-            <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
-          </svg>
-        )}
+    <div style={{
+      flex:           1,
+      display:        "flex",
+      flexDirection:  "column",
+      alignItems:     "center",
+      justifyContent: "center",
+      gap:            10,
+      padding:        "24px 12px",
+      borderRight:    isLast ? "none" : "1px solid #EDEDE8",
+      textAlign:      "center",
+    }}>
+      {/* Icon circle */}
+      <div style={{
+        width:           52,
+        height:          52,
+        borderRadius:    "50%",
+        background:      "rgba(255,107,0,0.09)",
+        display:         "flex",
+        alignItems:      "center",
+        justifyContent:  "center",
+        color:           ACCENT,
+        flexShrink:      0,
+      }}>
+        {stat.icon}
+      </div>
+
+      {/* Number */}
+      <div style={{ lineHeight: 1 }}>
+        <span style={{
+          fontSize:      "clamp(22px, 5vw, 32px)",
+          fontWeight:    900,
+          color:         "#0A0A0A",
+          letterSpacing: "-0.03em",
+          fontFamily:    "var(--font-manrope), sans-serif",
+        }}>
+          {stat.format(raw)}
+        </span>
       </div>
 
       {/* Label */}
-      <span className="stats-label">{stat.label}</span>
+      <span style={{
+        fontSize:   12,
+        fontWeight: 600,
+        color:      "#999",
+        fontFamily: "var(--font-manrope), sans-serif",
+        letterSpacing: "0.04em",
+        lineHeight: 1.3,
+      }}>
+        {stat.label}
+      </span>
     </div>
   );
 }
@@ -95,7 +125,7 @@ export default function StatsBar() {
     if (!el) return;
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) { setActive(true); observer.disconnect(); } },
-      { threshold: 0.3 }
+      { threshold: 0.2 }
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -104,18 +134,24 @@ export default function StatsBar() {
   return (
     <div
       ref={ref}
-      style={{ backgroundColor: "#FF6B00", width: "100%", paddingTop: "40px", paddingBottom: "40px" }}
+      style={{
+        background:   "#FFFFFF",
+        borderTop:    "1px solid #EDEDE8",
+        borderBottom: "1px solid #EDEDE8",
+      }}
     >
-      <div
-        className="max-w-6xl mx-auto px-4 sm:px-6"
-        style={{ display: "flex", alignItems: "stretch", flexWrap: "wrap" }}
-      >
+      <div style={{
+        maxWidth: 1200,
+        margin:   "0 auto",
+        display:  "flex",
+        alignItems: "stretch",
+      }}>
         {stats.map((stat, i) => (
           <StatItem
             key={stat.label}
             stat={stat}
             active={active}
-            index={i}
+            isLast={i === stats.length - 1}
           />
         ))}
       </div>

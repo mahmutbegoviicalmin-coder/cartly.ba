@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Image from "next/image";
@@ -86,6 +86,16 @@ const PRODUCTS = [
     discount:  50,
     hot:       true,
   },
+  {
+    slug:      "/masina-za-sisanje",
+    category:  "Profesionalni alat",
+    name:      "Mašina za Šišanje Ovaca 850W",
+    image:     "/masina1.jpeg",
+    price:     "89,90 KM",
+    oldPrice:  "169,90 KM",
+    discount:  47,
+    hot:       true,
+  },
 ];
 
 const SHOE_BENEFITS = [
@@ -113,14 +123,14 @@ const WHY_US = [
   {
     Icon:  Banknote,
     title: "Plaćanje pouzećem",
-    desc:  "Plaćate tek kada preuzmete paket — bez kartice, bez rizika.",
+    desc:  "Plaćate tek kada preuzmete paket · bez kartice, bez rizika.",
     color: "#16A34A",
     bg:    "rgba(22,163,74,0.08)",
   },
   {
     Icon:  Headphones,
     title: "Podrška korisnicima",
-    desc:  "Naš tim je tu za sva pitanja i pomoć — prije i nakon narudžbe.",
+    desc:  "Naš tim je tu za sva pitanja i pomoć · prije i nakon narudžbe.",
     color: "#7C3AED",
     bg:    "rgba(124,58,237,0.08)",
   },
@@ -306,7 +316,7 @@ function ProductCard({
           </h3>
         </Link>
 
-        {/* Price — always inline, never wraps */}
+        {/* Price · always inline, never wraps */}
         <div className="flex items-end gap-2 flex-nowrap mb-4 overflow-hidden">
           <span className="text-[19px] font-extrabold leading-none whitespace-nowrap shrink-0" style={{ color: ACCENT }}>
             {price}
