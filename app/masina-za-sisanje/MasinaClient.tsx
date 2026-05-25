@@ -136,16 +136,36 @@ const FAQ = [
 
 /* ─── SOCIAL PROOF DATA ─────────────────────────────── */
 const RECENT_BUYERS = [
-  { name: "Mirza H.",   city: "Sarajeva",    ago: "prije 1 sat"   },
-  { name: "Edin K.",    city: "Tuzle",       ago: "prije 2 sata"  },
-  { name: "Tarik M.",   city: "Banje Luke",  ago: "prije 3 sata"  },
-  { name: "Adnan B.",   city: "Bihaća",      ago: "prije 4 sata"  },
-  { name: "Samir J.",   city: "Mostara",     ago: "prije 5 sati"  },
-  { name: "Haris Ć.",   city: "Zenice",      ago: "prije 6 sati"  },
-  { name: "Alen F.",    city: "Travnika",    ago: "jutros"        },
-  { name: "Dino N.",    city: "Goražda",     ago: "jutros"        },
-  { name: "Kenan O.",   city: "Livna",       ago: "sinoć"         },
-  { name: "Jasmin R.",  city: "Tešnja",      ago: "sinoć"         },
+  { name: "Mirza H.",    city: "Sarajeva",       ago: "prije 1 sat"   },
+  { name: "Edin K.",     city: "Tuzle",          ago: "prije 2 sata"  },
+  { name: "Tarik M.",    city: "Banje Luke",     ago: "prije 3 sata"  },
+  { name: "Adnan B.",    city: "Bihaća",         ago: "prije 4 sata"  },
+  { name: "Samir J.",    city: "Mostara",        ago: "prije 5 sati"  },
+  { name: "Haris Ć.",    city: "Zenice",         ago: "prije 6 sati"  },
+  { name: "Alen F.",     city: "Travnika",       ago: "jutros"        },
+  { name: "Dino N.",     city: "Goražda",        ago: "jutros"        },
+  { name: "Kenan O.",    city: "Livna",          ago: "sinoć"         },
+  { name: "Jasmin R.",   city: "Tešnja",         ago: "sinoć"         },
+  { name: "Eldin S.",    city: "Kaknja",         ago: "prije 1 sat"   },
+  { name: "Amir T.",     city: "Gračanice",      ago: "prije 2 sata"  },
+  { name: "Nermin V.",   city: "Konjica",        ago: "prije 3 sata"  },
+  { name: "Senad I.",    city: "Brčkog",         ago: "jutros"        },
+  { name: "Damir P.",    city: "Cazina",         ago: "jutros"        },
+  { name: "Elvedin H.",  city: "Lukavca",        ago: "sinoć"         },
+  { name: "Harun K.",    city: "Gradačca",       ago: "sinoć"         },
+  { name: "Faruk M.",    city: "Visokog",        ago: "prije 4 sata"  },
+  { name: "Almir D.",    city: "Olova",          ago: "jutros"        },
+  { name: "Nedim L.",    city: "Zavidovića",     ago: "sinoć"         },
+  { name: "Muhamed A.",  city: "Jajca",          ago: "prije 5 sati"  },
+  { name: "Emir C.",     city: "Doboja",         ago: "jutros"        },
+  { name: "Rifet G.",    city: "Prijedora",      ago: "sinoć"         },
+  { name: "Sead N.",     city: "Tuzle",          ago: "prije 2 sata"  },
+  { name: "Bakir V.",    city: "Žepča",          ago: "jutros"        },
+  { name: "Mahir I.",    city: "Bugojna",        ago: "prije 6 sati"  },
+  { name: "Ervin K.",    city: "Čapljine",       ago: "sinoć"         },
+  { name: "Suad R.",     city: "Novog Travnika", ago: "jutros"        },
+  { name: "Denis M.",    city: "Sanskog Mosta",  ago: "sinoć"         },
+  { name: "Armin Š.",    city: "Sarajeva",       ago: "prije 3 sata"  },
 ];
 
 /* ─── COMPONENT ─────────────────────────────────────── */
@@ -692,16 +712,17 @@ export default function MasinaClient() {
           {/* social proof strip */}
           {buyers.length > 0 && (
             <div style={{
-              background:"#FAFAFA", border:"1.5px solid #F0F0F0",
+              background:"rgba(255,107,0,0.05)",
+              border:"1.5px solid rgba(255,107,0,0.18)",
               borderRadius:16, padding:"16px 18px", marginBottom:24,
             }}>
               <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:12 }}>
                 <span style={{
-                  width:7, height:7, borderRadius:"50%", background:"#16A34A",
+                  width:7, height:7, borderRadius:"50%", background:ACCENT,
                   display:"inline-block", flexShrink:0,
-                  boxShadow:"0 0 0 3px rgba(22,163,74,0.20)",
+                  boxShadow:`0 0 0 3px rgba(255,107,0,0.20)`,
                 }} />
-                <span style={{ fontSize:12, fontWeight:700, color:"#16A34A", fontFamily:"var(--font-manrope),sans-serif" }}>
+                <span style={{ fontSize:12, fontWeight:700, color:ACCENT, fontFamily:"var(--font-manrope),sans-serif" }}>
                   Aktivno danas — kupci iz cijele BiH
                 </span>
               </div>
@@ -709,10 +730,11 @@ export default function MasinaClient() {
                 {buyers.map((b, i) => (
                   <div key={i} style={{ display:"flex", alignItems:"center", gap:10 }}>
                     <div style={{
-                      width:30, height:30, borderRadius:"50%", flexShrink:0,
-                      background:`hsl(${(i * 60 + 20) % 360},60%,92%)`,
+                      width:32, height:32, borderRadius:"50%", flexShrink:0,
+                      background:"rgba(255,107,0,0.12)",
+                      border:"1.5px solid rgba(255,107,0,0.20)",
                       display:"flex", alignItems:"center", justifyContent:"center",
-                      fontSize:12, fontWeight:800, color:`hsl(${(i * 60 + 20) % 360},50%,35%)`,
+                      fontSize:12, fontWeight:800, color:ACCENT,
                       fontFamily:"var(--font-manrope),sans-serif",
                     }}>
                       {b.name[0]}
@@ -721,11 +743,11 @@ export default function MasinaClient() {
                       <span style={{ fontSize:13, fontWeight:700, color:"#0A0A0A", fontFamily:"var(--font-manrope),sans-serif" }}>
                         {b.name}
                       </span>
-                      <span style={{ fontSize:13, color:"rgba(0,0,0,0.45)", fontFamily:"var(--font-manrope),sans-serif" }}>
+                      <span style={{ fontSize:13, color:"rgba(0,0,0,0.50)", fontFamily:"var(--font-manrope),sans-serif" }}>
                         {" "}iz {b.city} naručio
                       </span>
                     </div>
-                    <span style={{ fontSize:11, color:"rgba(0,0,0,0.30)", fontFamily:"var(--font-manrope),sans-serif", flexShrink:0 }}>
+                    <span style={{ fontSize:11, color:"rgba(255,107,0,0.55)", fontFamily:"var(--font-manrope),sans-serif", flexShrink:0, fontWeight:600 }}>
                       {b.ago}
                     </span>
                   </div>

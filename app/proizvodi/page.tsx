@@ -12,6 +12,16 @@ const ACCENT = "#FF6B00";
 
 const ALL_PRODUCTS: Product[] = [
   {
+    name:     "Mašina za Šišanje Ovaca 850W",
+    desc:     "Profesionalni set · kofer, rezervni nož GRATIS i mazivo · 2800 okr./min · 1 godina garancije",
+    price:    89.90,
+    oldPrice: 169.90,
+    tag:      "ALATI",
+    href:     "/masina-za-sisanje",
+    image:    "/masina1.jpeg",
+    hot:      true,
+  },
+  {
     name:     "Milwaukee Bušilica M18",
     desc:     "Profesionalna akumulatorska bušilica 18V brushless",
     price:    69.90,
@@ -63,7 +73,7 @@ const ALL_PRODUCTS: Product[] = [
   },
   {
     name:     "DeWalt 28V XR Bušilica Set",
-    desc:     "Kompletan set — bušilica, 2 baterije, punjač i komplet alata u tvrdom koferu",
+    desc:     "Kompletan set · bušilica, 2 baterije, punjač i komplet alata u tvrdom koferu",
     price:    69.90,
     oldPrice: 199.90,
     tag:      "ALATI",
@@ -73,7 +83,7 @@ const ALL_PRODUCTS: Product[] = [
   },
   {
     name:     "Čelična Četka za Trimer",
-    desc:     "Profesionalna čelična četka — uklanja korov, suhu travu i korijenje. 1+1 GRATIS",
+    desc:     "Profesionalna čelična četka · uklanja korov, suhu travu i korijenje. 1+1 GRATIS",
     price:    19.90,
     oldPrice: 39.90,
     tag:      "VRTLARSTVO",
@@ -122,7 +132,7 @@ export default function ProizvodiPage() {
 
   const filtered = applyFilters(ALL_PRODUCTS, filters, query);
 
-  // Facebook Pixel — ViewContent on page load
+  // Facebook Pixel · ViewContent on page load
   useEffect(() => {
     event("ViewContent", {
       content_name:     "Katalog proizvoda",
@@ -229,7 +239,7 @@ export default function ProizvodiPage() {
 
           {/* Grid area */}
           <div className="flex-1 min-w-0" ref={gridRef}>
-            {/* Count + label — desktop */}
+            {/* Count + label · desktop */}
             <div className="hidden lg:flex items-center justify-between mb-5">
               <p className="text-sm text-gray-500 font-medium">
                 <span className="font-bold text-gray-900">{filtered.length}</span> {filtered.length === 1 ? "proizvod" : "proizvoda"}
