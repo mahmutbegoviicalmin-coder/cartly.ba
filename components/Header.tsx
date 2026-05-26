@@ -55,9 +55,9 @@ const NAV_LINKS: NavLink[] = [
         image: "/images/dewalt.png",
       },
       {
-        label: "Mašina za Šišanje Ovaca 850W",
+        label: "Mašina za Šišanje Ovaca 1200W",
         href:  "/masina-za-sisanje",
-        desc:  "Kofer, rezervni nož GRATIS, mazivo · 850W",
+        desc:  "Kofer, rezervni nož GRATIS, mazivo · 1200W",
         badge: "NOVO",
         image: "/masina1.jpeg",
       },

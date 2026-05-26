@@ -20,7 +20,7 @@ const SET_ITEMS = [
         <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
       </svg>
     ),
-    title: "Mašina za šišanje 850W",
+    title: "Mašina za šišanje 1200W",
     desc: "Profesionalni električni šišač ovaca · 2800 okretaja u minuti",
     badge: null,
   },
@@ -68,7 +68,7 @@ const FEATURES = [
         <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
       </svg>
     ),
-    title: "850W snažan motor",
+    title: "1200W snažan motor",
     desc: "Brije i najtvrđu vunu bez zastajkivanja",
   },
   {
@@ -227,7 +227,7 @@ export default function MasinaClient() {
       });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.error || "Greška");
-      event("Purchase", { value: PRICE * kolicina + DELIVERY, currency: "BAM", content_name: "Masina za Sisanje Ovaca 850W" }, data.orderNumber);
+      event("Purchase", { value: PRICE * kolicina + DELIVERY, currency: "BAM", content_name: "Masina za Sisanje Ovaca 1200W" }, data.orderNumber);
       setSubmitted(true);
       document.getElementById("order")?.scrollIntoView({ behavior: "smooth" });
     } catch {
@@ -308,7 +308,7 @@ export default function MasinaClient() {
                     position:"absolute", inset:0, zIndex: i === imgIndex ? 1 : 0,
                     opacity: i === imgIndex ? 1 : 0, transition:"opacity 350ms ease",
                   }}>
-                    <Image src={src} alt={i === 0 ? "Mašina za šišanje ovaca 850W" : "Kompletni set u koferu"} fill
+                    <Image src={src} alt={i === 0 ? "Mašina za šišanje ovaca 1200W" : "Kompletni set u koferu"} fill
                       style={{ objectFit:"cover" }} priority={i === 0} />
                   </div>
                 ))}
@@ -323,7 +323,7 @@ export default function MasinaClient() {
                     color:"#fff", fontSize:10, fontWeight:800, letterSpacing:"0.12em",
                     textTransform:"uppercase", padding:"5px 10px", borderRadius:6,
                     fontFamily:"var(--font-manrope),sans-serif", width:"fit-content",
-                  }}>850W Pro</span>
+                  }}>1200W Pro</span>
                 </div>
 
                 {/* viewer count top-right */}
@@ -377,7 +377,7 @@ export default function MasinaClient() {
                   fontSize:10, fontWeight:600, letterSpacing:"0.1em",
                   textTransform:"uppercase", color:"rgba(0,0,0,0.30)",
                   fontFamily:"var(--font-manrope),sans-serif",
-                }}>850W</span>
+                }}>1200W</span>
               </div>
 
               {/* H1 */}
@@ -387,7 +387,7 @@ export default function MasinaClient() {
                 fontFamily:"var(--font-manrope),sans-serif",
               }}>
                 Mašina za šišanje<br />
-                <span style={{ color:ACCENT }}>ovaca 850W</span>
+                <span style={{ color:ACCENT }}>ovaca 1200W</span>
               </h1>
 
               {/* stars */}
@@ -484,7 +484,7 @@ export default function MasinaClient() {
               {/* CTA */}
               <button
                 onClick={() => {
-                  event("AddToCart", { content_name: "Masina za Sisanje Ovaca 850W", value: PRICE, currency: "BAM" });
+                  event("AddToCart", { content_name: "Masina za Sisanje Ovaca 1200W", value: PRICE, currency: "BAM" });
                   document.getElementById("order")?.scrollIntoView({ behavior: "smooth" });
                 }}
                 style={{

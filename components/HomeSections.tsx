@@ -89,7 +89,7 @@ const PRODUCTS = [
   {
     slug:      "/masina-za-sisanje",
     category:  "Profesionalni alat",
-    name:      "Mašina za Šišanje Ovaca 850W",
+    name:      "Mašina za Šišanje Ovaca 1200W",
     image:     "/masina1.jpeg",
     price:     "89,90 KM",
     oldPrice:  "169,90 KM",

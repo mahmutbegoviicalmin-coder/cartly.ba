@@ -12,7 +12,7 @@ const ACCENT = "#FF6B00";
 
 const ALL_PRODUCTS: Product[] = [
   {
-    name:     "Mašina za Šišanje Ovaca 850W",
+    name:     "Mašina za Šišanje Ovaca 1200W",
     desc:     "Profesionalni set · kofer, rezervni nož GRATIS i mazivo · 2800 okr./min · 1 godina garancije",
     price:    89.90,
     oldPrice: 169.90,

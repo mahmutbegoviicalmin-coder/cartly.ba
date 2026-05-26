@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
       eventName:   "Purchase",
       value:       ukupno,
       currency:    "BAM",
-      contentName: "Masina za Sisanje Ovaca 850W",
+      contentName: "Masina za Sisanje Ovaca 1200W",
       phone:       telefon,
       ip:          getClientIP(request),
       userAgent:   getClientUA(request),
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
         <table width="100%" cellpadding="0" cellspacing="0"><tr>
           <td>
             <p style="margin:0 0 4px;font-size:12px;font-weight:600;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:0.08em;">Nova narudžba</p>
-            <h1 style="margin:0 0 4px;font-size:22px;font-weight:800;color:#fff;">Mašina za Šišanje Ovaca 850W</h1>
+            <h1 style="margin:0 0 4px;font-size:22px;font-weight:800;color:#fff;">Mašina za Šišanje Ovaca 1200W</h1>
             <p style="margin:0;font-size:13px;color:rgba(255,255,255,0.8);">Profesionalni set · Kofer · Rezervni nož · Mazivo</p>
           </td>
           <td align="right" style="vertical-align:top;">
@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
             <td style="padding:10px 16px;font-size:12px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:0.06em;border-bottom:1px solid #F0F0F0;text-align:right;">Cijena</td>
           </tr>
           <tr>
-            <td style="padding:12px 16px;font-size:14px;color:#0A0A0A;border-bottom:1px solid #F0F0F0;">${kolicina}x Mašina za šišanje ovaca 850W (komplet set)</td>
+            <td style="padding:12px 16px;font-size:14px;color:#0A0A0A;border-bottom:1px solid #F0F0F0;">${kolicina}x Mašina za šišanje ovaca 1200W (komplet set)</td>
             <td style="padding:12px 16px;font-size:14px;color:#0A0A0A;font-weight:600;text-align:right;border-bottom:1px solid #F0F0F0;">${fmt(cijenaProizvoda)}</td>
           </tr>
           <tr>

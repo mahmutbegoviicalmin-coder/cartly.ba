@@ -18,7 +18,7 @@ export default function MasinaFloatingCTA() {
   }, []);
 
   const handleClick = () => {
-    event("AddToCart", { content_name: "Masina za Sisanje Ovaca 850W", value: 89.90, currency: "BAM" });
+    event("AddToCart", { content_name: "Masina za Sisanje Ovaca 1200W", value: 89.90, currency: "BAM" });
     document.getElementById("order")?.scrollIntoView({ behavior: "smooth" });
   };
 
