@@ -159,7 +159,8 @@ function SocialNotification() {
   useEffect(() => {
     shuffled.current = [...RECENT_BUYERS].sort(() => Math.random() - 0.5);
     tick(showNext, 6000);
-    return () => timers.current.forEach(clearTimeout);
+    const t = timers.current;
+    return () => t.forEach(clearTimeout);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

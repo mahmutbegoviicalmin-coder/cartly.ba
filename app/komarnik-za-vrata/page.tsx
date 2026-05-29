@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import ProductPageHeader from "@/components/ProductPageHeader";
-import TickerBar from "@/components/TickerBar";
 import Footer from "@/components/Footer";
 import KomarnikClient from "./KomarnikClient";
 import KomarnikFloatingCTA from "./FloatingCTA";
