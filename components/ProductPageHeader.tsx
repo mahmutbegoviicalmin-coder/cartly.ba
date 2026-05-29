@@ -13,9 +13,10 @@ const manrope = Manrope({
 
 interface Props {
   ctaHref?: string;
+  ctaColor?: string;
 }
 
-export default function ProductPageHeader({ ctaHref = "#order" }: Props) {
+export default function ProductPageHeader({ ctaHref = "#order", ctaColor }: Props) {
   const [scrolled,   setScrolled]   = useState(false);
   const [ctaHovered, setCtaHovered] = useState(false);
   const [ctaPressed, setCtaPressed] = useState(false);
@@ -86,7 +87,9 @@ export default function ProductPageHeader({ ctaHref = "#order" }: Props) {
               display:        "inline-flex",
               alignItems:     "center",
               gap:            9,
-              background:     "linear-gradient(135deg, #FF7A20 0%, #FF5000 100%)",
+              background:     ctaColor
+                ? ctaColor
+                : "linear-gradient(135deg, #FF7A20 0%, #FF5000 100%)",
               color:          "#FFFFFF",
               fontWeight:     700,
               fontSize:       14,
@@ -101,9 +104,13 @@ export default function ProductPageHeader({ ctaHref = "#order" }: Props) {
                 : ctaHovered
                   ? "scale(1.04)"
                   : "scale(1)",
-              boxShadow:      ctaHovered
-                ? "0 8px 28px rgba(255,80,0,0.42), 0 2px 6px rgba(255,80,0,0.22)"
-                : "0 4px 16px rgba(255,80,0,0.28)",
+              boxShadow:      ctaColor
+                ? ctaHovered
+                  ? `0 8px 28px ${ctaColor}66, 0 2px 6px ${ctaColor}44`
+                  : `0 4px 16px ${ctaColor}55`
+                : ctaHovered
+                  ? "0 8px 28px rgba(255,80,0,0.42), 0 2px 6px rgba(255,80,0,0.22)"
+                  : "0 4px 16px rgba(255,80,0,0.28)",
               filter:         ctaHovered ? "brightness(1.06)" : "brightness(1)",
               transition:     "transform 230ms ease-out, box-shadow 230ms ease-out, filter 200ms ease",
             }}
