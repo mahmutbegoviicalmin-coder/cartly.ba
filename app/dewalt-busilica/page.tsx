@@ -10,7 +10,7 @@ import {
 import { event } from "@/lib/fbpixel";
 
 // ─── Out-of-stock flag ────────────────────────────────────────────────────────
-const OUT_OF_STOCK = true;
+const OUT_OF_STOCK = false;
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const C = {
