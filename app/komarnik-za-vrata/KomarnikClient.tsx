@@ -11,7 +11,6 @@ const ACCENT_LIGHT = "#EEF4ED";
 const BG_CREAM     = "#F7F5F0";
 const TEXT         = "#111111";
 const TEXT_MUTED   = "#666666";
-const DELIVERY     = 10.00;
 
 /* ─── TYPES ──────────────────────────────────────────── */
 type BundleId = 1 | 2 | 3;
@@ -20,12 +19,33 @@ type Errors   = Partial<Record<keyof Fields, string>>;
 
 /* ─── BUNDLES ────────────────────────────────────────── */
 const BUNDLES: {
-  id: BundleId; qty: string; price: number;
-  perPiece: string; badge: string | null; saving: string | null;
+  id: BundleId; qty: string; price: number; oldPrice: number | null;
+  perPiece: string; perPieceSave: string | null;
+  badge: string | null; badgeBg: string; badgeText: string;
+  saving: string | null; savingAmt: number | null;
+  delivery: number; highlight: boolean;
 }[] = [
-  { id: 1, qty: "1 komad",   price: 16.90, perPiece: "16,90", badge: null,                  saving: null },
-  { id: 2, qty: "2 komada",  price: 29.90, perPiece: "14,95", badge: "Najpopularniji",      saving: "Uštedite 3,90 KM" },
-  { id: 3, qty: "3 komada",  price: 39.90, perPiece: "13,30", badge: "Najbolja vrijednost", saving: "Uštedite 10,80 KM" },
+  {
+    id: 1, qty: "1 komad",  price: 16.90, oldPrice: null,
+    perPiece: "16,90",  perPieceSave: null,
+    badge: null, badgeBg: "", badgeText: "",
+    saving: null, savingAmt: null,
+    delivery: 10.00, highlight: false,
+  },
+  {
+    id: 2, qty: "2 komada", price: 24.90, oldPrice: 33.80,
+    perPiece: "12,45",  perPieceSave: "4,45 KM manje po komadu",
+    badge: "NAJPRODAVANIJI", badgeBg: "#16a34a", badgeText: "#fff",
+    saving: "Uštedite 8,90 KM", savingAmt: 8.90,
+    delivery: 10.00, highlight: true,
+  },
+  {
+    id: 3, qty: "3 komada", price: 33.90, oldPrice: 50.70,
+    perPiece: "11,30",  perPieceSave: "5,60 KM manje po komadu",
+    badge: "NAJVEĆA UŠTEDA", badgeBg: "#dc2626", badgeText: "#fff",
+    saving: "Uštedite 16,80 KM + besplatna dostava", savingAmt: 16.80,
+    delivery: 0.00, highlight: false,
+  },
 ];
 
 function fmt(n: number) {
@@ -455,7 +475,7 @@ export default function KomarnikClient() {
   const [openFaq,   setOpenFaq]   = useState<number | null>(null);
 
   const selectedBundle = BUNDLES.find(b => b.id === bundle)!;
-  const total = selectedBundle.price + DELIVERY;
+  const total = selectedBundle.price + selectedBundle.delivery;
 
   function handleBundleSelect(id: BundleId) {
     setBundle(id);
@@ -514,6 +534,8 @@ export default function KomarnikClient() {
         .kml-bundle-card   { border-radius:14px; padding:24px; cursor:pointer; border:2px solid #E8E8E8; background:#fff; transition:all 0.22s ease; position:relative; overflow:hidden; }
         .kml-bundle-card:hover { transform:translateY(-3px); box-shadow:0 10px 36px rgba(0,0,0,0.09); }
         .kml-bundle-card.active { border-color:${ACCENT}; background:#F4FAF4; box-shadow:0 4px 24px rgba(92,139,90,0.18); }
+        .kml-bundle-card.highlighted { transform:scale(1.04); box-shadow:0 16px 52px rgba(92,139,90,0.2), 0 0 0 2px ${ACCENT}; z-index:1; }
+        .kml-bundle-card.highlighted:hover { transform:scale(1.04) translateY(-3px); box-shadow:0 22px 60px rgba(92,139,90,0.26); }
         .kml-feature-card  { background:#fff; border-radius:16px; padding:28px; border:1px solid #EBEBEB; transition:box-shadow 0.2s; }
         .kml-feature-card:hover { box-shadow:0 8px 32px rgba(0,0,0,0.07); }
         .kml-faq-item      { border-bottom:1px solid #EBEBEB; }
@@ -654,51 +676,106 @@ export default function KomarnikClient() {
             {BUNDLES.map(b => (
               <div
                 key={b.id}
-                className={`kml-bundle-card${bundle === b.id ? " active" : ""}`}
+                className={`kml-bundle-card${bundle === b.id ? " active" : ""}${b.highlight ? " highlighted" : ""}`}
                 onClick={() => setBundle(b.id)}
               >
+                {/* Colored badge banner */}
                 {b.badge && (
                   <div style={{
                     position: "absolute", top: 0, left: 0, right: 0,
-                    background: ACCENT, color: "#fff", fontSize: 11, fontWeight: 700,
-                    letterSpacing: "0.08em", textTransform: "uppercase",
-                    textAlign: "center", padding: "7px 0",
+                    background: b.badgeBg, color: b.badgeText,
+                    fontSize: 11, fontWeight: 800,
+                    letterSpacing: "0.1em", textTransform: "uppercase",
+                    textAlign: "center", padding: "8px 0",
                     fontFamily: "var(--font-manrope),sans-serif",
                   }}>
                     {b.badge}
                   </div>
                 )}
-                <div style={{ marginTop: b.badge ? 30 : 0 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: TEXT_MUTED, marginBottom: 8, fontFamily: "var(--font-manrope),sans-serif", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+
+                <div style={{ marginTop: b.badge ? 40 : 0 }}>
+                  {/* Qty label */}
+                  <div style={{
+                    fontSize: 11, fontWeight: 700, color: TEXT_MUTED,
+                    marginBottom: 10, fontFamily: "var(--font-manrope),sans-serif",
+                    textTransform: "uppercase", letterSpacing: "0.07em",
+                  }}>
                     {b.qty}
                   </div>
-                  <div style={{ ...H("38px", 4) }}>{fmt(b.price)}</div>
-                  <div style={{ fontSize: 13, color: TEXT_MUTED, marginBottom: 16, fontFamily: "var(--font-manrope),sans-serif" }}>
-                    {b.perPiece} KM po komadu
+
+                  {/* Price + strikethrough old price */}
+                  <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
+                    <span style={{ ...H("32px"), marginBottom: 0 }}>{fmt(b.price)}</span>
+                    {b.oldPrice && (
+                      <span style={{
+                        fontSize: 13, color: "#bbb", textDecoration: "line-through",
+                        fontFamily: "var(--font-manrope),sans-serif",
+                      }}>
+                        {fmt(b.oldPrice)}
+                      </span>
+                    )}
                   </div>
+
+                  {/* Per piece */}
+                  <div style={{
+                    fontSize: 12, color: TEXT_MUTED, marginBottom: 6,
+                    fontFamily: "var(--font-manrope),sans-serif",
+                  }}>
+                    {b.perPiece} KM / komad
+                  </div>
+
+                  {/* Per-piece savings */}
+                  {b.perPieceSave && (
+                    <div style={{
+                      fontSize: 11, fontWeight: 700, color: b.badgeBg,
+                      fontFamily: "var(--font-manrope),sans-serif",
+                      marginBottom: 14,
+                    }}>
+                      ↓ {b.perPieceSave}
+                    </div>
+                  )}
+
+                  {/* Saving pill */}
                   {b.saving && (
                     <div style={{
-                      fontSize: 12, fontWeight: 700, color: ACCENT,
-                      background: ACCENT_LIGHT, borderRadius: 6, padding: "4px 10px",
+                      fontSize: 11, fontWeight: 800,
+                      color: b.badgeText, background: b.badgeBg,
+                      borderRadius: 8, padding: "6px 12px",
+                      display: "inline-block",
+                      marginBottom: 16,
+                      fontFamily: "var(--font-manrope),sans-serif",
+                      letterSpacing: "0.01em",
+                    }}>
+                      ✓ {b.saving}
+                    </div>
+                  )}
+
+                  {/* Free delivery badge */}
+                  {b.delivery === 0 && !b.saving && (
+                    <div style={{
+                      fontSize: 11, fontWeight: 700, color: "#16a34a",
+                      background: "#dcfce7", borderRadius: 6, padding: "5px 10px",
                       display: "inline-block", marginBottom: 16,
                       fontFamily: "var(--font-manrope),sans-serif",
                     }}>
-                      {b.saving}
+                      Besplatna dostava
                     </div>
                   )}
+
                   <button
                     onClick={ev => { ev.stopPropagation(); handleBundleSelect(b.id); }}
                     style={{
-                      width: "100%", padding: "12px 0", marginTop: b.saving ? 0 : 16,
-                      background: bundle === b.id ? ACCENT : "transparent",
+                      width: "100%", padding: "13px 0",
+                      marginTop: (b.saving || (b.delivery === 0 && !b.saving)) ? 0 : 16,
+                      background: bundle === b.id ? b.badgeBg || ACCENT : "transparent",
                       color: bundle === b.id ? "#fff" : TEXT,
-                      border: `1.5px solid ${bundle === b.id ? ACCENT : "#D0D0D0"}`,
+                      border: `1.5px solid ${bundle === b.id ? (b.badgeBg || ACCENT) : "#D0D0D0"}`,
                       borderRadius: 10, fontSize: 14, fontWeight: 700,
                       fontFamily: "var(--font-manrope),sans-serif",
                       cursor: "pointer", transition: "all 0.2s",
                     }}
                   >
-                    {bundle === b.id ? "Odabrano" : "Odaberi i naruči"}
+                    {bundle === b.id ? "✓ Odabrano" : "Odaberi i naruči"}
                   </button>
                 </div>
               </div>
@@ -888,28 +965,38 @@ export default function KomarnikClient() {
                     {b.badge && (
                       <div style={{
                         position: "absolute", top: -1, left: 0, right: 0,
-                        fontSize: 9, fontWeight: 700, color: "#fff", background: ACCENT,
-                        borderRadius: "10px 10px 0 0", padding: "3px 0",
-                        letterSpacing: "0.06em", textTransform: "uppercase",
+                        fontSize: 9, fontWeight: 800, color: b.badgeText, background: b.badgeBg,
+                        borderRadius: "10px 10px 0 0", padding: "4px 0",
+                        letterSpacing: "0.08em", textTransform: "uppercase",
                         fontFamily: "var(--font-manrope),sans-serif",
                       }}>
                         {b.badge}
                       </div>
                     )}
                     <div style={{
-                      fontSize: 11, fontWeight: 700, marginTop: b.badge ? 18 : 0,
+                      fontSize: 10, fontWeight: 700, marginTop: b.badge ? 20 : 0,
                       color: bundle === b.id ? ACCENT : TEXT_MUTED,
                       fontFamily: "var(--font-manrope),sans-serif",
+                      textTransform: "uppercase", letterSpacing: "0.05em",
                     }}>
                       {b.qty}
                     </div>
                     <div style={{
                       fontFamily: "var(--font-display), var(--font-manrope), sans-serif",
-                      fontSize: 17, fontWeight: 800, letterSpacing: "-0.02em",
+                      fontSize: 16, fontWeight: 800, letterSpacing: "-0.02em",
                       color: bundle === b.id ? ACCENT_DARK : TEXT, lineHeight: 1.2,
                     }}>
                       {fmt(b.price)}
                     </div>
+                    {b.perPieceSave && (
+                      <div style={{
+                        fontSize: 9, fontWeight: 700, color: b.badgeBg,
+                        fontFamily: "var(--font-manrope),sans-serif",
+                        marginTop: 3, lineHeight: 1.3,
+                      }}>
+                        {b.perPiece} KM/kom
+                      </div>
+                    )}
                   </button>
                 ))}
               </div>
@@ -935,21 +1022,39 @@ export default function KomarnikClient() {
                 </div>
 
                 <div style={{ background: "#fff", borderRadius: 12, padding: "18px 20px", marginBottom: 20, border: "1px solid #E8E8E8" }}>
-                  {[
-                    { label: `Komarnik (${selectedBundle.qty})`, value: fmt(selectedBundle.price) },
-                    { label: "Dostava",                          value: fmt(DELIVERY) },
-                  ].map((row, i) => (
-                    <div key={i} style={{
-                      display: "flex", justifyContent: "space-between",
-                      marginBottom: i === 0 ? 8 : 0,
-                      paddingBottom: i === 0 ? 12 : 0,
-                      borderBottom: i === 0 ? "1px solid #F0F0F0" : "none",
+                  {/* Product row */}
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, paddingBottom: 12, borderBottom: "1px solid #F0F0F0" }}>
+                    <span style={{ fontSize: 13, color: TEXT_MUTED, fontFamily: "var(--font-manrope),sans-serif" }}>
+                      Komarnik ({selectedBundle.qty})
+                    </span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: TEXT, fontFamily: "var(--font-manrope),sans-serif" }}>
+                      {fmt(selectedBundle.price)}
+                    </span>
+                  </div>
+                  {/* Delivery row */}
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <span style={{ fontSize: 13, color: TEXT_MUTED, fontFamily: "var(--font-manrope),sans-serif" }}>Dostava</span>
+                    <span style={{
+                      fontSize: 13, fontWeight: 700,
+                      color: selectedBundle.delivery === 0 ? "#16a34a" : TEXT,
+                      fontFamily: "var(--font-manrope),sans-serif",
                     }}>
-                      <span style={{ fontSize: 13, color: TEXT_MUTED, fontFamily: "var(--font-manrope),sans-serif" }}>{row.label}</span>
-                      <span style={{ fontSize: 13, fontWeight: 600, color: TEXT, fontFamily: "var(--font-manrope),sans-serif" }}>{row.value}</span>
+                      {selectedBundle.delivery === 0 ? "BESPLATNO" : fmt(selectedBundle.delivery)}
+                    </span>
+                  </div>
+                  {/* Savings note */}
+                  {selectedBundle.savingAmt && (
+                    <div style={{
+                      marginTop: 10, padding: "8px 10px",
+                      background: selectedBundle.badgeBg + "18",
+                      borderRadius: 8,
+                      fontSize: 12, fontWeight: 700, color: selectedBundle.badgeBg,
+                      fontFamily: "var(--font-manrope),sans-serif",
+                    }}>
+                      ✓ {selectedBundle.saving}
                     </div>
-                  ))}
-                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 12 }}>
+                  )}
+                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 12, paddingTop: 12, borderTop: "1px solid #F0F0F0" }}>
                     <span style={{ fontSize: 15, fontWeight: 700, color: TEXT, fontFamily: "var(--font-manrope),sans-serif" }}>Ukupno</span>
                     <span style={{
                       fontFamily: "var(--font-display), var(--font-manrope), sans-serif",
