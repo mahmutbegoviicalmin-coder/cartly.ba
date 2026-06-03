@@ -64,8 +64,8 @@ const ALL_PRODUCTS: Product[] = [
   {
     name:     "Usmjerivač Zraka Klime",
     desc:     "Podesiv kut 0°–45°, montaža 5 min bez bušenja, za sve split klime",
-    price:    19.90,
-    oldPrice: 39.90,
+    price:    14.90,
+    oldPrice: 29.90,
     tag:      "DOM",
     href:     "/usmjerivac-zraka",
     image:    "/usmjerivac/hero.png",

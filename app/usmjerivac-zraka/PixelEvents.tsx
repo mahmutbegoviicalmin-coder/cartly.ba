@@ -10,7 +10,7 @@ export default function PixelEvents() {
       content_category: "Kućni dodaci",
       content_ids:      ["usmjerivac-zraka"],
       content_type:     "product",
-      value:            19.90,
+      value:            14.90,
       currency:         "BAM",
     });
   }, []);

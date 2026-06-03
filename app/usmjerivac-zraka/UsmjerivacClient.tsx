@@ -57,9 +57,9 @@ const NOTIF_NAMES = [
 /* ─── DATA ────────────────────────────────────── */
 type BID = 1 | 2 | 3;
 const BUNDLES = [
-  { id: 1 as BID, qty: "1 komad",  price: 19.90, delivery: 10.00, total: 29.90, savings: null,  badge: null,         badgeColor: "" },
-  { id: 2 as BID, qty: "2 komada", price: 34.90, delivery: 10.00, total: 44.90, savings: 14.90, badge: "TOP PONUDA", badgeColor: "#f59e0b" },
-  { id: 3 as BID, qty: "3 komada", price: 49.90, delivery:  0.00, total: 49.90, savings: 39.80, badge: "BESTSELLER", badgeColor: BLUE2 },
+  { id: 1 as BID, qty: "1 komad",  price: 14.90, delivery: 10.00, total: 24.90, savings: null, badge: null,         badgeColor: "" },
+  { id: 2 as BID, qty: "2 komada", price: 24.90, delivery: 10.00, total: 34.90, savings: 4.90, badge: "TOP PONUDA", badgeColor: "#f59e0b" },
+  { id: 3 as BID, qty: "3 komada", price: 34.90, delivery: 10.00, total: 44.90, savings: 9.80, badge: "BESTSELLER", badgeColor: BLUE2 },
 ];
 
 
@@ -709,7 +709,7 @@ export default function UsmjerivacClient() {
               {/* CTA */}
               <motion.div initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={FIN} transition={{ duration: 0.44, ease: EASE, delay: 0.52 }} style={{ marginTop: 36 }}>
                 <button onClick={() => openPopup(2)} className="u-cta">
-                  Naruči odmah — od 19,90 KM
+                  Naruči odmah — od 14,90 KM
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
               </motion.div>
