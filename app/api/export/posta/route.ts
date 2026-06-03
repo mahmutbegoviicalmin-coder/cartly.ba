@@ -263,6 +263,8 @@ function sadrzaj(orderNumber: string, velicine: Velicina[]): string {
     DWT: "Brusilica",
     BRS: "Brusilica",
     CCT: "Čelična Četka 1+1",
+    KMN: "Komarnik",
+    USM: "Usmjerivač",
   };
   return MAP[prefix] ?? "Paket";
 }
@@ -280,9 +282,14 @@ export async function GET(request: NextRequest) {
     const dayStart = `${dateParam}T00:00:00.000Z`;
     const dayEnd   = `${dateParam}T23:59:59.999Z`;
 
-    // ── Fetch orders (both tables in parallel) ────────────────────────────────
+    // ── Fetch orders (all tables in parallel) ────────────────────────────────
     const sb = getSupabaseAdmin();
-    const [{ data: rawOrders, error }, { data: rawCetka, error: cetkaError }] = await Promise.all([
+    const [
+      { data: rawOrders, error },
+      { data: rawCetka,  error: cetkaError },
+      { data: rawKomr,   error: komrError  },
+      { data: rawUsm,    error: usmError   },
+    ] = await Promise.all([
       sb.from("orders")
         .select("ime, telefon, adresa, grad, ukupno, order_number, velicine")
         .gte("created_at", dayStart)
@@ -295,31 +302,64 @@ export async function GET(request: NextRequest) {
         .lte("created_at", dayEnd)
         .neq("status", "cancelled")
         .order("created_at", { ascending: true }),
+      sb.from("komarnik_orders")
+        .select("ime, telefon, adresa, grad, ukupno, order_number, bundle_label")
+        .gte("created_at", dayStart)
+        .lte("created_at", dayEnd)
+        .neq("status", "cancelled")
+        .order("created_at", { ascending: true }),
+      sb.from("usmjerivac_orders")
+        .select("ime, telefon, adresa, grad, ukupno, order_number, bundle_label")
+        .gte("created_at", dayStart)
+        .lte("created_at", dayEnd)
+        .neq("status", "cancelled")
+        .order("created_at", { ascending: true }),
     ]);
 
     if (error) {
       console.error("[posta export] Supabase error:", error.message);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
-    if (cetkaError) {
-      console.error("[posta export] Cetka Supabase error:", cetkaError.message);
-    }
+    if (cetkaError) console.error("[posta export] Cetka error:",      cetkaError.message);
+    if (komrError)  console.error("[posta export] Komarnik error:",   komrError.message);
+    if (usmError)   console.error("[posta export] Usmjerivac error:", usmError.message);
 
-    // Normalise cetka rows to match the orders shape
+    // Normalise cetka rows
     const normalisedCetka = ((rawCetka ?? []) as {
       ime: string; telefon: string; adresa: string; grad: string;
       ukupno: number; order_number: string; broj_setova: number;
     }[]).map((o) => ({
-      ime: o.ime,
-      telefon: o.telefon,
-      adresa: o.adresa,
-      grad: o.grad,
-      ukupno: o.ukupno,
-      order_number: o.order_number,
+      ime: o.ime, telefon: o.telefon, adresa: o.adresa, grad: o.grad,
+      ukupno: o.ukupno, order_number: o.order_number,
       velicine: [{ velicina: "Čelična Četka 1+1 GRATIS", kolicina: o.broj_setova }] as Velicina[],
     }));
 
-    const orders = [...(rawOrders ?? []), ...normalisedCetka];
+    // Normalise komarnik rows
+    const normalisedKomr = ((rawKomr ?? []) as {
+      ime: string; telefon: string; adresa: string; grad: string;
+      ukupno: number; order_number: string; bundle_label: string;
+    }[]).map((o) => ({
+      ime: o.ime, telefon: o.telefon, adresa: o.adresa, grad: o.grad,
+      ukupno: o.ukupno, order_number: o.order_number,
+      velicine: [{ velicina: `Komarnik ${o.bundle_label}`, kolicina: 1 }] as Velicina[],
+    }));
+
+    // Normalise usmjerivac rows
+    const normalisedUsm = ((rawUsm ?? []) as {
+      ime: string; telefon: string; adresa: string; grad: string;
+      ukupno: number; order_number: string; bundle_label: string;
+    }[]).map((o) => ({
+      ime: o.ime, telefon: o.telefon, adresa: o.adresa, grad: o.grad,
+      ukupno: o.ukupno, order_number: o.order_number,
+      velicine: [{ velicina: `Usmjerivač ${o.bundle_label}`, kolicina: 1 }] as Velicina[],
+    }));
+
+    const orders = [
+      ...(rawOrders ?? []),
+      ...normalisedCetka,
+      ...normalisedKomr,
+      ...normalisedUsm,
+    ];
 
     if (orders.length === 0) {
       return NextResponse.json({ error: `Nema narudžbi za ${dateParam}.` }, { status: 404 });

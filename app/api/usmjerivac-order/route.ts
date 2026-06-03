@@ -9,9 +9,9 @@ const BOSNIAN_MONTHS = [
 ];
 
 const BUNDLE_CONFIG: Record<number, { label: string; price: number; delivery: number }> = {
-  1: { label: "1 komad",  price: 19.90, delivery: 10.00 },
-  2: { label: "2 komada", price: 34.90, delivery: 10.00 },
-  3: { label: "3 komada", price: 49.90, delivery:  0.00 },
+  1: { label: "1 komad",  price: 14.90, delivery: 10.00 },
+  2: { label: "2 komada", price: 24.90, delivery: 10.00 },
+  3: { label: "3 komada", price: 34.90, delivery: 10.00 },
 };
 const ACCENT   = "#2563EB";
 

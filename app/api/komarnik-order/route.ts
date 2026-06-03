@@ -10,8 +10,8 @@ const BOSNIAN_MONTHS = [
 
 const BUNDLE_CONFIG: Record<number, { label: string; price: number }> = {
   1: { label: "1 komad",   price: 16.90 },
-  2: { label: "2 komada",  price: 29.90 },
-  3: { label: "3 komada",  price: 39.90 },
+  2: { label: "2 komada",  price: 24.90 },
+  3: { label: "3 komada",  price: 33.90 },
 };
 const DELIVERY = 10.00;
 const ACCENT   = "#5C8B5A";
@@ -21,7 +21,7 @@ function generateOrderNumber(date: Date): string {
   const m    = String(date.getMonth() + 1).padStart(2, "0");
   const d    = String(date.getDate()).padStart(2, "0");
   const rand = String(Math.floor(1000 + Math.random() * 9000));
-  return `KMR-${y}${m}${d}-${rand}`;
+  return `KMN-${y}${m}${d}-${rand}`;
 }
 
 function formatDateBosnian(date: Date): string {
