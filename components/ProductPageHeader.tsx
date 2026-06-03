@@ -39,18 +39,28 @@ export default function ProductPageHeader({ ctaHref = "#order", ctaColor }: Prop
         transition:           "box-shadow 300ms ease, border-color 300ms ease",
       }}
     >
+      <style suppressHydrationWarning>{`
+        @media (max-width:520px) {
+          .pph-inner { padding: 0 16px !important; }
+          .pph-back-label { display: none; }
+          .pph-cta { padding: 9px 15px !important; font-size: 12px !important; border-radius: 10px !important; gap: 5px !important; }
+          .pph-cta svg { width: 13px !important; height: 13px !important; }
+        }
+      `}</style>
+
       <div
+        className="pph-inner"
         style={{
-          maxWidth:   1280,
-          margin:     "0 auto",
-          padding:    "0 28px",
-          height:     68,
-          display:    "flex",
-          alignItems: "center",
+          maxWidth:       1280,
+          margin:         "0 auto",
+          padding:        "0 28px",
+          height:         68,
+          display:        "flex",
+          alignItems:     "center",
           justifyContent: "space-between",
         }}
       >
-        {/* ── Left: back link ──────────────────────────────────────── */}
+        {/* ── Left: back link ── */}
         <Link
           href="/"
           style={{
@@ -67,60 +77,59 @@ export default function ProductPageHeader({ ctaHref = "#order", ctaColor }: Prop
           onMouseLeave={(e) => (e.currentTarget.style.color = "#555555")}
         >
           <ArrowLeft size={16} strokeWidth={2} />
-          Nazad na početnu
+          <span className="pph-back-label">Nazad na početnu</span>
         </Link>
 
-        {/* ── Right: CTA ───────────────────────────────────────────── */}
-        <div>
-          <a
-            href={ctaHref}
-            onMouseEnter={() => setCtaHovered(true)}
-            onMouseLeave={() => { setCtaHovered(false); setCtaPressed(false); }}
-            onMouseDown={() => setCtaPressed(true)}
-            onMouseUp={() => setCtaPressed(false)}
+        {/* ── Right: CTA ── */}
+        <a
+          href={ctaHref}
+          className="pph-cta"
+          onMouseEnter={() => setCtaHovered(true)}
+          onMouseLeave={() => { setCtaHovered(false); setCtaPressed(false); }}
+          onMouseDown={() => setCtaPressed(true)}
+          onMouseUp={() => setCtaPressed(false)}
+          style={{
+            background:     ctaColor
+              ? ctaColor
+              : "linear-gradient(135deg, #FF7A20 0%, #FF5000 100%)",
+            color:          "#FFFFFF",
+            fontWeight:     700,
+            fontSize:       14,
+            letterSpacing:  "0.01em",
+            borderRadius:   14,
+            padding:        "12px 24px",
+            textDecoration: "none",
+            whiteSpace:     "nowrap",
+            userSelect:     "none",
+            display:        "inline-flex",
+            alignItems:     "center",
+            gap:            9,
+            transform:      ctaPressed
+              ? "scale(0.96)"
+              : ctaHovered
+                ? "scale(1.04)"
+                : "scale(1)",
+            boxShadow:      ctaColor
+              ? ctaHovered
+                ? `0 8px 28px ${ctaColor}66, 0 2px 6px ${ctaColor}44`
+                : `0 4px 16px ${ctaColor}55`
+              : ctaHovered
+                ? "0 8px 28px rgba(255,80,0,0.42), 0 2px 6px rgba(255,80,0,0.22)"
+                : "0 4px 16px rgba(255,80,0,0.28)",
+            filter:         ctaHovered ? "brightness(1.06)" : "brightness(1)",
+            transition:     "transform 230ms ease-out, box-shadow 230ms ease-out, filter 200ms ease",
+          }}
+        >
+          Naruči odmah
+          <ArrowRight
+            size={15}
+            strokeWidth={2.5}
             style={{
-              display:        "inline-flex",
-              alignItems:     "center",
-              gap:            9,
-              background:     ctaColor
-                ? ctaColor
-                : "linear-gradient(135deg, #FF7A20 0%, #FF5000 100%)",
-              color:          "#FFFFFF",
-              fontWeight:     700,
-              fontSize:       14,
-              letterSpacing:  "0.01em",
-              borderRadius:   14,
-              padding:        "12px 24px",
-              textDecoration: "none",
-              whiteSpace:     "nowrap",
-              userSelect:     "none",
-              transform:      ctaPressed
-                ? "scale(0.96)"
-                : ctaHovered
-                  ? "scale(1.04)"
-                  : "scale(1)",
-              boxShadow:      ctaColor
-                ? ctaHovered
-                  ? `0 8px 28px ${ctaColor}66, 0 2px 6px ${ctaColor}44`
-                  : `0 4px 16px ${ctaColor}55`
-                : ctaHovered
-                  ? "0 8px 28px rgba(255,80,0,0.42), 0 2px 6px rgba(255,80,0,0.22)"
-                  : "0 4px 16px rgba(255,80,0,0.28)",
-              filter:         ctaHovered ? "brightness(1.06)" : "brightness(1)",
-              transition:     "transform 230ms ease-out, box-shadow 230ms ease-out, filter 200ms ease",
+              transform:  ctaHovered ? "translateX(2px)" : "translateX(0)",
+              transition: "transform 230ms ease-out",
             }}
-          >
-            Naruči odmah
-            <ArrowRight
-              size={15}
-              strokeWidth={2.5}
-              style={{
-                transform:  ctaHovered ? "translateX(2px)" : "translateX(0)",
-                transition: "transform 230ms ease-out",
-              }}
-            />
-          </a>
-        </div>
+          />
+        </a>
       </div>
     </header>
   );

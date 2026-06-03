@@ -26,66 +26,54 @@ export default function UsmjerivacFloatingCTA({ onOrder }: Props) {
   };
 
   return (
-    <div style={{
-      position:   "fixed",
-      bottom:     0, left: 0, right: 0,
-      zIndex:     9998,
-      background: "#fff",
-      borderTop:  "1px solid rgba(0,0,0,0.08)",
-      boxShadow:  "0 -2px 16px rgba(0,0,0,0.07)",
-      transform:  visible ? "translateY(0)" : "translateY(100%)",
-      transition: "transform 0.3s ease",
-      display:    "flex",
-      alignItems: "center",
-      padding:    "10px 24px",
-      gap:        16,
-    }}>
+    <>
+      <style suppressHydrationWarning>{`
+        .u-fcta-wrap {
+          position: fixed; bottom: 0; left: 0; right: 0; z-index: 9998;
+          background: #fff;
+          border-top: 1px solid rgba(0,0,0,0.08);
+          box-shadow: 0 -2px 16px rgba(0,0,0,0.07);
+          display: flex; align-items: center;
+          padding: 10px 24px; gap: 16px;
+        }
+        .u-fcta-img   { width:40px; height:40px; border-radius:8px; object-fit:cover; flex-shrink:0; border:1px solid rgba(0,0,0,0.07); }
+        .u-fcta-badge { background:#fee2e2; color:#dc2626; font-size:11px; font-weight:800; font-family:${F}; padding:4px 9px; border-radius:6px; flex-shrink:0; white-space:nowrap; }
+        .u-fcta-btn   { background:${BLUE}; color:#fff; border:none; border-radius:10px; padding:11px 22px; font-size:14px; font-weight:700; font-family:${F}; cursor:pointer; flex-shrink:0; white-space:nowrap; transition:background 0.15s; }
+        .u-fcta-btn:hover { background:#1448d4; }
+        @media (max-width:520px) {
+          .u-fcta-wrap  { padding:10px 14px; gap:10px; }
+          .u-fcta-img   { display:none; }
+          .u-fcta-badge { display:none; }
+          .u-fcta-btn   { padding:10px 16px; font-size:13px; border-radius:9px; }
+        }
+      `}</style>
 
-      {/* Image */}
-      <img
-        src="/usmjerivac/hero.png"
-        alt=""
-        style={{ width: 40, height: 40, borderRadius: 8, objectFit: "cover", flexShrink: 0, border: "1px solid rgba(0,0,0,0.07)" }}
-      />
-
-      {/* Name + price */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#0a0a1a", fontFamily: F, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-          Usmjerivač Zraka Klime
-        </div>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginTop: 1 }}>
-          <span style={{ fontSize: 16, fontWeight: 900, color: BLUE, fontFamily: F, letterSpacing: "-0.03em" }}>19,90 KM</span>
-          <span style={{ fontSize: 12, color: "#94a3b8", textDecoration: "line-through", fontFamily: F }}>39,90 KM</span>
-        </div>
-      </div>
-
-      {/* Badge */}
-      <span style={{ background: "#fee2e2", color: "#dc2626", fontSize: 11, fontWeight: 800, fontFamily: F, padding: "4px 9px", borderRadius: 6, flexShrink: 0, whiteSpace: "nowrap" }}>
-        −50%
-      </span>
-
-      {/* Button */}
-      <button
-        onClick={handle}
-        style={{
-          background:   BLUE,
-          color:        "#fff",
-          border:       "none",
-          borderRadius: 10,
-          padding:      "11px 22px",
-          fontSize:     14,
-          fontWeight:   700,
-          fontFamily:   F,
-          cursor:       "pointer",
-          flexShrink:   0,
-          whiteSpace:   "nowrap",
-          transition:   "background 0.15s",
-        }}
-        onMouseEnter={e => (e.currentTarget.style.background = "#1448d4")}
-        onMouseLeave={e => (e.currentTarget.style.background = BLUE)}
+      <div
+        className="u-fcta-wrap"
+        style={{ transform: visible ? "translateY(0)" : "translateY(100%)", transition: "transform 0.3s ease" }}
       >
-        Naruči odmah
-      </button>
-    </div>
+        {/* Image */}
+        <img src="/usmjerivac/hero.png" alt="" className="u-fcta-img" />
+
+        {/* Name + price */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#0a0a1a", fontFamily: F, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            Usmjerivač Zraka Klime
+          </div>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginTop: 1 }}>
+            <span style={{ fontSize: 16, fontWeight: 900, color: BLUE, fontFamily: F, letterSpacing: "-0.03em" }}>19,90 KM</span>
+            <span style={{ fontSize: 12, color: "#94a3b8", textDecoration: "line-through", fontFamily: F }}>39,90 KM</span>
+          </div>
+        </div>
+
+        {/* Badge */}
+        <span className="u-fcta-badge">−50%</span>
+
+        {/* Button */}
+        <button onClick={handle} className="u-fcta-btn">
+          Naruči odmah
+        </button>
+      </div>
+    </>
   );
 }

@@ -300,14 +300,16 @@ export default function UsmjerivacClient() {
         .u-submit-btn:active { transform:translateY(0); }
         @media(max-width:900px){
           .u-hero  { grid-template-columns:1fr; min-height:auto; }
-          .u-hero-l{ padding:32px 24px 40px; order:2; }
-          .u-hero-r{ padding:24px 24px 0; order:1; }
+          .u-hero-l{ padding:28px 20px 40px; order:2; }
+          .u-hero-r{ padding:0; order:1; }
           .u-hero-bundles { grid-template-columns:1fr; gap:8px; }
           .u-form-g{ grid-template-columns:1fr; }
           .u-rev-g { grid-template-columns:1fr; }
           .u-steps { grid-template-columns:1fr; gap:24px; margin-top:40px; }
-          .u-split { grid-template-columns:1fr; gap:48px; }
+          .u-split { grid-template-columns:1fr; gap:32px; }
           .u-split-r { order:-1; }
+          .u-split-chip { display:none !important; }
+          .u-split-caption span { font-size:12px !important; }
           .u-gallery { grid-template-columns:1fr !important; }
           .u-prod-grid { grid-template-columns:1fr !important; }
         }
@@ -728,7 +730,7 @@ export default function UsmjerivacClient() {
                 <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(10,10,26,0.45) 0%, transparent 55%)", pointerEvents: "none" }} />
 
                 {/* Bottom caption */}
-                <div style={{ position: "absolute", bottom: 20, left: 20, right: 20 }}>
+                <div className="u-split-caption" style={{ position: "absolute", bottom: 20, left: 20, right: 20 }}>
                   <div style={{ background: "rgba(255,255,255,0.12)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 14, padding: "12px 16px", display: "flex", alignItems: "center", gap: 10 }}>
                     <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#4ade80", flexShrink: 0, boxShadow: "0 0 8px rgba(74,222,128,0.8)" }} />
                     <span style={{ fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: F }}>Komforan boravak bez direktnog puhanja</span>
@@ -737,6 +739,7 @@ export default function UsmjerivacClient() {
 
                 {/* Top-right chip */}
                 <motion.div
+                  className="u-split-chip"
                   initial={{ opacity: 0, y: -12 }} whileInView={{ opacity: 1, y: 0 }} viewport={FIN} transition={{ duration: 0.4, delay: 0.45 }}
                   style={{ position: "absolute", top: 16, right: 16, background: "#fff", borderRadius: 12, padding: "8px 13px", boxShadow: "0 4px 20px rgba(10,10,26,0.14)", display: "flex", alignItems: "center", gap: 7 }}
                 >
@@ -744,14 +747,6 @@ export default function UsmjerivacClient() {
                     {[...Array(5)].map((_, i) => <svg key={i} width="11" height="11" viewBox="0 0 24 24" fill="#f59e0b" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>)}
                   </div>
                   <span style={{ fontSize: 12, fontWeight: 700, color: BLK, fontFamily: F }}>4,8 · 1.200+ kupaca</span>
-                </motion.div>
-
-                {/* Top-left chip */}
-                <motion.div
-                  initial={{ opacity: 0, x: -12 }} whileInView={{ opacity: 1, x: 0 }} viewport={FIN} transition={{ duration: 0.4, delay: 0.55 }}
-                  style={{ position: "absolute", top: 16, left: 16, background: `linear-gradient(135deg,${BLUE},${BLUE2})`, borderRadius: 10, padding: "7px 12px", boxShadow: "0 4px 16px rgba(26,95,255,0.4)" }}
-                >
-                  <span style={{ fontSize: 11, fontWeight: 800, color: "#fff", fontFamily: F, letterSpacing: "-0.01em" }}>−50% AKCIJA</span>
                 </motion.div>
               </div>
             </motion.div>
