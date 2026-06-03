@@ -7,11 +7,10 @@ function isAuthenticated() {
   return cookieStore.get("admin_session")?.value === "authenticated";
 }
 
-/** Cetka order IDs are prefixed with "cetka_" to identify the correct table. */
-function resolveTable(id: string): { table: "orders" | "cetka_orders"; realId: string } {
-  if (id.startsWith("cetka_")) {
-    return { table: "cetka_orders", realId: id.replace("cetka_", "") };
-  }
+/** Resolve which table to use based on ID prefix. */
+function resolveTable(id: string): { table: "orders" | "cetka_orders" | "usmjerivac_orders"; realId: string } {
+  if (id.startsWith("cetka_")) return { table: "cetka_orders",      realId: id.replace("cetka_", "") };
+  if (id.startsWith("usm_"))   return { table: "usmjerivac_orders", realId: id.replace("usm_", "") };
   return { table: "orders", realId: id };
 }
 

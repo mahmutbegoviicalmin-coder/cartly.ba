@@ -19,10 +19,11 @@ export async function GET() {
 
   const sb = getSupabaseAdmin();
 
-  // Fetch from both tables in parallel
+  // Fetch from all tables in parallel
   const [
     allOrders, todayOrders, recentOrders, chartOrders,
     allCetka,  todayCetka,  recentCetka,  chartCetka,
+    allUsm,    todayUsm,    recentUsm,    chartUsm,
   ] = await Promise.all([
     sb.from("orders").select("ukupno, velicine, cijena_proizvoda, ukupno_pari"),
     sb.from("orders").select("ukupno").gte("created_at", todayStart),
@@ -33,24 +34,32 @@ export async function GET() {
     sb.from("cetka_orders").select("ukupno").gte("created_at", todayStart),
     sb.from("cetka_orders").select("id").gte("created_at", thirtyMinAgo),
     sb.from("cetka_orders").select("created_at, ukupno").gte("created_at", fourteenDaysAgo).order("created_at", { ascending: true }),
+
+    sb.from("usmjerivac_orders").select("ukupno"),
+    sb.from("usmjerivac_orders").select("ukupno").gte("created_at", todayStart),
+    sb.from("usmjerivac_orders").select("id").gte("created_at", thirtyMinAgo),
+    sb.from("usmjerivac_orders").select("created_at, ukupno").gte("created_at", fourteenDaysAgo).order("created_at", { ascending: true }),
   ]);
 
   // ── Totals ──────────────────────────────────────────────────────────────────
-  const allData     = allOrders.data ?? [];
+  const allData      = allOrders.data ?? [];
   const allCetkaData = allCetka.data ?? [];
+  const allUsmData   = allUsm.data   ?? [];
 
-  const totalCount   = allData.length + allCetkaData.length;
+  const totalCount   = allData.length + allCetkaData.length + allUsmData.length;
   const totalRevenue = [
     ...allData.map((o) => o.ukupno ?? 0),
     ...allCetkaData.map((o) => o.ukupno ?? 0),
+    ...allUsmData.map((o) => o.ukupno ?? 0),
   ].reduce((s, v) => s + v, 0);
 
-  const todayData    = [...(todayOrders.data ?? []), ...(todayCetka.data ?? [])];
+  const todayData    = [...(todayOrders.data ?? []), ...(todayCetka.data ?? []), ...(todayUsm.data ?? [])];
   const todayRevenue = todayData.reduce((s, o) => s + (o.ukupno ?? 0), 0);
   const todayCount   = todayData.length;
 
   const avgOrder    = totalCount > 0 ? totalRevenue / totalCount : 0;
-  const recentCount = (recentOrders.data?.length ?? 0) + (recentCetka.data?.length ?? 0);
+  const recentCount = (recentOrders.data?.length ?? 0) + (recentCetka.data?.length ?? 0) + (recentUsm.data?.length ?? 0);
+  const usmjerivacCount = allUsmData.length;
 
   // ── Product breakdown ────────────────────────────────────────────────────────
   let shoeCount = 0, cameraCount = 0;
@@ -68,7 +77,7 @@ export async function GET() {
     const key = d.toISOString().slice(0, 10);
     chartMap[key] = { date: key, narudžbe: 0, prihod: 0 };
   }
-  for (const o of [...(chartOrders.data ?? []), ...(chartCetka.data ?? [])]) {
+  for (const o of [...(chartOrders.data ?? []), ...(chartCetka.data ?? []), ...(chartUsm.data ?? [])]) {
     const key = (o.created_at as string).slice(0, 10);
     if (chartMap[key]) {
       chartMap[key].narudžbe += 1;
@@ -86,6 +95,7 @@ export async function GET() {
     shoeCount,
     cameraCount,
     cetkaCount,
+    usmjerivacCount,
     chartData: Object.values(chartMap),
   });
 }

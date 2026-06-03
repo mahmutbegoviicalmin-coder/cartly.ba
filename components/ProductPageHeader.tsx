@@ -41,42 +41,37 @@ export default function ProductPageHeader({ ctaHref = "#order", ctaColor }: Prop
     >
       <div
         style={{
-          maxWidth:            1280,
-          margin:              "0 auto",
-          padding:             "0 28px",
-          height:              68,
-          display:             "grid",
-          gridTemplateColumns: "1fr 1fr 1fr",
-          alignItems:          "center",
+          maxWidth:   1280,
+          margin:     "0 auto",
+          padding:    "0 28px",
+          height:     68,
+          display:    "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
         }}
       >
         {/* ── Left: back link ──────────────────────────────────────── */}
-        <div>
-          <Link
-            href="/"
-            style={{
-              display:        "inline-flex",
-              alignItems:     "center",
-              gap:            8,
-              textDecoration: "none",
-              color:          "#555555",
-              fontSize:       14,
-              fontWeight:     500,
-              transition:     "color 200ms ease",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "#0F0F0F")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "#555555")}
-          >
-            <ArrowLeft size={16} strokeWidth={2} />
-            Nazad na početnu
-          </Link>
-        </div>
-
-        {/* ── Center: empty ────────────────────────────────────────── */}
-        <div />
+        <Link
+          href="/"
+          style={{
+            display:        "inline-flex",
+            alignItems:     "center",
+            gap:            8,
+            textDecoration: "none",
+            color:          "#555555",
+            fontSize:       14,
+            fontWeight:     500,
+            transition:     "color 200ms ease",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "#0F0F0F")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "#555555")}
+        >
+          <ArrowLeft size={16} strokeWidth={2} />
+          Nazad na početnu
+        </Link>
 
         {/* ── Right: CTA ───────────────────────────────────────────── */}
-        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+        <div>
           <a
             href={ctaHref}
             onMouseEnter={() => setCtaHovered(true)}
