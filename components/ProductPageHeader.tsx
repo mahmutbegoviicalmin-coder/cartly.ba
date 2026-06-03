@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { Manrope } from "next/font/google";
+import { Sora } from "next/font/google";
 
-const manrope = Manrope({
+const sora = Sora({
   subsets: ["latin"],
   weight:  ["500", "600", "700", "800"],
   display: "swap",
@@ -29,7 +29,7 @@ export default function ProductPageHeader({ ctaHref = "#order", ctaColor }: Prop
 
   return (
     <header
-      className={`${manrope.className} sticky top-0 z-50 w-full`}
+      className={`${sora.className} sticky top-0 z-50 w-full`}
       style={{
         background:           "#FFFFFF",
         borderBottom:         scrolled ? "1px solid rgba(0,0,0,0.07)" : "1px solid #F0EDE8",

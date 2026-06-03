@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 
 const BLUE = "#1a5fff";
-const F    = "var(--font-display),-apple-system,'SF Pro Display',sans-serif";
+const F    = "var(--font-manrope),-apple-system,sans-serif";
 
 interface Props { onOrder?: () => void; }
 

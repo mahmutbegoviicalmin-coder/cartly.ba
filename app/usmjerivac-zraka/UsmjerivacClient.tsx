@@ -17,7 +17,7 @@ const BMID  = "#dce8ff";
 const GR    = "#64748B";
 const BRDR  = "rgba(26,95,255,0.14)";
 const BRDR2 = "rgba(10,10,26,0.08)";
-const F     = "var(--font-display),-apple-system,'SF Pro Display',sans-serif";
+const F     = "var(--font-manrope),-apple-system,sans-serif";
 const EASE: [number,number,number,number] = [0.22,1,0.36,1];
 
 /* ─── NOTIFICATIONS ───────────────────────────── */

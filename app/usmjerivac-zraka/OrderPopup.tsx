@@ -9,7 +9,7 @@ const BLUE2 = "#1448d4";
 const BLK   = "#0a0a1a";
 const GR    = "#64748B";
 const BRDR2 = "rgba(10,10,26,0.08)";
-const F     = "var(--font-display),-apple-system,'SF Pro Display',sans-serif";
+const F     = "var(--font-manrope),-apple-system,sans-serif";
 
 type BID = 1 | 2 | 3;
 const BUNDLES = [

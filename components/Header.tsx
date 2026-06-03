@@ -4,11 +4,11 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Manrope } from "next/font/google";
+import { Sora } from "next/font/google";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import { RiInstagramLine, RiFacebookCircleLine } from "react-icons/ri";
 
-const manrope = Manrope({
+const sora = Sora({
   subsets: ["latin"],
   weight:  ["400", "500", "600", "700", "800"],
   display: "swap",
@@ -65,7 +65,25 @@ const NAV_LINKS: NavLink[] = [
   },
   { label: "VIDEO NADZOR", href: "/kamera"  },
   { label: "RADNA OBUĆA",  href: "/"        },
-  { label: "DOM",          href: "/zvucnik" },
+  {
+    label: "DOM",
+    href:  "/usmjerivac-zraka",
+    sub: [
+      {
+        label: "Usmjerivač Zraka Klime",
+        href:  "/usmjerivac-zraka",
+        desc:  "Podesiv 0°–45°, montaža 5 min, bez bušenja",
+        badge: "NOVO",
+        image: "/usmjerivac/hero.png",
+      },
+      {
+        label: "Bluetooth Zvučnik ZQS-6239",
+        href:  "/zvucnik",
+        desc:  "Prijenosni zvučnik · Bluetooth 5.0 · vodootporan",
+        image: "/images/zvucnik/zvucnik1.webp",
+      },
+    ],
+  },
 ];
 
 export default function Header() {
@@ -155,7 +173,7 @@ export default function Header() {
       `}</style>
 
       <header
-        className={`${manrope.className} sticky top-0 z-50 w-full transition-all duration-300`}
+        className={`${sora.className} sticky top-0 z-50 w-full transition-all duration-300`}
         style={{
           background:           scrolled ? "rgba(255,255,255,0.97)" : "#FFFFFF",
           borderBottom:         scrolled ? "1px solid transparent" : "1px solid #F0EBE3",

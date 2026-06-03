@@ -62,6 +62,16 @@ const ALL_PRODUCTS: Product[] = [
     hot:      true,
   },
   {
+    name:     "Usmjerivač Zraka Klime",
+    desc:     "Podesiv kut 0°–45°, montaža 5 min bez bušenja, za sve split klime",
+    price:    19.90,
+    oldPrice: 39.90,
+    tag:      "DOM",
+    href:     "/usmjerivac-zraka",
+    image:    "/usmjerivac/hero.png",
+    hot:      true,
+  },
+  {
     name:     "Bluetooth Zvučnik ZQS",
     desc:     "Bežični zvučnik 40W s mikrofonom i IPX5 zaštitom",
     price:    59.90,

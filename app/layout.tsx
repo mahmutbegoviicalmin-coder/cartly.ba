@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Manrope } from "next/font/google";
+import { Sora } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 
-const manrope = Manrope({
+const sora = Sora({
   subsets:  ["latin"],
   weight:   ["400", "500", "600", "700", "800"],
   variable: "--font-manrope",
@@ -23,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="bs" className={manrope.variable}>
+    <html lang="bs" className={sora.variable}>
       <head>
         <Script
           id="fb-pixel"
@@ -79,7 +79,7 @@ export default function RootLayout({
         </noscript>
       </head>
       <body
-        className={`${manrope.className} antialiased bg-white text-black`}
+        className={`${sora.className} antialiased bg-white text-black`}
       >
         {children}
       </body>
