@@ -38,29 +38,26 @@ function fmt(n: number): string {
   return n.toFixed(2).replace(".", ",") + " KM";
 }
 
-const PRICE_BASE  = 19.90;
-const PRICE_EXTRA = 10.00;
-const DELIVERY    = 10.00;
+const PRICE_BASE = 19.90;   // 1+1 GRATIS (2 četke za cijenu jedne)
+const DELIVERY   = 10.00;
 
 export async function POST(request: NextRequest) {
   const resend = new Resend(process.env.RESEND_API_KEY);
   try {
     const body = await request.json();
-    const { ime, telefon, adresa, grad, extraSet } = body as {
-      ime: string; telefon: string; adresa: string; grad: string; extraSet: boolean;
+    const { ime, telefon, adresa, grad } = body as {
+      ime: string; telefon: string; adresa: string; grad: string;
     };
 
     const now         = new Date();
     const orderNumber = generateOrderNumber(now);
     const dateBosnian = formatDateBosnian(now);
 
-    const brojSetova       = extraSet ? 2 : 1;
-    const cijenaProizvoda  = extraSet ? PRICE_BASE + PRICE_EXTRA : PRICE_BASE;
-    const ukupno           = cijenaProizvoda + DELIVERY;
-
-    const setLabel = extraSet
-      ? "2× Čelična Četka za Trimer"
-      : "Čelična Četka za Trimer";
+    // Uvijek 1+1 GRATIS — 2 četke za cijenu jedne
+    const brojSetova      = 2;
+    const cijenaProizvoda = PRICE_BASE;
+    const ukupno          = PRICE_BASE + DELIVERY;
+    const setLabel        = "2× Čelična Četka za Trimer (1+1 GRATIS)";
 
     // 1. Save to Supabase
     const { error: dbError } = await getSupabaseAdmin().from("cetka_orders").insert({
@@ -68,7 +65,7 @@ export async function POST(request: NextRequest) {
       telefon,
       adresa,
       grad,
-      extra_set:        extraSet,
+      extra_set:        true,
       broj_setova:      brojSetova,
       cijena_proizvoda: cijenaProizvoda,
       dostava:          DELIVERY,
@@ -162,11 +159,10 @@ export async function POST(request: NextRequest) {
             <td style="padding:12px 16px;font-size:14px;color:#0A0A0A;border-bottom:1px solid #F0F0F0;">${setLabel}</td>
             <td style="padding:12px 16px;font-size:14px;color:#0A0A0A;font-weight:600;text-align:right;border-bottom:1px solid #F0F0F0;">${fmt(cijenaProizvoda)}</td>
           </tr>
-          ${extraSet ? `
-          <tr style="background:#FFF8F5;">
-            <td style="padding:8px 16px;font-size:12px;color:#16A34A;font-weight:600;border-bottom:1px solid #F0F0F0;">Dodatna četka (uštednja)</td>
-            <td style="padding:8px 16px;font-size:12px;color:#16A34A;font-weight:700;text-align:right;border-bottom:1px solid #F0F0F0;">+${fmt(PRICE_EXTRA)}</td>
-          </tr>` : ""}
+          <tr style="background:#F0FAF0;">
+            <td style="padding:8px 16px;font-size:12px;color:#16A34A;font-weight:700;border-bottom:1px solid #F0F0F0;">🎁 1+1 GRATIS — 2. četka gratis!</td>
+            <td style="padding:8px 16px;font-size:12px;color:#16A34A;font-weight:700;text-align:right;border-bottom:1px solid #F0F0F0;">GRATIS</td>
+          </tr>
           <tr>
             <td style="padding:10px 16px;font-size:13px;color:#666;border-bottom:1px solid #F0F0F0;">Dostava</td>
             <td style="padding:10px 16px;font-size:13px;color:#0A0A0A;font-weight:500;text-align:right;border-bottom:1px solid #F0F0F0;">${fmt(DELIVERY)}</td>

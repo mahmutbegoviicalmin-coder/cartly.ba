@@ -16,10 +16,9 @@ const IMAGES = [
   { src: "/2.jpg",             alt: "Čelična Četka za Trimer · u upotrebi" },
 ];
 
-const PRICE_BASE  = 19.90;
-const PRICE_EXTRA = 10.00;
-const PRICE_OLD   = 39.90;
-const DELIVERY    = 10.00;
+const PRICE_BASE = 19.90;   // 1+1 GRATIS (2 četke za cijenu jedne)
+const PRICE_OLD  = 39.90;
+const DELIVERY   = 10.00;
 
 const TRUST = [
   {
@@ -212,7 +211,6 @@ export default function CetkaClient() {
   const [imgIndex,   setImgIndex]   = useState(0);
   const [secs,       setSecs]       = useState<number | null>(null);
   const [viewers,    setViewers]    = useState(0);
-  const [extraSet,   setExtraSet]   = useState(false);
   const [fields,     setFields]     = useState<Fields>({ name: "", phone: "", address: "", city: "" });
   const [errors,     setErrors]     = useState<FieldErrors>({});
   const [loading,    setLoading]    = useState(false);
@@ -222,8 +220,9 @@ export default function CetkaClient() {
   const touchStartX     = useRef<number | null>(null);
   const checkoutTracked = useRef(false);
 
-  const productTotal = extraSet ? PRICE_BASE + PRICE_EXTRA : PRICE_BASE;
-  const grandTotal   = productTotal + DELIVERY;
+  // 1+1 GRATIS — uvijek 2 četke po cijeni jedne
+  const productTotal = PRICE_BASE;
+  const grandTotal   = PRICE_BASE + DELIVERY;
 
   /* countdown */
   useEffect(() => {
@@ -281,11 +280,11 @@ export default function CetkaClient() {
     try {
       const res  = await fetch("/api/cetka-order", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ime: fields.name, telefon: fields.phone, adresa: fields.address, grad: fields.city, extraSet }),
+        body: JSON.stringify({ ime: fields.name, telefon: fields.phone, adresa: fields.address, grad: fields.city }),
       });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.error || "Greška");
-      event("Purchase", { content_name: "Čelična Četka za Trimer", value: grandTotal, currency: "BAM", num_items: extraSet ? 2 : 1 });
+      event("Purchase", { content_name: "Čelična Četka za Trimer", value: grandTotal, currency: "BAM", num_items: 2 });
       setSubmitted(true);
     } catch {
       setServerError("Došlo je do greške. Pokušajte ponovo ili nas kontaktirajte.");
@@ -482,6 +481,21 @@ export default function CetkaClient() {
                 borderRadius: 18, padding: "22px",
                 display: "flex", flexDirection: "column", gap: 14,
               }}>
+                {/* 1+1 GRATIS badge */}
+                <div style={{
+                  display: "inline-flex", alignItems: "center", gap: 8,
+                  background: "#16A34A", color: "#fff",
+                  borderRadius: 10, padding: "8px 16px",
+                  fontSize: 15, fontWeight: 800,
+                  width: "fit-content",
+                  boxShadow: "0 4px 14px rgba(22,163,74,0.35)",
+                  letterSpacing: "-0.01em",
+                }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><path d="M12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+                  </svg>
+                  1+1 GRATIS — 2 četke, cijena jedne!
+                </div>
                 {/* price row */}
                 <div style={{ display: "flex", alignItems: "flex-end", gap: 12 }}>
                   <span style={{
@@ -496,8 +510,8 @@ export default function CetkaClient() {
                       fontSize: 14, fontWeight: 600,
                       color: "#AAAAAA", textDecoration: "line-through", lineHeight: 1.3,
                     }}>{fmt(PRICE_OLD)}</span>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: "#16A34A", letterSpacing: "0.02em" }}>
-                      −50% POPUST
+                    <span style={{ fontSize: 12, fontWeight: 700, color: "#888", letterSpacing: "0.02em" }}>
+                      + {fmt(DELIVERY)} dostava
                     </span>
                   </div>
                 </div>
@@ -545,7 +559,7 @@ export default function CetkaClient() {
                     <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
                     <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
                   </svg>
-                  Naruči odmah · 19,90 KM
+                  Naruči 1+1 GRATIS · 19,90 KM
                 </a>
               </div>
 
@@ -790,41 +804,30 @@ export default function CetkaClient() {
             <InputField id="address" label="Ulica i broj"   autoComplete="street-address" placeholder="Npr. Titova 12"   value={fields.address} onChange={e => setFields(f => ({ ...f, address: e.target.value }))} error={errors.address} />
             <InputField id="city"    label="Grad / općina"  autoComplete="address-level2" placeholder="Npr. Sarajevo"    value={fields.city}    onChange={e => setFields(f => ({ ...f, city:    e.target.value }))} error={errors.city}    />
 
-            {/* upsell */}
-            <div
-              onClick={() => setExtraSet(x => !x)}
-              style={{
-                background: extraSet ? "rgba(255,107,0,0.05)" : "#FAFAF7",
-                border: `1.5px solid ${extraSet ? ACCENT : "rgba(0,0,0,0.10)"}`,
-                borderRadius: 14, padding: "16px 18px", cursor: "pointer",
-                transition: "border-color 0.15s, background 0.15s",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <div style={{
-                  width: 22, height: 22, borderRadius: 7,
-                  border: `2px solid ${extraSet ? ACCENT : "#CCCCCC"}`,
-                  background: extraSet ? ACCENT : "transparent",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  flexShrink: 0, transition: "all 0.15s",
-                }}>
-                  {extraSet && (
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                  )}
+            {/* 1+1 info banner */}
+            <div style={{
+              background: "rgba(22,163,74,0.06)",
+              border: "1.5px solid rgba(22,163,74,0.25)",
+              borderRadius: 14, padding: "14px 18px",
+              display: "flex", alignItems: "center", gap: 12,
+            }}>
+              <div style={{
+                width: 36, height: 36, borderRadius: 10,
+                background: "rgba(22,163,74,0.12)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                flexShrink: 0,
+              }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </div>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#0A0A0A", lineHeight: 1.3 }}>
+                  1+1 GRATIS uključeno!
                 </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: "#0A0A0A", lineHeight: 1.3 }}>
-                    Da, dodajem još jednu četku
-                  </div>
-                  <div style={{ fontSize: 12, color: "#888", marginTop: 3 }}>
-                    Savršeno za rezervu ili poklon · samo +10,00 KM
-                  </div>
+                <div style={{ fontSize: 12, color: "#16A34A", fontWeight: 600, marginTop: 2 }}>
+                  Dobijate 2 čelične četke za cijenu jedne — uštedite 19,90 KM
                 </div>
-                <span style={{ fontSize: 15, fontWeight: 800, color: ACCENT, flexShrink: 0 }}>
-                  +{fmt(PRICE_EXTRA)}
-                </span>
               </div>
             </div>
 
@@ -832,7 +835,7 @@ export default function CetkaClient() {
             <div style={{ background: "#F7F7F5", border: "1px solid rgba(0,0,0,0.07)", borderRadius: 14, overflow: "hidden" }}>
               <div style={{ padding: "11px 16px", display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
                 <span style={{ fontSize: 13, color: "#666" }}>
-                  {extraSet ? "2× Čelična Četka za Trimer" : "Čelična Četka za Trimer"}
+                  2× Čelična Četka za Trimer (1+1 GRATIS)
                 </span>
                 <span style={{ fontSize: 13, fontWeight: 600, color: "#0A0A0A" }}>{fmt(productTotal)}</span>
               </div>
