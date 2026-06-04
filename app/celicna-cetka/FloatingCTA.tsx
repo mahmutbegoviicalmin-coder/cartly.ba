@@ -38,7 +38,7 @@ export default function FloatingCTA() {
         onClick={() =>
           event("AddToCart", {
             content_name: "Čelična Četka za Trimer",
-            value: 19.90,
+            value: 24.90,
             currency: "BAM",
           })
         }
@@ -76,7 +76,7 @@ export default function FloatingCTA() {
         <span style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
           <span style={{ fontSize: "clamp(14px,2.2vw,16px)", fontWeight: 900 }}>1+1 GRATIS · Naruči odmah</span>
           <span style={{ fontSize: "clamp(11px,1.6vw,12px)", fontWeight: 600, opacity: 0.85 }}>
-            19,90 KM + 10 KM dostava · Pouzećem
+            24,90 KM + 10 KM dostava · Pouzećem
           </span>
         </span>
 

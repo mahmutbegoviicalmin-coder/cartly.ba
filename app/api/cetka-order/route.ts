@@ -38,7 +38,7 @@ function fmt(n: number): string {
   return n.toFixed(2).replace(".", ",") + " KM";
 }
 
-const PRICE_BASE = 19.90;   // 1+1 GRATIS (2 četke za cijenu jedne)
+const PRICE_BASE = 24.90;   // 1+1 GRATIS (2 četke za cijenu jedne)
 const DELIVERY   = 10.00;
 
 export async function POST(request: NextRequest) {

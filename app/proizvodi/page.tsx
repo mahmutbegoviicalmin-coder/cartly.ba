@@ -94,8 +94,8 @@ const ALL_PRODUCTS: Product[] = [
   {
     name:     "Čelična Četka za Trimer",
     desc:     "Profesionalna čelična četka · uklanja korov, suhu travu i korijenje. 1+1 GRATIS",
-    price:    19.90,
-    oldPrice: 39.90,
+    price:    24.90,
+    oldPrice: 49.90,
     tag:      "VRTLARSTVO",
     href:     "/celicna-cetka",
     image:    "/celicnacetka.jpeg",

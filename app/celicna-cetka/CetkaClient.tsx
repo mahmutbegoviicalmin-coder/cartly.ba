@@ -16,8 +16,8 @@ const IMAGES = [
   { src: "/2.jpg",             alt: "Čelična Četka za Trimer · u upotrebi" },
 ];
 
-const PRICE_BASE = 19.90;   // 1+1 GRATIS (2 četke za cijenu jedne)
-const PRICE_OLD  = 39.90;
+const PRICE_BASE = 24.90;   // 1+1 GRATIS (2 četke za cijenu jedne)
+const PRICE_OLD  = 49.90;
 const DELIVERY   = 10.00;
 
 const TRUST = [
@@ -559,7 +559,7 @@ export default function CetkaClient() {
                     <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
                     <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
                   </svg>
-                  Naruči 1+1 GRATIS · 19,90 KM
+                  Naruči 1+1 GRATIS · 24,90 KM
                 </a>
               </div>
 
@@ -826,7 +826,7 @@ export default function CetkaClient() {
                   1+1 GRATIS uključeno!
                 </div>
                 <div style={{ fontSize: 12, color: "#16A34A", fontWeight: 600, marginTop: 2 }}>
-                  Dobijate 2 čelične četke za cijenu jedne — uštedite 19,90 KM
+                  Dobijate 2 čelične četke za cijenu jedne — uštedite 24,90 KM
                 </div>
               </div>
             </div>

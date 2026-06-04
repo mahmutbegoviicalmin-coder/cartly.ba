@@ -8,7 +8,7 @@ export default function PixelEvents() {
     event("ViewContent", {
       content_name:     "Čelična Četka za Trimer",
       content_category: "Vrtlarstvo",
-      value:             19.90,
+      value:             24.90,
       currency:         "BAM",
     });
   }, []);
