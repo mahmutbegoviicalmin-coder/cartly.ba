@@ -382,16 +382,16 @@ export default function OrderForm() {
                             aria-label={`Smanji količinu za EU ${size}`}
                             style={{
                               width: 32, height: 32, border: "1px solid",
-                              borderColor: "#E5E5E5",
-                              borderRadius: 6, background: "#F5F5F5",
-                              color: "#CCCCCC",
+                              borderColor: soldOut || qty === 0 ? "#E5E5E5" : "#ccc",
+                              borderRadius: 6, background: "#fff",
+                              color: soldOut || qty === 0 ? "#ccc" : "#0A0A0A",
                               fontSize: 16, fontWeight: 500,
-                              cursor: "not-allowed",
+                              cursor: soldOut || qty === 0 ? "not-allowed" : "pointer",
                               display: "flex", alignItems: "center", justifyContent: "center",
                               transition: "all 0.15s",
                             }}
                           >−</button>
-                          <span style={{ width: 24, textAlign: "center", fontSize: 14, fontWeight: 700, color: "#CCCCCC" }}>
+                          <span style={{ width: 24, textAlign: "center", fontSize: 14, fontWeight: 700, color: soldOut ? "#CCCCCC" : active ? "#FF6B00" : "#0A0A0A" }}>
                             {soldOut ? "—" : qty}
                           </span>
                           <button
@@ -400,10 +400,11 @@ export default function OrderForm() {
                             disabled={soldOut}
                             aria-label={`Povećaj količinu za EU ${size}`}
                             style={{
-                              width: 32, height: 32, border: "1px solid #E5E5E5",
-                              borderRadius: 6, background: "#F5F5F5",
-                              color: "#CCCCCC", fontSize: 16, fontWeight: 500,
-                              cursor: "not-allowed",
+                              width: 32, height: 32, border: soldOut ? "1px solid #E5E5E5" : "1px solid #ccc",
+                              borderRadius: 6, background: "#fff",
+                              color: soldOut ? "#ccc" : "#0A0A0A",
+                              fontSize: 16, fontWeight: 500,
+                              cursor: soldOut ? "not-allowed" : "pointer",
                               display: "flex", alignItems: "center", justifyContent: "center",
                               transition: "all 0.15s",
                             }}
