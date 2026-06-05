@@ -7,6 +7,7 @@ import SizeGuideModal from "./SizeGuideModal";
 import OrderSuccess from "./OrderSuccess";
 
 const SIZES = [39, 40, 41, 42, 43, 44, 45, 46, 47];
+const OUT_OF_STOCK = new Set([47]);
 const PRICE_FIRST  = 59.9;
 const PRICE_SECOND = 49.9;
 const PRICE_PER_PAIR = PRICE_FIRST; // backwards compat
@@ -350,6 +351,7 @@ export default function OrderForm() {
                   {SIZES.map((size, i) => {
                     const qty = quantities[size];
                     const active = qty > 0;
+                    const soldOut = OUT_OF_STOCK.has(size);
                     return (
                       <div
                         key={size}
@@ -359,42 +361,49 @@ export default function OrderForm() {
                           alignItems: "center",
                           padding: "12px 16px",
                           borderBottom: i < SIZES.length - 1 ? "1px solid #F0F0F0" : "none",
-                          background: active ? "rgba(255,107,0,0.06)" : "#fff",
+                          background: soldOut ? "#FAFAFA" : active ? "rgba(255,107,0,0.06)" : "#fff",
                           transition: "background 0.15s",
+                          opacity: soldOut ? 0.5 : 1,
                         }}
                       >
-                        <span style={{ fontSize: 14, fontWeight: 600, color: active ? "#FF6B00" : "#0A0A0A" }}>
+                        <span style={{ fontSize: 14, fontWeight: 600, color: soldOut ? "#AAAAAA" : active ? "#FF6B00" : "#0A0A0A", display: "flex", alignItems: "center", gap: 8 }}>
                           EU {size}
+                          {soldOut && (
+                            <span style={{ fontSize: 10, fontWeight: 700, color: "#AAAAAA", background: "#EEEEEE", borderRadius: 5, padding: "2px 6px", letterSpacing: "0.05em" }}>
+                              NEMA NA STANJU
+                            </span>
+                          )}
                         </span>
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8 }}>
                           <button
                             type="button"
-                            onClick={() => changeQty(size, -1)}
-                            disabled={qty === 0}
+                            onClick={() => !soldOut && changeQty(size, -1)}
+                            disabled={qty === 0 || soldOut}
                             aria-label={`Smanji količinu za EU ${size}`}
                             style={{
                               width: 32, height: 32, border: "1px solid",
-                              borderColor: qty === 0 ? "#E5E5E5" : "#ccc",
-                              borderRadius: 6, background: "#fff",
-                              color: qty === 0 ? "#ccc" : "#0A0A0A",
+                              borderColor: "#E5E5E5",
+                              borderRadius: 6, background: "#F5F5F5",
+                              color: "#CCCCCC",
                               fontSize: 16, fontWeight: 500,
-                              cursor: qty === 0 ? "not-allowed" : "pointer",
+                              cursor: "not-allowed",
                               display: "flex", alignItems: "center", justifyContent: "center",
                               transition: "all 0.15s",
                             }}
                           >−</button>
-                          <span style={{ width: 24, textAlign: "center", fontSize: 14, fontWeight: 700, color: active ? "#FF6B00" : "#0A0A0A" }}>
-                            {qty}
+                          <span style={{ width: 24, textAlign: "center", fontSize: 14, fontWeight: 700, color: "#CCCCCC" }}>
+                            {soldOut ? "—" : qty}
                           </span>
                           <button
                             type="button"
-                            onClick={() => changeQty(size, 1)}
+                            onClick={() => !soldOut && changeQty(size, 1)}
+                            disabled={soldOut}
                             aria-label={`Povećaj količinu za EU ${size}`}
                             style={{
-                              width: 32, height: 32, border: "1px solid #ccc",
-                              borderRadius: 6, background: "#fff",
-                              color: "#0A0A0A", fontSize: 16, fontWeight: 500,
-                              cursor: "pointer",
+                              width: 32, height: 32, border: "1px solid #E5E5E5",
+                              borderRadius: 6, background: "#F5F5F5",
+                              color: "#CCCCCC", fontSize: 16, fontWeight: 500,
+                              cursor: "not-allowed",
                               display: "flex", alignItems: "center", justifyContent: "center",
                               transition: "all 0.15s",
                             }}
