@@ -127,7 +127,7 @@ export default function SupplierClient() {
   const [formNotes, setFormNotes]   = useState("");
   const [formPhoto, setFormPhoto]   = useState<string | null>(null);
   const [formItems, setFormItems]   = useState<Item[]>([
-    { product_name: "", quantity: 1, unit_price: 0, _qtyStr: "1", _priceStr: "" },
+    { product_name: "", quantity: 1, unit_price: 0, delivery_per_unit: DEFAULT_DELIVERY, _qtyStr: "1", _priceStr: "", _deliveryStr: String(DEFAULT_DELIVERY) },
   ]);
 
   // ── Customers state ──
