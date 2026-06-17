@@ -1,190 +1,132 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { event } from "@/lib/fbpixel";
 
-export default function FloatingCTA() {
-  const [visible, setVisible] = useState(true);
+interface FloatingCTAProps {
+  onOrder?: () => void;
+}
+
+export default function FloatingCTA({ onOrder }: FloatingCTAProps) {
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const orderEl = document.getElementById("order");
-    if (!orderEl) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => setVisible(!entry.isIntersecting),
-      { threshold: 0.15 }
-    );
-    observer.observe(orderEl);
-    return () => observer.disconnect();
+    const t = setTimeout(() => setVisible(true), 1400);
+    return () => clearTimeout(t);
   }, []);
 
   const handleClick = () => {
     event("AddToCart", { content_name: "Radne Patike S3 Tactical Black", value: 59.90, currency: "BAM" });
-    document.getElementById("order")?.scrollIntoView({ behavior: "smooth" });
+    if (onOrder) { onOrder(); return; }
+    document.getElementById("naruci")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
     <>
       <style suppressHydrationWarning>{`
-        @keyframes fab-slide-up {
-          from { opacity: 0; transform: translateY(110%); }
-          to   { opacity: 1; transform: translateY(0); }
+        @keyframes fcta-glow {
+          0%,100% { box-shadow: 0 4px 20px rgba(179,48,0,0.25); }
+          50%      { box-shadow: 0 6px 28px rgba(179,48,0,0.45); }
         }
-        @keyframes fab-pulse-dot {
-          0%,100% { opacity:1; transform:scale(1); }
-          50%     { opacity:.3; transform:scale(0.65); }
-        }
-        @keyframes fab-btn-glow {
-          0%,100% { box-shadow: 0 4px 20px rgba(255,80,0,0.40); }
-          50%     { box-shadow: 0 8px 32px rgba(255,80,0,0.65); }
+        @keyframes fcta-dot {
+          0%,100% { opacity: 1; transform: scale(1); }
+          50%      { opacity: 0.3; transform: scale(0.5); }
         }
 
-        .fab-root {
+        .fcta-wrap {
           position: fixed;
           bottom: 0; left: 0; right: 0;
           z-index: 9998;
-          /* glass dark bar */
-          background: rgba(8, 8, 8, 0.94);
-          backdrop-filter: blur(24px);
-          -webkit-backdrop-filter: blur(24px);
-          border-top: 1px solid rgba(255,255,255,0.07);
-          padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+          background: #fff;
+          border-top: 1px solid #EBEBEB;
+          padding: 10px 16px;
+          padding-bottom: calc(10px + env(safe-area-inset-bottom));
           display: flex;
           align-items: center;
           gap: 12px;
-          animation: fab-slide-up 0.52s cubic-bezier(0.22,1,0.36,1) 1.2s both;
-          transition: opacity 0.28s ease, transform 0.28s ease;
+          box-shadow: 0 -4px 24px rgba(0,0,0,0.07);
+          transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.35s ease;
         }
-        .fab-root.fab-hidden {
+        .fcta-wrap.hidden {
           opacity: 0;
           transform: translateY(100%);
           pointer-events: none;
         }
-
-        .fab-live-dot {
-          animation: fab-pulse-dot 1.9s ease-in-out infinite;
-        }
-
-        .fab-order-btn {
-          flex-shrink: 0;
-          display: flex;
-          align-items: center;
-          gap: 7px;
-          background: linear-gradient(135deg, #FF7A20 0%, #FF4300 100%);
-          color: #fff;
-          border: none;
-          border-radius: 14px;
-          padding: 13px 18px;
-          font-size: 15px;
-          font-weight: 800;
-          letter-spacing: -0.01em;
-          font-family: var(--font-manrope), sans-serif;
-          cursor: pointer;
-          white-space: nowrap;
-          animation: fab-btn-glow 2.6s ease-in-out 2s infinite;
-          transition: transform 160ms ease;
-        }
-        .fab-order-btn:hover  { transform: scale(1.04); }
-        .fab-order-btn:active { transform: scale(0.95); }
-
-        /* Desktop · floating card bottom-right */
-        @media (min-width: 641px) {
-          .fab-root {
-            bottom: 22px;
-            left: auto;
-            right: 22px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.09);
-            padding: 16px 16px 16px 20px;
-            width: auto;
-            max-width: 420px;
-            box-shadow:
-              0 24px 64px rgba(0,0,0,0.42),
-              0 4px 16px rgba(0,0,0,0.24),
-              inset 0 1px 0 rgba(255,255,255,0.06);
+        @media (min-width: 640px) {
+          .fcta-wrap {
+            bottom: 20px; left: auto; right: 20px;
+            border-radius: 16px; border: 1px solid #E8E8E8;
+            padding: 12px 16px;
+            max-width: 340px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
           }
+        }
+
+        .fcta-cta {
+          flex-shrink: 0;
+          background: #B33000; color: #fff;
+          border: none; border-radius: 11px;
+          padding: 12px 18px;
+          font-size: 14px; font-weight: 800;
+          font-family: var(--font-manrope), sans-serif;
+          letter-spacing: -0.01em;
+          cursor: pointer; white-space: nowrap;
+          animation: fcta-glow 3s ease-in-out 2s infinite;
+          transition: background 150ms, transform 150ms;
+          display: flex; align-items: center; gap: 5px;
+        }
+        .fcta-cta:hover  { background: #961f00; transform: scale(1.02); }
+        .fcta-cta:active { transform: scale(0.97); }
+
+        .fcta-pulse {
+          width: 6px; height: 6px; border-radius: 50%;
+          background: #22c55e; flex-shrink: 0;
+          animation: fcta-dot 2s ease-in-out infinite;
         }
       `}</style>
 
-      <div className={`fab-root${!visible ? " fab-hidden" : ""}`}>
-
-        {/* ── Left: product info ── */}
+      <div className={`fcta-wrap${!visible ? " hidden" : ""}`}>
         <div style={{ flex: 1, minWidth: 0 }}>
-
-          {/* live status */}
-          <div style={{
-            display: "flex", alignItems: "center", gap: 5, marginBottom: 5,
-          }}>
-            <span className="fab-live-dot" style={{
-              width: 6, height: 6, borderRadius: "50%",
-              background: "#FF6B00", display: "inline-block", flexShrink: 0,
-            }} />
+          <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 2 }}>
+            <span className="fcta-pulse" />
             <span style={{
-              fontSize: 10, fontWeight: 700, letterSpacing: "0.11em",
-              textTransform: "uppercase",
-              color: "rgba(255,255,255,0.45)",
+              fontSize: 10, fontWeight: 700, letterSpacing: "0.1em",
+              textTransform: "uppercase", color: "#22c55e",
               fontFamily: "var(--font-manrope), sans-serif",
-            }}>
-              Ograničena zaliha
-            </span>
+            }}>Na stanju</span>
           </div>
-
-          {/* price row */}
-          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 7, flexWrap: "wrap" }}>
             <span style={{
-              fontSize: 22, fontWeight: 900, color: "#fff",
+              fontSize: 19, fontWeight: 900, color: "#0A0A0A",
               fontFamily: "var(--font-manrope), sans-serif",
               letterSpacing: "-0.03em", lineHeight: 1,
-            }}>
-              59,90 KM
-            </span>
-
+            }}>59,90 KM</span>
             <span style={{
-              fontSize: 13, fontWeight: 500,
-              color: "rgba(255,255,255,0.30)",
+              fontSize: 12, color: "#BBBBBB",
               textDecoration: "line-through",
               fontFamily: "var(--font-manrope), sans-serif",
-            }}>
-              139,90
-            </span>
-
+            }}>139,90</span>
             <span style={{
-              fontSize: 11, fontWeight: 800,
-              color: "#FF6B00",
-              background: "rgba(255,107,0,0.14)",
-              border: "1px solid rgba(255,107,0,0.25)",
-              borderRadius: 6,
-              padding: "2px 7px",
+              fontSize: 10, fontWeight: 800, color: "#B33000",
+              background: "#FFF0EB",
+              border: "1px solid rgba(179,48,0,0.2)",
+              borderRadius: 5, padding: "2px 6px",
               fontFamily: "var(--font-manrope), sans-serif",
-              letterSpacing: "0.02em",
-            }}>
-              −57%
-            </span>
+            }}>−57%</span>
           </div>
-
-          {/* sub-line */}
           <div style={{
-            marginTop: 4,
-            fontSize: 11,
-            color: "rgba(255,255,255,0.28)",
-            fontFamily: "var(--font-manrope), sans-serif",
-            letterSpacing: "0.01em",
-          }}>
-            Plaćanje pouzećem · Dostava 10 KM
-          </div>
+            fontSize: 10, color: "#AAAAAA",
+            fontFamily: "var(--font-manrope), sans-serif", marginTop: 1,
+          }}>Pouzećem · Dostava 10 KM</div>
         </div>
 
-        {/* ── Right: CTA button ── */}
-        <button onClick={handleClick} className="fab-order-btn">
-          Naruči odmah
-          <svg
-            width="14" height="14" viewBox="0 0 24 24"
-            fill="none" stroke="currentColor"
-            strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"
-          >
+        <button onClick={handleClick} className="fcta-cta">
+          Naruči
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="9 18 15 12 9 6"/>
           </svg>
         </button>
-
       </div>
     </>
   );

@@ -4,8 +4,8 @@ import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { event } from "@/lib/fbpixel";
 
-const ACCENT  = "#FF6B00";
-const ACCENT2 = "#E85E00";
+const ACCENT  = "#B33000";
+const ACCENT2 = "#B33000";
 
 const IMAGES = [
   { src: "/images/product-1.webp", alt: "Radne Patike S3 · pogled sprijeda" },
@@ -52,10 +52,17 @@ const TRUST = [
   },
 ];
 
-export default function Hero() {
+const BADGE_DETAILS: Record<string, string> = {
+  "EN ISO 20345 S3": "Europski standard zaštite · Čelična kapica do 200J · Zaštita od proboja",
+  "BOA Fit System™": "Precizno podešavanje u 3 sekunde · Patent sistema zatvaranja · Bez vezica",
+  "Na stanju": "Dostupno odmah · Isporuka 1-3 radna dana · Plaćanje pri preuzimanju",
+};
+
+export default function Hero({ onOrder }: { onOrder?: () => void }) {
   const [imgIndex, setImgIndex]  = useState(0);
   const [viewers, setViewers]    = useState(0);
   const [secs, setSecs]          = useState<number | null>(null);
+  const [activeBadge, setActiveBadge] = useState<string | null>(null);
   const touchStartX = useRef<number | null>(null);
 
   // Countdown · random 12–48 min, resets to new random when expired
@@ -85,6 +92,7 @@ export default function Hero() {
 
   const handleCTA = () => {
     event("AddToCart", { content_name: "Radne Patike S3 Tactical Black", value: 59.90, currency: "BAM" });
+    if (onOrder) { onOrder(); return; }
     document.getElementById("order")?.scrollIntoView({ behavior: "smooth" });
   };
 
@@ -109,6 +117,39 @@ export default function Hero() {
           to   { opacity:1; transform:translateY(0); }
         }
         .hero-badge { animation: hero-badge-in 0.5s ease both; }
+
+        .hero-badge-btn {
+          cursor: pointer; border: none; background: none; padding: 0;
+          position: relative; display: inline-flex;
+          transition: transform 150ms, box-shadow 150ms;
+        }
+        .hero-badge-btn:hover { transform: scale(1.06); }
+        .hero-badge-btn:hover .hero-badge-chip { box-shadow: 0 0 0 3px rgba(255,107,0,0.25); }
+        .hero-badge-chip {
+          border-radius: 4px; transition: box-shadow 150ms;
+        }
+        .hero-badge-popover {
+          position: absolute; top: calc(100% + 8px); left: 0; z-index: 100;
+          background: #0A0A0A; color: #fff; border-radius: 10px;
+          padding: 10px 14px; white-space: nowrap;
+          font-size: 12px; font-weight: 500; line-height: 1.5;
+          font-family: var(--font-manrope), sans-serif;
+          box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+          pointer-events: none;
+          animation: popover-in 0.15s ease;
+        }
+        @keyframes popover-in {
+          from { opacity:0; transform:translateY(-4px); }
+          to   { opacity:1; transform:translateY(0); }
+        }
+        .hero-badge-popover::before {
+          content: "";
+          position: absolute; top: -5px; left: 14px;
+          width: 10px; height: 10px;
+          background: #0A0A0A;
+          transform: rotate(45deg);
+          border-radius: 2px;
+        }
 
         .hero-thumb {
           border: 2px solid transparent;
@@ -156,32 +197,68 @@ export default function Hero() {
 
           {/* ── Top badge row (desktop only · hidden on mobile) ─── */}
           <div className="hero-badge hero-badge-row" style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 28, flexWrap: "wrap" }}>
-            <span style={{
-              background: "#0A0A0A", color: "#fff",
-              fontSize: 10, fontWeight: 700, letterSpacing: "0.14em",
-              textTransform: "uppercase", padding: "5px 13px", borderRadius: 4,
-              fontFamily: "var(--font-manrope), sans-serif",
-            }}>
-              EN ISO 20345 S3
-            </span>
-            <span style={{
-              background: "rgba(255,107,0,0.1)", color: ACCENT,
-              fontSize: 10, fontWeight: 700, letterSpacing: "0.14em",
-              textTransform: "uppercase", padding: "5px 13px", borderRadius: 4,
-              fontFamily: "var(--font-manrope), sans-serif",
-              border: `1px solid rgba(255,107,0,0.25)`,
-            }}>
-              BOA Fit System™
-            </span>
-            <span style={{
-              background: "rgba(22,163,74,0.08)", color: "#16A34A",
-              fontSize: 10, fontWeight: 700, letterSpacing: "0.14em",
-              textTransform: "uppercase", padding: "5px 13px", borderRadius: 4,
-              fontFamily: "var(--font-manrope), sans-serif",
-              border: "1px solid rgba(22,163,74,0.2)",
-            }}>
-              ✓ Na stanju
-            </span>
+
+            {/* EN ISO 20345 S3 */}
+            <button
+              className="hero-badge-btn"
+              onClick={() => setActiveBadge(activeBadge === "EN ISO 20345 S3" ? null : "EN ISO 20345 S3")}
+              aria-label="EN ISO 20345 S3 detalji"
+            >
+              <span className="hero-badge-chip" style={{
+                background: "#0A0A0A", color: "#fff",
+                fontSize: 10, fontWeight: 700, letterSpacing: "0.14em",
+                textTransform: "uppercase", padding: "5px 13px", borderRadius: 4,
+                fontFamily: "var(--font-manrope), sans-serif",
+                display: "inline-block",
+              }}>
+                EN ISO 20345 S3
+              </span>
+              {activeBadge === "EN ISO 20345 S3" && (
+                <span className="hero-badge-popover">{BADGE_DETAILS["EN ISO 20345 S3"]}</span>
+              )}
+            </button>
+
+            {/* BOA Fit System™ */}
+            <button
+              className="hero-badge-btn"
+              onClick={() => setActiveBadge(activeBadge === "BOA Fit System™" ? null : "BOA Fit System™")}
+              aria-label="BOA Fit System detalji"
+            >
+              <span className="hero-badge-chip" style={{
+                background: "rgba(179,48,0,0.08)", color: ACCENT,
+                fontSize: 10, fontWeight: 700, letterSpacing: "0.14em",
+                textTransform: "uppercase", padding: "5px 13px", borderRadius: 4,
+                fontFamily: "var(--font-manrope), sans-serif",
+                border: `1px solid rgba(179,48,0,0.25)`,
+                display: "inline-block",
+              }}>
+                BOA Fit System™
+              </span>
+              {activeBadge === "BOA Fit System™" && (
+                <span className="hero-badge-popover">{BADGE_DETAILS["BOA Fit System™"]}</span>
+              )}
+            </button>
+
+            {/* Na stanju */}
+            <button
+              className="hero-badge-btn"
+              onClick={() => setActiveBadge(activeBadge === "Na stanju" ? null : "Na stanju")}
+              aria-label="Na stanju detalji"
+            >
+              <span className="hero-badge-chip" style={{
+                background: "rgba(22,163,74,0.08)", color: "#16A34A",
+                fontSize: 10, fontWeight: 700, letterSpacing: "0.14em",
+                textTransform: "uppercase", padding: "5px 13px", borderRadius: 4,
+                fontFamily: "var(--font-manrope), sans-serif",
+                border: "1px solid rgba(22,163,74,0.2)",
+                display: "inline-block",
+              }}>
+                ✓ Na stanju
+              </span>
+              {activeBadge === "Na stanju" && (
+                <span className="hero-badge-popover">{BADGE_DETAILS["Na stanju"]}</span>
+              )}
+            </button>
 
             {viewers > 0 && (
               <span style={{
@@ -309,7 +386,7 @@ export default function Hero() {
                     width: "fit-content",
                   }}>EN ISO 20345 S3</span>
                   <span style={{
-                    background: "rgba(255,107,0,0.85)", backdropFilter: "blur(8px)",
+                    background: "rgba(179,48,0,0.85)", backdropFilter: "blur(8px)",
                     color: "#fff", fontSize: 10, fontWeight: 700,
                     letterSpacing: "0.1em", textTransform: "uppercase",
                     padding: "5px 10px", borderRadius: 6,
@@ -361,30 +438,6 @@ export default function Hero() {
                 ))}
               </div>
 
-              {/* Scarcity bar */}
-              <div className="hero-scarcity" style={{
-                background: "rgba(255,107,0,0.06)", border: "1px solid rgba(255,107,0,0.18)",
-                borderRadius: 10, padding: "12px 16px",
-              }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: "#0A0A0A", fontFamily: "var(--font-manrope), sans-serif" }}>
-                    Prodato ovog tjedna
-                  </span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: ACCENT, fontFamily: "var(--font-manrope), sans-serif" }}>
-                    89%
-                  </span>
-                </div>
-                <div style={{ height: 6, background: "rgba(0,0,0,0.08)", borderRadius: 999, overflow: "hidden" }}>
-                  <div style={{
-                    height: "100%", width: "89%", borderRadius: 999,
-                    background: `linear-gradient(90deg, ${ACCENT}, #FF9A3C)`,
-                    transition: "width 1.2s cubic-bezier(0.22,1,0.36,1)",
-                  }} />
-                </div>
-                <p style={{ fontSize: 11, color: "#888", marginTop: 6, fontFamily: "var(--font-manrope), sans-serif" }}>
-                  Preostalo: ograničena zaliha · naruči odmah
-                </p>
-              </div>
             </div>
 
             {/* INFO COLUMN */}
@@ -468,7 +521,7 @@ export default function Hero() {
                     padding:      "10px 14px",
                   }}>
                     {/* Clock icon */}
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#B33000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
                       <circle cx="12" cy="12" r="10"/>
                       <polyline points="12 6 12 12 16 14"/>
                     </svg>
@@ -487,7 +540,7 @@ export default function Hero() {
                     <span style={{
                       fontSize:      14,
                       fontWeight:    900,
-                      color:         "#FF6B00",
+                      color:         "#B33000",
                       letterSpacing: "0.06em",
                       fontFamily:    "var(--font-manrope), sans-serif",
                       fontVariantNumeric: "tabular-nums",
@@ -511,6 +564,93 @@ export default function Hero() {
                 za maksimalnu zaštitu i udobnost na svakom radnom mjestu.
               </p>
 
+
+              {/* Features grid */}
+              <div style={{
+                display: "grid", gridTemplateColumns: "1fr 1fr",
+                gap: 10, marginBottom: 24,
+              }}>
+                {([
+                  {
+                    icon: (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B33000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                      </svg>
+                    ),
+                    title: "Čelična kapica",
+                    sub: "Zaštita do 200J udara",
+                  },
+                  {
+                    icon: (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B33000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+                        <path d="M2 12h4M18 12h4M12 2v4M12 18v4"/>
+                        <circle cx="12" cy="12" r="3" fill="#B33000" stroke="none"/>
+                      </svg>
+                    ),
+                    title: "Vodootpornost",
+                    sub: "HRO · zaštita od vlage",
+                  },
+                  {
+                    icon: (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B33000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <ellipse cx="12" cy="20" rx="10" ry="2"/>
+                        <path d="M5 20V10a7 7 0 0 1 14 0v10"/>
+                        <path d="M8 20v-5a4 4 0 0 1 8 0v5"/>
+                      </svg>
+                    ),
+                    title: "Anti-slip đon",
+                    sub: "SRC · klizanje i ulje",
+                  },
+                  {
+                    icon: (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B33000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        <polyline points="9 22 9 12 15 12 15 22"/>
+                      </svg>
+                    ),
+                    title: "EN ISO 20345 S3",
+                    sub: "Europski S3 certifikat",
+                  },
+                  {
+                    icon: (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B33000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M8 12l2.5 2.5L16 9"/>
+                      </svg>
+                    ),
+                    title: "BOA® Fit System",
+                    sub: "Podešavanje za 3 sek.",
+                  },
+                  {
+                    icon: (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B33000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                      </svg>
+                    ),
+                    title: "Lagane i udobne",
+                    sub: "Anatomski footbed",
+                  },
+                ] as const).map((f, i) => (
+                  <div key={i} style={{
+                    display: "flex", alignItems: "center", gap: 10,
+                    background: "#FAFAFA", border: "1px solid #F0F0F0",
+                    borderRadius: 12, padding: "12px 14px",
+                  }}>
+                    <div style={{ flexShrink: 0 }}>{f.icon}</div>
+                    <div>
+                      <div style={{
+                        fontFamily: "var(--font-manrope), sans-serif",
+                        fontWeight: 700, fontSize: 13, color: "#0A0A0A", lineHeight: 1.2,
+                      }}>{f.title}</div>
+                      <div style={{
+                        fontFamily: "var(--font-manrope), sans-serif",
+                        fontSize: 11, color: "#888", marginTop: 2, lineHeight: 1.3,
+                      }}>{f.sub}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
 
               {/* CTA Button */}
               <button

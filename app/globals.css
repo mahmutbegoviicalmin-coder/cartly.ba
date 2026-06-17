@@ -197,3 +197,43 @@ body {
   0%, 100% { transform: scale(1); opacity: 0.6; }
   50% { transform: scale(2); opacity: 0; }
 }
+
+/* --- OrderModal --- */
+@keyframes om-s { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.om-ov {
+  position: fixed; inset: 0; z-index: 99999;
+  background: rgba(0,0,0,0.65); backdrop-filter: blur(4px);
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 1;
+}
+@media (min-width: 600px) { .om-ov { align-items: center; padding: 24px; } }
+.om-sh {
+  background: #fff; width: 100%;
+  border-radius: 20px 20px 0 0; max-height: 92dvh; overflow-y: auto;
+  animation: om-s 0.28s cubic-bezier(0.22,1,0.36,1);
+}
+@media (min-width: 600px) { .om-sh { border-radius: 20px; max-width: 460px; max-height: 88vh; } }
+.om-sz {
+  border: 1.5px solid #E0E0E0; border-radius: 10px; background: #fff;
+  font-family: var(--font-manrope), sans-serif; font-weight: 700; font-size: 16px; color: #0A0A0A;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  padding: 0; aspect-ratio: 1; transition: all 140ms;
+}
+.om-sz:hover:not(.oos) { border-color: #B33000; background: #FFF5F0; }
+.om-sz.sel { background: #B33000; border-color: #B33000; color: #fff; }
+.om-sz.oos { opacity: .3; cursor: not-allowed; text-decoration: line-through; background: #f5f5f5; }
+.om-in {
+  width: 100%; border: 1.5px solid #E5E5E5; border-radius: 10px;
+  padding: 13px 14px; font-size: 15px; font-family: var(--font-manrope), sans-serif;
+  outline: none; background: #FAFAFA; box-sizing: border-box; transition: border-color 140ms;
+}
+.om-in:focus { border-color: #B33000; background: #fff; }
+.om-in.er { border-color: #ef4444; }
+.om-bt {
+  width: 100%; background: #B33000; color: #fff; border: none; border-radius: 12px; padding: 16px;
+  font-family: var(--font-manrope), sans-serif; font-weight: 800; font-size: 16px; cursor: pointer;
+  transition: background 140ms;
+}
+.om-bt:hover { background: #961f00; }
+.om-bt:disabled { opacity: .55; cursor: not-allowed; }
+.om-er { font-size: 11px; color: #ef4444; margin: 3px 0 0; font-family: var(--font-manrope), sans-serif; }

@@ -54,7 +54,7 @@ function InputField({
           transition: "border-color 0.15s",
           width: "100%",
         }}
-        onFocus={(e) => { e.currentTarget.style.borderColor = "#FF6B00"; }}
+        onFocus={(e) => { e.currentTarget.style.borderColor = "#B33000"; }}
         onBlur={(e) => { e.currentTarget.style.borderColor = error ? "#ef4444" : "#E5E5E5"; }}
       />
       {error && <p style={{ fontSize: 12, color: "#ef4444", margin: 0 }}>{error}</p>}
@@ -188,7 +188,7 @@ export default function OrderForm() {
 
         {/* Section heading */}
         <h2 style={{ fontSize: "clamp(22px,4vw,30px)", fontWeight: 800, color: "#0A0A0A", marginBottom: 32 }}>
-          Naruči <span style={{ color: "#FF6B00" }}>odmah</span>
+          Naruči <span style={{ color: "#B33000" }}>odmah</span>
         </h2>
 
         <form onSubmit={handleSubmit} noValidate>
@@ -284,7 +284,7 @@ export default function OrderForm() {
                       position:     "absolute",
                       top:          10,
                       right:        12,
-                      background:   "#FF6B00",
+                      background:   "#B33000",
                       color:        "#fff",
                       fontSize:     9,
                       fontWeight:   800,
@@ -297,20 +297,20 @@ export default function OrderForm() {
                     </div>
                     <span style={{
                       fontSize: 9, fontWeight: 800, letterSpacing: "0.12em",
-                      textTransform: "uppercase", color: "#FF6B00",
+                      textTransform: "uppercase", color: "#B33000",
                       fontFamily: "var(--font-manrope), sans-serif",
                     }}>
                       2. par
                     </span>
                     <span className="deal-price" style={{
-                      fontSize: 20, fontWeight: 900, color: "#FF6B00",
+                      fontSize: 20, fontWeight: 900, color: "#B33000",
                       letterSpacing: "-0.03em", lineHeight: 1,
                       fontFamily: "var(--font-manrope), sans-serif",
                     }}>
                       49,90 KM
                     </span>
                     <span className="deal-sub" style={{
-                      fontSize: 11, color: "#FF6B00", fontWeight: 500,
+                      fontSize: 11, color: "#B33000", fontWeight: 500,
                       fontFamily: "var(--font-manrope), sans-serif",
                     }}>
                       Uštedi 10 KM ↓
@@ -330,7 +330,7 @@ export default function OrderForm() {
                       type="button"
                       onClick={() => setSizeGuideOpen(true)}
                       style={{
-                        fontSize: 13, color: "#FF6B00", fontWeight: 500,
+                        fontSize: 13, color: "#B33000", fontWeight: 500,
                         background: "none", border: "none", cursor: "pointer",
                         padding: 0, fontFamily: "var(--font-manrope), sans-serif",
                         whiteSpace: "nowrap",
@@ -366,7 +366,7 @@ export default function OrderForm() {
                           opacity: soldOut ? 0.5 : 1,
                         }}
                       >
-                        <span style={{ fontSize: 14, fontWeight: 600, color: soldOut ? "#AAAAAA" : active ? "#FF6B00" : "#0A0A0A", display: "flex", alignItems: "center", gap: 8 }}>
+                        <span style={{ fontSize: 14, fontWeight: 600, color: soldOut ? "#AAAAAA" : active ? "#B33000" : "#0A0A0A", display: "flex", alignItems: "center", gap: 8 }}>
                           EU {size}
                           {soldOut && (
                             <span style={{ fontSize: 10, fontWeight: 700, color: "#AAAAAA", background: "#EEEEEE", borderRadius: 5, padding: "2px 6px", letterSpacing: "0.05em" }}>
@@ -391,7 +391,7 @@ export default function OrderForm() {
                               transition: "all 0.15s",
                             }}
                           >−</button>
-                          <span style={{ width: 24, textAlign: "center", fontSize: 14, fontWeight: 700, color: soldOut ? "#CCCCCC" : active ? "#FF6B00" : "#0A0A0A" }}>
+                          <span style={{ width: 24, textAlign: "center", fontSize: 14, fontWeight: 700, color: soldOut ? "#CCCCCC" : active ? "#B33000" : "#0A0A0A" }}>
                             {soldOut ? "—" : qty}
                           </span>
                           <button
@@ -519,7 +519,7 @@ export default function OrderForm() {
 
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <span style={{ fontSize: 15, fontWeight: 700, color: "#0A0A0A" }}>Ukupno</span>
-                    <span style={{ fontSize: 20, fontWeight: 800, color: "#FF6B00" }}>
+                    <span style={{ fontSize: 20, fontWeight: 800, color: "#B33000" }}>
                       {totalPairs > 0 ? fmt(grandTotal) : "—"}
                     </span>
                   </div>
@@ -537,14 +537,14 @@ export default function OrderForm() {
                   type="submit"
                   disabled={loading}
                   style={{
-                    width: "100%", background: loading ? "#ccc" : "#FF6B00", color: "#fff",
+                    width: "100%", background: loading ? "#ccc" : "#B33000", color: "#fff",
                     border: "none", borderRadius: 10, padding: "16px",
                     fontSize: 16, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer",
                     fontFamily: "var(--font-manrope), sans-serif",
                     transition: "background 0.15s",
                   }}
                   onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = "#e05e00"; }}
-                  onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = "#FF6B00"; }}
+                  onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = "#B33000"; }}
                 >
                   {loading ? "Slanje..." : totalPairs > 0 ? `Naruči · ${fmt(grandTotal)}` : "Naruči odmah"}
                 </button>
@@ -556,13 +556,13 @@ export default function OrderForm() {
                 {/* Trust icons */}
                 <div style={{ display: "flex", gap: 16, justifyContent: "center", paddingTop: 4 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B33000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                     </svg>
                     <span style={{ fontSize: 12, color: "#666" }}>Sigurna narudžba</span>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B33000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14" />
                       <path d="M16.5 9.4 7.55 4.24" />
                       <polyline points="3.29 7 12 12 20.71 7" />

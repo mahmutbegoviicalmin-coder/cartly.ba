@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
 
@@ -132,7 +132,7 @@ export default function SocialProof() {
           {/* Avatar */}
           <div style={{
             width: 36, height: 36, borderRadius: 10, flexShrink: 0,
-            background: "linear-gradient(135deg, #FF6B00, #E85E00)",
+            background: "#B33000",
             display: "flex", alignItems: "center", justifyContent: "center",
             fontSize: 14, fontWeight: 800, color: "#fff",
           }}>
@@ -146,7 +146,7 @@ export default function SocialProof() {
               color: "#fff", lineHeight: 1.3,
               whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
             }}>
-              <span style={{ color: "#FF7A30" }}>{p.name}</span>
+              <span style={{ color: "#FF9A7A" }}>{p.name}</span>
               {" "}iz {p.city} naručio
             </p>
             <p style={{
@@ -175,7 +175,7 @@ export default function SocialProof() {
             <div style={{
               position: "absolute", bottom: 0, left: 0,
               height: 2,
-              background: "linear-gradient(90deg, #FF6B00, #FF9A3C)",
+              background: "#B33000",
               borderRadius: "0 0 14px 14px",
               animation: "spProgress 4.5s linear forwards",
             }} />
