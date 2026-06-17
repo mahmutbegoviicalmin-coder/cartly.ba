@@ -602,7 +602,7 @@ export default function SupplierClient() {
                             </div>
                             <div style={{ display: "flex", justifyContent: "space-between", color: "#6b7280", marginBottom: 8, alignItems: "center" }}>
                               <span style={{ display: "flex", alignItems: "center", gap: 5 }}><IcoTruck /> Dostava (Pošta BH)</span>
-                              <span>{(ship.delivery_cost ?? DELIVERY_COST).toFixed(2)} KM</span>
+                              <span>{(ship.delivery_cost ?? 0).toFixed(2)} KM</span>
                             </div>
                             <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 800, fontSize: 16, color: "#f97316", borderTop: "1.5px solid #f3f4f6", paddingTop: 8 }}>
                               <span>Ukupno</span><span>{(ship.total ?? 0).toFixed(2)} KM</span>
