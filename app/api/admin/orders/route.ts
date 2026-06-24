@@ -27,6 +27,7 @@ export async function GET(request: Request) {
   let qCetka  = sb.from("cetka_orders").select("*").order("created_at", { ascending: false });
   let qUsm    = sb.from("usmjerivac_orders").select("*").order("created_at", { ascending: false });
   let qKomr   = sb.from("komarnik_orders").select("*").order("created_at", { ascending: false });
+  let qLez    = sb.from("lezaljka_orders").select("*").order("created_at", { ascending: false });
 
   if (search) {
     const f = `ime.ilike.%${search}%,telefon.ilike.%${search}%,grad.ilike.%${search}%`;
@@ -34,15 +35,17 @@ export async function GET(request: Request) {
     qCetka  = qCetka.or(f);
     qUsm    = qUsm.or(f);
     qKomr   = qKomr.or(f);
+    qLez    = qLez.or(f);
   }
   if (status && status !== "all") {
     qOrders = qOrders.eq("status", status);
     qCetka  = qCetka.eq("status", status);
     qUsm    = qUsm.eq("status", status);
     qKomr   = qKomr.eq("status", status);
+    qLez    = qLez.eq("status", status);
   }
 
-  const [resOrders, resCetka, resUsm, resKomr] = await Promise.all([qOrders, qCetka, qUsm, qKomr]);
+  const [resOrders, resCetka, resUsm, resKomr, resLez] = await Promise.all([qOrders, qCetka, qUsm, qKomr, qLez]);
 
   // ── Normalise cetka rows to match the shared Order shape ────────────────────
   // Prefix cetka IDs with "cetka_" so PATCH/DELETE knows which table to use.
@@ -118,12 +121,41 @@ export async function GET(request: Request) {
     status:           o.status,
   }));
 
+  // ── Normalise lezaljka rows ──────────────────────────────────────────────────
+  type RawLez = {
+    id: string; created_at: string; order_number?: string;
+    ime: string; telefon: string; adresa: string; grad: string;
+    boja: string; kolicina: number;
+    cijena_proizvoda: number; dostava: number; ukupno: number; status: string;
+  };
+
+  const COLOR_LABELS: Record<string, string> = {
+    "tamno-zelena": "Tamno Zelena", "bordo": "Bordo", "crna": "Crna",
+  };
+
+  const normalisedLez = ((resLez.data ?? []) as RawLez[]).map((o) => ({
+    id:               `lez_${o.id}`,
+    created_at:       o.created_at,
+    order_number:     o.order_number,
+    ime:              o.ime,
+    telefon:          o.telefon,
+    adresa:           o.adresa,
+    grad:             o.grad,
+    velicine: [{ velicina: `Lezaljka ${COLOR_LABELS[o.boja] ?? o.boja}`, kolicina: o.kolicina }],
+    ukupno_pari:      o.kolicina,
+    cijena_proizvoda: o.cijena_proizvoda,
+    dostava:          o.dostava,
+    ukupno:           o.ukupno,
+    status:           o.status,
+  }));
+
   // ── Merge + sort by date desc ────────────────────────────────────────────────
   const merged = [
     ...(resOrders.data ?? []),
     ...normalisedCetka,
     ...normalisedUsm,
     ...normalisedKomr,
+    ...normalisedLez,
   ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
   const total = merged.length;
