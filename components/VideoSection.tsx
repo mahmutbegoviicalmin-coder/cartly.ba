@@ -110,7 +110,7 @@ export default function VideoSection() {
               display: "inline-block",
               width: "fit-content",
               background: "rgba(255,107,0,0.15)",
-              color: "#FF6B00",
+              color: "#B33000",
               fontFamily: "var(--font-manrope), sans-serif",
               fontSize: 11,
               fontWeight: 600,
@@ -135,7 +135,7 @@ export default function VideoSection() {
               marginBottom: 16,
             }}
           >
-            Vidi ih<span style={{ color: "#FF6B00" }}> uživo</span>
+            Vidi ih<span style={{ color: "#B33000" }}> uživo</span>
           </h2>
 
           {/* Subtitle */}
@@ -163,7 +163,7 @@ export default function VideoSection() {
                 onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,107,0,0.05)"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
               >
-                <Icon size={20} color="#FF6B00" strokeWidth={2} style={{ flexShrink: 0 }} />
+                <Icon size={20} color="#B33000" strokeWidth={2} style={{ flexShrink: 0 }} />
                 <span
                   style={{
                     fontFamily: "var(--font-manrope), sans-serif",
@@ -186,7 +186,7 @@ export default function VideoSection() {
             style={{
               display: "block",
               textAlign: "center",
-              background: "#FF6B00",
+              background: "#B33000",
               color: "#fff",
               fontFamily: "var(--font-manrope), sans-serif",
               fontWeight: 700,
@@ -199,8 +199,8 @@ export default function VideoSection() {
               transition: "background 0.15s",
               marginBottom: 12,
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = "#E85E00"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = "#FF6B00"; }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = "#B33000"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "#B33000"; }}
           >
             Naruči sada
           </a>

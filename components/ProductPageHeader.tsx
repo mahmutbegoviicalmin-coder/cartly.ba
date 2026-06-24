@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -14,9 +14,10 @@ const sora = Sora({
 interface Props {
   ctaHref?: string;
   ctaColor?: string;
+  onOrder?: () => void;
 }
 
-export default function ProductPageHeader({ ctaHref = "#order", ctaColor }: Props) {
+export default function ProductPageHeader({ ctaHref = "#order", ctaColor, onOrder }: Props) {
   const [scrolled,   setScrolled]   = useState(false);
   const [ctaHovered, setCtaHovered] = useState(false);
   const [ctaPressed, setCtaPressed] = useState(false);
@@ -82,7 +83,8 @@ export default function ProductPageHeader({ ctaHref = "#order", ctaColor }: Prop
 
         {/* ── Right: CTA ── */}
         <a
-          href={ctaHref}
+          href={onOrder ? undefined : ctaHref}
+          onClick={onOrder ? (e) => { e.preventDefault(); onOrder(); } : undefined}
           className="pph-cta"
           onMouseEnter={() => setCtaHovered(true)}
           onMouseLeave={() => { setCtaHovered(false); setCtaPressed(false); }}
@@ -91,7 +93,7 @@ export default function ProductPageHeader({ ctaHref = "#order", ctaColor }: Prop
           style={{
             background:     ctaColor
               ? ctaColor
-              : "linear-gradient(135deg, #FF7A20 0%, #FF5000 100%)",
+              : "linear-gradient(135deg, #B33000 0%, #B33000 100%)",
             color:          "#FFFFFF",
             fontWeight:     700,
             fontSize:       14,

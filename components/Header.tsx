@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -14,7 +14,7 @@ const sora = Sora({
   display: "swap",
 });
 
-const ACCENT = "#FF6B00";
+const ACCENT = "#B33000";
 
 interface SubItem {
   label: string;

@@ -28,7 +28,7 @@ function FooterSocialIcon({ href, children }: { href: string; children: React.Re
       target="_blank"
       rel="noopener noreferrer"
       style={{
-        color: hovered ? "#FF6B00" : "#ffffff",
+        color: hovered ? "#B33000" : "#ffffff",
         transition: "color 0.15s",
         display: "flex",
         alignItems: "center",
@@ -83,7 +83,7 @@ export default function Footer() {
           <a
             href="#"
             style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", textDecoration: "none", transition: "color 0.15s" }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = "#FF6B00"; }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = "#B33000"; }}
             onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(255,255,255,0.5)"; }}
           >
             Radne Patike S3
@@ -91,7 +91,7 @@ export default function Footer() {
           <a
             href="mailto:taysibog@gmail.com"
             style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", textDecoration: "none", transition: "color 0.15s" }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = "#FF6B00"; }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = "#B33000"; }}
             onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(255,255,255,0.5)"; }}
           >
             Kontakt

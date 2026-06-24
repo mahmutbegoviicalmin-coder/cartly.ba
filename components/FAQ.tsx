@@ -42,7 +42,7 @@ export default function FAQ() {
     <section className="bg-white border-t border-black/10">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16 lg:py-20">
         <h2 className="text-2xl sm:text-3xl font-extrabold mb-10 lg:mb-12 text-[#0A0A0A]">
-          Često <span className="text-[#FF6B00]">postavljena</span> pitanja
+          Često <span className="text-[#B33000]">postavljena</span> pitanja
         </h2>
 
         <div className="divide-y divide-black/10 border-t border-black/10">
@@ -55,10 +55,10 @@ export default function FAQ() {
                   className="w-full flex items-center justify-between gap-6 py-5 text-left group"
                   aria-expanded={isOpen}
                 >
-                  <span className={`text-sm sm:text-base font-semibold leading-snug transition-colors ${isOpen ? "text-[#FF6B00]" : "text-[#0A0A0A] group-hover:text-[#FF6B00]"}`}>
+                  <span className={`text-sm sm:text-base font-semibold leading-snug transition-colors ${isOpen ? "text-[#B33000]" : "text-[#0A0A0A] group-hover:text-[#B33000]"}`}>
                     {faq.q}
                   </span>
-                  <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-[#FF6B00]">
+                  <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-[#B33000]">
                     {isOpen ? (
                       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                         <line x1="18" y1="6" x2="6" y2="18" />

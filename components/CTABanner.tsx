@@ -12,7 +12,7 @@ export default function CTABanner() {
           display: "inline-flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#FF6B00",
+          background: "#B33000",
           color: "#fff",
           fontFamily: "var(--font-manrope), sans-serif",
           fontWeight: 600,
@@ -26,7 +26,7 @@ export default function CTABanner() {
           transition: "background 0.15s",
         }}
         onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "#e05e00"; }}
-        onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "#FF6B00"; }}
+        onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "#B33000"; }}
       >
         Naruči odmah
       </a>

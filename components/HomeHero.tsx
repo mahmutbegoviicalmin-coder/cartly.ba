@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 const MAN = "var(--font-manrope), sans-serif";
-const ACC = "#FF6B00";
+const ACC = "#B33000";
 
 // ─── SVG trust icons ───────────────────────────────────────────────────────────
 const T = {

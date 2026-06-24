@@ -1,10 +1,10 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { Check, Package, Truck, Banknote, ArrowRight } from "lucide-react";
 import { useState } from "react";
 
-const ACCENT = "#FF6B00";
+const ACCENT = "#B33000";
 
 const TRUST_ITEMS = [
   {

@@ -1,6 +1,6 @@
-"use client";
+﻿"use client";
 
-const ACCENT = "#FF6B00";
+const ACCENT = "#B33000";
 
 const reviews = [
   {
@@ -70,7 +70,7 @@ function Stars({ rating }: { rating: number }) {
 
 function Avatar({ name }: { name: string }) {
   const colors = [
-    ["#FF6B00", "#E85E00"],
+    ["#B33000", "#B33000"],
     ["#7C3AED", "#6D28D9"],
     ["#0891B2", "#0E7490"],
     ["#16A34A", "#15803D"],

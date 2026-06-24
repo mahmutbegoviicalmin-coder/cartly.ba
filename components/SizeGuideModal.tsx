@@ -119,7 +119,7 @@ export default function SizeGuideModal({ onClose }: Props) {
                 flexShrink: 0,
                 width: 32, height: 32,
                 borderRadius: "50%",
-                background: "#FF6B00",
+                background: "#B33000",
                 color: "#fff",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 fontFamily: "var(--font-manrope), sans-serif",

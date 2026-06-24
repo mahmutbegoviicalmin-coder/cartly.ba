@@ -52,10 +52,10 @@ export default function TickerBar() {
             }}>
               {Array(8).fill(null).map((_, i) => (
                 <span key={i}>
-                  <span style={{ color: "#FF6B00" }}>PROMOTIVNA AKCIJA!</span>
+                  <span style={{ color: "#B33000" }}>PROMOTIVNA AKCIJA!</span>
                   <span style={{ color: "rgba(255,255,255,0.35)", margin: "0 16px" }}>◆</span>
                   <span style={{ color: "#fff" }}>ZA NARUDŽBE IZNAD 100 KM · </span>
-                  <span style={{ color: "#FF6B00" }}>BESPLATNA PRIORITETNA DOSTAVA!</span>
+                  <span style={{ color: "#B33000" }}>BESPLATNA PRIORITETNA DOSTAVA!</span>
                   <span style={{ color: "rgba(255,255,255,0.35)", margin: "0 16px" }}>◆</span>
                 </span>
               ))}

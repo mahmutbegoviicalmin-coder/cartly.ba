@@ -28,7 +28,7 @@ function SocialIcon({ href, children }: { href: string; children: React.ReactNod
       target="_blank"
       rel="noopener noreferrer"
       style={{
-        color: hovered ? "#FF6B00" : "#0A0A0A",
+        color: hovered ? "#B33000" : "#0A0A0A",
         transition: "color 0.15s",
         display: "flex",
         alignItems: "center",
@@ -111,14 +111,14 @@ export default function Navbar() {
               fontWeight: 600,
               fontSize: 14,
               color: "#fff",
-              background: "#FF6B00",
+              background: "#B33000",
               borderRadius: 8,
               padding: "12px 24px",
               textDecoration: "none",
               transition: "background 0.15s",
             }}
             onMouseEnter={(e) => { e.currentTarget.style.background = "#E85E00"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = "#FF6B00"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "#B33000"; }}
             className="nav-cta"
           >
             Naruči odmah

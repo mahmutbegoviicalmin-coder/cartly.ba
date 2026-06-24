@@ -11,7 +11,7 @@ import {
 import PageContainer  from "@/components/ui/PageContainer";
 import SectionWrapper from "@/components/ui/SectionWrapper";
 
-const ACCENT = "#FF6B00";
+const ACCENT = "#B33000";
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
 
@@ -705,7 +705,7 @@ function ReviewCard({ name, city, rating, product, text }: (typeof REVIEWS)[0]) 
       {/* Stars */}
       <div style={{ display: "flex", gap: 3 }}>
         {Array.from({ length: rating }).map((_, i) => (
-          <Star key={i} size={16} fill="#FF6B00" color="#FF6B00" strokeWidth={0} />
+          <Star key={i} size={16} fill="#B33000" color="#B33000" strokeWidth={0} />
         ))}
       </div>
 

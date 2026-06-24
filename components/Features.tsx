@@ -5,7 +5,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-const ACCENT = "#FF6B00";
+const ACCENT = "#B33000";
 
 const features: {
   icon: LucideIcon;
@@ -187,7 +187,7 @@ export default function Features() {
         {/* Bottom CTA strip */}
         <div style={{
           marginTop: 40, borderRadius: 20,
-          background: "linear-gradient(135deg, #FF6B00 0%, #E85E00 100%)",
+          background: "linear-gradient(135deg, #B33000 0%, #E85E00 100%)",
           padding: "28px 32px",
           display: "flex", alignItems: "center", justifyContent: "space-between",
           flexWrap: "wrap", gap: 20,
@@ -210,7 +210,7 @@ export default function Features() {
             href="#order"
             style={{
               display: "inline-flex", alignItems: "center", gap: 8,
-              background: "#fff", color: "#FF6B00",
+              background: "#fff", color: "#B33000",
               fontFamily: "var(--font-manrope), sans-serif",
               fontWeight: 800, fontSize: 15, textDecoration: "none",
               borderRadius: 12, padding: "14px 28px",
@@ -219,7 +219,7 @@ export default function Features() {
             }}
           >
             Naruči odmah
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#B33000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="9 18 15 12 9 6"/>
             </svg>
           </a>

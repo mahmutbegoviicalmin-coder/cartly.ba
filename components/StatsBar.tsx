@@ -1,8 +1,8 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
 
-const ACCENT = "#FF6B00";
+const ACCENT = "#B33000";
 
 const stats = [
   {
