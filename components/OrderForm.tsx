@@ -8,15 +8,11 @@ import OrderSuccess from "./OrderSuccess";
 
 const SIZES = [39, 40, 41, 42, 43, 44, 45, 46, 47];
 const OUT_OF_STOCK = new Set([47]);
-const PRICE_FIRST  = 59.9;
-const PRICE_SECOND = 49.9;
-const PRICE_PER_PAIR = PRICE_FIRST; // backwards compat
+const PRICE_PER_PAIR = 59.9;
 const DELIVERY = 10.0;
 
 function calcProductTotal(pairs: number): number {
-  if (pairs <= 0) return 0;
-  if (pairs === 1) return PRICE_FIRST;
-  return PRICE_FIRST + (pairs - 1) * PRICE_SECOND;
+  return pairs * PRICE_PER_PAIR;
 }
 
 type SizeQuantities = Record<number, number>;
@@ -74,10 +70,11 @@ export default function OrderForm() {
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const checkoutTracked = useRef(false);
 
-  const totalPairs   = Object.values(quantities).reduce((a, b) => a + b, 0);
-  const productTotal = calcProductTotal(totalPairs);
-  const grandTotal   = totalPairs > 0 ? productTotal + DELIVERY : 0;
-  const saving       = totalPairs >= 2 ? (totalPairs - 1) * (PRICE_FIRST - PRICE_SECOND) : 0;
+  const totalPairs    = Object.values(quantities).reduce((a, b) => a + b, 0);
+  const productTotal  = calcProductTotal(totalPairs);
+  const freeDelivery  = totalPairs >= 2;
+  const deliveryCost  = freeDelivery ? 0 : DELIVERY;
+  const grandTotal    = totalPairs > 0 ? productTotal + deliveryCost : 0;
   const selectedSizes = SIZES.filter((s) => quantities[s] > 0);
 
   const addToCartTracked = useRef(false);
@@ -227,7 +224,7 @@ export default function OrderForm() {
               {/* Size table card */}
               <div style={{ background: "#fff", borderRadius: 16, padding: 32 }}>
 
-                {/* ── 2-para deal banner ── */}
+                {/* ── Free delivery deal banner ── */}
                 <div style={{
                   display:      "flex",
                   alignItems:   "stretch",
@@ -252,7 +249,7 @@ export default function OrderForm() {
                       textTransform: "uppercase", color: "#AAA",
                       fontFamily: "var(--font-manrope), sans-serif",
                     }}>
-                      1. par
+                      1 par
                     </span>
                     <span className="deal-price" style={{
                       fontSize: 20, fontWeight: 900, color: "#0A0A0A",
@@ -265,11 +262,11 @@ export default function OrderForm() {
                       fontSize: 11, color: "#999",
                       fontFamily: "var(--font-manrope), sans-serif",
                     }}>
-                      Redovna cijena
+                      + 10 KM dostava
                     </span>
                   </div>
 
-                  {/* Right · 2. par (highlighted) */}
+                  {/* Right · 2+ para (highlighted) */}
                   <div style={{
                     flex:          1,
                     padding:       "14px 16px",
@@ -279,7 +276,6 @@ export default function OrderForm() {
                     gap:           3,
                     position:      "relative",
                   }}>
-                    {/* Deal badge */}
                     <div style={{
                       position:     "absolute",
                       top:          10,
@@ -293,27 +289,27 @@ export default function OrderForm() {
                       borderRadius: 20,
                       fontFamily:   "var(--font-manrope), sans-serif",
                     }}>
-                      −17%
+                      AKCIJA
                     </div>
                     <span style={{
                       fontSize: 9, fontWeight: 800, letterSpacing: "0.12em",
                       textTransform: "uppercase", color: "#B33000",
                       fontFamily: "var(--font-manrope), sans-serif",
                     }}>
-                      2. par
+                      2+ para
                     </span>
                     <span className="deal-price" style={{
                       fontSize: 20, fontWeight: 900, color: "#B33000",
                       letterSpacing: "-0.03em", lineHeight: 1,
                       fontFamily: "var(--font-manrope), sans-serif",
                     }}>
-                      49,90 KM
+                      Besplatna
                     </span>
                     <span className="deal-sub" style={{
                       fontSize: 11, color: "#B33000", fontWeight: 500,
                       fontFamily: "var(--font-manrope), sans-serif",
                     }}>
-                      Uštedi 10 KM ↓
+                      dostava 🚚
                     </span>
                   </div>
                 </div>
@@ -465,19 +461,19 @@ export default function OrderForm() {
                     gap:          10,
                     alignItems:   "flex-start",
                   }}>
-                    <span style={{ fontSize: 18, flexShrink: 0, lineHeight: 1 }}>🎁</span>
+                    <span style={{ fontSize: 18, flexShrink: 0, lineHeight: 1 }}>🚚</span>
                     <div>
                       <p style={{
                         fontSize: 13, fontWeight: 800, color: "#0A0A0A",
                         margin: "0 0 2px", fontFamily: "var(--font-manrope), sans-serif",
                       }}>
-                        Dodaj drugi par · samo 49,90 KM!
+                        Dodaj drugi par · dostava BESPLATNA!
                       </p>
                       <p style={{
                         fontSize: 12, color: "#888", margin: 0,
                         fontFamily: "var(--font-manrope), sans-serif",
                       }}>
-                        Uštedi 10 KM na drugom paru. Odaberi veličinu gore ↑
+                        2 ili više para = 0 KM dostava. Odaberi veličinu gore ↑
                       </p>
                     </div>
                   </div>
@@ -485,34 +481,18 @@ export default function OrderForm() {
 
                 {/* Pricing */}
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  {/* Multi-pair breakdown */}
-                  {totalPairs >= 2 ? (
-                    <>
-                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14 }}>
-                        <span style={{ color: "#666" }}>1. par</span>
-                        <span style={{ color: "#0A0A0A", fontWeight: 500 }}>{fmt(PRICE_FIRST)}</span>
-                      </div>
-                      {Array.from({ length: totalPairs - 1 }).map((_, i) => (
-                        <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: 14 }}>
-                          <span style={{ color: "#666" }}>{i + 2}. par</span>
-                          <span style={{ color: "#0A0A0A", fontWeight: 500 }}>{fmt(PRICE_SECOND)}</span>
-                        </div>
-                      ))}
-                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14 }}>
-                        <span style={{ color: "#16A34A", fontWeight: 600 }}>Uštednja</span>
-                        <span style={{ color: "#16A34A", fontWeight: 700 }}>−{fmt(saving)}</span>
-                      </div>
-                    </>
-                  ) : (
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14 }}>
-                      <span style={{ color: "#666" }}>Cijena po paru</span>
-                      <span style={{ color: "#0A0A0A", fontWeight: 500 }}>59,90 KM</span>
-                    </div>
-                  )}
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14 }}>
+                    <span style={{ color: "#666" }}>{totalPairs > 0 ? `${totalPairs} par${totalPairs > 1 ? "a" : ""} × 59,90 KM` : "Cijena po paru"}</span>
+                    <span style={{ color: "#0A0A0A", fontWeight: 500 }}>{totalPairs > 0 ? fmt(productTotal) : "59,90 KM"}</span>
+                  </div>
 
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14 }}>
-                    <span style={{ color: "#666" }}>Dostava</span>
-                    <span style={{ color: "#0A0A0A", fontWeight: 500 }}>10,00 KM</span>
+                    <span style={{ color: freeDelivery ? "#16A34A" : "#666", fontWeight: freeDelivery ? 600 : 400 }}>
+                      Dostava {freeDelivery && "🚚"}
+                    </span>
+                    <span style={{ color: freeDelivery ? "#16A34A" : "#0A0A0A", fontWeight: freeDelivery ? 700 : 500 }}>
+                      {freeDelivery ? "BESPLATNO" : "10,00 KM"}
+                    </span>
                   </div>
 
                   <hr style={{ border: "none", borderTop: "1px solid #F0F0F0", margin: "4px 0" }} />

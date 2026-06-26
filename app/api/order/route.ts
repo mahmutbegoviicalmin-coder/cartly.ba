@@ -53,13 +53,9 @@ export async function POST(request: NextRequest) {
     );
     const ukupnoPari = selectedSizes.reduce((sum, v) => sum + v.kolicina, 0);
 
-    const PRICE_FIRST  = 59.9;
-    const PRICE_SECOND = 49.9;
-    const cijenaProizvoda = ukupnoPari <= 1
-      ? ukupnoPari * PRICE_FIRST
-      : PRICE_FIRST + (ukupnoPari - 1) * PRICE_SECOND;
-    const ustednja  = ukupnoPari >= 2 ? (ukupnoPari - 1) * (PRICE_FIRST - PRICE_SECOND) : 0;
-    const dostava   = 10.0;
+    const PRICE_PER_PAIR = 59.9;
+    const cijenaProizvoda = ukupnoPari * PRICE_PER_PAIR;
+    const dostava   = ukupnoPari >= 2 ? 0 : 10.0;
     const ukupno    = cijenaProizvoda + dostava;
 
     // Build size rows for email
@@ -200,28 +196,13 @@ export async function POST(request: NextRequest) {
         <!-- Section 3: Financijski pregled -->
         <p style="margin:0 0 12px;font-size:11px;font-weight:700;color:#FF6B00;text-transform:uppercase;letter-spacing:0.1em;">Financijski pregled</p>
         <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #F0F0F0;border-radius:8px;overflow:hidden;margin-bottom:28px;">
-          ${ukupnoPari >= 2 ? `
-          <tr style="background:#FAFAFA;">
-            <td style="padding:10px 16px;font-size:13px;color:#666;border-bottom:1px solid #F0F0F0;">1. par (redovna cijena)</td>
-            <td style="padding:10px 16px;font-size:13px;color:#0A0A0A;font-weight:500;text-align:right;border-bottom:1px solid #F0F0F0;">${fmt(PRICE_FIRST)}</td>
-          </tr>
-          <tr>
-            <td style="padding:10px 16px;font-size:13px;color:#666;border-bottom:1px solid #F0F0F0;">${ukupnoPari - 1}× dodatni par${ukupnoPari - 1 > 1 ? "a" : ""} (akcija)</td>
-            <td style="padding:10px 16px;font-size:13px;color:#0A0A0A;font-weight:500;text-align:right;border-bottom:1px solid #F0F0F0;">${ukupnoPari - 1}× ${fmt(PRICE_SECOND)}</td>
-          </tr>
-          <tr>
-            <td style="padding:10px 16px;font-size:13px;color:#16A34A;font-weight:600;border-bottom:1px solid #F0F0F0;">🎁 Uštednja (2+ para)</td>
-            <td style="padding:10px 16px;font-size:13px;color:#16A34A;font-weight:700;text-align:right;border-bottom:1px solid #F0F0F0;">−${fmt(ustednja)}</td>
-          </tr>
-          ` : `
-          <tr style="background:#FAFAFA;">
-            <td style="padding:10px 16px;font-size:13px;color:#666;border-bottom:1px solid #F0F0F0;">Cijena (${ukupnoPari} par)</td>
+            <tr style="background:#FAFAFA;">
+            <td style="padding:10px 16px;font-size:13px;color:#666;border-bottom:1px solid #F0F0F0;">${ukupnoPari} par${ukupnoPari > 1 ? "a" : ""} × ${fmt(PRICE_PER_PAIR)}</td>
             <td style="padding:10px 16px;font-size:13px;color:#0A0A0A;font-weight:500;text-align:right;border-bottom:1px solid #F0F0F0;">${fmt(cijenaProizvoda)}</td>
           </tr>
-          `}
           <tr>
-            <td style="padding:10px 16px;font-size:13px;color:#666;border-bottom:1px solid #F0F0F0;">Dostava</td>
-            <td style="padding:10px 16px;font-size:13px;color:#0A0A0A;font-weight:500;text-align:right;border-bottom:1px solid #F0F0F0;">10,00 KM</td>
+            <td style="padding:10px 16px;font-size:13px;color:${ukupnoPari >= 2 ? "#16A34A" : "#666"};font-weight:${ukupnoPari >= 2 ? "600" : "400"};border-bottom:1px solid #F0F0F0;">Dostava${ukupnoPari >= 2 ? " 🚚" : ""}</td>
+            <td style="padding:10px 16px;font-size:13px;color:${ukupnoPari >= 2 ? "#16A34A" : "#0A0A0A"};font-weight:${ukupnoPari >= 2 ? "700" : "500"};text-align:right;border-bottom:1px solid #F0F0F0;">${ukupnoPari >= 2 ? "BESPLATNO" : fmt(dostava)}</td>
           </tr>
           <tr style="background:#FFF8F5;">
             <td style="padding:14px 16px;font-size:15px;font-weight:700;color:#0A0A0A;">UKUPNO${ukupnoPari >= 2 ? ` (${ukupnoPari} para)` : ""}</td>
