@@ -349,7 +349,7 @@ function Hero({ onOrder }: { onOrder: () => void }) {
               style={{ position:"relative", textAlign:"center", margin:"24px -4px 0" }}
             >
               <div style={{ position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)", width:260, height:260, borderRadius:"50%", background:`radial-gradient(circle, rgba(37,99,235,0.22) 0%, transparent 70%)`, filter:"blur(32px)" }} />
-              <Image src="/kamera2/kamerapng.png" alt="WiFi PTZ Kamera" width={300} height={300} priority style={{ filter:"drop-shadow(0 20px 40px rgba(37,99,235,0.28))", maxWidth:"80%", height:"auto", position:"relative" }} />
+              <Image src="/kamera2/kamerapng.webp" alt="WiFi PTZ Kamera" width={300} height={300} priority sizes="(max-width:860px) 80vw, 300px" style={{ filter:"drop-shadow(0 20px 40px rgba(37,99,235,0.28))", maxWidth:"80%", height:"auto", position:"relative" }} />
               {/* Float badges */}
               <div style={{ position:"absolute", top:"10%", left:"0%", background:"rgba(255,255,255,0.12)", backdropFilter:"blur(12px)", WebkitBackdropFilter:"blur(12px)", border:"1px solid rgba(255,255,255,0.2)", borderRadius:12, padding:"8px 12px" }}>
                 <div style={{ display:"flex", gap:2, marginBottom:3 }}>{[...Array(5)].map((_,i)=><Star key={i} size={9} fill="#FBBF24" color="#FBBF24" />)}</div>
@@ -422,7 +422,7 @@ function Hero({ onOrder }: { onOrder: () => void }) {
           <div style={{ position:"absolute", width:440, height:440, borderRadius:"50%", background:`radial-gradient(circle, rgba(37,99,235,0.22) 0%, transparent 70%)`, filter:"blur(48px)" }} />
 
           <motion.div animate={{ y:[0,-18,0] }} transition={{ duration:4.2, repeat:Infinity, ease:"easeInOut" }} style={{ position:"relative", zIndex:2 }}>
-            <Image src="/kamera2/kamerapng.png" alt="WiFi PTZ Sigurnosna Kamera" width={440} height={440} priority style={{ filter:"drop-shadow(0 28px 56px rgba(37,99,235,0.28))", maxWidth:"100%", height:"auto" }} />
+            <Image src="/kamera2/kamerapng.webp" alt="WiFi PTZ Sigurnosna Kamera" width={440} height={440} priority sizes="(max-width:860px) 0px, 440px" style={{ filter:"drop-shadow(0 28px 56px rgba(37,99,235,0.28))", maxWidth:"100%", height:"auto" }} />
           </motion.div>
 
           {/* Floating badge: rating */}
@@ -484,7 +484,7 @@ function FeaturesSection() {
       <div style={{ maxWidth:1200, margin:"0 auto", padding:"0 24px" }}>
         <div className="k-2col" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:72, alignItems:"center" }}>
           <motion.div {...FL} style={{ borderRadius:28, overflow:"hidden", boxShadow:"0 28px 80px rgba(0,0,0,0.11)" }}>
-            <Image src="/kamera2/kamerajpg.png" alt="WiFi kamera u akciji" width={600} height={480} style={{ width:"100%", height:"auto", display:"block" }} />
+            <Image src="/kamera2/kamerajpg.webp" alt="WiFi kamera u akciji" width={600} height={480} style={{ width:"100%", height:"auto", display:"block" }} />
           </motion.div>
 
           <motion.div {...FR}>
@@ -554,7 +554,7 @@ function HowItWorks() {
           </div>
 
           <motion.div {...FR} style={{ borderRadius:28, overflow:"hidden", boxShadow:"0 28px 80px rgba(0,0,0,0.11)" }}>
-            <Image src="/kamera2/kakoradi.png" alt="Kako radi WiFi kamera" width={580} height={460} style={{ width:"100%", height:"auto", display:"block" }} />
+            <Image src="/kamera2/kakoradi.webp" alt="Kako radi WiFi kamera" width={580} height={460} style={{ width:"100%", height:"auto", display:"block" }} />
           </motion.div>
         </div>
       </div>
