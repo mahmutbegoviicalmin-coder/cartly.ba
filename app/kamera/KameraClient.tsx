@@ -796,8 +796,8 @@ function OrderModal({ open, onClose }: { open: boolean; onClose: () => void }) {
       const res  = await fetch("/api/kamera-order", { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify({ ...fields, kolicina:qty, sdCard:sd }) });
       const data = await res.json();
       if (!data.success) throw new Error(data.error || "Greška");
-      if (typeof window !== "undefined" && (window as unknown as { fbq?: Function }).fbq) {
-        (window as unknown as { fbq: Function }).fbq("track", "Purchase", { value: total, currency: "BAM", content_name: "V380 Pro 12MP Kamera", content_ids: ["kamera-v380"], num_items: qty }, { eventID: data.orderNumber });
+      if (typeof window !== "undefined" && (window as unknown as { fbq?: (...a: unknown[]) => void }).fbq) {
+        (window as unknown as { fbq: (...a: unknown[]) => void }).fbq("track", "Purchase", { value: total, currency: "BAM", content_name: "V380 Pro 12MP Kamera", content_ids: ["kamera-v380"], num_items: qty }, { eventID: data.orderNumber });
       }
       setDone(true);
     } catch (err) {
@@ -1039,8 +1039,8 @@ function OfferSection() {
       });
       const data = await res.json();
       if (!data.success) throw new Error(data.error || "Greška");
-      if (typeof window !== "undefined" && (window as unknown as { fbq?: Function }).fbq) {
-        (window as unknown as { fbq: Function }).fbq("track", "Purchase", { value: total, currency: "BAM", content_name: "V380 Pro 12MP Kamera", content_ids: ["kamera-v380"], num_items: qty }, { eventID: data.orderNumber });
+      if (typeof window !== "undefined" && (window as unknown as { fbq?: (...a: unknown[]) => void }).fbq) {
+        (window as unknown as { fbq: (...a: unknown[]) => void }).fbq("track", "Purchase", { value: total, currency: "BAM", content_name: "V380 Pro 12MP Kamera", content_ids: ["kamera-v380"], num_items: qty }, { eventID: data.orderNumber });
       }
       setDone(true);
     } catch (err) {
@@ -1370,22 +1370,22 @@ export default function KameraClient() {
   const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && (window as any).fbq) {
-      (window as any).fbq("track", "ViewContent", { content_name: "V380 Pro 12MP Kamera", content_ids: ["kamera-v380"], content_type: "product", value: 49.90, currency: "BAM" });
-    }
+    const w = window as unknown as { fbq?: (...a: unknown[]) => void };
+    if (w.fbq) w.fbq("track", "ViewContent", { content_name: "V380 Pro 12MP Kamera", content_ids: ["kamera-v380"], content_type: "product", value: 49.90, currency: "BAM" });
   }, []);
+
+  function fireFbq(...args: unknown[]) {
+    const w = window as unknown as { fbq?: (...a: unknown[]) => void };
+    if (typeof window !== "undefined" && w.fbq) w.fbq(...args);
+  }
 
   function openOrder() {
     setModalOpen(true);
-    if (typeof window !== "undefined" && (window as any).fbq) {
-      (window as any).fbq("track", "InitiateCheckout", { content_name: "V380 Pro 12MP Kamera", content_ids: ["kamera-v380"], value: 49.90, currency: "BAM" });
-    }
+    fireFbq("track", "InitiateCheckout", { content_name: "V380 Pro 12MP Kamera", content_ids: ["kamera-v380"], value: 49.90, currency: "BAM" });
   }
   function scrollToOrder() {
     if (window.innerWidth < 640) { openOrder(); return; }
-    if (typeof window !== "undefined" && (window as any).fbq) {
-      (window as any).fbq("track", "InitiateCheckout", { content_name: "V380 Pro 12MP Kamera", content_ids: ["kamera-v380"], value: 49.90, currency: "BAM" });
-    }
+    fireFbq("track", "InitiateCheckout", { content_name: "V380 Pro 12MP Kamera", content_ids: ["kamera-v380"], value: 49.90, currency: "BAM" });
     document.getElementById("order")?.scrollIntoView({ behavior:"smooth", block:"start" });
   }
 
