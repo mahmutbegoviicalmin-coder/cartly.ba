@@ -87,7 +87,6 @@ const PRODUCT_MAP: Record<string, { label: string; bg: string; color: string }> 
   BRS: { label: "Brusilica", bg: "rgba(20,184,166,0.12)",  color: "#14b8a6" },
   CCT: { label: "Četka",    bg: "rgba(52,211,153,0.12)",  color: "#34d399" },
   USM: { label: "Usmjerivač", bg: "rgba(26,95,255,0.12)", color: "#1a5fff" },
-  KMR: { label: "Kamera",    bg: "rgba(168,85,247,0.12)", color: "#a855f7" },
 };
 
 function productBadge(orderNumber?: string) {
