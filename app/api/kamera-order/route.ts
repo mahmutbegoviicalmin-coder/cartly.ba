@@ -3,8 +3,9 @@ import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { Resend } from "resend";
 import { sendCAPIEvent, getClientIP, getClientUA, getFbc, getFbp } from "@/lib/meta-capi";
 
-const UNIT_PRICE = 129.9;
-const DELIVERY = 10.0;
+const UNIT_PRICE = 49.9;
+const DELIVERY   = 10;
+const SD_EXTRA: Record<string, number> = { none:0, "64":9.9, "128":11.9 };
 
 function generateOrderNumber(date: Date): string {
   const y = date.getFullYear();
@@ -43,7 +44,7 @@ function fmtKM(n: number) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { ime, telefon, adresa, grad, kolicina } = body;
+    const { ime, telefon, adresa, grad, kolicina, sdCard } = body;
 
     if (!ime || !telefon || !adresa || !grad) {
       return NextResponse.json(
@@ -52,8 +53,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const qty = Math.max(1, Math.min(5, Number(kolicina) || 1));
-    const cijena_proizvoda = qty * UNIT_PRICE;
+    const qty      = Math.max(1, Math.min(5, Number(kolicina) || 1));
+    const sdExtra  = SD_EXTRA[String(sdCard || "none")] ?? 0;
+    const unitFull = UNIT_PRICE + sdExtra;
+    const cijena_proizvoda = qty * unitFull;
     const ukupno = cijena_proizvoda + DELIVERY;
     const now = new Date();
     const orderNumber = generateOrderNumber(now);
@@ -65,7 +68,7 @@ export async function POST(request: NextRequest) {
         telefon,
         adresa,
         grad,
-        velicine: [{ velicina: "V380 Pro Kamera 12MP", kolicina: qty }],
+        velicine: [{ velicina: `WiFi PTZ Kamera${sdExtra > 0 ? ` + SD ${sdCard}GB` : ""}`, kolicina: qty }],
         ukupno_pari: qty,
         cijena_proizvoda,
         dostava: DELIVERY,
@@ -164,7 +167,7 @@ export async function POST(request: NextRequest) {
                 <tr><td style="padding: 7px 0; color: #888; font-size: 14px; width: 140px;">Proizvod</td><td style="padding: 7px 0; font-weight: 600; font-size: 14px; color: #0A0A0A;">V380 Pro Kamera 12MP</td></tr>
                 <tr><td style="padding: 7px 0; color: #888; font-size: 14px;">Količina</td><td style="padding: 7px 0; font-weight: 600; font-size: 14px; color: #0A0A0A;">${qty}×</td></tr>
                 <tr><td style="padding: 7px 0; color: #888; font-size: 14px;">Cijena</td><td style="padding: 7px 0; font-weight: 600; font-size: 14px; color: #0A0A0A;">${fmtKM(cijena_proizvoda)}</td></tr>
-                <tr><td style="padding: 7px 0; color: #888; font-size: 14px;">Poklon</td><td style="padding: 7px 0; font-weight: 600; font-size: 14px; color: #16a34a;">SD kartica 64GB — GRATIS</td></tr>
+                ${sdExtra > 0 ? `<tr><td style="padding: 7px 0; color: #888; font-size: 14px;">SD kartica</td><td style="padding: 7px 0; font-weight: 600; font-size: 14px; color: #0A0A0A;">${sdCard}GB — ${fmtKM(sdExtra)}</td></tr>` : ""}
                 <tr><td style="padding: 7px 0; color: #888; font-size: 14px;">Dostava</td><td style="padding: 7px 0; font-weight: 600; font-size: 14px; color: #0A0A0A;">${fmtKM(DELIVERY)}</td></tr>
                 <tr style="border-top: 2px solid #F0F0F0;">
                   <td style="padding: 14px 0 0; color: #0A0A0A; font-size: 15px; font-weight: 700;">Ukupno</td>

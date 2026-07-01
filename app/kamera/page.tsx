@@ -1,10 +1,15 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import KameraClient from "./KameraClient";
 
 export const metadata: Metadata = {
-  title: "V380 Pro WiFi Kamera 12MP · Cartly.ba",
+  title: "WiFi Sigurnosna Kamera | Akcija 49,90 KM",
   description:
-    "Vanjska sigurnosna kamera V380 Pro WiFi 12MP. Trostruko sočivo, 360° pokrivenost, noćni vid, IP66 vodootpornost. Samo 129,90 KM. Plaćanje pouzećem.",
+    "Zaštitite svoj dom uz pametnu WiFi sigurnosnu kameru. Noćni vid, detekcija pokreta, mobilna aplikacija i dostava širom BiH.",
+  openGraph: {
+    title: "WiFi PTZ Sigurnosna Kamera | Akcija 49,90 KM",
+    description: "Pratite dom uživo sa mobitela. Noćni vid, AI detekcija pokreta, 355° rotacija. Dostava 24-48h, plaćanje pouzećem.",
+    images: ["/kamera2/kamerapng.png"],
+  },
 };
 
 export default function KameraPage() {
