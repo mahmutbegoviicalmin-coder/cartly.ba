@@ -87,6 +87,9 @@ const PRODUCT_MAP: Record<string, { label: string; bg: string; color: string }> 
   BRS: { label: "Brusilica", bg: "rgba(20,184,166,0.12)",  color: "#14b8a6" },
   CCT: { label: "Četka",    bg: "rgba(52,211,153,0.12)",  color: "#34d399" },
   USM: { label: "Usmjerivač", bg: "rgba(26,95,255,0.12)", color: "#1a5fff" },
+  PAT: { label: "R. Patike",  bg: "rgba(99,102,241,0.12)", color: "#6366f1" },
+  RCH: { label: "Richeng",    bg: "rgba(179,48,0,0.10)",   color: "#B33000" },
+  LEZ: { label: "Ležaljka",   bg: "rgba(236,72,153,0.12)", color: "#ec4899" },
 };
 
 function productBadge(orderNumber?: string) {
