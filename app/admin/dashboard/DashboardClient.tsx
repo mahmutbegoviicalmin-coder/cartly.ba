@@ -317,14 +317,14 @@ export default function DashboardClient() {
     }
   };
 
-  // Brusilice Postin export
-  const [brusiliceDate, setBrusiliceDate]       = useState(todayStr);
-  const [brusiliceLoading, setBrusiliceLoading] = useState(false);
+  // Usmjerivači Pošta export
+  const [usmjerivacDate, setUsmjerivacDate]       = useState(todayStr);
+  const [usmjerivacLoading, setUsmjerivacLoading] = useState(false);
 
-  const exportBrusilice = async () => {
-    setBrusiliceLoading(true);
+  const exportUsmjerivaci = async () => {
+    setUsmjerivacLoading(true);
     try {
-      const res = await fetch(`/api/export/brusilice?date=${brusiliceDate}`);
+      const res = await fetch(`/api/export/usmjerivaci?date=${usmjerivacDate}`);
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: "Greška pri eksportu." }));
         alert(err.error ?? "Greška pri eksportu.");
@@ -334,7 +334,7 @@ export default function DashboardClient() {
       const url  = URL.createObjectURL(blob);
       const a    = document.createElement("a");
       a.href     = url;
-      a.download = `Brusilice_Postin_${brusiliceDate}.xlsx`;
+      a.download = `Usmjerivaci_Posta_${usmjerivacDate}.xlsx`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -342,7 +342,7 @@ export default function DashboardClient() {
     } catch {
       alert("Greška pri eksportu. Pokušajte ponovo.");
     } finally {
-      setBrusiliceLoading(false);
+      setUsmjerivacLoading(false);
     }
   };
 
@@ -803,12 +803,12 @@ export default function DashboardClient() {
                     </button>
                   </div>
 
-                  {/* ── Brusilice Postin Export ── */}
+                  {/* ── Usmjerivači Pošta Export ── */}
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <input
                       type="date"
-                      value={brusiliceDate}
-                      onChange={(e) => setBrusiliceDate(e.target.value)}
+                      value={usmjerivacDate}
+                      onChange={(e) => setUsmjerivacDate(e.target.value)}
                       style={{
                         padding: "8px 12px", fontSize: 13, border: "1px solid #2a2a2a",
                         borderRadius: 8, background: "#111", outline: "none",
@@ -816,21 +816,21 @@ export default function DashboardClient() {
                         colorScheme: "dark", cursor: "pointer",
                         transition: "border-color 0.15s",
                       }}
-                      onFocus={(e) => { e.currentTarget.style.borderColor = "#f97316"; }}
+                      onFocus={(e) => { e.currentTarget.style.borderColor = "#34d399"; }}
                       onBlur={(e)  => { e.currentTarget.style.borderColor = "#2a2a2a"; }}
                     />
                     <button
-                      onClick={exportBrusilice}
-                      disabled={brusiliceLoading}
+                      onClick={exportUsmjerivaci}
+                      disabled={usmjerivacLoading}
                       style={{
-                        padding: "8px 18px", background: "#1c1108", color: "#f97316",
-                        border: "1px solid #7c3200", borderRadius: 8, fontSize: 13, fontWeight: 600,
-                        cursor: brusiliceLoading ? "not-allowed" : "pointer", fontFamily: "inherit",
+                        padding: "8px 18px", background: "#0a1f15", color: "#34d399",
+                        border: "1px solid #065f46", borderRadius: 8, fontSize: 13, fontWeight: 600,
+                        cursor: usmjerivacLoading ? "not-allowed" : "pointer", fontFamily: "inherit",
                         display: "flex", alignItems: "center", gap: 7, transition: "background 0.15s",
-                        opacity: brusiliceLoading ? 0.7 : 1, whiteSpace: "nowrap",
+                        opacity: usmjerivacLoading ? 0.7 : 1, whiteSpace: "nowrap",
                       }}
                     >
-                      {brusiliceLoading ? (
+                      {usmjerivacLoading ? (
                         <>
                           <svg style={{ animation: "spin 1s linear infinite" }} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                             <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
@@ -840,7 +840,7 @@ export default function DashboardClient() {
                       ) : (
                         <>
                           <IconDownload />
-                          Brusilice za Postin
+                          Usmjerivači za Poštu
                         </>
                       )}
                     </button>
