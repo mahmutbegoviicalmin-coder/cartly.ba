@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { Resend } from "resend";
 import { sendCAPIEvent, getClientIP, getClientUA, getFbc, getFbp } from "@/lib/meta-capi";
 
-const UNIT_PRICE = 49.9;
+const UNIT_PRICE = 44.9;
 const DELIVERY   = 10;
 const SD_EXTRA: Record<string, number> = { none:0, "64":9.9, "128":11.9 };
 
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: `DB greška: ${dbError.message || "nepoznata greška"} (code: ${dbError.code || "?"}, details: ${dbError.details || "-"}, hint: ${dbError.hint || "-"})`,
+          error: `DB greĹˇka: ${dbError.message || "nepoznata greĹˇka"} (code: ${dbError.code || "?"}, details: ${dbError.details || "-"}, hint: ${dbError.hint || "-"})`,
         },
         { status: 500 }
       );
@@ -111,8 +111,8 @@ export async function POST(request: NextRequest) {
         html: `
           <div style="font-family: Inter, -apple-system, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #F0F0F0;">
             <div style="background: #FF6B00; padding: 32px 40px;">
-              <h1 style="color: #fff; margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.02em;">Nova narudžba</h1>
-              <p style="color: rgba(255,255,255,0.8); margin: 6px 0 0; font-size: 13px;">${orderNumber} &nbsp;·&nbsp; ${formatDateBosnian(now)}</p>
+              <h1 style="color: #fff; margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.02em;">Nova narudĹľba</h1>
+              <p style="color: rgba(255,255,255,0.8); margin: 6px 0 0; font-size: 13px;">${orderNumber} &nbsp;Â·&nbsp; ${formatDateBosnian(now)}</p>
             </div>
             <div style="padding: 32px 40px;">
               <h2 style="font-size: 13px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 12px;">Podaci kupca</h2>
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
                       <p style="margin:0 0 3px;font-size:10px;font-weight:700;color:#AAAAAA;text-transform:uppercase;letter-spacing:0.08em;">Ime i prezime</p>
                       <table width="100%" cellpadding="0" cellspacing="0"><tr>
                         <td><p style="margin:0;font-size:16px;font-weight:700;color:#0A0A0A;user-select:all;cursor:pointer;">${ime}</p></td>
-                        <td style="width:22px;text-align:right;vertical-align:middle;font-size:14px;color:#BBBBBB;padding-left:6px;">📋</td>
+                        <td style="width:22px;text-align:right;vertical-align:middle;font-size:14px;color:#BBBBBB;padding-left:6px;">đź“‹</td>
                       </tr></table>
                     </div>
                   </td>
@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
                       <p style="margin:0 0 3px;font-size:10px;font-weight:700;color:#AAAAAA;text-transform:uppercase;letter-spacing:0.08em;">Telefon</p>
                       <table width="100%" cellpadding="0" cellspacing="0"><tr>
                         <td><p style="margin:0;font-size:16px;font-weight:700;color:#0A0A0A;user-select:all;cursor:pointer;">${telefon}</p></td>
-                        <td style="width:22px;text-align:right;vertical-align:middle;font-size:14px;color:#BBBBBB;padding-left:6px;">📋</td>
+                        <td style="width:22px;text-align:right;vertical-align:middle;font-size:14px;color:#BBBBBB;padding-left:6px;">đź“‹</td>
                       </tr></table>
                     </div>
                   </td>
@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
                       <p style="margin:0 0 3px;font-size:10px;font-weight:700;color:#AAAAAA;text-transform:uppercase;letter-spacing:0.08em;">Adresa</p>
                       <table width="100%" cellpadding="0" cellspacing="0"><tr>
                         <td><p style="margin:0;font-size:16px;font-weight:700;color:#0A0A0A;user-select:all;cursor:pointer;">${adresa}</p></td>
-                        <td style="width:22px;text-align:right;vertical-align:middle;font-size:14px;color:#BBBBBB;padding-left:6px;">📋</td>
+                        <td style="width:22px;text-align:right;vertical-align:middle;font-size:14px;color:#BBBBBB;padding-left:6px;">đź“‹</td>
                       </tr></table>
                     </div>
                   </td>
@@ -156,18 +156,18 @@ export async function POST(request: NextRequest) {
                       <p style="margin:0 0 3px;font-size:10px;font-weight:700;color:#AAAAAA;text-transform:uppercase;letter-spacing:0.08em;">Grad</p>
                       <table width="100%" cellpadding="0" cellspacing="0"><tr>
                         <td><p style="margin:0;font-size:16px;font-weight:700;color:#0A0A0A;user-select:all;cursor:pointer;">${grad}</p></td>
-                        <td style="width:22px;text-align:right;vertical-align:middle;font-size:14px;color:#BBBBBB;padding-left:6px;">📋</td>
+                        <td style="width:22px;text-align:right;vertical-align:middle;font-size:14px;color:#BBBBBB;padding-left:6px;">đź“‹</td>
                       </tr></table>
                     </div>
                   </td>
                 </tr>
               </table>
-              <h2 style="font-size: 13px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 16px;">Narudžba</h2>
+              <h2 style="font-size: 13px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 16px;">NarudĹľba</h2>
               <table style="width: 100%; border-collapse: collapse;">
                 <tr><td style="padding: 7px 0; color: #888; font-size: 14px; width: 140px;">Proizvod</td><td style="padding: 7px 0; font-weight: 600; font-size: 14px; color: #0A0A0A;">V380 Pro Kamera 12MP</td></tr>
-                <tr><td style="padding: 7px 0; color: #888; font-size: 14px;">Količina</td><td style="padding: 7px 0; font-weight: 600; font-size: 14px; color: #0A0A0A;">${qty}×</td></tr>
+                <tr><td style="padding: 7px 0; color: #888; font-size: 14px;">KoliÄŤina</td><td style="padding: 7px 0; font-weight: 600; font-size: 14px; color: #0A0A0A;">${qty}Ă—</td></tr>
                 <tr><td style="padding: 7px 0; color: #888; font-size: 14px;">Cijena</td><td style="padding: 7px 0; font-weight: 600; font-size: 14px; color: #0A0A0A;">${fmtKM(cijena_proizvoda)}</td></tr>
-                ${sdExtra > 0 ? `<tr><td style="padding: 7px 0; color: #888; font-size: 14px;">SD kartica</td><td style="padding: 7px 0; font-weight: 600; font-size: 14px; color: #0A0A0A;">${sdCard}GB — ${fmtKM(sdExtra)}</td></tr>` : ""}
+                ${sdExtra > 0 ? `<tr><td style="padding: 7px 0; color: #888; font-size: 14px;">SD kartica</td><td style="padding: 7px 0; font-weight: 600; font-size: 14px; color: #0A0A0A;">${sdCard}GB â€” ${fmtKM(sdExtra)}</td></tr>` : ""}
                 <tr><td style="padding: 7px 0; color: #888; font-size: 14px;">Dostava</td><td style="padding: 7px 0; font-weight: 600; font-size: 14px; color: #0A0A0A;">${fmtKM(DELIVERY)}</td></tr>
                 <tr style="border-top: 2px solid #F0F0F0;">
                   <td style="padding: 14px 0 0; color: #0A0A0A; font-size: 15px; font-weight: 700;">Ukupno</td>
@@ -176,7 +176,7 @@ export async function POST(request: NextRequest) {
               </table>
             </div>
             <div style="background: #F9F9F9; padding: 20px 40px; border-top: 1px solid #F0F0F0;">
-              <p style="font-size: 12px; color: #aaa; margin: 0;">Plaćanje pouzećem · Euro Express · 1–3 radna dana</p>
+              <p style="font-size: 12px; color: #aaa; margin: 0;">PlaÄ‡anje pouzeÄ‡em Â· Euro Express Â· 1â€“3 radna dana</p>
             </div>
           </div>
         `,
@@ -190,8 +190,9 @@ export async function POST(request: NextRequest) {
   } catch (err) {
     console.error("Kamera order route error:", err);
     return NextResponse.json(
-      { success: false, error: "Greška pri slanju narudžbe. Pokušajte ponovo." },
+      { success: false, error: "GreĹˇka pri slanju narudĹľbe. PokuĹˇajte ponovo." },
       { status: 500 }
     );
   }
 }
+
