@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect, useRef, FormEvent } from "react";
 import Image from "next/image";
@@ -11,7 +11,7 @@ import {
   MapPin,
 } from "lucide-react";
 
-/* â”€â”€â”€ TOKENS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── TOKENS ─────────────────────────────────────────────────────── */
 const F      = "var(--font-manrope),'Inter',-apple-system,sans-serif";
 const NAVY   = "#0F172A";
 const BLUE   = "#2563EB";
@@ -27,7 +27,7 @@ const FU = { initial:{opacity:0,y:36}, whileInView:{opacity:1,y:0}, viewport:VP,
 const FL = { initial:{opacity:0,x:-40}, whileInView:{opacity:1,x:0}, viewport:VP, transition:{duration:0.6,ease:EASE} };
 const FR = { initial:{opacity:0,x:40}, whileInView:{opacity:1,x:0}, viewport:VP, transition:{duration:0.6,ease:EASE} };
 
-/* â”€â”€â”€ DATA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── DATA ───────────────────────────────────────────────────────── */
 type SD = "none" | "64" | "128";
 const SD_EXTRA: Record<SD, number> = { none:0, "64":9.90, "128":11.90 };
 const BASE_PRICE = 44.90;
@@ -39,30 +39,30 @@ const NOTIFS = [
   { name:"Jasmina", city:"Sarajeva",  g:"f" },
   { name:"Haris",   city:"Zenice",    g:"m" },
   { name:"Lejla",   city:"Mostara",   g:"f" },
-  { name:"Emir",    city:"BihaÄ‡a",    g:"m" },
-  { name:"Amina",   city:"GraÄŤanice", g:"f" },
+  { name:"Emir",    city:"Bihaća",    g:"m" },
+  { name:"Amina",   city:"Gračanice", g:"f" },
   { name:"Adnan",   city:"Lukavca",   g:"m" },
-  { name:"Sanela",  city:"BanoviÄ‡a",  g:"f" },
-  { name:"Nermin",  city:"Ĺ˝ivinica",  g:"m" },
+  { name:"Sanela",  city:"Banovića",  g:"f" },
+  { name:"Nermin",  city:"Živinica",  g:"m" },
   { name:"Selma",   city:"Travnika",  g:"f" },
 ];
 
 const FEATURES = [
-  { Icon:ScanFace,  title:"Auto-praÄ‡enje osobe",  desc:"AI rotira kameru automatski za osobom u kadru" },
-  { Icon:Moon,      title:"NoÄ‡ni vid u boji",      desc:"Jasna slika ÄŤak i u potpunom mraku" },
+  { Icon:ScanFace,  title:"Auto-praćenje osobe",  desc:"AI rotira kameru automatski za osobom u kadru" },
+  { Icon:Moon,      title:"Noćni vid u boji",      desc:"Jasna slika čak i u potpunom mraku" },
   { Icon:Camera,    title:"Full HD / 2K",          desc:"Ostra, detaljna slika 24h dnevno" },
-  { Icon:CloudRain, title:"IP66 vodootpornost",    desc:"FunkcioniĹˇe u svim vremenskim uvjetima" },
-  { Icon:RotateCw,  title:"355Â° rotacija",         desc:"Pokrivenost cijelog prostora bez slijepe taÄŤke" },
+  { Icon:CloudRain, title:"IP66 vodootpornost",    desc:"Funkcioniše u svim vremenskim uvjetima" },
+  { Icon:RotateCw,  title:"355° rotacija",         desc:"Pokrivenost cijelog prostora bez slijepe tačke" },
   { Icon:Mic,       title:"Dvosmjerni audio",      desc:"Razgovarajte putem kamere u realnom vremenu" },
 ];
 
 const ADVANTAGES = [
-  { Icon:ScanFace,   label:"Automatsko praÄ‡enje" },
-  { Icon:Moon,       label:"NoÄ‡ni vid u boji" },
+  { Icon:ScanFace,   label:"Automatsko praćenje" },
+  { Icon:Moon,       label:"Noćni vid u boji" },
   { Icon:Camera,     label:"Full HD slika" },
-  { Icon:CloudRain,  label:"Otporna na kiĹˇu" },
-  { Icon:RotateCw,   label:"360Â° rotacija" },
-  { Icon:Mic,        label:"Mikrofon i zvuÄŤnik" },
+  { Icon:CloudRain,  label:"Otporna na kišu" },
+  { Icon:RotateCw,   label:"360° rotacija" },
+  { Icon:Mic,        label:"Mikrofon i zvučnik" },
   { Icon:HardDrive,  label:"Snimanje na SD" },
   { Icon:Smartphone, label:"Mobilna aplikacija" },
   { Icon:BellRing,   label:"Push notifikacije" },
@@ -71,61 +71,61 @@ const ADVANTAGES = [
 
 const WHY = [
   "Jednostavna instalacija u 5 minuta",
-  "Radi putem WiFi mreĹľe bez kabla",
+  "Radi putem WiFi mreže bez kabla",
   "Upravljanje sa mobilnog telefona",
   "Nije potrebna pretplata ni cloud",
   "Automatski alarm pri detekciji pokreta",
-  "Pregled uĹľivo 24 sata dnevno",
+  "Pregled uživo 24 sata dnevno",
 ];
 
 const STEPS = [
-  { n:1, Icon:Wifi,       title:"PoveĹľite kameru na WiFi",      desc:"Skenirajte QR kod i kamera je online za 60 sekundi." },
+  { n:1, Icon:Wifi,       title:"Povežite kameru na WiFi",      desc:"Skenirajte QR kod i kamera je online za 60 sekundi." },
   { n:2, Icon:Smartphone, title:"Instalirajte aplikaciju",       desc:"Preuzmite besplatnu aplikaciju na iOS ili Android." },
-  { n:3, Icon:BellRing,   title:"Primajte obavjeĹˇtenja odmah",   desc:"Svaki pokret aktivira instant push na vaĹˇ telefon." },
-  { n:4, Icon:Eye,        title:"Pratite uĹľivo gdje god da ste", desc:"Otvorite aplikaciju i gledajte kuÄ‡ni livestream." },
+  { n:3, Icon:BellRing,   title:"Primajte obavještenja odmah",   desc:"Svaki pokret aktivira instant push na vaš telefon." },
+  { n:4, Icon:Eye,        title:"Pratite uživo gdje god da ste", desc:"Otvorite aplikaciju i gledajte kućni livestream." },
 ];
 
 const SPECS = [
   { label:"Rezolucija",        value:"1080p Full HD / 2K" },
-  { label:"NoÄ‡ni vid",         value:"Do 10m u mraku" },
+  { label:"Noćni vid",         value:"Do 10m u mraku" },
   { label:"WiFi standard",     value:"2.4GHz 802.11 b/g/n" },
-  { label:"Rotacija",          value:"355Â° horizontalno" },
+  { label:"Rotacija",          value:"355° horizontalno" },
   { label:"Audio",             value:"Dvosmjerni mikrofon" },
   { label:"Detekcija pokreta", value:"AI PIR senzor" },
-  { label:"IP zaĹˇtita",        value:"IP66 vodootpornost" },
+  { label:"IP zaštita",        value:"IP66 vodootpornost" },
   { label:"Aplikacija",        value:"iOS i Android" },
   { label:"Micro SD",          value:"Do 128GB" },
 ];
 
 const REVIEWS = [
-  { name:"Adnan M.",   city:"Tuzla",      stars:5, text:"Dobio kameru za dva dana. Slika je odliÄŤna, noÄ‡u se vidi savrĹˇeno. Totalno sam zadovoljan, preporuÄŤujem." },
+  { name:"Adnan M.",   city:"Tuzla",      stars:5, text:"Dobio kameru za dva dana. Slika je odlična, noću se vidi savršeno. Totalno sam zadovoljan, preporučujem." },
   { name:"Selma H.",   city:"Sarajevo",   stars:5, text:"Instalacija trajala 10 minuta i sve odmah proradilo. Aplikacija super pregledna, nema nikakvih problema." },
-  { name:"Haris K.",   city:"Zenica",     stars:5, text:"Najbolja kupovina ove godine. Postavio dvije kamere i pratim dvoriĹˇte real-time. Zvuk radi odliÄŤno." },
-  { name:"Amina D.",   city:"Mostar",     stars:5, text:"NaruÄŤila za mamu koja Ĺľivi sama. Sada mogu provjeriti sve putem telefona. Detekcija radi savrĹˇeno." },
-  { name:"Mirza O.",   city:"Banja Luka", stars:5, text:"Kamera stoji vani 4 mjeseca, preĹľivi sve kiĹˇe. Kvalitetan materijal, garancija od 1 godine je veliki plus." },
-  { name:"Lejla P.",   city:"Tuzla",      stars:5, text:"ObavjeĹˇtenje mi stigne za 2 sekunde kada kamera detektuje pokret. Svaka preporuka, vrijedi novca." },
-  { name:"Edin T.",    city:"Travnik",    stars:5, text:"PlaÄ‡anje pouzeÄ‡em je ono Ĺˇto me uvjerilo. Paket stigao odliÄŤno zapakovan sljedeÄ‡i dan." },
-  { name:"Jasmina B.", city:"Sarajevo",   stars:5, text:"NoÄ‡na slika kao da je dan. Rotacija tiha i precizna. Definitivno vrijedi svaki fening, odliÄŤno." },
+  { name:"Haris K.",   city:"Zenica",     stars:5, text:"Najbolja kupovina ove godine. Postavio dvije kamere i pratim dvorište real-time. Zvuk radi odlično." },
+  { name:"Amina D.",   city:"Mostar",     stars:5, text:"Naručila za mamu koja živi sama. Sada mogu provjeriti sve putem telefona. Detekcija radi savršeno." },
+  { name:"Mirza O.",   city:"Banja Luka", stars:5, text:"Kamera stoji vani 4 mjeseca, preživi sve kiše. Kvalitetan materijal, garancija od 1 godine je veliki plus." },
+  { name:"Lejla P.",   city:"Tuzla",      stars:5, text:"Obavještenje mi stigne za 2 sekunde kada kamera detektuje pokret. Svaka preporuka, vrijedi novca." },
+  { name:"Edin T.",    city:"Travnik",    stars:5, text:"Plaćanje pouzećem je ono što me uvjerilo. Paket stigao odlično zapakovan sljedeći dan." },
+  { name:"Jasmina B.", city:"Sarajevo",   stars:5, text:"Noćna slika kao da je dan. Rotacija tiha i precizna. Definitivno vrijedi svaki fening, odlično." },
 ];
 
 const FAQ_DATA = [
   { q:"Da li radi bez interneta?",          a:"Kamera zahtijeva WiFi za prijenos slike na mobitel. Bez interneta, snimanje na SD karticu i dalje radi lokalno." },
-  { q:"Da li podrĹľava noÄ‡ni vid?",          a:"Da, ima infrared noÄ‡ni vid do 10m u potpunom mraku, uz opciju noÄ‡nog vida u boji uz dovoljno ambijentalne svjetlosti." },
-  { q:"Koliko traje dostava?",              a:"Dostava traje 24 do 48 sati radnim danima putem Euro Express kurirske sluĹľbe na cijelu BiH." },
-  { q:"Kako se plaÄ‡a?",                     a:"PlaÄ‡anje je iskljuÄŤivo pouzeÄ‡em â€” plaÄ‡ate kuriru kada vam paket stigne. Nema predujma ni online plaÄ‡anja." },
-  { q:"Da li ima garanciju?",               a:"Da, kamera dolazi s garancijom od 1 godine. U sluÄŤaju kvara, zamjenimo ili refundiramo bez pitanja." },
-  { q:"Da li mogu gledati preko mobitela?", a:"Da, preuzmite besplatnu aplikaciju i pratite kameru uĹľivo s bilo kojeg mjesta na svijetu." },
+  { q:"Da li podržava noćni vid?",          a:"Da, ima infrared noćni vid do 10m u potpunom mraku, uz opciju noćnog vida u boji uz dovoljno ambijentalne svjetlosti." },
+  { q:"Koliko traje dostava?",              a:"Dostava traje 24 do 48 sati radnim danima putem Euro Express kurirske službe na cijelu BiH." },
+  { q:"Kako se plaća?",                     a:"Plaćanje je isključivo pouzećem — plaćate kuriru kada vam paket stigne. Nema predujma ni online plaćanja." },
+  { q:"Da li ima garanciju?",               a:"Da, kamera dolazi s garancijom od 1 godine. U slučaju kvara, zamjenimo ili refundiramo bez pitanja." },
+  { q:"Da li mogu gledati preko mobitela?", a:"Da, preuzmite besplatnu aplikaciju i pratite kameru uživo s bilo kojeg mjesta na svijetu." },
 ];
 
 const NAV = [
-  { label:"PoÄŤetna",        href:"#home" },
+  { label:"Početna",        href:"#home" },
   { label:"Karakteristike", href:"#features" },
   { label:"Kako radi",      href:"#how" },
   { label:"Recenzije",      href:"#reviews" },
-  { label:"NaruÄŤi",         href:"#order" },
+  { label:"Naruči",         href:"#order" },
 ];
 
-/* â”€â”€â”€ PROGRESS BAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── PROGRESS BAR ───────────────────────────────────────────────── */
 function ProgressBar() {
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness:100, damping:30 });
@@ -136,7 +136,7 @@ function ProgressBar() {
   );
 }
 
-/* â”€â”€â”€ SOCIAL PROOF POPUP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── SOCIAL PROOF POPUP ─────────────────────────────────────────── */
 function SocialProof() {
   const [idx,     setIdx]     = useState(0);
   const [visible, setVisible] = useState(false);
@@ -169,10 +169,10 @@ function SocialProof() {
           </div>
           <div>
             <div style={{ fontSize:12, fontWeight:700, color:NAVY, lineHeight:1.4 }}>
-              {n.name} iz {n.city} upravo {n.g==="f"?"naruÄŤila":"naruÄŤio"} kameru
+              {n.name} iz {n.city} upravo {n.g==="f"?"naručila":"naručio"} kameru
             </div>
             <div style={{ fontSize:11, color:MUTED, marginTop:3, display:"flex", alignItems:"center", gap:4 }}>
-              <CheckCircle size={10} color={GREEN} /> PotvrÄ‘ena narudĹľba
+              <CheckCircle size={10} color={GREEN} /> Potvrđena narudžba
             </div>
           </div>
         </motion.div>
@@ -181,7 +181,7 @@ function SocialProof() {
   );
 }
 
-/* â”€â”€â”€ HEADER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── HEADER ─────────────────────────────────────────────────────── */
 function Header({ onOrder }: { onOrder: () => void }) {
   const [scrolled, setScrolled] = useState(false);
   const [open,     setOpen]     = useState(false);
@@ -238,7 +238,7 @@ function Header({ onOrder }: { onOrder: () => void }) {
             ))}
             <div style={{ padding:16 }}>
               <button onClick={() => { setOpen(false); onOrder(); }} style={{ width:"100%", padding:14, background:`linear-gradient(135deg, ${BLUE} 0%, ${BLUE2} 100%)`, color:"#fff", border:"none", borderRadius:12, fontSize:15, fontWeight:700, fontFamily:F, cursor:"pointer" }}>
-                Kupi odmah â€” 44,90 KM
+                Kupi odmah — 44,90 KM
               </button>
             </div>
           </motion.div>
@@ -261,7 +261,7 @@ function Header({ onOrder }: { onOrder: () => void }) {
   );
 }
 
-/* â”€â”€â”€ HERO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── HERO ───────────────────────────────────────────────────────── */
 function Hero({ onOrder }: { onOrder: () => void }) {
   const { h, m, s } = useCountdown(6420);
   const { stock, viewers, sold } = useUrgency();
@@ -284,7 +284,7 @@ function Hero({ onOrder }: { onOrder: () => void }) {
           <motion.h1 initial={{ opacity:0, y:24 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.2, duration:0.65, ease:EASE }}
             style={{ fontSize:"clamp(28px,4.2vw,52px)", fontWeight:900, color:"#fff", fontFamily:F, lineHeight:1.12, letterSpacing:"-0.03em", margin:"0 0 20px" }}
           >
-            ZaĹˇtitite svoj dom uz{" "}
+            Zaštitite svoj dom uz{" "}
             <span style={{ background:`linear-gradient(135deg, ${BLUE} 0%, #60A5FA 100%)`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>
               pametnu WiFi
             </span>{" "}
@@ -294,7 +294,7 @@ function Hero({ onOrder }: { onOrder: () => void }) {
           <motion.p initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.3, duration:0.55, ease:EASE }}
             style={{ fontSize:16, color:"rgba(255,255,255,0.62)", fontFamily:F, lineHeight:1.78, margin:"0 0 32px", maxWidth:480 }}
           >
-            Pratite dom uĹľivo sa bilo kojeg mjesta putem mobitela. Kamera automatski detektuje pokret, Ĺˇalje obavjeĹˇtenja i snima svaki vaĹľan trenutak.
+            Pratite dom uživo sa bilo kojeg mjesta putem mobitela. Kamera automatski detektuje pokret, šalje obavještenja i snima svaki važan trenutak.
           </motion.p>
 
           {/* Price box */}
@@ -303,18 +303,18 @@ function Hero({ onOrder }: { onOrder: () => void }) {
           >
             <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
               <span style={{ fontSize:16, color:"rgba(255,255,255,0.35)", textDecoration:"line-through", fontFamily:F }}>79,90 KM</span>
-              <span style={{ background:RED, color:"#fff", fontSize:11, fontWeight:800, padding:"3px 10px", borderRadius:8, fontFamily:F }}>UĹ TEDA 30 KM</span>
+              <span style={{ background:RED, color:"#fff", fontSize:11, fontWeight:800, padding:"3px 10px", borderRadius:8, fontFamily:F }}>UŠTEDA 30 KM</span>
             </div>
             <div style={{ fontSize:52, fontWeight:900, color:"#fff", fontFamily:F, letterSpacing:"-0.04em", lineHeight:1 }}>
               44,90 <span style={{ fontSize:22, color:"rgba(255,255,255,0.55)", fontWeight:600 }}>KM</span>
             </div>
             <div style={{ marginTop:14, display:"flex", alignItems:"center", gap:8 }}>
               <Truck size={15} color={GREEN} />
-              <span style={{ fontSize:14, fontWeight:700, color:"rgba(255,255,255,0.6)", fontFamily:F }}>Dostava 10,00 KM Â· PlaÄ‡anje pouzeÄ‡em</span>
+              <span style={{ fontSize:14, fontWeight:700, color:"rgba(255,255,255,0.6)", fontFamily:F }}>Dostava 10,00 KM · Plaćanje pouzećem</span>
             </div>
             <div style={{ marginTop:12, display:"flex", flexDirection:"column", gap:6 }}>
               {([
-                [CheckCircle,"PlaÄ‡anje pouzeÄ‡em"],
+                [CheckCircle,"Plaćanje pouzećem"],
                 [Clock,      "Dostava 24-48h"],
                 [ShieldCheck,"1 godina garancije"],
               ] as [React.ElementType, string][]).map(([Icon, text], i) => (
@@ -326,7 +326,7 @@ function Hero({ onOrder }: { onOrder: () => void }) {
             </div>
           </motion.div>
 
-          {/* CTAs â€” desktop only */}
+          {/* CTAs — desktop only */}
           <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.5, duration:0.5, ease:EASE }}
             className="k-hero-desk-ctas" style={{ display:"flex", gap:12, flexWrap:"wrap" }}
           >
@@ -335,7 +335,7 @@ function Hero({ onOrder }: { onOrder: () => void }) {
               onMouseEnter={e => (e.currentTarget.style.transform="translateY(-2px)")}
               onMouseLeave={e => (e.currentTarget.style.transform="translateY(0)")}
             >
-              NaruÄŤi odmah <ArrowRight size={17} />
+              Naruči odmah <ArrowRight size={17} />
             </button>
             <a href="#how" style={{ padding:"15px 26px", background:"rgba(255,255,255,0.08)", border:"1px solid rgba(255,255,255,0.14)", color:"rgba(255,255,255,0.82)", borderRadius:14, fontSize:14, fontWeight:600, fontFamily:F, textDecoration:"none", display:"flex", alignItems:"center", gap:8 }}>
               Pogledaj kako radi <ChevronRight size={16} />
@@ -357,7 +357,7 @@ function Hero({ onOrder }: { onOrder: () => void }) {
               </div>
               <div style={{ position:"absolute", top:"10%", right:"0%", background:"rgba(16,185,129,0.14)", backdropFilter:"blur(12px)", WebkitBackdropFilter:"blur(12px)", border:"1px solid rgba(16,185,129,0.28)", borderRadius:12, padding:"8px 12px", display:"flex", alignItems:"center", gap:6 }}>
                 <ScanFace size={13} color={GREEN} />
-                <span style={{ fontSize:11, fontWeight:700, color:GREEN, fontFamily:F }}>AI praÄ‡enje</span>
+                <span style={{ fontSize:11, fontWeight:700, color:GREEN, fontFamily:F }}>AI praćenje</span>
               </div>
             </motion.div>
 
@@ -371,11 +371,11 @@ function Hero({ onOrder }: { onOrder: () => void }) {
                   <div style={{ fontSize:12, color:"rgba(255,255,255,0.38)", textDecoration:"line-through", fontFamily:F }}>79,90 KM</div>
                   <div style={{ fontSize:40, fontWeight:900, color:"#fff", fontFamily:F, letterSpacing:"-0.04em", lineHeight:1, whiteSpace:"nowrap" }}>44,90 <span style={{ fontSize:16, color:"rgba(255,255,255,0.5)", fontWeight:600 }}>KM</span></div>
                 </div>
-                <div style={{ marginLeft:"auto", flexShrink:0, background:RED, color:"#fff", fontSize:11, fontWeight:800, padding:"5px 10px", borderRadius:10, fontFamily:F, whiteSpace:"nowrap" }}>UĹ TEDA 30 KM</div>
+                <div style={{ marginLeft:"auto", flexShrink:0, background:RED, color:"#fff", fontSize:11, fontWeight:800, padding:"5px 10px", borderRadius:10, fontFamily:F, whiteSpace:"nowrap" }}>UŠTEDA 30 KM</div>
               </div>
               {/* Countdown */}
               <div style={{ display:"flex", gap:6, marginBottom:14 }}>
-                <div style={{ fontSize:10, color:"rgba(255,255,255,0.5)", fontFamily:F, alignSelf:"center", marginRight:4 }}>âŹ± IstiÄŤe za:</div>
+                <div style={{ fontSize:10, color:"rgba(255,255,255,0.5)", fontFamily:F, alignSelf:"center", marginRight:4 }}>⏱ Ističe za:</div>
                 {([[h,"SAT"],[m,"MIN"],[s,"SEK"]] as [number,string][]).map(([val, lab], i) => (
                   <div key={i} style={{ textAlign:"center", background:"rgba(255,255,255,0.12)", borderRadius:8, padding:"6px 8px", minWidth:40 }}>
                     <div style={{ fontSize:16, fontWeight:900, color:"#fff", fontFamily:F, lineHeight:1 }}>{String(val).padStart(2,"0")}</div>
@@ -383,7 +383,7 @@ function Hero({ onOrder }: { onOrder: () => void }) {
                   </div>
                 ))}
               </div>
-              {/* Urgency stats â€” client only to avoid SSR mismatch */}
+              {/* Urgency stats — client only to avoid SSR mismatch */}
               {mounted && (
                 <div style={{ display:"flex", gap:12, marginBottom:18, flexWrap:"wrap" }}>
                   <div style={{ display:"flex", alignItems:"center", gap:5 }}>
@@ -406,18 +406,18 @@ function Hero({ onOrder }: { onOrder: () => void }) {
                 onMouseEnter={e => e.currentTarget.style.transform="scale(1.02)"}
                 onMouseLeave={e => e.currentTarget.style.transform="scale(1)"}
               >
-                NaruÄŤi odmah <ArrowRight size={17} />
+                Naruči odmah <ArrowRight size={17} />
               </button>
               <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:6, marginTop:10 }}>
                 <Truck size={12} color={GREEN} />
-                <span style={{ fontSize:11, color:"rgba(255,255,255,0.6)", fontFamily:F, fontWeight:600 }}>Dostava 10,00 KM Â· PlaÄ‡anje pouzeÄ‡em</span>
+                <span style={{ fontSize:11, color:"rgba(255,255,255,0.6)", fontFamily:F, fontWeight:600 }}>Dostava 10,00 KM · Plaćanje pouzećem</span>
               </div>
             </motion.div>
 
           </div>
         </motion.div>
 
-        {/* RIGHT â€” floating image */}
+        {/* RIGHT — floating image */}
         <div className="k-hero-desk-img" style={{ position:"relative", display:"flex", alignItems:"center", justifyContent:"center" }}>
           <div style={{ position:"absolute", width:440, height:440, borderRadius:"50%", background:`radial-gradient(circle, rgba(37,99,235,0.22) 0%, transparent 70%)`, filter:"blur(48px)" }} />
 
@@ -455,7 +455,7 @@ function Hero({ onOrder }: { onOrder: () => void }) {
             style={{ position:"absolute", bottom:"18%", right:"-3%", background:"rgba(255,255,255,0.1)", backdropFilter:"blur(14px)", WebkitBackdropFilter:"blur(14px)", border:"1px solid rgba(255,255,255,0.18)", borderRadius:14, padding:"11px 15px", zIndex:3, display:"flex", alignItems:"center", gap:8 }}
           >
             <Moon size={16} color="#93C5FD" />
-            <span style={{ fontSize:12, fontWeight:700, color:"rgba(255,255,255,0.85)", fontFamily:F }}>NoÄ‡ni naÄŤin rada</span>
+            <span style={{ fontSize:12, fontWeight:700, color:"rgba(255,255,255,0.85)", fontFamily:F }}>Noćni način rada</span>
           </motion.div>
         </div>
       </div>
@@ -477,7 +477,7 @@ function Hero({ onOrder }: { onOrder: () => void }) {
   );
 }
 
-/* â”€â”€â”€ FEATURES SECTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── FEATURES SECTION ───────────────────────────────────────────── */
 function FeaturesSection() {
   return (
     <section id="features" style={{ background:BG, padding:"100px 0" }}>
@@ -488,12 +488,12 @@ function FeaturesSection() {
           </motion.div>
 
           <motion.div {...FR}>
-            <p style={{ fontSize:12, fontWeight:800, color:BLUE, fontFamily:F, textTransform:"uppercase", letterSpacing:"0.12em", marginBottom:14 }}>Pametna zaĹˇtita</p>
+            <p style={{ fontSize:12, fontWeight:800, color:BLUE, fontFamily:F, textTransform:"uppercase", letterSpacing:"0.12em", marginBottom:14 }}>Pametna zaštita</p>
             <h2 style={{ fontSize:"clamp(24px,3.2vw,40px)", fontWeight:900, color:NAVY, fontFamily:F, letterSpacing:"-0.03em", lineHeight:1.15, margin:"0 0 18px" }}>
-              ZaĹˇtita koja radi<br />24 sata dnevno
+              Zaštita koja radi<br />24 sata dnevno
             </h2>
             <p style={{ fontSize:15, color:MUTED, fontFamily:F, lineHeight:1.75, margin:"0 0 36px" }}>
-              Savremena AI tehnologija osigurava da svaki pokret bude detektovan, zabiljeĹľen i prijavljen direktno na vaĹˇ mobitel â€” bez obzira gdje se nalazili.
+              Savremena AI tehnologija osigurava da svaki pokret bude detektovan, zabilježen i prijavljen direktno na vaš mobitel — bez obzira gdje se nalazili.
             </p>
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
               {FEATURES.map(({ Icon, title, desc }, i) => (
@@ -516,7 +516,7 @@ function FeaturesSection() {
   );
 }
 
-/* â”€â”€â”€ HOW IT WORKS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── HOW IT WORKS ───────────────────────────────────────────────── */
 function HowItWorks() {
   return (
     <section id="how" style={{ background:"#fff", padding:"100px 0" }}>
@@ -562,7 +562,7 @@ function HowItWorks() {
   );
 }
 
-/* â”€â”€â”€ ADVANTAGES GRID â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── ADVANTAGES GRID ────────────────────────────────────────────── */
 function AdvantagesGrid() {
   return (
     <section style={{ background:BG, padding:"100px 0" }}>
@@ -591,7 +591,7 @@ function AdvantagesGrid() {
   );
 }
 
-/* â”€â”€â”€ WHY SECTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── WHY SECTION ────────────────────────────────────────────────── */
 function WhySection() {
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
@@ -611,7 +611,7 @@ function WhySection() {
     <section style={{ background:"#fff", padding:"100px 0" }}>
       <div style={{ maxWidth:1200, margin:"0 auto", padding:"0 24px" }}>
         <motion.div {...FU} style={{ textAlign:"center", marginBottom:64 }}>
-          <p style={{ fontSize:12, fontWeight:800, color:BLUE, fontFamily:F, textTransform:"uppercase", letterSpacing:"0.12em", marginBottom:12 }}>ZaĹˇto baĹˇ ova kamera?</p>
+          <p style={{ fontSize:12, fontWeight:800, color:BLUE, fontFamily:F, textTransform:"uppercase", letterSpacing:"0.12em", marginBottom:12 }}>Zašto baš ova kamera?</p>
           <h2 style={{ fontSize:"clamp(24px,3.2vw,42px)", fontWeight:900, color:NAVY, fontFamily:F, letterSpacing:"-0.03em", margin:0 }}>Jednostavna. Pouzdana. Dostupna.</h2>
         </motion.div>
 
@@ -638,11 +638,11 @@ function WhySection() {
                 {count}<span style={{ fontSize:44, color:BLUE }}>%</span>
               </div>
               <div style={{ fontSize:15, fontWeight:700, color:"rgba(255,255,255,0.75)", fontFamily:F, marginTop:10, marginBottom:28 }}>
-                kupaca preporuÄŤuje ovaj proizvod
+                kupaca preporučuje ovaj proizvod
               </div>
               {([
-                [Star,        "4.9/5 prosjeÄŤna ocjena"],
-                [BadgeCheck,  "ViĹˇe od 1.200 narudĹľbi"],
+                [Star,        "4.9/5 prosječna ocjena"],
+                [BadgeCheck,  "Više od 1.200 narudžbi"],
                 [ShieldCheck, "1 godina garancije"],
               ] as [React.ElementType, string][]).map(([Icon, text], i) => (
                 <div key={i} style={{ display:"flex", alignItems:"center", gap:12, background:"rgba(255,255,255,0.06)", borderRadius:12, padding:"12px 16px", marginBottom:i<2?10:0 }}>
@@ -658,7 +658,7 @@ function WhySection() {
   );
 }
 
-/* â”€â”€â”€ REVIEWS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── REVIEWS ────────────────────────────────────────────────────── */
 function Reviews() {
   return (
     <section id="reviews" style={{ background:BG, padding:"100px 0", overflow:"hidden" }}>
@@ -666,7 +666,7 @@ function Reviews() {
         <motion.div {...FU} style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", flexWrap:"wrap", gap:16 }}>
           <div>
             <p style={{ fontSize:12, fontWeight:800, color:BLUE, fontFamily:F, textTransform:"uppercase", letterSpacing:"0.12em", marginBottom:10 }}>Recenzije kupaca</p>
-            <h2 style={{ fontSize:"clamp(22px,3.2vw,40px)", fontWeight:900, color:NAVY, fontFamily:F, letterSpacing:"-0.03em", margin:0 }}>Ĺ ta kaĹľu naĹˇi kupci?</h2>
+            <h2 style={{ fontSize:"clamp(22px,3.2vw,40px)", fontWeight:900, color:NAVY, fontFamily:F, letterSpacing:"-0.03em", margin:0 }}>Šta kažu naši kupci?</h2>
           </div>
           <div style={{ display:"flex", alignItems:"center", gap:6 }}>
             {[...Array(5)].map((_,i) => <Star key={i} size={18} fill="#FBBF24" color="#FBBF24" />)}
@@ -704,13 +704,13 @@ function Reviews() {
 }
 
 
-/* â”€â”€â”€ SPECS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── SPECS ──────────────────────────────────────────────────────── */
 function Specs() {
   return (
     <section style={{ background:BG, padding:"100px 0" }}>
       <div style={{ maxWidth:1200, margin:"0 auto", padding:"0 24px" }}>
         <motion.div {...FU} style={{ textAlign:"center", marginBottom:56 }}>
-          <p style={{ fontSize:12, fontWeight:800, color:BLUE, fontFamily:F, textTransform:"uppercase", letterSpacing:"0.12em", marginBottom:12 }}>TehniÄŤki detalji</p>
+          <p style={{ fontSize:12, fontWeight:800, color:BLUE, fontFamily:F, textTransform:"uppercase", letterSpacing:"0.12em", marginBottom:12 }}>Tehnički detalji</p>
           <h2 style={{ fontSize:"clamp(24px,3.2vw,42px)", fontWeight:900, color:NAVY, fontFamily:F, letterSpacing:"-0.03em", margin:0 }}>Specifikacije</h2>
         </motion.div>
 
@@ -730,7 +730,7 @@ function Specs() {
   );
 }
 
-/* â”€â”€â”€ COUNTDOWN HOOK â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── COUNTDOWN HOOK ─────────────────────────────────────────────── */
 function useCountdown(initial: number) {
   const [secs, setSecs] = useState(initial);
   useEffect(() => {
@@ -740,7 +740,7 @@ function useCountdown(initial: number) {
   return { h: Math.floor(secs / 3600), m: Math.floor((secs % 3600) / 60), s: secs % 60 };
 }
 
-/* â”€â”€â”€ URGENCY HOOK â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── URGENCY HOOK ────────────────────────────────────────────────── */
 function useUrgency() {
   const rnd = (lo: number, hi: number) => Math.floor(lo + Math.random() * (hi - lo + 1));
   const [stock,   setStock]   = useState(23);
@@ -760,7 +760,7 @@ function useUrgency() {
   return { stock, viewers, sold };
 }
 
-/* â”€â”€â”€ ORDER MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── ORDER MODAL ─────────────────────────────────────────────────── */
 function OrderModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { h, m, s } = useCountdown(6420);
   const [sd,      setSd]      = useState<SD>("none");
@@ -795,13 +795,13 @@ function OrderModal({ open, onClose }: { open: boolean; onClose: () => void }) {
     try {
       const res  = await fetch("/api/kamera-order", { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify({ ...fields, kolicina:qty, sdCard:sd }) });
       const data = await res.json();
-      if (!data.success) throw new Error(data.error || "GreĹˇka");
+      if (!data.success) throw new Error(data.error || "Greška");
       if (typeof window !== "undefined" && (window as unknown as { fbq?: (...a: unknown[]) => void }).fbq) {
         (window as unknown as { fbq: (...a: unknown[]) => void }).fbq("track", "Purchase", { value: total, currency: "BAM", content_name: "V380 Pro 12MP Kamera", content_ids: ["kamera-v380"], num_items: qty }, { eventID: data.orderNumber });
       }
       setDone(true);
     } catch (err) {
-      setSrvErr(err instanceof Error ? err.message : "GreĹˇka pri slanju narudĹľbe.");
+      setSrvErr(err instanceof Error ? err.message : "Greška pri slanju narudžbe.");
     } finally { setLoading(false); }
   }
 
@@ -833,15 +833,15 @@ function OrderModal({ open, onClose }: { open: boolean; onClose: () => void }) {
                   <div style={{ width:72, height:72, borderRadius:"50%", background:GREEN, display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 20px", boxShadow:`0 12px 40px rgba(16,185,129,0.35)` }}>
                     <CheckCircle size={36} color="#fff" />
                   </div>
-                  <h3 style={{ fontSize:24, fontWeight:900, color:NAVY, letterSpacing:"-0.03em", margin:"0 0 10px" }}>NarudĹľba primljena!</h3>
-                  <p style={{ fontSize:14, color:MUTED, lineHeight:1.7, maxWidth:320, margin:"0 auto" }}>KontaktiraÄ‡emo vas u kratkom roku radi potvrde dostave. Hvala na povjerenju!</p>
+                  <h3 style={{ fontSize:24, fontWeight:900, color:NAVY, letterSpacing:"-0.03em", margin:"0 0 10px" }}>Narudžba primljena!</h3>
+                  <p style={{ fontSize:14, color:MUTED, lineHeight:1.7, maxWidth:320, margin:"0 auto" }}>Kontaktiraćemo vas u kratkom roku radi potvrde dostave. Hvala na povjerenju!</p>
                   <button onClick={onClose} style={{ marginTop:28, padding:"14px 36px", background:`linear-gradient(135deg, ${BLUE} 0%, ${BLUE2} 100%)`, color:"#fff", border:"none", borderRadius:14, fontSize:15, fontWeight:700, cursor:"pointer" }}>Zatvori</button>
                 </div>
               ) : (
                 <>
                   {/* header */}
                   <div style={{ marginBottom:20 }}>
-                    <h2 style={{ fontSize:20, fontWeight:900, color:NAVY, letterSpacing:"-0.03em", margin:"0 0 4px" }}>NaruÄŤi kameru</h2>
+                    <h2 style={{ fontSize:20, fontWeight:900, color:NAVY, letterSpacing:"-0.03em", margin:"0 0 4px" }}>Naruči kameru</h2>
                     <div style={{ display:"flex", alignItems:"center", gap:8 }}>
                       <span style={{ fontSize:13, color:MUTED, textDecoration:"line-through" }}>79,90 KM</span>
                       <span style={{ fontSize:22, fontWeight:900, color:BLUE, letterSpacing:"-0.03em" }}>44,90 KM</span>
@@ -863,9 +863,9 @@ function OrderModal({ open, onClose }: { open: boolean; onClose: () => void }) {
                     <div style={{ fontSize:11, fontWeight:800, color:MUTED, textTransform:"uppercase", letterSpacing:"0.09em", marginBottom:12 }}>Odaberite SD karticu</div>
                     <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
                       {([
-                        { val:"none" as SD, label:"Bez SD kartice",   sub:"Samo kamera",     extra:"UkljuÄŤeno u cijenu", badge:null,            badgeColor:"#64748B" },
-                        { val:"64"   as SD, label:"SD kartica 64GB",  sub:"Najpopularniji",  extra:"+9,90 KM",           badge:"PreporuÄŤeno",   badgeColor:BLUE },
-                        { val:"128"  as SD, label:"SD kartica 128GB", sub:"ViĹˇe prostora",   extra:"+11,90 KM",          badge:"Max. kapacitet", badgeColor:"#7C3AED" },
+                        { val:"none" as SD, label:"Bez SD kartice",   sub:"Samo kamera",     extra:"Uključeno u cijenu", badge:null,            badgeColor:"#64748B" },
+                        { val:"64"   as SD, label:"SD kartica 64GB",  sub:"Najpopularniji",  extra:"+9,90 KM",           badge:"Preporučeno",   badgeColor:BLUE },
+                        { val:"128"  as SD, label:"SD kartica 128GB", sub:"Više prostora",   extra:"+11,90 KM",          badge:"Max. kapacitet", badgeColor:"#7C3AED" },
                       ]).map(({ val, label, sub, extra, badge, badgeColor }) => {
                         const active = sd === val;
                         return (
@@ -896,7 +896,7 @@ function OrderModal({ open, onClose }: { open: boolean; onClose: () => void }) {
                   <form onSubmit={handleSubmit} noValidate>
                     <div className="k-modal-form" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:10 }}>
                       {([
-                        { key:"ime",     label:"Ime i prezime", type:"text", ph:"Amira KovaÄŤeviÄ‡" },
+                        { key:"ime",     label:"Ime i prezime", type:"text", ph:"Amira Kovačević" },
                         { key:"telefon", label:"Telefon",       type:"tel",  ph:"061 234 567" },
                         { key:"adresa",  label:"Adresa",        type:"text", ph:"Ulica i broj" },
                         { key:"grad",    label:"Grad",          type:"text", ph:"Sarajevo" },
@@ -916,9 +916,9 @@ function OrderModal({ open, onClose }: { open: boolean; onClose: () => void }) {
 
                     {/* Qty */}
                     <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", background:BG, border:`1px solid ${BORDER}`, borderRadius:12, padding:"12px 16px", marginBottom:16 }}>
-                      <span style={{ fontSize:13, fontWeight:700, color:NAVY }}>KoliÄŤina</span>
+                      <span style={{ fontSize:13, fontWeight:700, color:NAVY }}>Količina</span>
                       <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-                        <button type="button" onClick={() => setQty(q => Math.max(1,q-1))} style={{ width:32, height:32, borderRadius:8, border:`1.5px solid ${BORDER}`, background:"#fff", cursor:"pointer", fontSize:18, fontWeight:700, color:NAVY, display:"flex", alignItems:"center", justifyContent:"center" }}>â’</button>
+                        <button type="button" onClick={() => setQty(q => Math.max(1,q-1))} style={{ width:32, height:32, borderRadius:8, border:`1.5px solid ${BORDER}`, background:"#fff", cursor:"pointer", fontSize:18, fontWeight:700, color:NAVY, display:"flex", alignItems:"center", justifyContent:"center" }}>−</button>
                         <span style={{ fontSize:17, fontWeight:800, color:NAVY, minWidth:20, textAlign:"center" }}>{qty}</span>
                         <button type="button" onClick={() => setQty(q => Math.min(5,q+1))} style={{ width:32, height:32, borderRadius:8, border:`1.5px solid ${BLUE}`, background:BLUE, cursor:"pointer", fontSize:18, fontWeight:700, color:"#fff", display:"flex", alignItems:"center", justifyContent:"center" }}>+</button>
                       </div>
@@ -943,7 +943,7 @@ function OrderModal({ open, onClose }: { open: boolean; onClose: () => void }) {
                         onMouseEnter={e => { if(!loading) e.currentTarget.style.transform="scale(1.01)"; }}
                         onMouseLeave={e => { e.currentTarget.style.transform="scale(1)"; }}
                       >
-                        {loading ? "Ĺ alje se..." : (<>NaruÄŤi odmah â€” PlaÄ‡anje pouzeÄ‡em <ArrowRight size={16} /></>)}
+                        {loading ? "Šalje se..." : (<>Naruči odmah — Plaćanje pouzećem <ArrowRight size={16} /></>)}
                       </button>
                     </div>
                   </form>
@@ -966,7 +966,7 @@ function OrderModal({ open, onClose }: { open: boolean; onClose: () => void }) {
 }
 
 
-/* â”€â”€â”€ TRUST SECTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── TRUST SECTION ───────────────────────────────────────────────── */
 function TrustSection() {
   return (
     <section className="k-trust-section" style={{ background:"#fff", padding:"28px 20px 24px", borderBottom:`1px solid ${BORDER}` }}>
@@ -975,14 +975,14 @@ function TrustSection() {
         <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, marginBottom:18 }}>
           <div style={{ display:"flex", gap:2 }}>{[...Array(5)].map((_,i)=><Star key={i} size={16} fill="#FBBF24" color="#FBBF24" />)}</div>
           <span style={{ fontSize:16, fontWeight:900, color:NAVY, fontFamily:F, letterSpacing:"-0.02em" }}>4.9/5</span>
-          <span style={{ fontSize:12, color:MUTED, fontFamily:F }}>Â· 2.000+ zadovoljnih kupaca</span>
+          <span style={{ fontSize:12, color:MUTED, fontFamily:F }}>· 2.000+ zadovoljnih kupaca</span>
         </div>
         {/* Trust cards */}
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
           {([
-            [ShieldCheck, "Sigurna kupovina",    "SSL zaĹˇtita"],
-            [Package,     "PlaÄ‡anje pouzeÄ‡em",   "Bez predujma"],
-            [Truck,       "Brza dostava",         "24â€“48h BiH"],
+            [ShieldCheck, "Sigurna kupovina",    "SSL zaštita"],
+            [Package,     "Plaćanje pouzećem",   "Bez predujma"],
+            [Truck,       "Brza dostava",         "24–48h BiH"],
             [BadgeCheck,  "1 god. garancija",     "Zamjena bez pitanja"],
           ] as [React.ElementType, string, string][]).map(([Icon, title, sub], i) => (
             <div key={i} style={{ background:BG, border:`1px solid ${BORDER}`, borderRadius:14, padding:"12px 14px", display:"flex", alignItems:"center", gap:10 }}>
@@ -1005,7 +1005,7 @@ function TrustSection() {
   );
 }
 
-/* â”€â”€â”€ OFFER SECTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── OFFER SECTION ──────────────────────────────────────────────── */
 function OfferSection() {
   const { h, m, s } = useCountdown(6420);
   const [sd,      setSd]      = useState<SD>("none");
@@ -1038,13 +1038,13 @@ function OfferSection() {
         body:JSON.stringify({ ...fields, kolicina:qty, sdCard:sd }),
       });
       const data = await res.json();
-      if (!data.success) throw new Error(data.error || "GreĹˇka");
+      if (!data.success) throw new Error(data.error || "Greška");
       if (typeof window !== "undefined" && (window as unknown as { fbq?: (...a: unknown[]) => void }).fbq) {
         (window as unknown as { fbq: (...a: unknown[]) => void }).fbq("track", "Purchase", { value: total, currency: "BAM", content_name: "V380 Pro 12MP Kamera", content_ids: ["kamera-v380"], num_items: qty }, { eventID: data.orderNumber });
       }
       setDone(true);
     } catch (err) {
-      setSrvErr(err instanceof Error ? err.message : "GreĹˇka pri slanju narudĹľbe.");
+      setSrvErr(err instanceof Error ? err.message : "Greška pri slanju narudžbe.");
     } finally {
       setLoading(false);
     }
@@ -1059,9 +1059,9 @@ function OfferSection() {
         <motion.div {...FU} style={{ textAlign:"center", marginBottom:48 }}>
           <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:"rgba(239,68,68,0.12)", border:"1px solid rgba(239,68,68,0.22)", borderRadius:100, padding:"6px 18px", marginBottom:20 }}>
             <Clock size={14} color={RED} />
-            <span style={{ fontSize:12, fontWeight:800, color:"#FCA5A5", fontFamily:F, textTransform:"uppercase", letterSpacing:"0.08em" }}>Ponuda ograniÄŤena</span>
+            <span style={{ fontSize:12, fontWeight:800, color:"#FCA5A5", fontFamily:F, textTransform:"uppercase", letterSpacing:"0.08em" }}>Ponuda ograničena</span>
           </div>
-          <h2 style={{ fontSize:"clamp(26px,3.8vw,48px)", fontWeight:900, color:"#fff", fontFamily:F, letterSpacing:"-0.03em", margin:"0 0 16px" }}>DanaĹˇnja akcija</h2>
+          <h2 style={{ fontSize:"clamp(26px,3.8vw,48px)", fontWeight:900, color:"#fff", fontFamily:F, letterSpacing:"-0.03em", margin:"0 0 16px" }}>Današnja akcija</h2>
           <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:12, marginBottom:16, flexWrap:"nowrap" }}>
             <span style={{ fontSize:16, color:"rgba(255,255,255,0.32)", textDecoration:"line-through", fontFamily:F, whiteSpace:"nowrap" }}>79,90 KM</span>
             <span style={{ fontSize:"clamp(36px,8vw,56px)", fontWeight:900, color:"#fff", fontFamily:F, letterSpacing:"-0.04em", whiteSpace:"nowrap" }}>44,90 KM</span>
@@ -1080,7 +1080,7 @@ function OfferSection() {
           <div style={{ display:"flex", justifyContent:"center", gap:24, flexWrap:"wrap" }}>
             {([
               [Truck,       "Dostava 10,00 KM"],
-              [Package,     "PlaÄ‡anje pouzeÄ‡em"],
+              [Package,     "Plaćanje pouzećem"],
               [ShieldCheck, "1 god. garancija"],
             ] as [React.ElementType, string][]).map(([Icon, text], i) => (
               <div key={i} style={{ display:"flex", alignItems:"center", gap:8 }}>
@@ -1098,9 +1098,9 @@ function OfferSection() {
               <div style={{ width:80, height:80, borderRadius:"50%", background:GREEN, display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 24px", boxShadow:`0 12px 40px rgba(16,185,129,0.4)` }}>
                 <CheckCircle size={40} color="#fff" />
               </div>
-              <h3 style={{ fontSize:28, fontWeight:900, color:NAVY, fontFamily:F, letterSpacing:"-0.03em", margin:"0 0 12px" }}>NarudĹľba primljena!</h3>
+              <h3 style={{ fontSize:28, fontWeight:900, color:NAVY, fontFamily:F, letterSpacing:"-0.03em", margin:"0 0 12px" }}>Narudžba primljena!</h3>
               <p style={{ fontSize:15, color:MUTED, fontFamily:F, lineHeight:1.7, maxWidth:380, margin:"0 auto" }}>
-                KontaktiraÄ‡emo vas u kratkom roku radi potvrde i dogovora oko dostave. Hvala na povjerenju!
+                Kontaktiraćemo vas u kratkom roku radi potvrde i dogovora oko dostave. Hvala na povjerenju!
               </p>
             </div>
           ) : (
@@ -1111,7 +1111,7 @@ function OfferSection() {
                 <div className="k-sd-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10 }}>
                   {([
                     { val:"none" as SD, label:"Bez SD kartice",  extra:"Osnovna cijena", badge:null },
-                    { val:"64"   as SD, label:"SD kartica 64GB", extra:"+9,90 KM",        badge:"PreporuÄŤeno" },
+                    { val:"64"   as SD, label:"SD kartica 64GB", extra:"+9,90 KM",        badge:"Preporučeno" },
                     { val:"128"  as SD, label:"SD kartica 128GB",extra:"+11,90 KM",       badge:"Max. kapacitet" },
                   ]).map(({ val, label, extra, badge }) => {
                     const active = sd === val;
@@ -1131,7 +1131,7 @@ function OfferSection() {
               <form onSubmit={handleSubmit} noValidate>
                 <div className="k-form-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14, marginBottom:14 }}>
                   {([
-                    { key:"ime",     label:"Ime i prezime", type:"text", ph:"Amira KovaÄŤeviÄ‡" },
+                    { key:"ime",     label:"Ime i prezime", type:"text", ph:"Amira Kovačević" },
                     { key:"telefon", label:"Telefon",       type:"tel",  ph:"061 234 567" },
                     { key:"adresa",  label:"Adresa",        type:"text", ph:"Ulica i broj" },
                     { key:"grad",    label:"Grad",          type:"text", ph:"Sarajevo" },
@@ -1151,9 +1151,9 @@ function OfferSection() {
 
                 {/* Quantity */}
                 <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", background:BG, border:`1px solid ${BORDER}`, borderRadius:14, padding:"14px 20px", marginBottom:24 }}>
-                  <span style={{ fontSize:14, fontWeight:700, color:NAVY, fontFamily:F }}>KoliÄŤina</span>
+                  <span style={{ fontSize:14, fontWeight:700, color:NAVY, fontFamily:F }}>Količina</span>
                   <div style={{ display:"flex", alignItems:"center", gap:14 }}>
-                    <button type="button" onClick={() => setQty(q => Math.max(1,q-1))} style={{ width:34, height:34, borderRadius:10, border:`1.5px solid ${BORDER}`, background:"#fff", cursor:"pointer", fontSize:18, fontWeight:700, color:NAVY, display:"flex", alignItems:"center", justifyContent:"center" }}>â’</button>
+                    <button type="button" onClick={() => setQty(q => Math.max(1,q-1))} style={{ width:34, height:34, borderRadius:10, border:`1.5px solid ${BORDER}`, background:"#fff", cursor:"pointer", fontSize:18, fontWeight:700, color:NAVY, display:"flex", alignItems:"center", justifyContent:"center" }}>−</button>
                     <span style={{ fontSize:18, fontWeight:800, color:NAVY, fontFamily:F, minWidth:24, textAlign:"center" }}>{qty}</span>
                     <button type="button" onClick={() => setQty(q => Math.min(5,q+1))} style={{ width:34, height:34, borderRadius:10, border:`1.5px solid ${BLUE}`, background:BLUE, cursor:"pointer", fontSize:18, fontWeight:700, color:"#fff", display:"flex", alignItems:"center", justifyContent:"center" }}>+</button>
                   </div>
@@ -1165,7 +1165,7 @@ function OfferSection() {
                 <div style={{ background:`linear-gradient(135deg, ${BLUE} 0%, ${BLUE2} 100%)`, borderRadius:20, padding:"24px 26px", boxShadow:`0 12px 40px rgba(37,99,235,0.32)` }}>
                   <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:18 }}>
                     <div>
-                      <div style={{ fontSize:11, color:"rgba(255,255,255,0.48)", fontFamily:F, textTransform:"uppercase", letterSpacing:"0.09em", marginBottom:4 }}>Ukupno za plaÄ‡anje</div>
+                      <div style={{ fontSize:11, color:"rgba(255,255,255,0.48)", fontFamily:F, textTransform:"uppercase", letterSpacing:"0.09em", marginBottom:4 }}>Ukupno za plaćanje</div>
                       <div style={{ fontSize:36, fontWeight:900, color:"#fff", fontFamily:F, letterSpacing:"-0.04em", lineHeight:1 }}>{fmt(total)}</div>
                     </div>
                     <div style={{ background:"rgba(74,222,128,0.15)", border:"1px solid rgba(74,222,128,0.28)", borderRadius:12, padding:"10px 16px", textAlign:"center" }}>
@@ -1174,7 +1174,7 @@ function OfferSection() {
                     </div>
                   </div>
                   <button type="submit" disabled={loading} style={{ width:"100%", padding:"16px 24px", background:loading?"rgba(255,255,255,0.5)":"#fff", color:BLUE, border:"none", borderRadius:14, fontSize:16, fontWeight:900, fontFamily:F, cursor:loading?"not-allowed":"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:10, boxShadow:"0 4px 20px rgba(0,0,0,0.14)", letterSpacing:"-0.01em" }}>
-                    {loading ? "Ĺ alje se..." : (<>NaruÄŤi odmah â€” PlaÄ‡anje pouzeÄ‡em <ArrowRight size={17} /></>)}
+                    {loading ? "Šalje se..." : (<>Naruči odmah — Plaćanje pouzećem <ArrowRight size={17} /></>)}
                   </button>
                   <div style={{ display:"flex", justifyContent:"center", gap:20, marginTop:14, flexWrap:"wrap" }}>
                     {["Bez predujma","Dostava 24-48h","Garancija 1 god."].map((t,i) => (
@@ -1194,7 +1194,7 @@ function OfferSection() {
   );
 }
 
-/* â”€â”€â”€ FAQ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── FAQ ────────────────────────────────────────────────────────── */
 function FAQSection() {
   const [open, setOpen] = useState<number|null>(null);
   return (
@@ -1202,7 +1202,7 @@ function FAQSection() {
       <div style={{ maxWidth:760, margin:"0 auto", padding:"0 24px" }}>
         <motion.div {...FU} style={{ textAlign:"center", marginBottom:56 }}>
           <p style={{ fontSize:12, fontWeight:800, color:BLUE, fontFamily:F, textTransform:"uppercase", letterSpacing:"0.12em", marginBottom:12 }}>Pitanja i odgovori</p>
-          <h2 style={{ fontSize:"clamp(24px,3.2vw,42px)", fontWeight:900, color:NAVY, fontFamily:F, letterSpacing:"-0.03em", margin:0 }}>ÄŚesta pitanja</h2>
+          <h2 style={{ fontSize:"clamp(24px,3.2vw,42px)", fontWeight:900, color:NAVY, fontFamily:F, letterSpacing:"-0.03em", margin:0 }}>Česta pitanja</h2>
         </motion.div>
 
         <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
@@ -1231,7 +1231,7 @@ function FAQSection() {
   );
 }
 
-/* â”€â”€â”€ FOOTER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── FOOTER ─────────────────────────────────────────────────────── */
 function Footer() {
   return (
     <footer style={{ background:NAVY, padding:"64px 24px 32px" }}>
@@ -1245,12 +1245,12 @@ function Footer() {
               <span style={{ fontSize:18, fontWeight:900, color:"#fff", fontFamily:F, letterSpacing:"-0.04em" }}>Cartly.ba</span>
             </div>
             <p style={{ fontSize:14, color:"rgba(255,255,255,0.38)", fontFamily:F, lineHeight:1.72, maxWidth:280 }}>
-              Premium proizvodi za zaĹˇtitu i pametni dom. Dostava Ĺˇirom Bosne i Hercegovine.
+              Premium proizvodi za zaštitu i pametni dom. Dostava širom Bosne i Hercegovine.
             </p>
           </div>
           {([
-            { title:"Kupovina",  links:["NaruÄŤi odmah","Specifikacije","FAQ"] },
-            { title:"PodrĹˇka",   links:["Kontakt","Dostava","Garancija"] },
+            { title:"Kupovina",  links:["Naruči odmah","Specifikacije","FAQ"] },
+            { title:"Podrška",   links:["Kontakt","Dostava","Garancija"] },
             { title:"Pravno",    links:["Politika privatnosti","Uvjeti"] },
           ]).map(({ title, links }) => (
             <div key={title}>
@@ -1271,7 +1271,7 @@ function Footer() {
             {([
               [Lock,  "Sigurna kupovina"],
               [Truck, "Brza dostava"],
-              [Phone, "PodrĹˇka dostupna"],
+              [Phone, "Podrška dostupna"],
             ] as [React.ElementType, string][]).map(([Icon, text], i) => (
               <div key={i} style={{ display:"flex", alignItems:"center", gap:7 }}>
                 <Icon size={14} color={GREEN} />
@@ -1279,7 +1279,7 @@ function Footer() {
               </div>
             ))}
           </div>
-          <p style={{ fontSize:12, color:"rgba(255,255,255,0.22)", fontFamily:F, margin:0 }}>Â© 2025 Cartly.ba Â· Sva prava zadrĹľana</p>
+          <p style={{ fontSize:12, color:"rgba(255,255,255,0.22)", fontFamily:F, margin:0 }}>© 2025 Cartly.ba · Sva prava zadržana</p>
         </div>
       </div>
       <style suppressHydrationWarning>{`@media(max-width:700px){.k-footer-grid{grid-template-columns:1fr!important;}}`}</style>
@@ -1287,7 +1287,7 @@ function Footer() {
   );
 }
 
-/* â”€â”€â”€ FLOATING CTA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── FLOATING CTA ───────────────────────────────────────────────── */
 function FloatingCTA({ onOrder }: { onOrder: () => void }) {
   const [show, setShow] = useState(false);
   useEffect(() => {
@@ -1315,7 +1315,7 @@ function FloatingCTA({ onOrder }: { onOrder: () => void }) {
           onMouseEnter={e => e.currentTarget.style.transform="scale(1.02)"}
           onMouseLeave={e => e.currentTarget.style.transform="scale(1)"}
         >
-          NaruÄŤi odmah <ArrowRight size={15} />
+          Naruči odmah <ArrowRight size={15} />
         </button>
       </div>
 
@@ -1326,7 +1326,7 @@ function FloatingCTA({ onOrder }: { onOrder: () => void }) {
             onClick={onOrder} className="k-desk-fab"
             style={{ position:"fixed", bottom:32, right:32, zIndex:8000, padding:"16px 28px", background:`linear-gradient(135deg, ${BLUE} 0%, ${BLUE2} 100%)`, color:"#fff", border:"none", borderRadius:20, fontSize:15, fontWeight:800, fontFamily:F, cursor:"pointer", boxShadow:`0 12px 48px rgba(37,99,235,0.45)`, display:"flex", alignItems:"center", gap:8 }}
           >
-            NaruÄŤi â€” 44,90 KM <ArrowRight size={16} />
+            Naruči — 44,90 KM <ArrowRight size={16} />
           </motion.button>
         )}
       </AnimatePresence>
@@ -1343,7 +1343,7 @@ function FloatingCTA({ onOrder }: { onOrder: () => void }) {
   );
 }
 
-/* â”€â”€â”€ BACK TO TOP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── BACK TO TOP ────────────────────────────────────────────────── */
 function BackToTop() {
   const [show, setShow] = useState(false);
   useEffect(() => {
@@ -1365,7 +1365,7 @@ function BackToTop() {
   );
 }
 
-/* â”€â”€â”€ MAIN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── MAIN ───────────────────────────────────────────────────────── */
 export default function KameraClient() {
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -1425,4 +1425,3 @@ export default function KameraClient() {
     </>
   );
 }
-

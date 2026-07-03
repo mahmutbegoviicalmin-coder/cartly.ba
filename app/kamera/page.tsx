@@ -1,13 +1,13 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import KameraClient from "./KameraClient";
 
 export const metadata: Metadata = {
   title: "WiFi Sigurnosna Kamera | Akcija 44,90 KM",
   description:
-    "ZaĹˇtitite svoj dom uz pametnu WiFi sigurnosnu kameru. NoÄ‡ni vid, detekcija pokreta, mobilna aplikacija i dostava Ĺˇirom BiH.",
+    "Zaštitite svoj dom uz pametnu WiFi sigurnosnu kameru. Noćni vid, detekcija pokreta, mobilna aplikacija i dostava širom BiH.",
   openGraph: {
     title: "WiFi PTZ Sigurnosna Kamera | Akcija 44,90 KM",
-    description: "Pratite dom uĹľivo sa mobitela. NoÄ‡ni vid, AI detekcija pokreta, 355Â° rotacija. Dostava 24-48h, plaÄ‡anje pouzeÄ‡em.",
+    description: "Pratite dom uživo sa mobitela. Noćni vid, AI detekcija pokreta, 355° rotacija. Dostava 24-48h, plaćanje pouzećem.",
     images: ["/kamera2/kamerapng.webp"],
   },
 };
@@ -15,4 +15,3 @@ export const metadata: Metadata = {
 export default function KameraPage() {
   return <KameraClient />;
 }
-
