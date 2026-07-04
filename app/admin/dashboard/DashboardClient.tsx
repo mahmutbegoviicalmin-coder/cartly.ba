@@ -317,6 +317,35 @@ export default function DashboardClient() {
     }
   };
 
+  // Dewalt XExpress export
+  const [dewaltDate, setDewaltDate]       = useState(todayStr);
+  const [dewaltLoading, setDewaltLoading] = useState(false);
+
+  const exportDewalt = async () => {
+    setDewaltLoading(true);
+    try {
+      const res = await fetch(`/api/export/dewalt?date=${dewaltDate}`);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Greška pri eksportu." }));
+        alert(err.error ?? "Greška pri eksportu.");
+        return;
+      }
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement("a");
+      a.href     = url;
+      a.download = `Dewalt_XExpress_${dewaltDate}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      alert("Greška pri eksportu. Pokušajte ponovo.");
+    } finally {
+      setDewaltLoading(false);
+    }
+  };
+
   // Usmjerivači Pošta export
   const [usmjerivacDate, setUsmjerivacDate]       = useState(todayStr);
   const [usmjerivacLoading, setUsmjerivacLoading] = useState(false);
@@ -798,6 +827,49 @@ export default function DashboardClient() {
                         <>
                           <IconDownload />
                           Eksportuj za Poštu
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* ── Dewalt XExpress Export ── */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <input
+                      type="date"
+                      value={dewaltDate}
+                      onChange={(e) => setDewaltDate(e.target.value)}
+                      style={{
+                        padding: "8px 12px", fontSize: 13, border: "1px solid #2a2a2a",
+                        borderRadius: 8, background: "#111", outline: "none",
+                        fontFamily: "inherit", color: "#f5f5f7",
+                        colorScheme: "dark", cursor: "pointer",
+                        transition: "border-color 0.15s",
+                      }}
+                      onFocus={(e) => { e.currentTarget.style.borderColor = "#facc15"; }}
+                      onBlur={(e)  => { e.currentTarget.style.borderColor = "#2a2a2a"; }}
+                    />
+                    <button
+                      onClick={exportDewalt}
+                      disabled={dewaltLoading}
+                      style={{
+                        padding: "8px 18px", background: "#1a1500", color: "#facc15",
+                        border: "1px solid #854d0e", borderRadius: 8, fontSize: 13, fontWeight: 600,
+                        cursor: dewaltLoading ? "not-allowed" : "pointer", fontFamily: "inherit",
+                        display: "flex", alignItems: "center", gap: 7, transition: "background 0.15s",
+                        opacity: dewaltLoading ? 0.7 : 1, whiteSpace: "nowrap",
+                      }}
+                    >
+                      {dewaltLoading ? (
+                        <>
+                          <svg style={{ animation: "spin 1s linear infinite" }} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                          </svg>
+                          Generišem...
+                        </>
+                      ) : (
+                        <>
+                          <IconDownload />
+                          Dewalt za XExpress
                         </>
                       )}
                     </button>
