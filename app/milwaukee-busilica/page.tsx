@@ -596,7 +596,7 @@ export default function MilwaukeePage() {
             <div className="mw-kit-img-card" style={{ flex: "0 0 44%", borderRadius: 20, overflow: "hidden", border: `1px solid ${C.border}`, background: "#fff", boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}>
               <div style={{ position: "relative", width: "100%", paddingBottom: "100%" }}>
                 <Image
-                  src="/images/setmilw.jpeg"
+                  src="/images/setmilw.png"
                   alt="Milwaukee M18 Set"
                   fill
                   sizes="(max-width:900px) 100vw, 44vw"
