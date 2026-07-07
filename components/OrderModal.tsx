@@ -6,7 +6,7 @@ import { event } from "@/lib/fbpixel";
 import { track } from "@vercel/analytics";
 
 const SIZES = [39, 40, 41, 42, 43, 44, 45, 46, 47];
-const OUT_OF_STOCK = new Set<number>([]);
+const OUT_OF_STOCK = new Set<number>([47]);
 const PRICE = 59.9;
 const DELIVERY = 10.0;
 
