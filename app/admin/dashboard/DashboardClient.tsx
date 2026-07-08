@@ -90,6 +90,7 @@ const PRODUCT_MAP: Record<string, { label: string; bg: string; color: string }> 
   PAT: { label: "R. Patike",  bg: "rgba(99,102,241,0.12)", color: "#6366f1" },
   RCH: { label: "Richeng",    bg: "rgba(179,48,0,0.10)",   color: "#B33000" },
   LEZ: { label: "Ležaljka",   bg: "rgba(236,72,153,0.12)", color: "#ec4899" },
+  PRS: { label: "Prsluk",     bg: "rgba(6,27,56,0.10)",    color: "#061B38" },
 };
 
 function productBadge(orderNumber?: string) {
