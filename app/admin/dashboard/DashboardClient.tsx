@@ -317,6 +317,35 @@ export default function DashboardClient() {
     }
   };
 
+  // Patike Pošta export
+  const [patikeDate, setPatikeDate]       = useState(todayStr);
+  const [patikeLoading, setPatikeLoading] = useState(false);
+
+  const exportPatike = async () => {
+    setPatikeLoading(true);
+    try {
+      const res = await fetch(`/api/export/patike?date=${patikeDate}`);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Greška pri eksportu." }));
+        alert(err.error ?? "Greška pri eksportu.");
+        return;
+      }
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement("a");
+      a.href     = url;
+      a.download = `Patike_${patikeDate}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      alert("Greška pri eksportu. Pokušajte ponovo.");
+    } finally {
+      setPatikeLoading(false);
+    }
+  };
+
   // Milwaukee M18 XExpress export
   const [milwaukeeDate, setMilwaukeeDate]       = useState(todayStr);
   const [milwaukeeLoading, setMilwaukeeLoading] = useState(false);
@@ -827,6 +856,49 @@ export default function DashboardClient() {
                         <>
                           <IconDownload />
                           Eksportuj za Poštu
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* ── Patike Pošta Export ── */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <input
+                      type="date"
+                      value={patikeDate}
+                      onChange={(e) => setPatikeDate(e.target.value)}
+                      style={{
+                        padding: "8px 12px", fontSize: 13, border: "1px solid #2a2a2a",
+                        borderRadius: 8, background: "#111", outline: "none",
+                        fontFamily: "inherit", color: "#f5f5f7",
+                        colorScheme: "dark", cursor: "pointer",
+                        transition: "border-color 0.15s",
+                      }}
+                      onFocus={(e) => { e.currentTarget.style.borderColor = "#6366f1"; }}
+                      onBlur={(e)  => { e.currentTarget.style.borderColor = "#2a2a2a"; }}
+                    />
+                    <button
+                      onClick={exportPatike}
+                      disabled={patikeLoading}
+                      style={{
+                        padding: "8px 18px", background: "#12122a", color: "#818cf8",
+                        border: "1px solid #3730a3", borderRadius: 8, fontSize: 13, fontWeight: 600,
+                        cursor: patikeLoading ? "not-allowed" : "pointer", fontFamily: "inherit",
+                        display: "flex", alignItems: "center", gap: 7, transition: "background 0.15s",
+                        opacity: patikeLoading ? 0.7 : 1, whiteSpace: "nowrap",
+                      }}
+                    >
+                      {patikeLoading ? (
+                        <>
+                          <svg style={{ animation: "spin 1s linear infinite" }} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                          </svg>
+                          Generišem...
+                        </>
+                      ) : (
+                        <>
+                          <IconDownload />
+                          Patike za Poštu
                         </>
                       )}
                     </button>
