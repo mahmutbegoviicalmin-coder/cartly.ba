@@ -53,9 +53,9 @@ export async function POST(request: NextRequest) {
     );
     const ukupnoPari = selectedSizes.reduce((sum, v) => sum + v.kolicina, 0);
 
-    const PRICE_PER_PAIR = 59.9;
+    const PRICE_PER_PAIR = 49.9;
     const cijenaProizvoda = ukupnoPari * PRICE_PER_PAIR;
-    const dostava   = ukupnoPari >= 2 ? 0 : 10.0;
+    const dostava   = 10.0;
     const ukupno    = cijenaProizvoda + dostava;
 
     // Build size rows for email
@@ -201,8 +201,8 @@ export async function POST(request: NextRequest) {
             <td style="padding:10px 16px;font-size:13px;color:#0A0A0A;font-weight:500;text-align:right;border-bottom:1px solid #F0F0F0;">${fmt(cijenaProizvoda)}</td>
           </tr>
           <tr>
-            <td style="padding:10px 16px;font-size:13px;color:${ukupnoPari >= 2 ? "#16A34A" : "#666"};font-weight:${ukupnoPari >= 2 ? "600" : "400"};border-bottom:1px solid #F0F0F0;">Dostava${ukupnoPari >= 2 ? " 🚚" : ""}</td>
-            <td style="padding:10px 16px;font-size:13px;color:${ukupnoPari >= 2 ? "#16A34A" : "#0A0A0A"};font-weight:${ukupnoPari >= 2 ? "700" : "500"};text-align:right;border-bottom:1px solid #F0F0F0;">${ukupnoPari >= 2 ? "BESPLATNO" : fmt(dostava)}</td>
+            <td style="padding:10px 16px;font-size:13px;color:#666;border-bottom:1px solid #F0F0F0;">Dostava</td>
+            <td style="padding:10px 16px;font-size:13px;color:#0A0A0A;font-weight:500;text-align:right;border-bottom:1px solid #F0F0F0;">${fmt(dostava)}</td>
           </tr>
           <tr style="background:#FFF8F5;">
             <td style="padding:14px 16px;font-size:15px;font-weight:700;color:#0A0A0A;">UKUPNO${ukupnoPari >= 2 ? ` (${ukupnoPari} para)` : ""}</td>

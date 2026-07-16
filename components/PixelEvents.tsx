@@ -8,7 +8,7 @@ export default function PixelEvents() {
     event("ViewContent", {
       content_name: "Radne Patike S3 Tactical Black",
       content_category: "Zaštitna obuća",
-      value: 59.90,
+      value: 49.90,
       currency: "BAM",
     });
   }, []);

@@ -56,7 +56,7 @@ export default function FloatingOrderBtn({ onOrder }: { onOrder: () => void }) {
             <line x1="3" y1="6" x2="21" y2="6"/>
             <path d="M16 10a4 4 0 0 1-8 0"/>
           </svg>
-          Naruči · 59,90 KM
+          Naruči · 49,90 KM
         </button>
       </div>
     </>

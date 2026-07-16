@@ -27,7 +27,7 @@ const TRUST = [
 
 // ─── Products ─────────────────────────────────────────────────────────────────
 const PRODUCTS = {
-  shoe:   { src: "/images/product-1.webp", alt: "Radne Patike S3",     label: "Radne Patike S3",     sub: "Zaštitna obuća · S3",   price: "59,90 KM" },
+  shoe:   { src: "/images/product-1.webp", alt: "Radne Patike S3",     label: "Radne Patike S3",     sub: "Zaštitna obuća · S3",   price: "49,90 KM" },
   drill:  { src: "/images/milwaukee.png",  alt: "Milwaukee M18",        label: "Milwaukee M18",       sub: "Profesionalni alat",     price: "69,90 KM" },
   camera: { src: "/images/kamere.png",     alt: "Sigurnosna Kamera",    label: "Sigurnosna Kamera",   sub: "Video nadzor 12MP",      price: "89,90 KM" },
 };

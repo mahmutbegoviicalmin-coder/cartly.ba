@@ -7,7 +7,7 @@ import { track } from "@vercel/analytics";
 
 const SIZES = [39, 40, 41, 42, 43, 44, 45, 46, 47];
 const OUT_OF_STOCK = new Set<number>([47]);
-const PRICE = 59.9;
+const PRICE = 49.9;
 const DELIVERY = 10.0;
 
 interface Props {
@@ -40,8 +40,7 @@ export default function OrderModal({ open, onClose, initialSize }: Props) {
   };
 
   const totalPairs = Object.values(qtys).reduce((a, b) => a + b, 0);
-  const freeDelivery = totalPairs >= 2;
-  const totalPrice = PRICE * totalPairs + (freeDelivery ? 0 : totalPairs > 0 ? DELIVERY : 0);
+  const totalPrice = PRICE * totalPairs + (totalPairs > 0 ? DELIVERY : 0);
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -165,11 +164,6 @@ export default function OrderModal({ open, onClose, initialSize }: Props) {
               <div style={{ background: "#F8F8F8", borderRadius: 12, overflow: "hidden", marginBottom: 14 }}>
                 <div style={{ padding: "10px 14px", borderBottom: "1px solid #EEEEEE", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <span style={{ fontFamily: "var(--font-manrope), sans-serif", fontWeight: 700, fontSize: 13, color: "#0A0A0A" }}>Odaberi veličine i količine</span>
-                  {freeDelivery && (
-                    <span style={{ fontSize: 11, fontWeight: 700, color: "#22c55e", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 6, padding: "3px 8px", fontFamily: "var(--font-manrope), sans-serif" }}>
-                      🎉 Besplatna dostava
-                    </span>
-                  )}
                 </div>
                 <div style={{ padding: "4px 14px 8px" }}>
                   {SIZES.map(s => {
@@ -181,7 +175,7 @@ export default function OrderModal({ open, onClose, initialSize }: Props) {
                           <span style={{ fontFamily: "var(--font-manrope), sans-serif", fontWeight: 700, fontSize: 15, color: qty > 0 ? "#B33000" : "#0A0A0A", minWidth: 26 }}>EU {s}</span>
                           {qty > 0 && (
                             <span style={{ fontSize: 11, color: "#B33000", fontFamily: "var(--font-manrope), sans-serif" }}>
-                              {qty}× 59,90 = {(qty * PRICE).toFixed(2).replace(".", ",")} KM
+                              {qty}× 49,90 = {(qty * PRICE).toFixed(2).replace(".", ",")} KM
                             </span>
                           )}
                           {oos && <span style={{ fontSize: 11, color: "#BBB", fontFamily: "var(--font-manrope), sans-serif" }}>rasprodano</span>}
@@ -200,13 +194,6 @@ export default function OrderModal({ open, onClose, initialSize }: Props) {
                 {errors.sizes && <p style={{ fontSize: 11, color: "#ef4444", margin: "0 14px 10px", fontFamily: "var(--font-manrope), sans-serif" }}>{errors.sizes}</p>}
               </div>
 
-              {/* Free delivery nudge */}
-              {!freeDelivery && totalPairs === 1 && (
-                <div style={{ background: "#FFF9F5", border: "1px solid rgba(179,48,0,0.15)", borderRadius: 10, padding: "9px 12px", marginBottom: 12, fontSize: 12, fontFamily: "var(--font-manrope), sans-serif", color: "#666" }}>
-                  🚚 Dodaj još 1 par → <strong style={{ color: "#B33000" }}>dostava besplatna</strong>
-                </div>
-              )}
-
               {serverError && <p style={{ fontSize: 13, color: "#ef4444", background: "#fef2f2", padding: "10px 14px", borderRadius: 8, marginBottom: 12, fontFamily: "var(--font-manrope), sans-serif" }}>{serverError}</p>}
 
               {/* Total */}
@@ -215,18 +202,16 @@ export default function OrderModal({ open, onClose, initialSize }: Props) {
                 <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 10 }}>
                   {totalPairs > 0 && (
                     <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "var(--font-manrope), sans-serif", fontSize: 13, color: "#888" }}>
-                      <span>{totalPairs} × 59,90 KM</span>
+                      <span>{totalPairs} × 49,90 KM</span>
                       <span>{(totalPairs * PRICE).toFixed(2).replace(".", ",")} KM</span>
                     </div>
                   )}
                   <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "var(--font-manrope), sans-serif", fontSize: 13 }}>
-                    <span style={{ display: "flex", alignItems: "center", gap: 5, color: freeDelivery ? "#22c55e" : "#888" }}>
+                    <span style={{ display: "flex", alignItems: "center", gap: 5, color: "#888" }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 4v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-                      {freeDelivery ? "Dostava gratis (2+ para)" : "Dostava Euro Express"}
+                      Dostava Euro Express
                     </span>
-                    <span style={{ color: freeDelivery ? "#22c55e" : "#888", fontWeight: freeDelivery ? 700 : 400 }}>
-                      {freeDelivery ? "0,00 KM" : "10,00 KM"}
-                    </span>
+                    <span style={{ color: "#888" }}>10,00 KM</span>
                   </div>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>

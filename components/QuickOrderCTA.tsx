@@ -6,7 +6,7 @@ import { track } from "@vercel/analytics";
 
 const SIZES = [39, 40, 41, 42, 43, 44, 45, 46, 47, 48];
 const OUT_OF_STOCK = new Set([47, 48]);
-const PRICE = 59.9;
+const PRICE = 49.9;
 const DELIVERY = 10.0;
 
 export default function QuickOrderCTA() {
@@ -32,8 +32,7 @@ export default function QuickOrderCTA() {
   };
 
   const totalPairs = Object.values(qtys).reduce((a, b) => a + b, 0);
-  const freeDelivery = totalPairs >= 2;
-  const totalPrice = PRICE * totalPairs + (freeDelivery ? 0 : totalPairs > 0 ? DELIVERY : 0);
+  const totalPrice = PRICE * totalPairs + (totalPairs > 0 ? DELIVERY : 0);
 
   const validate = () => {
     const e: Record<string, string> = {};
@@ -164,11 +163,6 @@ export default function QuickOrderCTA() {
           <div style={{ background: "#fff", border: "1.5px solid #E8E8E8", borderRadius: 14, overflow: "hidden", marginBottom: 20 }}>
             <div style={{ padding: "14px 18px", borderBottom: "1px solid #F0F0F0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <span style={{ fontFamily: "var(--font-manrope), sans-serif", fontWeight: 700, fontSize: 14, color: "#0A0A0A" }}>Odaberi veličine i količine</span>
-              {freeDelivery && (
-                <span style={{ fontSize: 11, fontWeight: 700, color: "#22c55e", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 6, padding: "3px 8px", fontFamily: "var(--font-manrope), sans-serif" }}>
-                  🎉 Besplatna dostava
-                </span>
-              )}
             </div>
             <div style={{ padding: "4px 18px 8px" }}>
               {SIZES.map(s => {
@@ -211,15 +205,6 @@ export default function QuickOrderCTA() {
             )}
           </div>
 
-          {/* Free delivery banner */}
-          {!freeDelivery && totalPairs === 1 && (
-            <div style={{ background: "#FFF9F5", border: "1px solid rgba(179,48,0,0.15)", borderRadius: 10, padding: "10px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 13, fontFamily: "var(--font-manrope), sans-serif", color: "#666" }}>
-                Dodaj još 1 par za <strong style={{ color: "#B33000" }}>besplatnu dostavu</strong>
-              </span>
-            </div>
-          )}
-
           {serverError && (
             <p style={{ fontSize: 13, color: "#ef4444", background: "#fef2f2", padding: "10px 14px", borderRadius: 8, marginBottom: 14, fontFamily: "var(--font-manrope), sans-serif" }}>{serverError}</p>
           )}
@@ -229,10 +214,7 @@ export default function QuickOrderCTA() {
             <div>
               <span style={{ fontFamily: "var(--font-manrope), sans-serif", fontSize: 13, color: "#888", display: "block" }}>
                 {totalPairs > 0 ? `${totalPairs} par${totalPairs > 1 ? "a" : ""}` : "Odaberi veličine"}{" "}
-                {totalPairs > 0 && (freeDelivery
-                  ? <span style={{ color: "#22c55e", fontWeight: 600 }}>· dostava gratis</span>
-                  : <span>· dostava 10 KM</span>
-                )}
+                {totalPairs > 0 && <span>· dostava 10 KM</span>}
               </span>
             </div>
             <span style={{ fontFamily: "var(--font-manrope), sans-serif", fontWeight: 900, fontSize: 24, color: "#0A0A0A", letterSpacing: "-0.03em" }}>
