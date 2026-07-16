@@ -10,7 +10,7 @@ masina-za-sisanje,Mašina za Šišanje,"Profesionalna punjiva mašina za šišan
 zvucnik-bluetooth,Bluetooth Zvučnik,"Prenosivi Bluetooth zvučnik – kristalno čist zvuk, dugotrajna baterija, vodootporan.",in stock,new,59.90 BAM,https://cartlybih.store/zvucnik,https://cartlybih.store/images/zvucnik/zvucnik1.webp,Cartly,6870,Elektronika > Zvučnici
 komarnik-za-vrata,Magnetni Komarnik za Vrata,"Samolepljivi magnetni komarnik – bez bušenja, automatsko zatvaranje. Zaustavite insekte!",in stock,new,16.90 BAM,https://cartlybih.store/komarnik-za-vrata,https://cartlybih.store/komarnik/hero.webp,Cartly,2832,Dom > Komarnici
 usmjerivac-zraka,Usmjerivač Zraka Klime,"Podesivi usmjerivač zraka za klimu – bez direktnog puhanja, bez bušenja.",in stock,new,14.90 BAM,https://cartlybih.store/usmjerivac-zraka,https://cartlybih.store/usmjerivac/hero.png,Cartly,670,Dom > Klimatizacija
-radne-patike-s3,Radne Zaštitne Patike S3,"Zaštitne radne cipele S3 – čelična kapica, antistatične, otporne na klizanje. EU 41-46.",in stock,new,49.90 BAM,https://cartlybih.store/radne-patike,https://cartlybih.store/images/patike-hero.png,Cartly,1604,Obuća > Radne cipele`;
+radne-patike-s3,Radne Zaštitne Patike S3,"Zaštitne radne cipele S3 – čelična kapica, antistatične, otporne na klizanje. EU 41-46.",in stock,new,59.90 BAM,https://cartlybih.store/radne-patike,https://cartlybih.store/images/patike-hero.png,Cartly,1604,Obuća > Radne cipele`;
 
 export async function GET() {
   return new NextResponse(CSV, {

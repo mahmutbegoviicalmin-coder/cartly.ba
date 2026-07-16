@@ -18,7 +18,7 @@ export default function FinalCTAV2({ onOrder }: { onOrder: () => void }) {
           fontFamily: "var(--font-manrope), sans-serif",
           margin: 0,
         }}>
-          Tactical S3 · 49,90 KM
+          Tactical S3 · 59,90 KM
         </p>
 
         <h2 style={{

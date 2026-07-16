@@ -7,7 +7,7 @@ import { track } from "@vercel/analytics";
 
 const SIZES = [39, 40, 41, 42, 43, 44, 45, 46, 47];
 const OUT_OF_STOCK = new Set<number>([47]);
-const PRICE = 49.9;
+const PRICE = 59.9;
 const DELIVERY = 10.0;
 
 interface Props {
@@ -175,7 +175,7 @@ export default function OrderModal({ open, onClose, initialSize }: Props) {
                           <span style={{ fontFamily: "var(--font-manrope), sans-serif", fontWeight: 700, fontSize: 15, color: qty > 0 ? "#B33000" : "#0A0A0A", minWidth: 26 }}>EU {s}</span>
                           {qty > 0 && (
                             <span style={{ fontSize: 11, color: "#B33000", fontFamily: "var(--font-manrope), sans-serif" }}>
-                              {qty}× 49,90 = {(qty * PRICE).toFixed(2).replace(".", ",")} KM
+                              {qty}× 59,90 = {(qty * PRICE).toFixed(2).replace(".", ",")} KM
                             </span>
                           )}
                           {oos && <span style={{ fontSize: 11, color: "#BBB", fontFamily: "var(--font-manrope), sans-serif" }}>rasprodano</span>}
@@ -202,7 +202,7 @@ export default function OrderModal({ open, onClose, initialSize }: Props) {
                 <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 10 }}>
                   {totalPairs > 0 && (
                     <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "var(--font-manrope), sans-serif", fontSize: 13, color: "#888" }}>
-                      <span>{totalPairs} × 49,90 KM</span>
+                      <span>{totalPairs} × 59,90 KM</span>
                       <span>{(totalPairs * PRICE).toFixed(2).replace(".", ",")} KM</span>
                     </div>
                   )}

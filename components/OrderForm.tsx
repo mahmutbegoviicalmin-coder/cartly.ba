@@ -8,7 +8,7 @@ import OrderSuccess from "./OrderSuccess";
 
 const SIZES = [39, 40, 41, 42, 43, 44, 45, 46, 47];
 const OUT_OF_STOCK = new Set([47]);
-const PRICE_PER_PAIR = 49.9;
+const PRICE_PER_PAIR = 59.9;
 const DELIVERY = 10.0;
 
 function calcProductTotal(pairs: number): number {
@@ -234,7 +234,7 @@ export default function OrderForm() {
                     letterSpacing: "-0.03em", lineHeight: 1,
                     fontFamily: "var(--font-manrope), sans-serif",
                   }}>
-                    49,90 KM
+                    59,90 KM
                   </span>
                   <span className="deal-sub" style={{
                     fontSize: 13, color: "#999",
@@ -383,8 +383,8 @@ export default function OrderForm() {
                 {/* Pricing */}
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14 }}>
-                    <span style={{ color: "#666" }}>{totalPairs > 0 ? `${totalPairs} par${totalPairs > 1 ? "a" : ""} × 49,90 KM` : "Cijena po paru"}</span>
-                    <span style={{ color: "#0A0A0A", fontWeight: 500 }}>{totalPairs > 0 ? fmt(productTotal) : "49,90 KM"}</span>
+                    <span style={{ color: "#666" }}>{totalPairs > 0 ? `${totalPairs} par${totalPairs > 1 ? "a" : ""} × 59,90 KM` : "Cijena po paru"}</span>
+                    <span style={{ color: "#0A0A0A", fontWeight: 500 }}>{totalPairs > 0 ? fmt(productTotal) : "59,90 KM"}</span>
                   </div>
 
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14 }}>

@@ -21,9 +21,9 @@ const PRODUCTS = [
     category:  "Radna obuća",
     name:      "Radne Patike S3",
     image:     "/images/product-1.webp",
-    price:     "49,90 KM",
+    price:     "59,90 KM",
     oldPrice:  "99,90 KM",
-    discount:  50,
+    discount:  40,
     hot:       true,
   },
   {
@@ -447,7 +447,7 @@ function FeaturedShoes() {
             <div>
               <div style={{ fontSize: 11, color: "#999", fontWeight: 600, marginBottom: 1 }}>Cijena</div>
               <div style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
-                <span style={{ fontSize: 18, fontWeight: 800, color: "#0F0F0F" }}>49,90 KM</span>
+                <span style={{ fontSize: 18, fontWeight: 800, color: "#0F0F0F" }}>59,90 KM</span>
                 <span style={{ fontSize: 12, color: "#BBBBBB", textDecoration: "line-through" }}>99,90 KM</span>
               </div>
             </div>
@@ -501,7 +501,7 @@ function FeaturedShoes() {
 
           {/* Price row (mobile visible) */}
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 28 }} className="lg:hidden">
-            <span style={{ fontSize: 28, fontWeight: 800, color: "#0F0F0F" }}>49,90 KM</span>
+            <span style={{ fontSize: 28, fontWeight: 800, color: "#0F0F0F" }}>59,90 KM</span>
             <span style={{ fontSize: 15, color: "#BBBBBB", textDecoration: "line-through" }}>99,90 KM</span>
           </div>
 

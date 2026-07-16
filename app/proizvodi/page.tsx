@@ -54,7 +54,7 @@ const ALL_PRODUCTS: Product[] = [
   {
     name:     "Radne Patike S3",
     desc:     "Zaštitna obuća s čeličnom kapicom i anti-slip đonom",
-    price:    49.90,
+    price:    59.90,
     oldPrice: 99.90,
     tag:      "RADNA OBUĆA",
     href:     "/radne-patike",

@@ -6,7 +6,7 @@ import { track } from "@vercel/analytics";
 
 const SIZES = [39, 40, 41, 42, 43, 44, 45, 46, 47, 48];
 const OUT_OF_STOCK = new Set([47, 48]);
-const PRICE = 49.9;
+const PRICE = 59.9;
 const DELIVERY = 10.0;
 
 export default function QuickOrderCTA() {

@@ -7,7 +7,7 @@ export default function CTABanner() {
     <div className="bg-white border-t border-black/10 py-8 flex justify-center px-4">
       <a
         href="#order"
-        onClick={() => event("AddToCart", { content_name: "Radne Patike S3 Tactical Black", value: 49.90, currency: "BAM" })}
+        onClick={() => event("AddToCart", { content_name: "Radne Patike S3 Tactical Black", value: 59.90, currency: "BAM" })}
         style={{
           display: "inline-flex",
           alignItems: "center",

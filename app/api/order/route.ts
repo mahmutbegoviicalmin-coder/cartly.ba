@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     );
     const ukupnoPari = selectedSizes.reduce((sum, v) => sum + v.kolicina, 0);
 
-    const PRICE_PER_PAIR = 49.9;
+    const PRICE_PER_PAIR = 59.9;
     const cijenaProizvoda = ukupnoPari * PRICE_PER_PAIR;
     const dostava   = 10.0;
     const ukupno    = cijenaProizvoda + dostava;

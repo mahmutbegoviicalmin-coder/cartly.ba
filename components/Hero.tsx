@@ -91,7 +91,7 @@ export default function Hero({ onOrder }: { onOrder?: () => void }) {
   };
 
   const handleCTA = () => {
-    event("AddToCart", { content_name: "Radne Patike S3 Tactical Black", value: 49.90, currency: "BAM" });
+    event("AddToCart", { content_name: "Radne Patike S3 Tactical Black", value: 59.90, currency: "BAM" });
     if (onOrder) { onOrder(); return; }
     document.getElementById("order")?.scrollIntoView({ behavior: "smooth" });
   };
@@ -488,7 +488,7 @@ export default function Hero({ onOrder }: { onOrder?: () => void }) {
                     letterSpacing: "-0.04em", lineHeight: 1,
                     fontFamily: "var(--font-manrope), sans-serif",
                   }}>
-                    49,90 KM
+                    59,90 KM
                   </span>
                   <span style={{
                     fontSize: 16, color: "rgba(0,0,0,0.35)", textDecoration: "line-through",

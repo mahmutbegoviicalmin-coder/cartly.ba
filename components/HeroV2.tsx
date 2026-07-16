@@ -212,7 +212,7 @@ export default function HeroV2({ onOrder }: { onOrder: () => void }) {
                   color: "#111111", letterSpacing: "-0.04em", lineHeight: 1,
                   fontFamily: "var(--font-manrope), sans-serif",
                 }}>
-                  49,90 KM
+                  59,90 KM
                 </span>
                 <span style={{
                   fontSize: 16, color: "#bbb", textDecoration: "line-through",

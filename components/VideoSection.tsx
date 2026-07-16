@@ -182,7 +182,7 @@ export default function VideoSection() {
           {/* CTA Button */}
           <a
             href="#order"
-            onClick={() => event("AddToCart", { content_name: "Radne Patike S3 Tactical Black", value: 49.90, currency: "BAM" })}
+            onClick={() => event("AddToCart", { content_name: "Radne Patike S3 Tactical Black", value: 59.90, currency: "BAM" })}
             style={{
               display: "block",
               textAlign: "center",

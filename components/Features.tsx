@@ -197,7 +197,7 @@ export default function Features() {
               fontSize: 20, fontWeight: 800, color: "#fff", margin: "0 0 4px",
               fontFamily: "var(--font-manrope), sans-serif", letterSpacing: "-0.02em",
             }}>
-              Sve 6 tehnologija · samo 49,90 KM
+              Sve 6 tehnologija · samo 59,90 KM
             </p>
             <p style={{
               fontSize: 13, color: "rgba(255,255,255,0.75)", margin: 0,
