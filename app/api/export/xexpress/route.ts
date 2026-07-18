@@ -75,6 +75,11 @@ function opisPosiljke(orderNumber: string, velicine: Velicina[]): string {
     if (active.length === 1 && active[0].kolicina === 1) return `Patike EU${active[0].velicina}`;
     return active.map((v) => `EU${v.velicina}×${v.kolicina}`).join(" ");
   }
+  if (prefix === "LEZ") {
+    const v = velicine?.[0];
+    if (v) return `Ležaljka ${v.velicina.toString().replace("Lezaljka ", "")} x${v.kolicina}`;
+    return "Ležaljka";
+  }
   return MAP[prefix] ?? "Paket";
 }
 
@@ -101,6 +106,7 @@ export async function GET(request: NextRequest) {
       { data: rawCetka  },
       { data: rawKomr   },
       { data: rawUsm    },
+      { data: rawLez    },
     ] = await Promise.all([
       sb.from("orders").select("ime, telefon, adresa, grad, ukupno, order_number, velicine")
         .gte("created_at", dayStart).lte("created_at", dayEnd)
@@ -112,6 +118,9 @@ export async function GET(request: NextRequest) {
         .gte("created_at", dayStart).lte("created_at", dayEnd)
         .neq("status", "cancelled").order("created_at", { ascending: true }),
       sb.from("usmjerivac_orders").select("ime, telefon, adresa, grad, ukupno, order_number, bundle_label")
+        .gte("created_at", dayStart).lte("created_at", dayEnd)
+        .neq("status", "cancelled").order("created_at", { ascending: true }),
+      sb.from("lezaljka_orders").select("ime, telefon, adresa, grad, ukupno, order_number, boja, kolicina")
         .gte("created_at", dayStart).lte("created_at", dayEnd)
         .neq("status", "cancelled").order("created_at", { ascending: true }),
     ]);
@@ -140,7 +149,19 @@ export async function GET(request: NextRequest) {
       velicine: [{ velicina: `Usmjerivač ${o.bundle_label}`, kolicina: 1 }] as Velicina[],
     }));
 
-    const orders = [...(rawOrders ?? []), ...normCetka, ...normKomr, ...normUsm];
+    const COLOR_LABELS: Record<string, string> = {
+      "maslinasto-siva": "Tamno maslinasto siva", "siva": "Siva", "tamno-zelena": "Tamno Zelena", "bordo": "Bordo", "crna": "Crna",
+    };
+
+    const normLez = ((rawLez ?? []) as {
+      ime: string; telefon: string; adresa: string; grad: string;
+      ukupno: number; order_number: string; boja: string; kolicina: number;
+    }[]).map((o) => ({
+      ...o,
+      velicine: [{ velicina: `Lezaljka ${COLOR_LABELS[o.boja] ?? o.boja}`, kolicina: o.kolicina }] as Velicina[],
+    }));
+
+    const orders = [...(rawOrders ?? []), ...normCetka, ...normKomr, ...normUsm, ...normLez];
 
     if (orders.length === 0) {
       return NextResponse.json({ error: `Nema narudžbi za ${dateParam}.` }, { status: 404 });

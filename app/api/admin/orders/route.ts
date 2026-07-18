@@ -130,7 +130,7 @@ export async function GET(request: Request) {
   };
 
   const COLOR_LABELS: Record<string, string> = {
-    "tamno-zelena": "Tamno Zelena", "bordo": "Bordo", "crna": "Crna",
+    "maslinasto-siva": "Tamno maslinasto siva", "siva": "Siva", "tamno-zelena": "Tamno Zelena", "bordo": "Bordo", "crna": "Crna",
   };
 
   const normalisedLez = ((resLez.data ?? []) as RawLez[]).map((o) => ({

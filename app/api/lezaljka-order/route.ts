@@ -39,12 +39,16 @@ function fmt(n: number): string {
 }
 
 const COLOR_LABELS: Record<string, string> = {
+  "maslinasto-siva": "Tamno maslinasto siva",
+  "siva": "Siva",
   "tamno-zelena": "Tamno Zelena",
   "bordo": "Bordo",
   "crna": "Crna",
 };
 
 const COLOR_HEX: Record<string, string> = {
+  "maslinasto-siva": "#4E5445",
+  "siva": "#3F3F46",
   "tamno-zelena": "#1B4332",
   "bordo": "#7B1D2A",
   "crna": "#1A1A1A",
@@ -60,7 +64,7 @@ export async function POST(request: NextRequest) {
     const orderNumber = generateOrderNumber(now);
     const dateBosnian = formatDateBosnian(now);
 
-    const PRICE = 69.9;
+    const PRICE = 59.9;
     const DELIVERY = 10.0;
     const cijenaProizvoda = PRICE * kolicina;
     const ukupno = cijenaProizvoda + DELIVERY;
