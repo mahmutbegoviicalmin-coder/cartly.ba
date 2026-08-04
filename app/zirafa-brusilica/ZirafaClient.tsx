@@ -193,6 +193,12 @@ function HeroSlider() {
         <div style={{ position: "absolute", top: 16, left: 16, zIndex: 2, background: "#dc2626", color: "#fff", fontSize: 13, fontWeight: 900, fontFamily: F, padding: "6px 13px", borderRadius: 10, boxShadow: "0 4px 16px rgba(220,38,38,0.35)", letterSpacing: "-0.01em" }}>
           -{DISCOUNT_PCT}%
         </div>
+
+        {/* Warranty badge */}
+        <div style={{ position: "absolute", top: 16, right: 16, zIndex: 2, background: "#fff", color: "#15803d", display: "flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 800, fontFamily: F, padding: "7px 12px", borderRadius: 10, boxShadow: "0 4px 16px rgba(10,10,26,0.16)", letterSpacing: "-0.01em" }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+          1 godina garancije
+        </div>
       </div>
 
       {/* Floating rating chip */}
@@ -543,7 +549,7 @@ export default function ZirafaClient() {
               </p>
 
               <ul style={{ listStyle: "none", margin: "0 0 30px", padding: 0, display: "flex", flexDirection: "column", gap: 12 }}>
-                {["Teleskopska šipka 100-175cm - radite bez ljestvi", "LED prsten 360° osvjetljava radnu površinu", "Priključak za usisavač - rad gotovo bez prašine"].map((t, i) => (
+                {["Teleskopska šipka 100-175cm - radite bez ljestvi", "LED prsten 360° osvjetljava radnu površinu", "Priključak za usisavač - rad gotovo bez prašine", "1 godina garancije na sve dijelove"].map((t, i) => (
                   <li key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <div style={{ width: 22, height: 22, borderRadius: "50%", background: ACCT, border: `1px solid ${BRDR}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={ACC} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
