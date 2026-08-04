@@ -22,6 +22,9 @@ export async function GET(req: NextRequest) {
   const PRODUCT_NAMES: Record<string, string> = {
     DWL: "DeWalt Bušilica", DWT: "DeWalt Bušilica",
     MLW: "Milwaukee Bušilica", BRS: "Milwaukee Brusilica",
+    MS3: "Milwaukee Set 3.1",
+    S2U: "Set 2 u 1",
+    HMR: "Hammer S3 Patike",
     ZQS: "Zvučnik", KMR: "Kamera",
     MSS: "Mašina za šišanje",
   };

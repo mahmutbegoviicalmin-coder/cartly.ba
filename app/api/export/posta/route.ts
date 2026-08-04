@@ -258,6 +258,9 @@ function sadrzaj(orderNumber: string, velicine: Velicina[]): string {
   const MAP: Record<string, string> = {
     DWL: "Bušilica žuta",
     MLW: "Bušilica crvena",
+    MS3: "Milwaukee Set 3.1",
+    S2U: "Set 2 u 1",
+    HMR: "Hammer S3 Patike",
     ZQS: "Zvučnik",
     KMR: "Kamera",
     DWT: "Brusilica",
@@ -265,6 +268,7 @@ function sadrzaj(orderNumber: string, velicine: Velicina[]): string {
     CCT: "Čelična Četka 1+1",
     KMN: "Komarnik",
     USM: "Usmjerivač",
+    ZRF: "Žirafa Brusilica za Zidove",
   };
   return MAP[prefix] ?? "Paket";
 }
@@ -393,7 +397,9 @@ export async function GET(request: NextRequest) {
     const dataRows = orders.map((o) => {
       const prefix  = orderPrefix(o.order_number ?? "");
       const velicine: Velicina[] = o.velicine ?? [];
-      const qty     = prefix === "CRT" ? Math.max(1, totalQty(velicine)) : 1;
+      const qty     = (prefix === "CRT" || prefix === "HMR" || prefix === "MS3")
+        ? Math.max(1, totalQty(velicine))
+        : 1;
       const kontakt = (o.ime ?? "").split(" ")[0];
       return [
         o.ime ?? "",                   // Ime i prezime

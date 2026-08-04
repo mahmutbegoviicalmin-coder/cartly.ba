@@ -65,10 +65,12 @@ type Velicina = { velicina: number | string; kolicina: number };
 function opisPosiljke(orderNumber: string, velicine: Velicina[]): string {
   const prefix = (orderNumber ?? "").slice(0, 3).toUpperCase();
   const MAP: Record<string, string> = {
-    DWL: "Bušilica žuta", MLW: "Bušilica crvena", ZQS: "Zvučnik",
+    DWL: "Bušilica žuta", MLW: "Bušilica crvena", MS3: "Milwaukee Set 3.1", S2U: "Set 2 u 1", ZQS: "Zvučnik",
     KMR: "Kamera", DWT: "Brusilica", BRS: "Brusilica",
     CCT: "Čelična Četka 1+1", KMN: "Komarnik", USM: "Usmjerivač",
     CRT: "Radne Patike S3",
+    HMR: "Hammer S3 Patike",
+    ZRF: "Žirafa Brusilica za Zidove",
   };
   if (prefix === "CRT") {
     const active = (velicine ?? []).filter((v) => v.kolicina > 0);

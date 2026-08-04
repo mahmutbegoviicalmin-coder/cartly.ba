@@ -12,6 +12,16 @@ const ACCENT = "#FF6B00";
 
 const ALL_PRODUCTS: Product[] = [
   {
+    name:     "Milwaukee Set 3.1",
+    desc:     "Bušilica, udarni odvijač 226 Nm, brusilica, 2× baterija 5.0 Ah i kofer",
+    price:    149,
+    oldPrice: 220,
+    tag:      "ALATI",
+    href:     "/milwaukee-set-31",
+    image:    "/milwaukee-set-31/hero.png",
+    hot:      true,
+  },
+  {
     name:     "Mašina za Šišanje Ovaca 1200W",
     desc:     "Profesionalni set · kofer, rezervni nož GRATIS i mazivo · 2800 okr./min · 1 godina garancije",
     price:    89.90,
@@ -40,6 +50,16 @@ const ALL_PRODUCTS: Product[] = [
     href:     "/brusilica",
     image:    "/images/brusilica.webp",
     hot:      false,
+  },
+  {
+    name:     "Žirafa Brusilica za Zidove",
+    desc:     "Teleskopska šipka 100-175cm, LED prsten i priključak za usisavač - brušenje bez ljestvi",
+    price:    169.90,
+    oldPrice: 269.90,
+    tag:      "ALATI",
+    href:     "/zirafa-brusilica",
+    image:    "/zirafa/heroslika.png",
+    hot:      true,
   },
   {
     name:     "Kamera V380 Pro",

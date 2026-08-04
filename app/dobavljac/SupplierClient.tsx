@@ -8,6 +8,7 @@ const PRODUCTS = [
   "DeWalt Bušilica",
   "Milwaukee Bušilica",
   "Milwaukee Brusilica",
+  "Milwaukee Set 3.1",
   "Čelična Četka",
   "Kamera",
   "Mašina za šišanje",

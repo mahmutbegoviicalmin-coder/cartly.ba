@@ -81,6 +81,8 @@ const PRODUCT_MAP: Record<string, { label: string; bg: string; color: string }> 
   CRT: { label: "Patike",    bg: "rgba(249,115,22,0.12)",  color: "#f97316" },
   KMR: { label: "Kamera",   bg: "rgba(129,140,248,0.12)", color: "#818cf8" },
   MLW: { label: "Milwaukee", bg: "rgba(239,68,68,0.12)",   color: "#ef4444" },
+  MS3: { label: "MW Set 3.1", bg: "rgba(220,0,0,0.12)",    color: "#dc0000" },
+  S2U: { label: "Set 2u1",    bg: "rgba(179,48,0,0.12)",   color: "#B33000" },
   ZQS: { label: "Zvučnik",  bg: "rgba(34,197,94,0.12)",   color: "#22c55e" },
   DWL: { label: "DeWalt",   bg: "rgba(234,179,8,0.12)",   color: "#eab308" },
   DWT: { label: "DeWalt",   bg: "rgba(234,179,8,0.12)",   color: "#eab308" },
@@ -89,8 +91,10 @@ const PRODUCT_MAP: Record<string, { label: string; bg: string; color: string }> 
   USM: { label: "Usmjerivač", bg: "rgba(26,95,255,0.12)", color: "#1a5fff" },
   PAT: { label: "R. Patike",  bg: "rgba(99,102,241,0.12)", color: "#6366f1" },
   RCH: { label: "Richeng",    bg: "rgba(179,48,0,0.10)",   color: "#B33000" },
+  HMR: { label: "Hammer",     bg: "rgba(55,65,81,0.12)",   color: "#374151" },
   LEZ: { label: "Ležaljka",   bg: "rgba(236,72,153,0.12)", color: "#ec4899" },
   PRS: { label: "Prsluk",     bg: "rgba(6,27,56,0.10)",    color: "#061B38" },
+  ZRF: { label: "Žirafa",     bg: "rgba(2,132,199,0.12)",  color: "#0284C7" },
 };
 
 function productBadge(orderNumber?: string) {
@@ -402,6 +406,64 @@ export default function DashboardClient() {
       alert("Greška pri eksportu. Pokušajte ponovo.");
     } finally {
       setUsmjerivacLoading(false);
+    }
+  };
+
+  // Hammer Skytec Express export
+  const [hammerDate, setHammerDate]       = useState(todayStr);
+  const [hammerLoading, setHammerLoading] = useState(false);
+
+  const exportHammerSkytec = async () => {
+    setHammerLoading(true);
+    try {
+      const res = await fetch(`/api/export/hammer-skytec?date=${hammerDate}`);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Greška pri eksportu." }));
+        alert(err.error ?? "Greška pri eksportu.");
+        return;
+      }
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement("a");
+      a.href     = url;
+      a.download = `Hammer_Skytec_${hammerDate}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      alert("Greška pri eksportu. Pokušajte ponovo.");
+    } finally {
+      setHammerLoading(false);
+    }
+  };
+
+  // Žirafa Brusilica export
+  const [zirafaDate, setZirafaDate]       = useState(todayStr);
+  const [zirafaLoading, setZirafaLoading] = useState(false);
+
+  const exportZirafa = async () => {
+    setZirafaLoading(true);
+    try {
+      const res = await fetch(`/api/export/zirafa?date=${zirafaDate}`);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Greška pri eksportu." }));
+        alert(err.error ?? "Greška pri eksportu.");
+        return;
+      }
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement("a");
+      a.href     = url;
+      a.download = `Zirafa_Brusilica_${zirafaDate}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      alert("Greška pri eksportu. Pokušajte ponovo.");
+    } finally {
+      setZirafaLoading(false);
     }
   };
 
@@ -986,6 +1048,92 @@ export default function DashboardClient() {
                         <>
                           <IconDownload />
                           Usmjerivači za Poštu
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* ── Hammer Skytec Express Export ── */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <input
+                      type="date"
+                      value={hammerDate}
+                      onChange={(e) => setHammerDate(e.target.value)}
+                      style={{
+                        padding: "8px 12px", fontSize: 13, border: "1px solid #2a2a2a",
+                        borderRadius: 8, background: "#111", outline: "none",
+                        fontFamily: "inherit", color: "#f5f5f7",
+                        colorScheme: "dark", cursor: "pointer",
+                        transition: "border-color 0.15s",
+                      }}
+                      onFocus={(e) => { e.currentTarget.style.borderColor = "#9ca3af"; }}
+                      onBlur={(e)  => { e.currentTarget.style.borderColor = "#2a2a2a"; }}
+                    />
+                    <button
+                      onClick={exportHammerSkytec}
+                      disabled={hammerLoading}
+                      style={{
+                        padding: "8px 18px", background: "#1a1a1a", color: "#d1d5db",
+                        border: "1px solid #4b5563", borderRadius: 8, fontSize: 13, fontWeight: 600,
+                        cursor: hammerLoading ? "not-allowed" : "pointer", fontFamily: "inherit",
+                        display: "flex", alignItems: "center", gap: 7, transition: "background 0.15s",
+                        opacity: hammerLoading ? 0.7 : 1, whiteSpace: "nowrap",
+                      }}
+                    >
+                      {hammerLoading ? (
+                        <>
+                          <svg style={{ animation: "spin 1s linear infinite" }} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                          </svg>
+                          Generišem...
+                        </>
+                      ) : (
+                        <>
+                          <IconDownload />
+                          Hammer za Skytec
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* ── Žirafa Brusilica Export ── */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <input
+                      type="date"
+                      value={zirafaDate}
+                      onChange={(e) => setZirafaDate(e.target.value)}
+                      style={{
+                        padding: "8px 12px", fontSize: 13, border: "1px solid #2a2a2a",
+                        borderRadius: 8, background: "#111", outline: "none",
+                        fontFamily: "inherit", color: "#f5f5f7",
+                        colorScheme: "dark", cursor: "pointer",
+                        transition: "border-color 0.15s",
+                      }}
+                      onFocus={(e) => { e.currentTarget.style.borderColor = "#9ca3af"; }}
+                      onBlur={(e)  => { e.currentTarget.style.borderColor = "#2a2a2a"; }}
+                    />
+                    <button
+                      onClick={exportZirafa}
+                      disabled={zirafaLoading}
+                      style={{
+                        padding: "8px 18px", background: "#1a1a1a", color: "#d1d5db",
+                        border: "1px solid #4b5563", borderRadius: 8, fontSize: 13, fontWeight: 600,
+                        cursor: zirafaLoading ? "not-allowed" : "pointer", fontFamily: "inherit",
+                        display: "flex", alignItems: "center", gap: 7, transition: "background 0.15s",
+                        opacity: zirafaLoading ? 0.7 : 1, whiteSpace: "nowrap",
+                      }}
+                    >
+                      {zirafaLoading ? (
+                        <>
+                          <svg style={{ animation: "spin 1s linear infinite" }} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                          </svg>
+                          Generišem...
+                        </>
+                      ) : (
+                        <>
+                          <IconDownload />
+                          Žirafa Brusilica
                         </>
                       )}
                     </button>

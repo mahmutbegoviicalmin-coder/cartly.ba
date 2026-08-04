@@ -61,7 +61,7 @@ export default function UsmjerivacFloatingCTA({ onOrder }: Props) {
             Usmjerivač Zraka Klime
           </div>
           <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginTop: 1 }}>
-            <span style={{ fontSize: 16, fontWeight: 900, color: BLUE, fontFamily: F, letterSpacing: "-0.03em" }}>14,90 KM</span>
+            <span style={{ fontSize: 16, fontWeight: 900, color: BLUE, fontFamily: F, letterSpacing: "-0.03em" }}>13,90 KM</span>
             <span style={{ fontSize: 12, color: "#94a3b8", fontFamily: F }}>+ 10 KM dostava</span>
           </div>
         </div>

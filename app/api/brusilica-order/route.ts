@@ -3,7 +3,7 @@ import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { Resend } from "resend";
 import { sendCAPIEvent, getClientIP, getClientUA, getFbc, getFbp } from "@/lib/meta-capi";
 
-const UNIT_PRICE = 74.9;
+const UNIT_PRICE = 69.9;
 const DELIVERY   = 10.0;
 
 function generateOrderNumber(date: Date): string {

@@ -33,8 +33,22 @@ interface NavLink {
 const NAV_LINKS: NavLink[] = [
   {
     label: "ALATI",
-    href:  "/milwaukee-busilica",
+    href:  "/milwaukee-set-31",
     sub: [
+      {
+        label: "Set 2 u 1 — Bušilica + Brusilica",
+        href:  "/set-2u1",
+        desc:  "2 baterije, punjač, kofer · 104,90 KM",
+        badge: "NOVO",
+        image: "/set2u1/set.png",
+      },
+      {
+        label: "Milwaukee Set 3.1",
+        href:  "/milwaukee-set-31",
+        desc:  "Bušilica, udarni odvijač 226 Nm, brusilica · 149 KM",
+        badge: "NOVO",
+        image: "/milwaukee-set-31/hero.png",
+      },
       {
         label: "Milwaukee M18 Bušilica",
         href:  "/milwaukee-busilica",
@@ -64,7 +78,26 @@ const NAV_LINKS: NavLink[] = [
     ],
   },
   { label: "VIDEO NADZOR", href: "/kamera"  },
-  { label: "RADNA OBUĆA",  href: "/"        },
+  {
+    label: "RADNA OBUĆA",
+    href:  "/radne-patike",
+    sub: [
+      {
+        label: "Tactical Black S3",
+        href:  "/radne-patike",
+        desc:  "BOA Fit · čelična kapica · 59,90 KM",
+        badge: "POPULARNO",
+        image: "/images/product-1.webp",
+      },
+      {
+        label: "Hammer S3 Radne Patike",
+        href:  "/radne-patike-hammer",
+        desc:  "S3 zaštita · akcija 59,90 KM",
+        badge: "NOVO",
+        image: "/radne-patike-hammer/hero.webp",
+      },
+    ],
+  },
   {
     label: "DOM",
     href:  "/usmjerivac-zraka",

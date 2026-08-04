@@ -17,6 +17,26 @@ const ACCENT = "#B33000";
 
 const PRODUCTS = [
   {
+    slug:      "/set-2u1",
+    category:  "Profesionalni alat",
+    name:      "Set 2 u 1 — Bušilica + Brusilica",
+    image:     "/set2u1/set.png",
+    price:     "104,90 KM",
+    oldPrice:  "199,90 KM",
+    discount:  47,
+    hot:       true,
+  },
+  {
+    slug:      "/milwaukee-set-31",
+    category:  "Profesionalni alat",
+    name:      "Milwaukee Set 3.1",
+    image:     "/milwaukee-set-31/hero.png",
+    price:     "149 KM",
+    oldPrice:  "220 KM",
+    discount:  32,
+    hot:       true,
+  },
+  {
     slug:      "/radne-patike",
     category:  "Radna obuća",
     name:      "Radne Patike S3",
@@ -64,6 +84,16 @@ const PRODUCTS = [
     price:     "74,90 KM",
     oldPrice:  "159,90 KM",
     discount:  53,
+    hot:       true,
+  },
+  {
+    slug:      "/zirafa-brusilica",
+    category:  "Profesionalni alat",
+    name:      "Žirafa Brusilica za Zidove",
+    image:     "/zirafa/heroslika.png",
+    price:     "169,90 KM",
+    oldPrice:  "269,90 KM",
+    discount:  37,
     hot:       true,
   },
   {
