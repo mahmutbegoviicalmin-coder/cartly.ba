@@ -489,6 +489,16 @@ export default function ZirafaClient() {
         @media(max-width:640px){
           .z-rev-g { grid-template-columns:1fr !important; }
         }
+        @media(max-width:480px){
+          .z-price-block { gap:10px !important; padding:11px 14px !important; }
+          .z-price-main  { gap:6px !important; }
+          .z-price-now   { font-size:24px !important; }
+          .z-price-old   { font-size:13px !important; }
+          .z-price-badge { font-size:10px !important; padding:4px 8px !important; }
+        }
+        @media(max-width:360px){
+          .z-price-block { flex-wrap:wrap !important; }
+        }
         @keyframes z-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.55;transform:scale(0.78)} }
         .z-pulse-dot { width:8px; height:8px; border-radius:50%; background:#ef4444; display:inline-block; animation:z-pulse 1.6s ease-in-out infinite; }
       `}</style>
@@ -544,16 +554,16 @@ export default function ZirafaClient() {
               </ul>
 
               {/* Price block */}
-              <div style={{
-                display: "flex", alignItems: "center", gap: 16, marginBottom: 24, flexWrap: "wrap",
+              <div className="z-price-block" style={{
+                display: "flex", alignItems: "center", gap: 16, marginBottom: 24, flexWrap: "nowrap",
                 background: "#fff", border: `1px solid ${BRDR}`, borderRadius: 16, padding: "16px 20px",
-                boxShadow: "0 4px 20px rgba(2,132,199,0.07)", width: "fit-content",
+                boxShadow: "0 4px 20px rgba(2,132,199,0.07)", width: "fit-content", maxWidth: "100%",
               }}>
-                <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-                  <span style={{ fontSize: 40, fontWeight: 900, color: ACC, fontFamily: F, letterSpacing: "-0.04em" }}>{fmt(UNIT_PRICE)}</span>
-                  <span style={{ fontSize: 18, color: "#94a3b8", fontFamily: F, textDecoration: "line-through" }}>{fmt(OLD_PRICE)}</span>
+                <div className="z-price-main" style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "nowrap", minWidth: 0 }}>
+                  <span className="z-price-now" style={{ fontSize: 40, fontWeight: 900, color: ACC, fontFamily: F, letterSpacing: "-0.04em", whiteSpace: "nowrap" }}>{fmt(UNIT_PRICE)}</span>
+                  <span className="z-price-old" style={{ fontSize: 18, color: "#94a3b8", fontFamily: F, textDecoration: "line-through", whiteSpace: "nowrap" }}>{fmt(OLD_PRICE)}</span>
                 </div>
-                <span style={{ background: "#fef2f2", color: "#dc2626", fontSize: 12, fontWeight: 800, fontFamily: F, padding: "5px 10px", borderRadius: 8, border: "1px solid #fecaca" }}>
+                <span className="z-price-badge" style={{ background: "#fef2f2", color: "#dc2626", fontSize: 12, fontWeight: 800, fontFamily: F, padding: "5px 10px", borderRadius: 8, border: "1px solid #fecaca", whiteSpace: "nowrap", flexShrink: 0 }}>
                   UŠTEDITE {DISCOUNT_PCT}%
                 </span>
               </div>
