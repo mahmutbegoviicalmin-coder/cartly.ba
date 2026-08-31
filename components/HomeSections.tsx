@@ -17,6 +17,16 @@ const ACCENT = "#B33000";
 
 const PRODUCTS = [
   {
+    slug:      "/airpods-pro",
+    category:  "Audio",
+    name:      "AirPods Pro",
+    image:     "/airpods-pro/hero.png",
+    price:     "49,90 KM",
+    oldPrice:  "89,90 KM",
+    discount:  44,
+    hot:       true,
+  },
+  {
     slug:      "/set-2u1",
     category:  "Profesionalni alat",
     name:      "Set 2 u 1 — Bušilica + Brusilica",

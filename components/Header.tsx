@@ -115,6 +115,13 @@ const NAV_LINKS: NavLink[] = [
         desc:  "Prijenosni zvučnik · Bluetooth 5.0 · vodootporan",
         image: "/images/zvucnik/zvucnik1.webp",
       },
+      {
+        label: "AirPods Pro",
+        href:  "/airpods-pro",
+        desc:  "ANC · Adaptive Audio · MagSafe · 49,90 KM",
+        badge: "NOVO",
+        image: "/airpods-pro/hero.png",
+      },
     ],
   },
 ];

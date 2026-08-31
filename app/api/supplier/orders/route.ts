@@ -27,6 +27,7 @@ export async function GET(req: NextRequest) {
     HMR: "Hammer S3 Patike",
     ZQS: "Zvučnik", KMR: "Kamera",
     MSS: "Mašina za šišanje",
+    APP: "AirPods Pro",
   };
 
   const [resOrders, resCetka, resUsm, resKomr] = await Promise.all([

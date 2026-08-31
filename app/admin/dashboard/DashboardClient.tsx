@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
+import { PRODUCTS } from "@/lib/export-products";
 
 // Recharts — dynamic to avoid SSR issues
 const LineChart       = dynamic(() => import("recharts").then((m) => m.LineChart),       { ssr: false });
@@ -95,6 +96,7 @@ const PRODUCT_MAP: Record<string, { label: string; bg: string; color: string }> 
   LEZ: { label: "Ležaljka",   bg: "rgba(236,72,153,0.12)", color: "#ec4899" },
   PRS: { label: "Prsluk",     bg: "rgba(6,27,56,0.10)",    color: "#061B38" },
   ZRF: { label: "Žirafa",     bg: "rgba(2,132,199,0.12)",  color: "#0284C7" },
+  APP: { label: "AirPods",    bg: "rgba(29,29,31,0.10)",  color: "#1d1d1f" },
 };
 
 function productBadge(orderNumber?: string) {
@@ -292,15 +294,18 @@ export default function DashboardClient() {
   const [loadingAll, setLoadingAll]       = useState(false);
   const [expandedDays, setExpandedDays]   = useState<Set<string>>(new Set());
 
-  // Pošta export
+  // ── Courier export (per-product dropdown → X Express / Skytec Express) ──────
   const todayStr = new Date().toISOString().slice(0, 10);
-  const [postaDate, setPostaDate]       = useState(todayStr);
-  const [postaLoading, setPostaLoading] = useState(false);
+  const [exportProduct, setExportProduct] = useState("svi");
+  const [exportDate, setExportDate]       = useState(todayStr);
+  const [exportLoading, setExportLoading] = useState<"xexpress" | "skytec" | null>(null);
 
-  const exportPosta = async () => {
-    setPostaLoading(true);
+  const runExport = async (courier: "xexpress" | "skytec") => {
+    setExportLoading(courier);
     try {
-      const res = await fetch(`/api/export/posta?date=${postaDate}`);
+      const res = await fetch(
+        `/api/export?courier=${courier}&product=${encodeURIComponent(exportProduct)}&date=${exportDate}`
+      );
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: "Greška pri eksportu." }));
         alert(err.error ?? "Greška pri eksportu.");
@@ -310,7 +315,8 @@ export default function DashboardClient() {
       const url  = URL.createObjectURL(blob);
       const a    = document.createElement("a");
       a.href     = url;
-      a.download = `Posiljke_${postaDate}.xlsx`;
+      const tag  = courier === "xexpress" ? "XExpress" : "Skytec";
+      a.download = `${tag}_${exportProduct}_${exportDate}.xlsx`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -318,152 +324,7 @@ export default function DashboardClient() {
     } catch {
       alert("Greška pri eksportu. Pokušajte ponovo.");
     } finally {
-      setPostaLoading(false);
-    }
-  };
-
-  // Patike Pošta export
-  const [patikeDate, setPatikeDate]       = useState(todayStr);
-  const [patikeLoading, setPatikeLoading] = useState(false);
-
-  const exportPatike = async () => {
-    setPatikeLoading(true);
-    try {
-      const res = await fetch(`/api/export/patike?date=${patikeDate}`);
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: "Greška pri eksportu." }));
-        alert(err.error ?? "Greška pri eksportu.");
-        return;
-      }
-      const blob = await res.blob();
-      const url  = URL.createObjectURL(blob);
-      const a    = document.createElement("a");
-      a.href     = url;
-      a.download = `Patike_${patikeDate}.xlsx`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch {
-      alert("Greška pri eksportu. Pokušajte ponovo.");
-    } finally {
-      setPatikeLoading(false);
-    }
-  };
-
-  // Milwaukee M18 XExpress export
-  const [milwaukeeDate, setMilwaukeeDate]       = useState(todayStr);
-  const [milwaukeeLoading, setMilwaukeeLoading] = useState(false);
-
-  const exportMilwaukee = async () => {
-    setMilwaukeeLoading(true);
-    try {
-      const res = await fetch(`/api/export/milwaukee?date=${milwaukeeDate}`);
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: "Greška pri eksportu." }));
-        alert(err.error ?? "Greška pri eksportu.");
-        return;
-      }
-      const blob = await res.blob();
-      const url  = URL.createObjectURL(blob);
-      const a    = document.createElement("a");
-      a.href     = url;
-      a.download = `Milwaukee_XExpress_${milwaukeeDate}.xlsx`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch {
-      alert("Greška pri eksportu. Pokušajte ponovo.");
-    } finally {
-      setMilwaukeeLoading(false);
-    }
-  };
-
-  // Usmjerivači Pošta export
-  const [usmjerivacDate, setUsmjerivacDate]       = useState(todayStr);
-  const [usmjerivacLoading, setUsmjerivacLoading] = useState(false);
-
-  const exportUsmjerivaci = async () => {
-    setUsmjerivacLoading(true);
-    try {
-      const res = await fetch(`/api/export/usmjerivaci?date=${usmjerivacDate}`);
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: "Greška pri eksportu." }));
-        alert(err.error ?? "Greška pri eksportu.");
-        return;
-      }
-      const blob = await res.blob();
-      const url  = URL.createObjectURL(blob);
-      const a    = document.createElement("a");
-      a.href     = url;
-      a.download = `Usmjerivaci_Posta_${usmjerivacDate}.xlsx`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch {
-      alert("Greška pri eksportu. Pokušajte ponovo.");
-    } finally {
-      setUsmjerivacLoading(false);
-    }
-  };
-
-  // Hammer Skytec Express export
-  const [hammerDate, setHammerDate]       = useState(todayStr);
-  const [hammerLoading, setHammerLoading] = useState(false);
-
-  const exportHammerSkytec = async () => {
-    setHammerLoading(true);
-    try {
-      const res = await fetch(`/api/export/hammer-skytec?date=${hammerDate}`);
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: "Greška pri eksportu." }));
-        alert(err.error ?? "Greška pri eksportu.");
-        return;
-      }
-      const blob = await res.blob();
-      const url  = URL.createObjectURL(blob);
-      const a    = document.createElement("a");
-      a.href     = url;
-      a.download = `Hammer_Skytec_${hammerDate}.xlsx`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch {
-      alert("Greška pri eksportu. Pokušajte ponovo.");
-    } finally {
-      setHammerLoading(false);
-    }
-  };
-
-  // Žirafa Brusilica export
-  const [zirafaDate, setZirafaDate]       = useState(todayStr);
-  const [zirafaLoading, setZirafaLoading] = useState(false);
-
-  const exportZirafa = async () => {
-    setZirafaLoading(true);
-    try {
-      const res = await fetch(`/api/export/zirafa?date=${zirafaDate}`);
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: "Greška pri eksportu." }));
-        alert(err.error ?? "Greška pri eksportu.");
-        return;
-      }
-      const blob = await res.blob();
-      const url  = URL.createObjectURL(blob);
-      const a    = document.createElement("a");
-      a.href     = url;
-      a.download = `Zirafa_Brusilica_${zirafaDate}.xlsx`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch {
-      alert("Greška pri eksportu. Pokušajte ponovo.");
-    } finally {
-      setZirafaLoading(false);
+      setExportLoading(null);
     }
   };
 
@@ -599,9 +460,16 @@ export default function DashboardClient() {
           .dash-hamburger  { display: flex !important; }
           .dash-overlay    { display: block; }
           .margin-grid     { grid-template-columns: 1fr !important; }
+          .export-spacer   { display: none !important; }
+          .export-ctl      { width: 100%; }
+          .export-ctl > select,
+          .export-ctl > input { flex: 1 1 140px; min-width: 0 !important; }
+          .export-ctl > button { flex: 1 1 140px; }
         }
         @media (max-width: 520px) {
           .stat-grid { grid-template-columns: 1fr !important; }
+          .export-ctl > select,
+          .export-ctl > input { flex-basis: 100%; }
         }
         select option { background: #1a1a1a; color: #f5f5f7; }
         .nav-btn:hover { color: #d4d4d8 !important; }
@@ -878,265 +746,77 @@ export default function DashboardClient() {
                   )}
 
                   {/* Spacer */}
-                  <span style={{ flex: 1 }} />
+                  <span className="export-spacer" style={{ flex: 1 }} />
 
-                  {/* ── BH Pošta Export ── */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  {/* ── Courier export: pick product → X Express / Skytec ── */}
+                  <div
+                    className="export-ctl"
+                    style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}
+                  >
+                    <select
+                      value={exportProduct}
+                      onChange={(e) => setExportProduct(e.target.value)}
+                      style={{
+                        padding: "8px 12px", fontSize: 13, border: "1px solid #2a2a2a",
+                        borderRadius: 8, background: "#111", outline: "none",
+                        fontFamily: "inherit", color: "#f5f5f7", cursor: "pointer",
+                        minWidth: 170,
+                      }}
+                      onFocus={(e) => { e.currentTarget.style.borderColor = "#f97316"; }}
+                      onBlur={(e)  => { e.currentTarget.style.borderColor = "#2a2a2a"; }}
+                    >
+                      <option value="svi">Svi proizvodi</option>
+                      {PRODUCTS.map((p) => (
+                        <option key={p.key} value={p.key}>{p.label}</option>
+                      ))}
+                    </select>
+
                     <input
                       type="date"
-                      value={postaDate}
-                      onChange={(e) => setPostaDate(e.target.value)}
+                      value={exportDate}
+                      onChange={(e) => setExportDate(e.target.value)}
                       style={{
                         padding: "8px 12px", fontSize: 13, border: "1px solid #2a2a2a",
                         borderRadius: 8, background: "#111", outline: "none",
                         fontFamily: "inherit", color: "#f5f5f7",
                         colorScheme: "dark", cursor: "pointer",
-                        transition: "border-color 0.15s",
                       }}
-                      onFocus={(e) => { e.currentTarget.style.borderColor = "#60a5fa"; }}
+                      onFocus={(e) => { e.currentTarget.style.borderColor = "#f97316"; }}
                       onBlur={(e)  => { e.currentTarget.style.borderColor = "#2a2a2a"; }}
                     />
-                    <button
-                      onClick={exportPosta}
-                      disabled={postaLoading}
-                      className="posta-btn"
-                      style={{
-                        padding: "8px 18px", background: "#111d2e", color: "#60a5fa",
-                        border: "1px solid #1e3a5f", borderRadius: 8, fontSize: 13, fontWeight: 600,
-                        cursor: postaLoading ? "not-allowed" : "pointer", fontFamily: "inherit",
-                        display: "flex", alignItems: "center", gap: 7, transition: "background 0.15s",
-                        opacity: postaLoading ? 0.7 : 1, whiteSpace: "nowrap",
-                      }}
-                    >
-                      {postaLoading ? (
-                        <>
-                          <svg style={{ animation: "spin 1s linear infinite" }} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-                          </svg>
-                          Generišem...
-                        </>
-                      ) : (
-                        <>
-                          <IconDownload />
-                          Eksportuj za Poštu
-                        </>
-                      )}
-                    </button>
-                  </div>
 
-                  {/* ── Patike Pošta Export ── */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <input
-                      type="date"
-                      value={patikeDate}
-                      onChange={(e) => setPatikeDate(e.target.value)}
-                      style={{
-                        padding: "8px 12px", fontSize: 13, border: "1px solid #2a2a2a",
-                        borderRadius: 8, background: "#111", outline: "none",
-                        fontFamily: "inherit", color: "#f5f5f7",
-                        colorScheme: "dark", cursor: "pointer",
-                        transition: "border-color 0.15s",
-                      }}
-                      onFocus={(e) => { e.currentTarget.style.borderColor = "#6366f1"; }}
-                      onBlur={(e)  => { e.currentTarget.style.borderColor = "#2a2a2a"; }}
-                    />
-                    <button
-                      onClick={exportPatike}
-                      disabled={patikeLoading}
-                      style={{
-                        padding: "8px 18px", background: "#12122a", color: "#818cf8",
-                        border: "1px solid #3730a3", borderRadius: 8, fontSize: 13, fontWeight: 600,
-                        cursor: patikeLoading ? "not-allowed" : "pointer", fontFamily: "inherit",
-                        display: "flex", alignItems: "center", gap: 7, transition: "background 0.15s",
-                        opacity: patikeLoading ? 0.7 : 1, whiteSpace: "nowrap",
-                      }}
-                    >
-                      {patikeLoading ? (
-                        <>
-                          <svg style={{ animation: "spin 1s linear infinite" }} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-                          </svg>
-                          Generišem...
-                        </>
-                      ) : (
-                        <>
-                          <IconDownload />
-                          Patike za Poštu
-                        </>
-                      )}
-                    </button>
-                  </div>
-
-                  {/* ── Milwaukee M18 XExpress Export ── */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <input
-                      type="date"
-                      value={milwaukeeDate}
-                      onChange={(e) => setMilwaukeeDate(e.target.value)}
-                      style={{
-                        padding: "8px 12px", fontSize: 13, border: "1px solid #2a2a2a",
-                        borderRadius: 8, background: "#111", outline: "none",
-                        fontFamily: "inherit", color: "#f5f5f7",
-                        colorScheme: "dark", cursor: "pointer",
-                        transition: "border-color 0.15s",
-                      }}
-                      onFocus={(e) => { e.currentTarget.style.borderColor = "#facc15"; }}
-                      onBlur={(e)  => { e.currentTarget.style.borderColor = "#2a2a2a"; }}
-                    />
-                    <button
-                      onClick={exportMilwaukee}
-                      disabled={milwaukeeLoading}
-                      style={{
-                        padding: "8px 18px", background: "#1a1500", color: "#facc15",
-                        border: "1px solid #854d0e", borderRadius: 8, fontSize: 13, fontWeight: 600,
-                        cursor: milwaukeeLoading ? "not-allowed" : "pointer", fontFamily: "inherit",
-                        display: "flex", alignItems: "center", gap: 7, transition: "background 0.15s",
-                        opacity: milwaukeeLoading ? 0.7 : 1, whiteSpace: "nowrap",
-                      }}
-                    >
-                      {milwaukeeLoading ? (
-                        <>
-                          <svg style={{ animation: "spin 1s linear infinite" }} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-                          </svg>
-                          Generišem...
-                        </>
-                      ) : (
-                        <>
-                          <IconDownload />
-                          M18 Bušilica za XExpress
-                        </>
-                      )}
-                    </button>
-                  </div>
-
-                  {/* ── Usmjerivači Pošta Export ── */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <input
-                      type="date"
-                      value={usmjerivacDate}
-                      onChange={(e) => setUsmjerivacDate(e.target.value)}
-                      style={{
-                        padding: "8px 12px", fontSize: 13, border: "1px solid #2a2a2a",
-                        borderRadius: 8, background: "#111", outline: "none",
-                        fontFamily: "inherit", color: "#f5f5f7",
-                        colorScheme: "dark", cursor: "pointer",
-                        transition: "border-color 0.15s",
-                      }}
-                      onFocus={(e) => { e.currentTarget.style.borderColor = "#34d399"; }}
-                      onBlur={(e)  => { e.currentTarget.style.borderColor = "#2a2a2a"; }}
-                    />
-                    <button
-                      onClick={exportUsmjerivaci}
-                      disabled={usmjerivacLoading}
-                      style={{
-                        padding: "8px 18px", background: "#0a1f15", color: "#34d399",
-                        border: "1px solid #065f46", borderRadius: 8, fontSize: 13, fontWeight: 600,
-                        cursor: usmjerivacLoading ? "not-allowed" : "pointer", fontFamily: "inherit",
-                        display: "flex", alignItems: "center", gap: 7, transition: "background 0.15s",
-                        opacity: usmjerivacLoading ? 0.7 : 1, whiteSpace: "nowrap",
-                      }}
-                    >
-                      {usmjerivacLoading ? (
-                        <>
-                          <svg style={{ animation: "spin 1s linear infinite" }} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-                          </svg>
-                          Generišem...
-                        </>
-                      ) : (
-                        <>
-                          <IconDownload />
-                          Usmjerivači za Poštu
-                        </>
-                      )}
-                    </button>
-                  </div>
-
-                  {/* ── Hammer Skytec Express Export ── */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <input
-                      type="date"
-                      value={hammerDate}
-                      onChange={(e) => setHammerDate(e.target.value)}
-                      style={{
-                        padding: "8px 12px", fontSize: 13, border: "1px solid #2a2a2a",
-                        borderRadius: 8, background: "#111", outline: "none",
-                        fontFamily: "inherit", color: "#f5f5f7",
-                        colorScheme: "dark", cursor: "pointer",
-                        transition: "border-color 0.15s",
-                      }}
-                      onFocus={(e) => { e.currentTarget.style.borderColor = "#9ca3af"; }}
-                      onBlur={(e)  => { e.currentTarget.style.borderColor = "#2a2a2a"; }}
-                    />
-                    <button
-                      onClick={exportHammerSkytec}
-                      disabled={hammerLoading}
-                      style={{
-                        padding: "8px 18px", background: "#1a1a1a", color: "#d1d5db",
-                        border: "1px solid #4b5563", borderRadius: 8, fontSize: 13, fontWeight: 600,
-                        cursor: hammerLoading ? "not-allowed" : "pointer", fontFamily: "inherit",
-                        display: "flex", alignItems: "center", gap: 7, transition: "background 0.15s",
-                        opacity: hammerLoading ? 0.7 : 1, whiteSpace: "nowrap",
-                      }}
-                    >
-                      {hammerLoading ? (
-                        <>
-                          <svg style={{ animation: "spin 1s linear infinite" }} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-                          </svg>
-                          Generišem...
-                        </>
-                      ) : (
-                        <>
-                          <IconDownload />
-                          Hammer za Skytec
-                        </>
-                      )}
-                    </button>
-                  </div>
-
-                  {/* ── Žirafa Brusilica Export ── */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <input
-                      type="date"
-                      value={zirafaDate}
-                      onChange={(e) => setZirafaDate(e.target.value)}
-                      style={{
-                        padding: "8px 12px", fontSize: 13, border: "1px solid #2a2a2a",
-                        borderRadius: 8, background: "#111", outline: "none",
-                        fontFamily: "inherit", color: "#f5f5f7",
-                        colorScheme: "dark", cursor: "pointer",
-                        transition: "border-color 0.15s",
-                      }}
-                      onFocus={(e) => { e.currentTarget.style.borderColor = "#9ca3af"; }}
-                      onBlur={(e)  => { e.currentTarget.style.borderColor = "#2a2a2a"; }}
-                    />
-                    <button
-                      onClick={exportZirafa}
-                      disabled={zirafaLoading}
-                      style={{
-                        padding: "8px 18px", background: "#1a1a1a", color: "#d1d5db",
-                        border: "1px solid #4b5563", borderRadius: 8, fontSize: 13, fontWeight: 600,
-                        cursor: zirafaLoading ? "not-allowed" : "pointer", fontFamily: "inherit",
-                        display: "flex", alignItems: "center", gap: 7, transition: "background 0.15s",
-                        opacity: zirafaLoading ? 0.7 : 1, whiteSpace: "nowrap",
-                      }}
-                    >
-                      {zirafaLoading ? (
-                        <>
-                          <svg style={{ animation: "spin 1s linear infinite" }} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-                          </svg>
-                          Generišem...
-                        </>
-                      ) : (
-                        <>
-                          <IconDownload />
-                          Žirafa Brusilica
-                        </>
-                      )}
-                    </button>
+                    {([
+                      { courier: "xexpress" as const, label: "X Express", bg: "#1a1500", color: "#facc15", border: "#854d0e" },
+                      { courier: "skytec"   as const, label: "Skytec Express", bg: "#111d2e", color: "#60a5fa", border: "#1e3a5f" },
+                    ]).map(({ courier, label, bg, color, border }) => {
+                      const loading = exportLoading === courier;
+                      const busy = exportLoading !== null;
+                      return (
+                        <button
+                          key={courier}
+                          onClick={() => runExport(courier)}
+                          disabled={busy}
+                          style={{
+                            padding: "8px 16px", background: bg, color,
+                            border: `1px solid ${border}`, borderRadius: 8, fontSize: 13, fontWeight: 600,
+                            cursor: busy ? "not-allowed" : "pointer", fontFamily: "inherit",
+                            display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
+                            opacity: busy && !loading ? 0.4 : loading ? 0.7 : 1, whiteSpace: "nowrap",
+                          }}
+                        >
+                          {loading ? (
+                            <>
+                              <svg style={{ animation: "spin 1s linear infinite" }} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                                <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                              </svg>
+                              Generišem...
+                            </>
+                          ) : (
+                            <><IconDownload /> {label}</>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
 
                 </div>

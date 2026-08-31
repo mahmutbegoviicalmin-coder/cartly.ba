@@ -38,6 +38,7 @@ function SocialIcon({ href, children }: { href: string; children: React.ReactNod
 const NAV_LINKS = [
   { label: "Radne patike", href: "/radne-patike" },
   { label: "Ležaljke", href: "/lezaljke" },
+  { label: "AirPods Pro", href: "/airpods-pro" },
 ];
 
 export default function Navbar() {
@@ -61,8 +62,9 @@ export default function Navbar() {
   }, [menuOpen]);
 
   const isLezaljke = pathname === "/lezaljke";
-  const ctaHref = isLezaljke ? "#naruci" : "#order";
-  const ctaLabel = isLezaljke ? "Naruči ležaljku" : "Naruči odmah";
+  const isAirPods  = pathname === "/airpods-pro";
+  const ctaHref  = isLezaljke || isAirPods ? "#naruci" : "#order";
+  const ctaLabel = isLezaljke ? "Naruči ležaljku" : isAirPods ? "Naruči AirPods" : "Naruči odmah";
 
   return (
     <>
