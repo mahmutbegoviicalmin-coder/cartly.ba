@@ -144,15 +144,14 @@ function ordersOpis(orderNumber: string, velicine: Velicina[]): string {
 
 // ── Order fetching ───────────────────────────────────────────────────────────
 
-const BASE_COLS = "ime, telefon, adresa, grad, ukupno, order_number, status, created_at";
-
 type Sb = ReturnType<typeof getSupabaseAdmin>;
+type Row = Record<string, unknown> & { velicine?: Velicina[] };
 
 async function fetchFromOrders(
   sb: Sb, dayStart: string, dayEnd: string, prefixes?: string[]
 ): Promise<NormOrder[]> {
   let q = sb.from("orders")
-    .select(`${BASE_COLS}, velicine`)
+    .select("*")
     .gte("created_at", dayStart).lte("created_at", dayEnd)
     .neq("status", "cancelled");
 
@@ -163,7 +162,7 @@ async function fetchFromOrders(
   const { data, error } = await q.order("created_at", { ascending: true });
   if (error) throw error;
 
-  return ((data ?? []) as (Record<string, unknown> & { velicine?: Velicina[] })[]).map((o) => {
+  return ((data ?? []) as unknown as Row[]).map((o) => {
     const velicine = o.velicine ?? [];
     return {
       ime: String(o.ime ?? ""),
@@ -181,22 +180,14 @@ async function fetchFromOrders(
 async function fetchFromAux(
   sb: Sb, source: Exclude<Source, "orders">, dayStart: string, dayEnd: string
 ): Promise<NormOrder[]> {
-  const extraCols: Record<typeof source, string> = {
-    cetka_orders: "broj_setova",
-    komarnik_orders: "bundle, bundle_label",
-    usmjerivac_orders: "bundle, bundle_label",
-    lezaljka_orders: "boja, kolicina",
-    masina_orders: "kolicina",
-  };
-
   const { data, error } = await sb.from(source)
-    .select(`${BASE_COLS}, ${extraCols[source]}`)
+    .select("*")
     .gte("created_at", dayStart).lte("created_at", dayEnd)
     .neq("status", "cancelled")
     .order("created_at", { ascending: true });
   if (error) throw error;
 
-  return ((data ?? []) as Record<string, unknown>[]).map((o) => {
+  return ((data ?? []) as unknown as Row[]).map((o) => {
     let opis = "Paket";
     let units = 1;
     if (source === "cetka_orders") {
