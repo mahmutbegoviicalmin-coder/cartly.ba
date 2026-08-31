@@ -5,7 +5,7 @@
 // fetching per product, and the two workbook builders.
 // ─────────────────────────────────────────────────────────────────────────────
 import * as XLSX from "xlsx";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { getSupabaseAdmin } from "@/lib/supabase-server";
 import pttData from "@/data/ptt-bih.json";
 import { PRODUCTS, findProduct, type ProductDef } from "@/lib/export-products";
 
@@ -146,7 +146,7 @@ function ordersOpis(orderNumber: string, velicine: Velicina[]): string {
 
 const BASE_COLS = "ime, telefon, adresa, grad, ukupno, order_number, status, created_at";
 
-type Sb = SupabaseClient;
+type Sb = ReturnType<typeof getSupabaseAdmin>;
 
 async function fetchFromOrders(
   sb: Sb, dayStart: string, dayEnd: string, prefixes?: string[]
@@ -258,8 +258,9 @@ export async function fetchOrders(sb: Sb, productKey: string, date: string): Pro
 
 // ── Workbook builders ────────────────────────────────────────────────────────
 
-/** X Express format — single sheet, headers matching primer.xlsx. */
-export function buildXExpress(rows: NormOrder[]): Buffer {
+/** X Express format — single sheet, headers matching primer.xlsx. Returns the
+ *  xlsx buffer (typed `any`, mirroring XLSX.write / the other export routes). */
+export function buildXExpress(rows: NormOrder[]) {
   const HEADERS = [
     "Naziv primaoca*", "Ulica/Adresa*", "Poštanski broj*", "Mjesto/Grad*",
     "Kontakt osoba*", "Telefon*", "Broj računa/eksterna šifra", "Vrsta pošiljke*",
@@ -297,11 +298,11 @@ export function buildXExpress(rows: NormOrder[]): Buffer {
 
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-  return XLSX.write(wb, { type: "buffer", bookType: "xlsx" }) as Buffer;
+  return XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
 }
 
 /** Skytec Express format — Pošiljke + Legenda sheets, matching Posiljke.xlsx. */
-export function buildSkytec(rows: NormOrder[]): Buffer {
+export function buildSkytec(rows: NormOrder[]) {
   const HEADERS = [
     "Ime i prezime", "Ptt broj", "Adresa", "Mesto", "Telefon", "Referenca",
     "Tezina (kg)", "Broj paketa", "Otkupnina (BAM)", "(Ne koristi se)",
@@ -352,5 +353,5 @@ export function buildSkytec(rows: NormOrder[]): Buffer {
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws1, "Pošiljke");
   XLSX.utils.book_append_sheet(wb, ws2, "Legenda");
-  return XLSX.write(wb, { type: "buffer", bookType: "xlsx" }) as Buffer;
+  return XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
 }
