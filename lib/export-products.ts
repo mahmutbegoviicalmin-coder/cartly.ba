@@ -33,6 +33,7 @@ export const PRODUCTS: ProductDef[] = [
   { key: "zvucnik",       label: "Bluetooth Zvučnik",      source: "orders", prefixes: ["ZQS"] },
   { key: "kamera",        label: "WiFi PTZ Kamera",        source: "orders", prefixes: ["KMR"] },
   { key: "airpods",       label: "AirPods Pro",            source: "orders", prefixes: ["APP"] },
+  { key: "motorna-pila",  label: "Motorna pila",           source: "orders", prefixes: ["MTP"] },
   { key: "prsluk",        label: "Prsluk za spašavanje",   source: "orders", prefixes: ["PRS"] },
   { key: "cetka",         label: "Čelična Četka",          source: "cetka_orders" },
   { key: "komarnik",      label: "Komarnik za vrata",      source: "komarnik_orders" },

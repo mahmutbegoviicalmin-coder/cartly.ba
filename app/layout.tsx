@@ -16,7 +16,8 @@ export const metadata: Metadata = {
   description: "Kupuj online uz brzu dostavu, plaćanje pouzećem i provjeren kvalitet. Radne patike, kamere, alati i više — dostava po cijeloj BiH.",
 };
 
-const FB_PIXEL_ID = process.env.NEXT_PUBLIC_FB_PIXEL_ID;
+const FB_PIXEL_ID =
+  process.env.NEXT_PUBLIC_META_PIXEL_ID || process.env.NEXT_PUBLIC_FB_PIXEL_ID;
 
 export default function RootLayout({
   children,

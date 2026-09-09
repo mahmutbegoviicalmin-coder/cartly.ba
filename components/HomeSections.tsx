@@ -17,6 +17,16 @@ const ACCENT = "#B33000";
 
 const PRODUCTS = [
   {
+    slug:      "/motorna-pila",
+    category:  "Profesionalni alat",
+    name:      "Motorna pila 4,9 KS",
+    image:     "/motorka/motorka1.png",
+    price:     "104,90 KM",
+    oldPrice:  "299,00 KM",
+    discount:  65,
+    hot:       true,
+  },
+  {
     slug:      "/airpods-pro",
     category:  "Audio",
     name:      "AirPods Pro",

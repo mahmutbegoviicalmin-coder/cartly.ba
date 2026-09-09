@@ -97,6 +97,7 @@ const PRODUCT_MAP: Record<string, { label: string; bg: string; color: string }> 
   PRS: { label: "Prsluk",     bg: "rgba(6,27,56,0.10)",    color: "#061B38" },
   ZRF: { label: "Žirafa",     bg: "rgba(2,132,199,0.12)",  color: "#0284C7" },
   APP: { label: "AirPods",    bg: "rgba(29,29,31,0.10)",  color: "#1d1d1f" },
+  MTP: { label: "Motorna pila", bg: "rgba(194,65,12,0.12)", color: "#c2410c" },
 };
 
 function productBadge(orderNumber?: string) {
@@ -298,7 +299,7 @@ export default function DashboardClient() {
   const todayStr = new Date().toISOString().slice(0, 10);
   const [exportProduct, setExportProduct] = useState("svi");
   const [exportDate, setExportDate]       = useState(todayStr);
-  const [exportLoading, setExportLoading] = useState<"xexpress" | "skytec" | null>(null);
+  const [exportLoading, setExportLoading] = useState<"xexpress" | "skytec" | "csv" | null>(null);
 
   const runExport = async (courier: "xexpress" | "skytec") => {
     setExportLoading(courier);
@@ -323,6 +324,47 @@ export default function DashboardClient() {
       URL.revokeObjectURL(url);
     } catch {
       alert("Greška pri eksportu. Pokušajte ponovo.");
+    } finally {
+      setExportLoading(null);
+    }
+  };
+
+  const runCsvExport = async () => {
+    setExportLoading("csv");
+    try {
+      const params = new URLSearchParams({ all: "true" });
+      if (search) params.set("search", search);
+      if (statusFilter !== "all") params.set("status", statusFilter);
+      const res = await fetch(`/api/admin/orders?${params.toString()}`);
+      if (res.status === 401) { router.push("/admin"); return; }
+      const data = await res.json();
+      const list = (data.orders ?? []) as Order[];
+      const header = ["Broj narudžbe", "Datum", "Kupac", "Telefon", "Grad", "Proizvod", "Ukupno", "Status"];
+      const escCsv = (v: string) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+      const lines = [
+        header.join(","),
+        ...list.map((o) => [
+          escCsv(o.order_number ?? ""),
+          escCsv(fmtDate(o.created_at)),
+          escCsv(o.ime),
+          escCsv(o.telefon),
+          escCsv(o.grad),
+          escCsv(productBadge(o.order_number).label),
+          escCsv(fmt(o.ukupno)),
+          escCsv(o.status),
+        ].join(",")),
+      ];
+      const blob = new Blob(["\uFEFF" + lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `narudzbe_${exportDate}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      alert("Greška pri preuzimanju podataka. Pokušajte ponovo.");
     } finally {
       setExportLoading(null);
     }
@@ -817,6 +859,20 @@ export default function DashboardClient() {
                         </button>
                       );
                     })}
+                    <button
+                      onClick={runCsvExport}
+                      disabled={exportLoading !== null}
+                      style={{
+                        padding: "8px 16px", background: "#111", color: "#d4d4d8",
+                        border: "1px solid #2a2a2a", borderRadius: 8, fontSize: 13, fontWeight: 600,
+                        cursor: exportLoading !== null ? "not-allowed" : "pointer", fontFamily: "inherit",
+                        display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
+                        opacity: exportLoading && exportLoading !== "csv" ? 0.4 : exportLoading === "csv" ? 0.7 : 1,
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {exportLoading === "csv" ? "Pripremam..." : "Preuzmi CSV"}
+                    </button>
                   </div>
 
                 </div>

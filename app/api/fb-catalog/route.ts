@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 const CSV = `id,title,description,availability,condition,price,link,image_link,brand,google_product_category,product_type
+motorna-pila,Motorna pila 4,9 KS,"Motorna pila snage 4,9 KS sa mačem od 40 cm. Automatsko podmazivanje, .325 lanac i komplet dodatne opreme.",in stock,new,104.90 BAM,https://cartlybih.store/motorna-pila,https://cartlybih.store/motorka/motorka1.png,Cartly,1233,Alati > Motorne pile
 dewalt-busilica,DeWalt 28V Bušilica Set,"DeWalt 28V bezžična bušilica – komplet set sa baterijama, punjačem i kofercetom. Idealna za profesionalnu upotrebu.",in stock,new,69.90 BAM,https://cartlybih.store/dewalt-busilica,https://cartlybih.store/images/dewalt.jpg,DeWalt,3243,Alati > Bušilice
 milwaukee-set-31,Milwaukee Set 3.1,"Milwaukee Set 3.1 – bušilica, udarni odvijač 226 Nm, brusilica, 2× baterija 5.0 Ah, punjač i kofer.",in stock,new,149.00 BAM,https://cartlybih.store/milwaukee-set-31,https://cartlybih.store/milwaukee-set-31/hero.png,Milwaukee,3243,Alati > Setovi
 set-2u1,Set 2 u 1 Bušilica + Brusilica,"Kompletan Set 2 u 1 – bušilica, brusilica, 2× baterija, punjač, zaštita, ručka i kofer. Akcija 104,90 KM.",in stock,new,104.90 BAM,https://cartlybih.store/set-2u1,https://cartlybih.store/set2u1/set.png,Cartly,3243,Alati > Setovi

@@ -95,7 +95,7 @@ type Source = ProductDef["source"];
 const PREFIX_OPIS: Record<string, string> = {
   MLW: "Milwaukee M18 Bušilica", MS3: "Milwaukee Set 3.1", DWL: "DeWalt Set", DWT: "DeWalt Set",
   S2U: "Set 2 u 1", BRS: "Brusilica", ZQS: "Zvučnik", KMR: "Kamera",
-  ZRF: "Žirafa Brusilica za Zidove", APP: "AirPods Pro", HMR: "Hammer S3 Patike",
+  ZRF: "Žirafa Brusilica za Zidove", APP: "AirPods Pro", MTP: "Motorna pila", HMR: "Hammer S3 Patike",
   RCH: "Richeng S3 Patike", PAT: "Richeng S3 Patike", PRS: "Prsluk za spašavanje",
 };
 

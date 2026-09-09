@@ -12,6 +12,16 @@ const ACCENT = "#FF6B00";
 
 const ALL_PRODUCTS: Product[] = [
   {
+    name:     "Motorna pila 4,9 KS",
+    desc:     "Benzinski motor 4,9 KS, mač 40 cm, lanac .325 i automatsko podmazivanje",
+    price:    104.90,
+    oldPrice: 299,
+    tag:      "ALATI",
+    href:     "/motorna-pila",
+    image:    "/motorka/motorka1.png",
+    hot:      true,
+  },
+  {
     name:     "Milwaukee Set 3.1",
     desc:     "Bušilica, udarni odvijač 226 Nm, brusilica, 2× baterija 5.0 Ah i kofer",
     price:    149,

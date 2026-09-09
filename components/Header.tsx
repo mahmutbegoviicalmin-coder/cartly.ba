@@ -36,6 +36,13 @@ const NAV_LINKS: NavLink[] = [
     href:  "/milwaukee-set-31",
     sub: [
       {
+        label: "Motorna pila 4,9 KS",
+        href:  "/motorna-pila",
+        desc:  "40 cm mač · .325 lanac · 104,90 KM",
+        badge: "NOVO",
+        image: "/motorka/motorka1.png",
+      },
+      {
         label: "Set 2 u 1 — Bušilica + Brusilica",
         href:  "/set-2u1",
         desc:  "2 baterije, punjač, kofer · 104,90 KM",
