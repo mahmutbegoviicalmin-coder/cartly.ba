@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, FormEvent } from "react";
+import { useState, useRef, useEffect, FormEvent, CSSProperties } from "react";
 import Image from "next/image";
 import { createPortal } from "react-dom";
 import { event as fbEvent } from "@/lib/fbpixel";
@@ -10,6 +10,21 @@ const ACCENT  = "#B33000";
 const F       = "var(--font-manrope, 'Inter', sans-serif)";
 const PRICE    = 59.90;
 const DELIVERY = 0;
+
+const DAY_NAMES = ["nedjelja", "ponedjeljak", "utorak", "srijeda", "četvrtak", "petak", "subota"];
+
+function OrderReceivedCopy({ style }: { style: CSSProperties }) {
+  const day = new Date().getDay();
+  const ships = (day === 0 || day === 5 || day === 6)
+    ? "Vaša narudžba se šalje u ponedjeljak."
+    : `Vaša narudžba se šalje sutra (${DAY_NAMES[(day + 1) % 7]}).`;
+  return (
+    <p style={style}>
+      Vaša narudžba je primljena.<br />
+      {ships}
+    </p>
+  );
+}
 
 const IMAGES = [
   { src: "/aeoxplus/11.webp", alt: "Aeox Plus S3 - par i protuklizni đon" },
@@ -723,8 +738,8 @@ function OrderModal({ open, onClose, initialSize }: { open: boolean; onClose: ()
             <div style={{ width: 68, height: 68, borderRadius: "50%", background: "rgba(179,48,0,0.08)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
               <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l2.5 2.5L16 9"/></svg>
             </div>
-            <h3 style={{ fontSize: 22, fontWeight: 900, color: "#0A0A0A", letterSpacing: "-0.03em", margin: "0 0 10px", fontFamily: F }}>Narudžba primljena!</h3>
-            <p style={{ fontSize: 14, color: "#888", lineHeight: 1.75, margin: "0 0 28px", maxWidth: 300, marginLeft: "auto", marginRight: "auto", fontFamily: F }}>Kontaktirat ćemo vas radi potvrde. Dostava 1-3 radna dana.</p>
+            <h3 style={{ fontSize: 22, fontWeight: 900, color: "#0A0A0A", letterSpacing: "-0.03em", margin: "0 0 10px", fontFamily: F }}>Hvala{fields.ime.trim() ? `, ${fields.ime.trim().split(" ")[0]}` : ""}!</h3>
+            <OrderReceivedCopy style={{ fontSize: 14, color: "#888", lineHeight: 1.75, margin: "0 0 28px", maxWidth: 320, marginLeft: "auto", marginRight: "auto", fontFamily: F }} />
             <button onClick={onClose} style={{ padding: "13px 36px", background: "#0A0A0A", color: "#fff", border: "none", borderRadius: 13, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: F }}>Zatvori</button>
           </div>
         ) : (
@@ -897,7 +912,7 @@ function QuickOrderSection({ onDone }: { onDone?: (orderNumber: string, total: n
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
         <h3 style={{ fontFamily: F, fontWeight: 800, fontSize: 22, color: "#0A0A0A", letterSpacing: "-0.02em", margin: "0 0 10px" }}>Hvala, {name.split(" ")[0]}!</h3>
-        <p style={{ fontFamily: F, fontSize: 15, color: "#666", lineHeight: 1.6, margin: 0 }}>Narudžba primljena. Javit ćemo se na <strong>{phone}</strong> radi potvrde.</p>
+        <OrderReceivedCopy style={{ fontFamily: F, fontSize: 15, color: "#666", lineHeight: 1.6, margin: 0 }} />
       </div>
     </section>
   );
