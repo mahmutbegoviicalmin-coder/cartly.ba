@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
+import { readIp, stripIp } from "@/lib/order-ip";
 
 function isAuthenticated() {
   const cookieStore = cookies();
@@ -30,7 +31,7 @@ export async function GET(request: Request) {
   let qLez    = sb.from("lezaljka_orders").select("*").order("created_at", { ascending: false });
 
   if (search) {
-    const f = `ime.ilike.%${search}%,telefon.ilike.%${search}%,grad.ilike.%${search}%`;
+    const f = `ime.ilike.%${search}%,telefon.ilike.%${search}%,grad.ilike.%${search}%,adresa.ilike.%${search}%`;
     qOrders = qOrders.or(f);
     qCetka  = qCetka.or(f);
     qUsm    = qUsm.or(f);
@@ -52,6 +53,7 @@ export async function GET(request: Request) {
   type RawCetka = {
     id: string; created_at: string; order_number?: string;
     ime: string; telefon: string; adresa: string; grad: string;
+    ip_address?: string;
     extra_set: boolean; broj_setova: number;
     cijena_proizvoda: number; dostava: number; ukupno: number; status: string;
   };
@@ -62,8 +64,9 @@ export async function GET(request: Request) {
     order_number:     o.order_number,
     ime:              o.ime,
     telefon:          o.telefon,
-    adresa:           o.adresa,
+    adresa:           stripIp(o.adresa ?? ""),
     grad:             o.grad,
+    ip_address:       readIp(o.adresa, o.ip_address),
     // Map to the same velicine shape the dashboard uses for display
     velicine: [{ velicina: "Čelična Četka 1+1 GRATIS", kolicina: o.broj_setova }],
     ukupno_pari:      o.broj_setova,
@@ -77,6 +80,7 @@ export async function GET(request: Request) {
   type RawUsm = {
     id: string; created_at: string; order_number?: string;
     ime: string; telefon: string; adresa: string; grad: string;
+    ip_address?: string;
     bundle: number; bundle_label: string;
     cijena_proizvoda: number; dostava: number; ukupno: number; status: string;
   };
@@ -87,8 +91,9 @@ export async function GET(request: Request) {
     order_number:     o.order_number,
     ime:              o.ime,
     telefon:          o.telefon,
-    adresa:           o.adresa,
+    adresa:           stripIp(o.adresa ?? ""),
     grad:             o.grad,
+    ip_address:       readIp(o.adresa, o.ip_address),
     velicine: [{ velicina: `Usmjerivač ${o.bundle_label}`, kolicina: o.bundle }],
     ukupno_pari:      o.bundle,
     cijena_proizvoda: o.cijena_proizvoda,
@@ -101,6 +106,7 @@ export async function GET(request: Request) {
   type RawKomr = {
     id: string; created_at: string; order_number?: string;
     ime: string; telefon: string; adresa: string; grad: string;
+    ip_address?: string;
     bundle: number; bundle_label: string;
     cijena_proizvoda: number; dostava: number; ukupno: number; status: string;
   };
@@ -111,8 +117,9 @@ export async function GET(request: Request) {
     order_number:     o.order_number,
     ime:              o.ime,
     telefon:          o.telefon,
-    adresa:           o.adresa,
+    adresa:           stripIp(o.adresa ?? ""),
     grad:             o.grad,
+    ip_address:       readIp(o.adresa, o.ip_address),
     velicine: [{ velicina: `Komarnik ${o.bundle_label}`, kolicina: o.bundle }],
     ukupno_pari:      o.bundle,
     cijena_proizvoda: o.cijena_proizvoda,
@@ -125,6 +132,7 @@ export async function GET(request: Request) {
   type RawLez = {
     id: string; created_at: string; order_number?: string;
     ime: string; telefon: string; adresa: string; grad: string;
+    ip_address?: string;
     boja: string; kolicina: number;
     cijena_proizvoda: number; dostava: number; ukupno: number; status: string;
   };
@@ -139,8 +147,9 @@ export async function GET(request: Request) {
     order_number:     o.order_number,
     ime:              o.ime,
     telefon:          o.telefon,
-    adresa:           o.adresa,
+    adresa:           stripIp(o.adresa ?? ""),
     grad:             o.grad,
+    ip_address:       readIp(o.adresa, o.ip_address),
     velicine: [{ velicina: `Lezaljka ${COLOR_LABELS[o.boja] ?? o.boja}`, kolicina: o.kolicina }],
     ukupno_pari:      o.kolicina,
     cijena_proizvoda: o.cijena_proizvoda,
@@ -151,7 +160,11 @@ export async function GET(request: Request) {
 
   // ── Merge + sort by date desc ────────────────────────────────────────────────
   const merged = [
-    ...(resOrders.data ?? []),
+    ...((resOrders.data ?? []) as { adresa?: string; ip_address?: string; created_at: string }[]).map((o) => ({
+      ...o,
+      ip_address: readIp(o.adresa, o.ip_address),
+      adresa: stripIp(o.adresa ?? ""),
+    })),
     ...normalisedCetka,
     ...normalisedUsm,
     ...normalisedKomr,

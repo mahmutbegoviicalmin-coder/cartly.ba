@@ -5,6 +5,8 @@ import Image from "next/image";
 import { event } from "@/lib/fbpixel";
 import SizeGuideModal from "./SizeGuideModal";
 import OrderSuccess from "./OrderSuccess";
+import { isValidBaPhone, PHONE_ERROR } from "@/lib/ba-phone";
+import { useOrderProtection } from "@/lib/order-protection";
 
 const SIZES = [39, 40, 41, 42, 43, 44, 45, 46, 47];
 const OUT_OF_STOCK = new Set([47]);
@@ -69,6 +71,7 @@ export default function OrderForm() {
   const [serverError, setServerError] = useState<string | null>(null);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const checkoutTracked = useRef(false);
+  const { honeypot, protectionPayload } = useOrderProtection();
 
   const totalPairs    = Object.values(quantities).reduce((a, b) => a + b, 0);
   const productTotal  = calcProductTotal(totalPairs);
@@ -109,7 +112,7 @@ export default function OrderForm() {
     const e: FieldErrors = {};
     if (!fields.name.trim()) e.name = "Unesite ime i prezime";
     if (!fields.phone.trim()) e.phone = "Unesite broj telefona";
-    else if (!/^[\d\s\+\-\(\)]{7,}$/.test(fields.phone)) e.phone = "Neispravan broj telefona";
+    else if (!isValidBaPhone(fields.phone)) e.phone = PHONE_ERROR;
     if (!fields.address.trim()) e.address = "Unesite adresu";
     if (!fields.postalCode.trim()) e.postalCode = "Unesite poštanski broj";
     else if (!/^\d{1,5}$/.test(fields.postalCode.trim())) e.postalCode = "Samo brojevi, max 5 cifara";
@@ -133,10 +136,13 @@ export default function OrderForm() {
         body: JSON.stringify({
           ime: fields.name,
           telefon: fields.phone,
-          adresa: fields.address,
+          adresa: fields.postalCode.trim()
+            ? `${fields.address.trim()}, ${fields.postalCode.trim()}`
+            : fields.address,
           grad: fields.city,
           velicine: SIZES.map((s) => ({ velicina: s, kolicina: quantities[s] ?? 0 })),
           externalId: (() => { try { return localStorage.getItem('_crt_eid') || ''; } catch { return ''; } })(),
+          ...protectionPayload(),
         }),
       });
 
@@ -188,6 +194,7 @@ export default function OrderForm() {
         </h2>
 
         <form onSubmit={handleSubmit} noValidate>
+          {honeypot}
           <div className="flex flex-col lg:flex-row gap-6 items-start">
 
             {/* ── LEFT COLUMN ── */}

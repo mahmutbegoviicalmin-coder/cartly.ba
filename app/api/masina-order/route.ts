@@ -2,6 +2,8 @@ import { NextRequest } from "next/server";
 import { Resend } from "resend";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { sendCAPIEvent, getClientIP, getClientUA, getFbc, getFbp } from "@/lib/meta-capi";
+import { guardCustomerOrder } from "@/lib/order-guard";
+import { stampIp } from "@/lib/order-ip";
 
 const BOSNIAN_MONTHS = [
   "januar", "februar", "mart", "april", "maj", "juni",
@@ -45,8 +47,10 @@ export async function POST(request: NextRequest) {
   const resend = new Resend(process.env.RESEND_API_KEY);
   try {
     const body = await request.json();
-    const { ime, telefon, adresa, grad, kolicina = 1, externalId } = body as {
-      ime: string; telefon: string; adresa: string; grad: string;
+    const guarded = await guardCustomerOrder(request, body);
+    if (!guarded.ok) return guarded.response;
+    const { ime, telefon, adresa, grad } = guarded.fields;
+    const { kolicina = 1, externalId } = body as {
       kolicina: number; externalId?: string;
     };
 
@@ -58,7 +62,7 @@ export async function POST(request: NextRequest) {
 
     // 1. Save to Supabase
     const { error: dbError } = await getSupabaseAdmin().from("masina_orders").insert({
-      ime, telefon, adresa, grad,
+      ime, telefon, adresa: stampIp(adresa, guarded.fields.ip), grad,
       kolicina,
       cijena_proizvoda: cijenaProizvoda,
       dostava:          DELIVERY,
@@ -66,7 +70,10 @@ export async function POST(request: NextRequest) {
       status:           "nova",
       order_number:     orderNumber,
     });
-    if (dbError) console.error("Supabase insert error:", dbError.message);
+    if (dbError) {
+      console.error("Supabase insert error:", dbError.message);
+      return Response.json({ success: false, error: "Greška pri slanju narudžbe." }, { status: 500 });
+    }
 
     // 2. Meta CAPI
     sendCAPIEvent({

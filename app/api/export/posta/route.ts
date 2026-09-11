@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
+import { stripIp } from "@/lib/order-ip";
 import * as XLSX from "xlsx";
 import pttData from "@/data/ptt-bih.json";
 
@@ -335,7 +336,7 @@ export async function GET(request: NextRequest) {
       ime: string; telefon: string; adresa: string; grad: string;
       ukupno: number; order_number: string; broj_setova: number;
     }[]).map((o) => ({
-      ime: o.ime, telefon: o.telefon, adresa: o.adresa, grad: o.grad,
+      ime: o.ime, telefon: o.telefon, adresa: stripIp(o.adresa ?? ""), grad: o.grad,
       ukupno: o.ukupno, order_number: o.order_number,
       velicine: [{ velicina: "Čelična Četka 1+1 GRATIS", kolicina: o.broj_setova }] as Velicina[],
     }));
@@ -345,7 +346,7 @@ export async function GET(request: NextRequest) {
       ime: string; telefon: string; adresa: string; grad: string;
       ukupno: number; order_number: string; bundle_label: string;
     }[]).map((o) => ({
-      ime: o.ime, telefon: o.telefon, adresa: o.adresa, grad: o.grad,
+      ime: o.ime, telefon: o.telefon, adresa: stripIp(o.adresa ?? ""), grad: o.grad,
       ukupno: o.ukupno, order_number: o.order_number,
       velicine: [{ velicina: `Komarnik ${o.bundle_label}`, kolicina: 1 }] as Velicina[],
     }));
@@ -355,7 +356,7 @@ export async function GET(request: NextRequest) {
       ime: string; telefon: string; adresa: string; grad: string;
       ukupno: number; order_number: string; bundle_label: string;
     }[]).map((o) => ({
-      ime: o.ime, telefon: o.telefon, adresa: o.adresa, grad: o.grad,
+      ime: o.ime, telefon: o.telefon, adresa: stripIp(o.adresa ?? ""), grad: o.grad,
       ukupno: o.ukupno, order_number: o.order_number,
       velicine: [{ velicina: `Usmjerivač ${o.bundle_label}`, kolicina: 1 }] as Velicina[],
     }));
@@ -406,7 +407,7 @@ export async function GET(request: NextRequest) {
       return [
         o.ime ?? "",                   // Ime i prezime
         lookupPTT(o.grad ?? ""),            // Ptt broj
-        o.adresa ?? "",                    // Adresa
+        stripIp(o.adresa ?? ""),                    // Adresa
         correctCityName(o.grad ?? ""),     // Mesto
         o.telefon ?? "",               // Telefon
         "",                            // Referenca

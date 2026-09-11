@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { Resend } from "resend";
 import { sendCAPIEvent, getClientIP, getClientUA, getFbc, getFbp } from "@/lib/meta-capi";
+import { guardCustomerOrder } from "@/lib/order-guard";
+import { stampIp } from "@/lib/order-ip";
 
 const SIZE_PRICES: Record<string, number> = { S: 42, M: 45, "3XL": 49, PORODICNI: 154.9 };
 const SIZE_LABELS: Record<string, string> = {
@@ -41,12 +43,14 @@ function fmtKM(n: number) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { ime, telefon, adresa, grad, velicina, boja, externalId } = body as {
-      ime: string; telefon: string; adresa: string; grad: string;
+    const guarded = await guardCustomerOrder(request, body);
+    if (!guarded.ok) return guarded.response;
+    const { ime, telefon, adresa, grad } = guarded.fields;
+    const { velicina, boja, externalId } = body as {
       velicina: string; boja?: string; externalId?: string;
     };
 
-    if (!ime || !telefon || !adresa || !grad || !velicina || !SIZE_PRICES[velicina]) {
+    if (!velicina || !SIZE_PRICES[velicina]) {
       return NextResponse.json({ success: false, error: "Nedostaju obavezna polja." }, { status: 400 });
     }
 
@@ -61,7 +65,7 @@ export async function POST(request: NextRequest) {
       .insert({
         ime,
         telefon,
-        adresa,
+        adresa: stampIp(adresa, guarded.fields.ip),
         grad,
         velicine: [{ velicina: `Prsluk ${SIZE_LABELS[velicina]} · ${bojaLabel}`, kolicina: 1 }],
         ukupno_pari: 1,

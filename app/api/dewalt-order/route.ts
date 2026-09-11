@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin }          from "@/lib/supabase-server";
 import { Resend }                    from "resend";
 import { sendCAPIEvent, getClientIP, getClientUA, getFbc, getFbp } from "@/lib/meta-capi";
+import { guardCustomerOrder } from "@/lib/order-guard";
+import { stampIp } from "@/lib/order-ip";
 
 const UNIT_PRICE = 69.9;
 const DELIVERY   = 10.0;
@@ -40,14 +42,9 @@ function fmtKM(n: number) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { ime, adresa, grad, telefon } = body;
-
-    if (!ime || !adresa || !grad || !telefon) {
-      return NextResponse.json(
-        { success: false, error: "Nedostaju obavezna polja." },
-        { status: 400 }
-      );
-    }
+    const guarded = await guardCustomerOrder(request, body);
+    if (!guarded.ok) return guarded.response;
+    const { ime, telefon, adresa, grad } = guarded.fields;
 
     const cijena_proizvoda = UNIT_PRICE;
     const ukupno           = cijena_proizvoda + DELIVERY;
@@ -60,7 +57,7 @@ export async function POST(request: NextRequest) {
       .insert({
         ime,
         telefon,
-        adresa,
+        adresa: stampIp(adresa, guarded.fields.ip),
         grad,
         velicine:        [{ velicina: "DeWalt 28V XR Set", kolicina: 1 }],
         ukupno_pari:     1,

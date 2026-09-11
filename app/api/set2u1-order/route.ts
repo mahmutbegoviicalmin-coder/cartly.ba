@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { Resend } from "resend";
 import { sendCAPIEvent, getClientIP, getClientUA, getFbc, getFbp } from "@/lib/meta-capi";
+import { guardCustomerOrder } from "@/lib/order-guard";
+import { stampIp } from "@/lib/order-ip";
 
 const UNIT_PRICE = 104.9;
 const DELIVERY = 10.0;
@@ -41,14 +43,18 @@ function fmtKM(n: number) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { ime, prezime, telefon, adresa, grad, postanski_broj, kolicina } = body;
-
-    if (!ime || !prezime || !telefon || !adresa || !grad || !postanski_broj) {
-      return NextResponse.json(
-        { success: false, error: "Nedostaju obavezna polja." },
-        { status: 400 }
-      );
-    }
+    const guarded = await guardCustomerOrder(request, body, {
+      requirePrezime: true,
+      requirePostal: true,
+    });
+    if (!guarded.ok) return guarded.response;
+    const ime = guarded.fields.imeFirst;
+    const prezime = guarded.fields.prezime;
+    const telefon = guarded.fields.telefon;
+    const adresa = guarded.fields.adresa;
+    const grad = guarded.fields.grad;
+    const postanski_broj = guarded.fields.postanski;
+    const { kolicina } = body;
 
     const qty = Math.max(1, Math.min(5, Number(kolicina) || 1));
     const fullName = `${String(ime).trim()} ${String(prezime).trim()}`;
@@ -64,7 +70,7 @@ export async function POST(request: NextRequest) {
       .insert({
         ime: fullName,
         telefon,
-        adresa: fullAdresa,
+        adresa: stampIp(fullAdresa, guarded.fields.ip),
         grad,
         velicine: [{ velicina: PRODUCT_LABEL, kolicina: qty }],
         ukupno_pari: qty,

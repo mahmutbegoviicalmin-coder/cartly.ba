@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
+import { stripIp } from "@/lib/order-ip";
 import * as XLSX from "xlsx";
 import pttData from "@/data/ptt-bih.json";
 
@@ -96,7 +97,7 @@ export async function GET(request: NextRequest) {
       return [
         o.ime ?? "",           // Ime i prezime
         ptt,                   // Ptt broj
-        o.adresa ?? "",        // Adresa
+        stripIp(o.adresa ?? ""),        // Adresa
         o.grad ?? "",          // Mesto
         o.telefon ?? "",       // Telefon
         o.order_number ?? "",  // Referenca

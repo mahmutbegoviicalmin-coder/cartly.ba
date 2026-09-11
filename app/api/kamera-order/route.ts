@@ -2,6 +2,8 @@
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { Resend } from "resend";
 import { sendCAPIEvent, getClientIP, getClientUA, getFbc, getFbp } from "@/lib/meta-capi";
+import { guardCustomerOrder } from "@/lib/order-guard";
+import { stampIp } from "@/lib/order-ip";
 
 const UNIT_PRICE = 44.9;
 const DELIVERY   = 10;
@@ -44,14 +46,10 @@ function fmtKM(n: number) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { ime, telefon, adresa, grad, kolicina, sdCard } = body;
-
-    if (!ime || !telefon || !adresa || !grad) {
-      return NextResponse.json(
-        { success: false, error: "Nedostaju obavezna polja." },
-        { status: 400 }
-      );
-    }
+    const guarded = await guardCustomerOrder(request, body);
+    if (!guarded.ok) return guarded.response;
+    const { ime, telefon, adresa, grad } = guarded.fields;
+    const { kolicina, sdCard } = body;
 
     const qty      = Math.max(1, Math.min(5, Number(kolicina) || 1));
     const sdExtra  = SD_EXTRA[String(sdCard || "none")] ?? 0;
@@ -66,7 +64,7 @@ export async function POST(request: NextRequest) {
       .insert({
         ime,
         telefon,
-        adresa,
+        adresa: stampIp(adresa, guarded.fields.ip),
         grad,
         velicine: [{ velicina: `WiFi PTZ Kamera${sdExtra > 0 ? ` + SD ${sdCard}GB` : ""}`, kolicina: qty }],
         ukupno_pari: qty,

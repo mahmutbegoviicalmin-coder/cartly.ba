@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { Resend } from "resend";
 import { sendCAPIEvent, getClientIP, getClientUA, getFbc, getFbp } from "@/lib/meta-capi";
+import { guardCustomerOrder } from "@/lib/order-guard";
+import { stampIp } from "@/lib/order-ip";
 
 const UNIT_PRICE = 49.90;
 const DELIVERY   = 10;
@@ -33,9 +35,12 @@ function fmtKM(n: number) { return n.toFixed(2).replace(".", ",") + " KM"; }
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { ime, telefon, adresa, grad, velicina, kolicina } = body;
+    const guarded = await guardCustomerOrder(request, body);
+    if (!guarded.ok) return guarded.response;
+    const { ime, telefon, adresa, grad } = guarded.fields;
+    const { velicina, kolicina } = body;
 
-    if (!ime || !telefon || !adresa || !grad || !velicina) {
+    if (!velicina) {
       return NextResponse.json({ success: false, error: "Nedostaju obavezna polja." }, { status: 400 });
     }
 
@@ -50,7 +55,7 @@ export async function POST(request: NextRequest) {
       .insert({
         ime,
         telefon,
-        adresa,
+        adresa: stampIp(adresa, guarded.fields.ip),
         grad,
         velicine: [{ velicina: `Richeng S3 — br. ${velicina}`, kolicina: qty }],
         ukupno_pari: qty,

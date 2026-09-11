@@ -23,6 +23,7 @@ type Order = {
   telefon: string;
   adresa: string;
   grad: string;
+  ip_address?: string;
   velicine: { velicina: number | string; kolicina: number }[];
   ukupno_pari: number;
   cijena_proizvoda: number;
@@ -339,7 +340,7 @@ export default function DashboardClient() {
       if (res.status === 401) { router.push("/admin"); return; }
       const data = await res.json();
       const list = (data.orders ?? []) as Order[];
-      const header = ["Broj narudžbe", "Datum", "Kupac", "Telefon", "Grad", "Proizvod", "Ukupno", "Status"];
+      const header = ["Broj narudžbe", "Datum", "Kupac", "Telefon", "Grad", "IP", "Proizvod", "Ukupno", "Status"];
       const escCsv = (v: string) => `"${String(v ?? "").replace(/"/g, '""')}"`;
       const lines = [
         header.join(","),
@@ -349,6 +350,7 @@ export default function DashboardClient() {
           escCsv(o.ime),
           escCsv(o.telefon),
           escCsv(o.grad),
+          escCsv(o.ip_address ?? ""),
           escCsv(productBadge(o.order_number).label),
           escCsv(fmt(o.ukupno)),
           escCsv(o.status),
@@ -762,7 +764,7 @@ export default function DashboardClient() {
                   {/* Search */}
                   <input
                     type="text"
-                    placeholder="Pretraži ime, telefon, grad..."
+                    placeholder="Pretraži ime, telefon, grad, IP..."
                     value={searchInput}
                     onChange={(e) => setSearchInput(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSearch()}
@@ -942,6 +944,16 @@ export default function DashboardClient() {
                         <td style={{ padding: "11px 14px", fontWeight: 600, color: "#d4d4d8" }}>{order.ime}</td>
                         <td style={{ padding: "11px 14px", color: "#777" }}>{order.telefon}</td>
                         <td style={{ padding: "11px 14px", color: "#777" }}>{order.grad}</td>
+                        <td
+                          style={{ padding: "11px 14px", color: "#888", fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontSize: 11, whiteSpace: "nowrap", cursor: order.ip_address ? "pointer" : "default" }}
+                          title={order.ip_address ? "Klikni da kopiraš IP" : ""}
+                          onClick={() => {
+                            if (!order.ip_address) return;
+                            navigator.clipboard.writeText(order.ip_address).catch(() => {});
+                          }}
+                        >
+                          {order.ip_address || "—"}
+                        </td>
                         <td style={{ padding: "11px 14px" }}>
                           <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 5, background: b.bg, color: b.color, textTransform: "uppercase", letterSpacing: "0.05em" }}>
                             {b.label}
@@ -981,7 +993,7 @@ export default function DashboardClient() {
                   const tableHead = (
                     <thead>
                       <tr style={{ borderBottom: "1px solid #1f1f1f" }}>
-                        {["Datum", "Br.", "Ime", "Telefon", "Grad", "Proizvod", "Kol.", "Iznos", "Status", ""].map((h) => (
+                        {["Datum", "Br.", "Ime", "Telefon", "Grad", "IP", "Proizvod", "Kol.", "Iznos", "Status", ""].map((h) => (
                           <th key={h} style={{ padding: "10px 14px", textAlign: "left", fontSize: 10, fontWeight: 700, color: "#3a3a3a", textTransform: "uppercase", letterSpacing: "0.08em", whiteSpace: "nowrap" }}>
                             {h}
                           </th>

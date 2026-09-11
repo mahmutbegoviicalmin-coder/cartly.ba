@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { Resend } from "resend";
 import { sendCAPIEvent, getClientIP, getClientUA, getFbc, getFbp } from "@/lib/meta-capi";
+import { guardCustomerOrder } from "@/lib/order-guard";
+import { stampIp } from "@/lib/order-ip";
 
 const UNIT_PRICE = 59.90;
 const DELIVERY   = 0;
@@ -53,13 +55,10 @@ function parseLines(body: Record<string, unknown>): SizeLine[] {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { ime, telefon, adresa, grad, externalId } = body as {
-      ime?: string; telefon?: string; adresa?: string; grad?: string; externalId?: string;
-    };
-
-    if (!ime || !telefon || !adresa || !grad) {
-      return NextResponse.json({ success: false, error: "Nedostaju obavezna polja." }, { status: 400 });
-    }
+    const guarded = await guardCustomerOrder(request, body);
+    if (!guarded.ok) return guarded.response;
+    const { ime, telefon, adresa, grad } = guarded.fields;
+    const { externalId } = body as { externalId?: string };
 
     const lines = parseLines(body);
     if (lines.length === 0) {
@@ -78,7 +77,7 @@ export async function POST(request: NextRequest) {
       .insert({
         ime,
         telefon,
-        adresa,
+        adresa: stampIp(adresa, guarded.fields.ip),
         grad,
         velicine: lines.map((l) => ({
           velicina: `Aeox Plus S3 - br. ${l.velicina}`,

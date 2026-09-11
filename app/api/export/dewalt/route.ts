@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
+import { stripIp } from "@/lib/order-ip";
 import * as XLSX from "xlsx";
 import pttData from "@/data/ptt-bih.json";
 
@@ -99,7 +100,7 @@ export async function GET(request: NextRequest) {
 
     const dataRows = orders.map((o) => [
       o.ime ?? "",
-      o.adresa ?? "",
+      stripIp(o.adresa ?? ""),
       lookupPTT(o.grad ?? ""),
       correctCity(o.grad ?? ""),
       (o.ime ?? "").split(" ")[0],

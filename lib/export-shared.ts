@@ -8,6 +8,7 @@ import * as XLSX from "xlsx";
 import type { getSupabaseAdmin } from "@/lib/supabase-server";
 import pttData from "@/data/ptt-bih.json";
 import { PRODUCTS, findProduct, type ProductDef } from "@/lib/export-products";
+import { stripIp } from "@/lib/order-ip";
 
 export { PRODUCTS, findProduct };
 export type { ProductDef };
@@ -179,7 +180,7 @@ async function fetchFromOrders(
     return {
       ime: String(o.ime ?? ""),
       telefon: String(o.telefon ?? ""),
-      adresa: String(o.adresa ?? ""),
+      adresa: stripIp(String(o.adresa ?? "")),
       grad: String(o.grad ?? ""),
       ukupno: Number(o.ukupno ?? 0),
       order_number: String(o.order_number ?? ""),
@@ -222,7 +223,7 @@ async function fetchFromAux(
     return {
       ime: String(o.ime ?? ""),
       telefon: String(o.telefon ?? ""),
-      adresa: String(o.adresa ?? ""),
+      adresa: stripIp(String(o.adresa ?? "")),
       grad: String(o.grad ?? ""),
       ukupno: Number(o.ukupno ?? 0),
       order_number: String(o.order_number ?? ""),

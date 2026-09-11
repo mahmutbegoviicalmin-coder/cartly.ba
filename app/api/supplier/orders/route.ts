@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { stripIp } from "@/lib/order-ip";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -56,7 +57,7 @@ export async function GET(req: NextRequest) {
       return prefix !== "CRT" && prefix !== ""; // exclude patike
     })
     .map((o: Record<string, unknown>) => ({
-      ime: o.ime, telefon: o.telefon, adresa: o.adresa, grad: o.grad,
+      ime: o.ime, telefon: o.telefon, adresa: stripIp(o.adresa ?? ""), grad: o.grad,
       ukupno: o.ukupno, order_number: o.order_number, created_at: o.created_at, status: o.status,
       proizvod: PRODUCT_NAMES[((o.order_number as string) ?? "").slice(0, 3).toUpperCase()] ?? "Proizvod",
     }));
@@ -64,17 +65,17 @@ export async function GET(req: NextRequest) {
   const orders = [
     ...toolOrders,
     ...(resCetka.data ?? []).map((o: Record<string, unknown>) => ({
-      ime: o.ime, telefon: o.telefon, adresa: o.adresa, grad: o.grad,
+      ime: o.ime, telefon: o.telefon, adresa: stripIp(o.adresa ?? ""), grad: o.grad,
       ukupno: o.ukupno, order_number: o.order_number, created_at: o.created_at, status: o.status,
       proizvod: "Čelična Četka",
     })),
     ...(resUsm.data ?? []).map((o: Record<string, unknown>) => ({
-      ime: o.ime, telefon: o.telefon, adresa: o.adresa, grad: o.grad,
+      ime: o.ime, telefon: o.telefon, adresa: stripIp(o.adresa ?? ""), grad: o.grad,
       ukupno: o.ukupno, order_number: o.order_number, created_at: o.created_at, status: o.status,
       proizvod: `Usmjerivač ${o.bundle_label ?? ""}`,
     })),
     ...(resKomr.data ?? []).map((o: Record<string, unknown>) => ({
-      ime: o.ime, telefon: o.telefon, adresa: o.adresa, grad: o.grad,
+      ime: o.ime, telefon: o.telefon, adresa: stripIp(o.adresa ?? ""), grad: o.grad,
       ukupno: o.ukupno, order_number: o.order_number, created_at: o.created_at, status: o.status,
       proizvod: `Komarnik ${o.bundle_label ?? ""}`,
     })),

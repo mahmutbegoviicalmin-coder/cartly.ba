@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
+import { stripIp } from "@/lib/order-ip";
 import * as XLSX from "xlsx";
 import pttData from "@/data/ptt-bih.json";
 
@@ -131,7 +132,7 @@ export async function GET(request: NextRequest) {
       return [
         o.ime ?? "",
         lookupPTT(o.grad ?? ""),
-        o.adresa ?? "",
+        stripIp(o.adresa ?? ""),
         correctCityName(o.grad ?? ""),
         o.telefon ?? "",
         "",

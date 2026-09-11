@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
+import { stripIp } from "@/lib/order-ip";
 import * as XLSX from "xlsx";
 import pttData from "@/data/ptt-bih.json";
 
@@ -73,7 +74,7 @@ export async function GET() {
       const sifra = o.order_number || `LEZ-${today}-${String(i + 1).padStart(4, "0")}`;
       return [
         o.ime ?? "",
-        o.adresa ?? "",
+        stripIp(o.adresa ?? ""),
         lookupPTT(o.grad ?? ""),
         correctCity(o.grad ?? ""),
         kontakt,

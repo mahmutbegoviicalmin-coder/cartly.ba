@@ -2,6 +2,8 @@ import { NextRequest } from "next/server";
 import { Resend } from "resend";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { sendCAPIEvent, getClientIP, getClientUA, getFbc, getFbp } from "@/lib/meta-capi";
+import { guardCustomerOrder } from "@/lib/order-guard";
+import { stampIp } from "@/lib/order-ip";
 
 const BOSNIAN_MONTHS = [
   "januar", "februar", "mart", "april", "maj", "juni",
@@ -58,7 +60,10 @@ export async function POST(request: NextRequest) {
   const resend = new Resend(process.env.RESEND_API_KEY);
   try {
     const body = await request.json();
-    const { ime, telefon, adresa, grad, postanski_broj, boja, kolicina, externalId } = body;
+    const guarded = await guardCustomerOrder(request, body);
+    if (!guarded.ok) return guarded.response;
+    const { ime, telefon, adresa, grad } = guarded.fields;
+    const { postanski_broj, boja, kolicina, externalId } = body;
 
     const now = new Date();
     const orderNumber = generateOrderNumber(now);
@@ -76,7 +81,7 @@ export async function POST(request: NextRequest) {
     const { error: dbError } = await getSupabaseAdmin().from("lezaljka_orders").insert({
       ime,
       telefon,
-      adresa: fullAdresa,
+      adresa: stampIp(fullAdresa, guarded.fields.ip),
       grad,
       boja,
       kolicina,
@@ -89,6 +94,7 @@ export async function POST(request: NextRequest) {
 
     if (dbError) {
       console.error("Supabase lezaljka insert error:", dbError.message);
+      return Response.json({ success: false, error: "Greška pri slanju narudžbe." }, { status: 500 });
     }
 
     // 2. Meta CAPI

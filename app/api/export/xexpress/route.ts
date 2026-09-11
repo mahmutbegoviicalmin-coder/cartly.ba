@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
+import { stripIp } from "@/lib/order-ip";
 import * as XLSX from "xlsx";
 import pttData from "@/data/ptt-bih.json";
 
@@ -215,7 +216,7 @@ export async function GET(request: NextRequest) {
 
       return [
         (o as { ime: string }).ime ?? "",                              // Naziv primaoca
-        (o as { adresa: string }).adresa ?? "",                        // Ulica/Adresa
+        stripIp((o as { adresa: string }).adresa ?? ""),                        // Ulica/Adresa
         lookupPTT((o as { grad: string }).grad ?? ""),                 // Poštanski broj
         correctCity((o as { grad: string }).grad ?? ""),               // Mjesto/Grad
         kontakt,                                                       // Kontakt osoba

@@ -11,6 +11,8 @@ import {
 } from "../product";
 import { trackPurchase } from "@/lib/analytics";
 import OrderSuccess from "./OrderSuccess";
+import { isValidBaPhone, PHONE_ERROR } from "@/lib/ba-phone";
+import { useOrderProtection } from "@/lib/order-protection";
 
 type Fields = {
   ime: string;
@@ -91,6 +93,7 @@ export default function OrderForm({
   const [paidTotal, setPaidTotal] = useState(ORDER_TOTAL);
   const [serverErr, setServerErr] = useState<string | null>(null);
   const submitting = useRef(false);
+  const { honeypot, protectionPayload } = useOrderProtection();
 
   function setField(name: keyof Fields, value: string) {
     setFields((f) => ({ ...f, [name]: value }));
@@ -104,8 +107,7 @@ export default function OrderForm({
     if (!fields.adresa.trim()) e.adresa = "Unesi adresu.";
     if (!fields.grad.trim()) e.grad = "Unesi grad.";
     if (!/^\d{5}$/.test(fields.postanski.trim())) e.postanski = "Unesi poštanski broj.";
-    const digits = fields.telefon.replace(/\D/g, "");
-    if (digits.length < 8 || digits.length > 15) e.telefon = "Unesi ispravan broj telefona.";
+    if (!isValidBaPhone(fields.telefon)) e.telefon = PHONE_ERROR;
     return e;
   }
 
@@ -132,13 +134,15 @@ export default function OrderForm({
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...fields, productId: PRODUCT_ID, externalId }),
+        body: JSON.stringify({ ...fields, productId: PRODUCT_ID, externalId, ...protectionPayload() }),
       });
 
       const data = await res.json().catch(() => null);
 
-      if (!res.ok || !data?.success || !data?.orderNumber) {
-        throw new Error("fail");
+      if (!data?.success || !data?.orderNumber) {
+        setServerErr(data?.error || "Došlo je do greške. Pokušaj ponovo.");
+        submitting.current = false;
+        return;
       }
 
       // Purchase fires only after the backend confirms the order.
@@ -166,6 +170,7 @@ export default function OrderForm({
 
   return (
     <form className="mp-form" onSubmit={handleSubmit} noValidate onFocus={onReady}>
+      {honeypot}
       <div className="mp-form-grid">
         <Field idPrefix={idPrefix} label="Ime" name="ime" autoComplete="given-name" value={fields.ime} error={errors.ime} onChange={setField} />
         <Field idPrefix={idPrefix} label="Prezime" name="prezime" autoComplete="family-name" value={fields.prezime} error={errors.prezime} onChange={setField} />

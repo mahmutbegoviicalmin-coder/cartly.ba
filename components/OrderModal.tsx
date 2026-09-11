@@ -4,6 +4,8 @@ import { useState, useEffect, FormEvent } from "react";
 import { createPortal } from "react-dom";
 import { event } from "@/lib/fbpixel";
 import { track } from "@vercel/analytics";
+import { isValidBaPhone, PHONE_ERROR } from "@/lib/ba-phone";
+import { useOrderProtection } from "@/lib/order-protection";
 
 const SIZES = [39, 40, 41, 42, 43, 44, 45, 46, 47];
 const OUT_OF_STOCK = new Set<number>([47]);
@@ -28,6 +30,7 @@ export default function OrderModal({ open, onClose, initialSize }: Props) {
   const [loading, setLoading]     = useState(false);
   const [done, setDone]           = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const { honeypot, protectionPayload } = useOrderProtection();
 
   const setQty = (s: number, delta: number) => {
     setQtys(prev => {
@@ -64,7 +67,7 @@ export default function OrderModal({ open, onClose, initialSize }: Props) {
     if (totalPairs === 0) e.sizes   = "Odaberite barem jednu veličinu";
     if (!name.trim())     e.name    = "Unesite ime i prezime";
     if (!phone.trim())    e.phone   = "Unesite broj telefona";
-    else if (!/^[\d\s\+\-\(\)]{7,}$/.test(phone)) e.phone = "Neispravan broj";
+    else if (!isValidBaPhone(phone)) e.phone = PHONE_ERROR;
     if (!address.trim())  e.address = "Unesite adresu";
     if (!city.trim())     e.city    = "Unesite grad";
     if (!zip.trim())      e.zip     = "Unesite poštanski broj";
@@ -82,7 +85,7 @@ export default function OrderModal({ open, onClose, initialSize }: Props) {
       const res = await fetch("/api/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ime: name, telefon: phone, adresa: `${address}, ${zip} ${city}`, grad: city, velicine, externalId }),
+        body: JSON.stringify({ ime: name, telefon: phone, adresa: `${address}, ${zip} ${city}`, grad: city, velicine, externalId, ...protectionPayload() }),
       });
       const data = await res.json();
       if (data.success) {
@@ -139,6 +142,7 @@ export default function OrderModal({ open, onClose, initialSize }: Props) {
           ) : (
             /* ── FORM ── */
             <form onSubmit={handleSubmit} noValidate>
+              {honeypot}
 
               {/* 1. Contact fields FIRST */}
               <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>

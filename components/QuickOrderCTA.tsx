@@ -3,6 +3,8 @@
 import { useState, FormEvent } from "react";
 import { event } from "@/lib/fbpixel";
 import { track } from "@vercel/analytics";
+import { isValidBaPhone, PHONE_ERROR } from "@/lib/ba-phone";
+import { useOrderProtection } from "@/lib/order-protection";
 
 const SIZES = [39, 40, 41, 42, 43, 44, 45, 46, 47, 48];
 const OUT_OF_STOCK = new Set([47, 48]);
@@ -20,6 +22,7 @@ export default function QuickOrderCTA() {
   const [loading, setLoading] = useState(false);
   const [done, setDone]       = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const { honeypot, protectionPayload } = useOrderProtection();
 
   const setQty = (s: number, delta: number) => {
     setQtys(prev => {
@@ -39,7 +42,7 @@ export default function QuickOrderCTA() {
     if (totalPairs === 0) e.sizes   = "Odaberite barem jednu veličinu";
     if (!name.trim())     e.name    = "Unesite ime i prezime";
     if (!phone.trim())    e.phone   = "Unesite broj telefona";
-    else if (!/^[\d\s\+\-\(\)]{7,}$/.test(phone)) e.phone = "Neispravan broj";
+    else if (!isValidBaPhone(phone)) e.phone = PHONE_ERROR;
     if (!address.trim())  e.address = "Unesite adresu";
     if (!city.trim())     e.city    = "Unesite grad";
     if (!zip.trim())      e.zip     = "Unesite poštanski broj";
@@ -57,7 +60,7 @@ export default function QuickOrderCTA() {
       const res = await fetch("/api/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ime: name, telefon: phone, adresa: `${address}, ${zip} ${city}`, grad: city, velicine, externalId }),
+        body: JSON.stringify({ ime: name, telefon: phone, adresa: `${address}, ${zip} ${city}`, grad: city, velicine, externalId, ...protectionPayload() }),
       });
       const data = await res.json();
       if (data.success) {
@@ -140,6 +143,7 @@ export default function QuickOrderCTA() {
         </div>
 
         <form onSubmit={handleSubmit} noValidate>
+          {honeypot}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12, marginBottom: 20 }}>
             {([
               { k: "name",    l: "Ime i prezime *",   p: "Npr. Amir Begović",  t: "text", a: "name",           v: name,    s: setName },

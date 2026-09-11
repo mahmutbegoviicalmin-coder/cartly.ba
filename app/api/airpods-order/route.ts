@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { sendCAPIEvent, getClientIP, getClientUA, getFbc, getFbp } from "@/lib/meta-capi";
+import { guardCustomerOrder } from "@/lib/order-guard";
+import { stampIp } from "@/lib/order-ip";
 
 const UNIT_PRICE = 49.9;
 const DELIVERY   = 10;
@@ -48,17 +50,12 @@ function esc(s: string) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { ime, telefon, adresa, grad, kolicina, externalId } = body as {
-      ime: string; telefon: string; adresa: string; grad: string;
+    const guarded = await guardCustomerOrder(request, body);
+    if (!guarded.ok) return guarded.response;
+    const { ime, telefon, adresa, grad } = guarded.fields;
+    const { kolicina, externalId } = body as {
       kolicina?: number; externalId?: string;
     };
-
-    if (!ime || !telefon || !adresa || !grad) {
-      return NextResponse.json(
-        { success: false, error: "Nedostaju obavezna polja." },
-        { status: 400 }
-      );
-    }
 
     const qty              = Math.max(1, Math.min(3, Number(kolicina) || 1));
     const cijena_proizvoda = qty * UNIT_PRICE;
@@ -71,7 +68,7 @@ export async function POST(request: NextRequest) {
       .insert({
         ime,
         telefon,
-        adresa,
+        adresa: stampIp(adresa, guarded.fields.ip),
         grad,
         velicine: [{ velicina: PRODUCT, kolicina: qty }],
         ukupno_pari: qty,

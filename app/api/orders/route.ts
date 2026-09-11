@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { sendCAPIEvent, getClientIP, getClientUA, getFbc, getFbp } from "@/lib/meta-capi";
+import { guardCustomerOrder } from "@/lib/order-guard";
+import { stampIp } from "@/lib/order-ip";
 
 const UNIT_PRICE = 104.9;
 const DELIVERY = 10;
 const PRODUCT = "Motorna pila";
 const ACCENT = "#141414";
-const DUPLICATE_WINDOW_MS = 5 * 60 * 1000;
 
 function generateOrderNumber(date: Date): string {
   const y = date.getFullYear();
@@ -46,77 +47,37 @@ function esc(s: string) {
   ));
 }
 
-function digitsOnly(s: string) {
-  return String(s || "").replace(/\D/g, "");
-}
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const ime = String(body?.ime ?? "").trim();
-    const prezime = String(body?.prezime ?? "").trim();
-    const adresa = String(body?.adresa ?? "").trim();
-    const grad = String(body?.grad ?? "").trim();
-    const postanski = String(body?.postanski ?? "").trim();
-    const telefon = String(body?.telefon ?? "").trim();
+    const guarded = await guardCustomerOrder(request, body, {
+      requirePrezime: true,
+      requirePostal: true,
+    });
+    if (!guarded.ok) return guarded.response;
+    const ime = guarded.fields.imeFirst;
+    const prezime = guarded.fields.prezime;
+    const adresa = guarded.fields.adresa;
+    const grad = guarded.fields.grad;
+    const postanski = guarded.fields.postanski;
+    const telefon = guarded.fields.telefon;
     const externalId = String(body?.externalId ?? "");
-
-    if (!ime || !prezime || !adresa || !grad || !postanski || !telefon) {
-      return NextResponse.json(
-        { success: false, error: "Nedostaju obavezna polja." },
-        { status: 400 }
-      );
-    }
-
-    if (!/^\d{5}$/.test(postanski)) {
-      return NextResponse.json(
-        { success: false, error: "Unesi poštanski broj." },
-        { status: 400 }
-      );
-    }
-
-    const phoneDigits = digitsOnly(telefon);
-    if (phoneDigits.length < 8 || phoneDigits.length > 15) {
-      return NextResponse.json(
-        { success: false, error: "Unesi ispravan broj telefona." },
-        { status: 400 }
-      );
-    }
 
     // Never trust client prices.
     const cijena_proizvoda = UNIT_PRICE;
     const ukupno = UNIT_PRICE + DELIVERY;
     const now = new Date();
-    const fullName = `${ime} ${prezime}`.replace(/\s+/g, " ").trim();
+    const fullName = guarded.fields.fullName;
     const fullAddress = `${adresa}, ${postanski}`;
 
     const sb = getSupabaseAdmin();
-
-    const since = new Date(Date.now() - DUPLICATE_WINDOW_MS).toISOString();
-    const { data: existing } = await sb
-      .from("orders")
-      .select("order_number, ukupno")
-      .eq("telefon", telefon)
-      .like("order_number", "MTP-%")
-      .gte("created_at", since)
-      .order("created_at", { ascending: false })
-      .limit(1);
-
-    if (existing?.[0]?.order_number) {
-      return NextResponse.json({
-        success: true,
-        orderNumber: existing[0].order_number,
-        total: Number(existing[0].ukupno) || ukupno,
-        duplicate: true,
-      });
-    }
 
     const orderNumber = generateOrderNumber(now);
 
     const { error: dbError } = await sb.from("orders").insert({
       ime: fullName,
       telefon,
-      adresa: fullAddress,
+      adresa: stampIp(fullAddress, guarded.fields.ip),
       grad,
       velicine: [{ velicina: PRODUCT, kolicina: 1 }],
       ukupno_pari: 1,
