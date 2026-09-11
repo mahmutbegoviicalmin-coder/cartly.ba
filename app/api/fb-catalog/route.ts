@@ -15,6 +15,7 @@ komarnik-za-vrata,Magnetni Komarnik za Vrata,"Samolepljivi magnetni komarnik –
 usmjerivac-zraka,Usmjerivač Zraka Klime,"Podesivi usmjerivač zraka za klimu – bez direktnog puhanja, bez bušenja.",in stock,new,14.90 BAM,https://cartlybih.store/usmjerivac-zraka,https://cartlybih.store/usmjerivac/hero.png,Cartly,670,Dom > Klimatizacija
 radne-patike-s3,Radne Zaštitne Patike S3,"Zaštitne radne cipele S3 – čelična kapica, antistatične, otporne na klizanje. EU 41-46.",in stock,new,59.90 BAM,https://cartlybih.store/radne-patike,https://cartlybih.store/images/patike-hero.png,Cartly,1604,Obuća > Radne cipele
 radne-patike-hammer,Hammer S3 Radne Patike,"Hammer S3 radne patike – čelična kapica, vodootporne, protuklizni đon. EU 39-47. Akcija 59,90 KM.",in stock,new,59.90 BAM,https://cartlybih.store/radne-patike-hammer,https://cartlybih.store/radne-patike-hammer/hero.webp,Hammer,1604,Obuća > Radne cipele
+radne-patike-aeox,Aeox Plus S3 Radne Patike,"Aeox Plus S3 radne patike – metalna kapica, kevlar đon, vodootporne, protuklizni SRC đon. EU 41-47. Akcija 59,90 KM.",in stock,new,59.90 BAM,https://cartlybih.store/radne-patike-aeox,https://cartlybih.store/aeoxplus/11.webp,Aeox Plus,1604,Obuća > Radne cipele
 zirafa-brusilica,Žirafa Brusilica za Zidove,"Žirafa brusilica za zidove i plafone sa teleskopskom šipkom, LED osvjetljenjem i priključkom za usisavač. Akcija 169,90 KM.",in stock,new,169.90 BAM,https://cartlybih.store/zirafa-brusilica,https://cartlybih.store/zirafa/heroslika.png,Cartly,3243,Alati > Brusilice`;
 
 export async function GET() {

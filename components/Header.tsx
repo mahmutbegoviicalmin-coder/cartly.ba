@@ -97,10 +97,16 @@ const NAV_LINKS: NavLink[] = [
         image: "/images/product-1.webp",
       },
       {
+        label: "Aeox Plus S3 Radne Patike",
+        href:  "/radne-patike-aeox",
+        desc:  "Kevlar đon · metalna kapica · 59,90 KM",
+        badge: "NOVO",
+        image: "/aeoxplus/11.webp",
+      },
+      {
         label: "Hammer S3 Radne Patike",
         href:  "/radne-patike-hammer",
         desc:  "S3 zaštita · akcija 59,90 KM",
-        badge: "NOVO",
         image: "/radne-patike-hammer/hero.webp",
       },
     ],

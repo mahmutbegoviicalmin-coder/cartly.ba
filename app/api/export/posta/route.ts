@@ -261,6 +261,7 @@ function sadrzaj(orderNumber: string, velicine: Velicina[]): string {
     MS3: "Milwaukee Set 3.1",
     S2U: "Set 2 u 1",
     HMR: "Hammer S3 Patike",
+    AEX: "Aeox Plus S3 Patike",
     ZQS: "Zvučnik",
     KMR: "Kamera",
     DWT: "Brusilica",

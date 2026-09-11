@@ -24,6 +24,7 @@ export const PRODUCTS: ProductDef[] = [
   { key: "patike-s3",     label: "Radne Patike S3",        source: "orders", prefixes: ["CRT"] },
   { key: "richeng",       label: "Richeng S3 Patike",      source: "orders", prefixes: ["RCH", "PAT"] },
   { key: "hammer",        label: "Hammer S3 Patike",       source: "orders", prefixes: ["HMR"] },
+  { key: "aeox",          label: "Aeox Plus S3 Patike",    source: "orders", prefixes: ["AEX"] },
   { key: "milwaukee",     label: "Milwaukee M18 Bušilica", source: "orders", prefixes: ["MLW"] },
   { key: "milwaukee-set", label: "Milwaukee Set 3.1",      source: "orders", prefixes: ["MS3"] },
   { key: "dewalt",        label: "DeWalt Set",             source: "orders", prefixes: ["DWL", "DWT"] },

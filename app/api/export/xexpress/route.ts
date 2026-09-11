@@ -70,12 +70,24 @@ function opisPosiljke(orderNumber: string, velicine: Velicina[]): string {
     CCT: "Čelična Četka 1+1", KMN: "Komarnik", USM: "Usmjerivač",
     CRT: "Radne Patike S3",
     HMR: "Hammer S3 Patike",
+    AEX: "Aeox Plus S3 Patike",
     ZRF: "Žirafa Brusilica za Zidove",
   };
   if (prefix === "CRT") {
     const active = (velicine ?? []).filter((v) => v.kolicina > 0);
     if (active.length === 1 && active[0].kolicina === 1) return `Patike EU${active[0].velicina}`;
     return active.map((v) => `EU${v.velicina}×${v.kolicina}`).join(" ");
+  }
+  if (prefix === "AEX" || prefix === "HMR") {
+    const label = MAP[prefix];
+    const active = (velicine ?? []).filter((v) => v.kolicina > 0);
+    const eu = (v: Velicina) => {
+      const m = String(v.velicina).match(/(\d{2})/);
+      return m ? m[1] : String(v.velicina);
+    };
+    if (active.length === 0) return label;
+    if (active.length === 1 && active[0].kolicina === 1) return `${label} EU${eu(active[0])}`;
+    return active.map((v) => `EU${eu(v)}×${v.kolicina}`).join(" ");
   }
   if (prefix === "LEZ") {
     const v = velicine?.[0];

@@ -67,6 +67,16 @@ const PRODUCTS = [
     hot:       true,
   },
   {
+    slug:      "/radne-patike-aeox",
+    category:  "Radna obuća",
+    name:      "Aeox Plus S3 Radne Patike",
+    image:     "/aeoxplus/11.webp",
+    price:     "59,90 KM",
+    oldPrice:  "139,90 KM",
+    discount:  57,
+    hot:       true,
+  },
+  {
     slug:      "/kamera",
     category:  "Video nadzor",
     name:      "V380 Pro 12MP Kamera",

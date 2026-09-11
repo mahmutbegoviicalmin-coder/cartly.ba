@@ -25,6 +25,7 @@ export async function GET(req: NextRequest) {
     MS3: "Milwaukee Set 3.1",
     S2U: "Set 2 u 1",
     HMR: "Hammer S3 Patike",
+    AEX: "Aeox Plus S3 Patike",
     ZQS: "Zvučnik", KMR: "Kamera",
     MSS: "Mašina za šišanje",
     APP: "AirPods Pro",

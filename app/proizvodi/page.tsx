@@ -92,6 +92,16 @@ const ALL_PRODUCTS: Product[] = [
     hot:      true,
   },
   {
+    name:     "Aeox Plus S3 Radne Patike",
+    desc:     "Metalna kapica, kevlar đon i SRC protuklizna zaštita",
+    price:    59.90,
+    oldPrice: 139.90,
+    tag:      "RADNA OBUĆA",
+    href:     "/radne-patike-aeox",
+    image:    "/aeoxplus/11.webp",
+    hot:      true,
+  },
+  {
     name:     "Usmjerivač Zraka Klime",
     desc:     "Podesiv kut 0°–45°, montaža 5 min bez bušenja, za sve split klime",
     price:    14.90,

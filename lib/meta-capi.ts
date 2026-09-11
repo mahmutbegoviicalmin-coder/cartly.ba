@@ -70,6 +70,8 @@ export interface CAPIOptions {
   fbc?:        string;
   fbp?:        string;
   externalId?: string; // stable per-browser ID from localStorage (_crt_eid)
+  contentIds?: string[];
+  numItems?:   number;
   testCode?:   string; // META_TEST_EVENT_CODE — only for Test Events tool
 }
 
@@ -104,7 +106,10 @@ export async function sendCAPIEvent(opts: CAPIOptions): Promise<void> {
           value:        opts.value,
           currency:     opts.currency,
           content_name: opts.contentName,
+          content_type: "product",
           order_id:     opts.eventId,
+          ...(opts.contentIds?.length ? { content_ids: opts.contentIds } : {}),
+          ...(opts.numItems ? { num_items: opts.numItems } : {}),
         },
       },
     ],

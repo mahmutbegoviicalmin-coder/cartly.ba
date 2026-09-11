@@ -96,7 +96,7 @@ const PREFIX_OPIS: Record<string, string> = {
   MLW: "Milwaukee M18 Bušilica", MS3: "Milwaukee Set 3.1", DWL: "DeWalt Set", DWT: "DeWalt Set",
   S2U: "Set 2 u 1", BRS: "Brusilica", ZQS: "Zvučnik", KMR: "Kamera",
   ZRF: "Žirafa Brusilica za Zidove", APP: "AirPods Pro", MTP: "Motorna pila", HMR: "Hammer S3 Patike",
-  RCH: "Richeng S3 Patike", PAT: "Richeng S3 Patike", PRS: "Prsluk za spašavanje",
+  AEX: "Aeox Plus S3 Patike", RCH: "Richeng S3 Patike", PAT: "Richeng S3 Patike", PRS: "Prsluk za spašavanje",
 };
 
 const COLOR_LABELS: Record<string, string> = {
@@ -133,6 +133,18 @@ function ordersOpis(orderNumber: string, velicine: Velicina[]): string {
     if (active.length === 0) return "Patike S3";
     if (active.length === 1 && active[0].kolicina === 1) return `Patike EU${active[0].velicina}`;
     return active.map((v) => `EU${v.velicina}×${v.kolicina}`).join(" ");
+  }
+
+  if (prefix === "AEX" || prefix === "HMR") {
+    const label = PREFIX_OPIS[prefix];
+    const active = (velicine ?? []).filter((v) => v.kolicina > 0);
+    if (active.length === 0) return label;
+    const eu = (v: Velicina) => {
+      const m = String(v.velicina).match(/(\d{2})/);
+      return m ? m[1] : String(v.velicina);
+    };
+    if (active.length === 1 && active[0].kolicina === 1) return `${label} EU${eu(active[0])}`;
+    return active.map((v) => `EU${eu(v)}×${v.kolicina}`).join(" ");
   }
 
   if (PREFIX_OPIS[prefix]) return PREFIX_OPIS[prefix];
