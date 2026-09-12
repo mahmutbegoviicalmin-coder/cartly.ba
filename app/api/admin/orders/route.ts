@@ -171,12 +171,111 @@ export async function GET(request: Request) {
     ...normalisedLez,
   ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-  const total = merged.length;
+  const flagged = markDuplicates(merged);
+  const total = flagged.length;
 
   // ── Paginate in JS (only when not fetching all) ──────────────────────────────
   const paginated = all
-    ? merged
-    : merged.slice((page - 1) * pageSize, page * pageSize);
+    ? flagged
+    : flagged.slice((page - 1) * pageSize, page * pageSize);
 
   return NextResponse.json({ orders: paginated, total, page, pageSize });
+}
+
+function digitsPhone(t: unknown) {
+  const d = String(t ?? "").replace(/\D/g, "");
+  if (d.startsWith("387")) return "0" + d.slice(3);
+  return d;
+}
+
+function fmtDupWhen(iso: string) {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/Sarajevo",
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(new Date(iso));
+  const g = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+  return `${g("day")}.${g("month")}. u ${g("hour")}:${g("minute")}`;
+}
+
+function markDuplicates<T extends { id: string; created_at: string; ime?: string; telefon?: string; grad?: string; ip_address?: string }>(orders: T[]) {
+  const hour = 3600_000;
+  const phoneOf = (o: T) => digitsPhone(o.telefon);
+  const ipOf = (o: T) => String(o.ip_address ?? "").trim();
+  const personOf = (o: T) =>
+    `${String(o.ime ?? "").trim().toLowerCase().replace(/\s+/g, " ")}|${String(o.grad ?? "").trim().toLowerCase()}`;
+
+  return orders.map((o) => {
+    const t = new Date(o.created_at).getTime();
+    const phone = phoneOf(o);
+    const ip = ipOf(o);
+    const person = personOf(o);
+    let phoneN = 0;
+    let ipN = 0;
+    let personN = 0;
+    const hits = new Map<
+      string,
+      { id: string; ime: string; telefon: string; grad: string; created_at: string; via: Set<string> }
+    >();
+
+    const addHit = (other: T, reason: "telefon" | "osoba" | "ip") => {
+      const existing = hits.get(other.id);
+      if (existing) {
+        existing.via.add(reason);
+        return;
+      }
+      hits.set(other.id, {
+        id: other.id,
+        ime: String(other.ime ?? "—").trim() || "—",
+        telefon: String(other.telefon ?? "—").trim() || "—",
+        grad: String(other.grad ?? "").trim(),
+        created_at: other.created_at,
+        via: new Set([reason]),
+      });
+    };
+
+    for (const other of orders) {
+      if (other.id === o.id) continue;
+      const ot = new Date(other.created_at).getTime();
+      const within14d = Math.abs(t - ot) <= 14 * 24 * hour;
+      const within48h = Math.abs(t - ot) <= 48 * hour;
+      const samePhone = phone.length >= 8 && phoneOf(other) === phone && within14d;
+      const samePerson = person.length > 5 && personOf(other) === person && within48h;
+      const sameIp = ip.length > 6 && ipOf(other) === ip && within48h;
+      if (samePhone) {
+        phoneN++;
+        addHit(other, "telefon");
+      }
+      if (samePerson) {
+        personN++;
+        addHit(other, "osoba");
+      }
+      if (sameIp) ipN++;
+      if ((samePhone || samePerson) && sameIp) addHit(other, "ip");
+    }
+
+    const matches = [...hits.values()]
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .slice(0, 8)
+      .map((h) => ({ ...h, via: [...h.via] }));
+
+    const viaLabel: Record<string, string> = {
+      telefon: "isti telefon",
+      osoba: "isto ime i grad",
+      ip: "isti IP",
+    };
+    const reasons = matches.map((h) => {
+      const why = h.via.map((v) => viaLabel[v] ?? v).join(", ");
+      const city = h.grad ? `, ${h.grad}` : "";
+      return `${h.ime} je naručio ${fmtDupWhen(h.created_at)}, telefon ${h.telefon}${city} (${why})`;
+    });
+
+    return {
+      ...o,
+      duplicates: phoneN || personN ? { phone: phoneN, ip: ipN, person: personN, reasons, matches } : null,
+    };
+  });
 }

@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { Lock } from "lucide-react";
 
 export default function AdminLogin() {
   const [password, setPassword] = useState("");
@@ -33,97 +34,91 @@ export default function AdminLogin() {
   return (
     <div
       style={{
-        minHeight: "100vh",
-        background: "#F5F5F5",
+        minHeight: "100dvh",
+        background: "#070708",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        fontFamily: "var(--font-inter), sans-serif",
+        fontFamily: "var(--font-manrope), -apple-system, BlinkMacSystemFont, sans-serif",
         padding: "24px",
+        color: "#f5f5f7",
       }}
     >
       <div
         style={{
-          background: "#fff",
-          borderRadius: 16,
-          padding: "40px 36px",
+          background: "#141416",
+          borderRadius: 22,
+          padding: "36px 28px",
           width: "100%",
-          maxWidth: 380,
-          boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
+          maxWidth: 400,
+          boxShadow: "0 0 0 1px rgba(255,255,255,0.06)",
         }}
       >
-        {/* Logo */}
-        <div style={{ textAlign: "center", marginBottom: 32 }}>
-          <span style={{ fontSize: 26, fontWeight: 800, color: "#0A0A0A", letterSpacing: "-0.03em" }}>
-            Cartly
-          </span>
-          <span
+        <div style={{ textAlign: "center", marginBottom: 28 }}>
+          <div
             style={{
-              display: "block",
-              fontSize: 13,
-              color: "#999",
-              fontWeight: 400,
-              marginTop: 4,
+              width: 52,
+              height: 52,
+              borderRadius: 16,
+              background: "rgba(10,132,255,0.16)",
+              color: "#64d2ff",
+              display: "grid",
+              placeItems: "center",
+              margin: "0 auto 14px",
             }}
           >
-            Admin panel
-          </span>
+            <Lock size={22} strokeWidth={2} />
+          </div>
+          <div style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.05em", lineHeight: 1 }}>
+            cartly<span style={{ color: "#0a84ff" }}>.</span>ba
+          </div>
+          <div style={{ marginTop: 8, fontSize: 14, fontWeight: 500, color: "#6e6e73" }}>Admin</div>
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: 16 }}>
-            <label
-              htmlFor="password"
-              style={{ display: "block", fontSize: 13, fontWeight: 500, color: "#0A0A0A", marginBottom: 8 }}
-            >
-              Lozinka
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Unesite lozinku"
-              autoFocus
-              required
-              style={{
-                width: "100%",
-                padding: "13px 16px",
-                fontSize: 15,
-                border: `1px solid ${error ? "#ef4444" : "#E5E5E5"}`,
-                borderRadius: 8,
-                background: "#F9F9F9",
-                fontFamily: "var(--font-inter), sans-serif",
-                outline: "none",
-                boxSizing: "border-box",
-                transition: "border-color 0.15s",
-              }}
-              onFocus={(e) => { e.currentTarget.style.borderColor = "#FF6B00"; }}
-              onBlur={(e) => { e.currentTarget.style.borderColor = error ? "#ef4444" : "#E5E5E5"; }}
-            />
-            {error && (
-              <p style={{ fontSize: 12, color: "#ef4444", margin: "6px 0 0" }}>{error}</p>
-            )}
-          </div>
+          <label htmlFor="password" style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#a1a1a6", marginBottom: 8 }}>
+            Lozinka
+          </label>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Unesite lozinku"
+            autoFocus
+            required
+            style={{
+              width: "100%",
+              height: 48,
+              padding: "0 16px",
+              fontSize: 16,
+              border: "none",
+              borderRadius: 14,
+              background: "#2c2c2e",
+              color: "#f5f5f7",
+              fontFamily: "inherit",
+              outline: "none",
+              boxSizing: "border-box",
+            }}
+          />
+          {error && <p style={{ fontSize: 13, color: "#ff453a", margin: "8px 0 0" }}>{error}</p>}
 
           <button
             type="submit"
             disabled={loading}
             style={{
               width: "100%",
-              padding: "14px",
-              background: loading ? "#ccc" : "#FF6B00",
+              marginTop: 16,
+              height: 48,
+              background: loading ? "#3a3a3c" : "#0a84ff",
               color: "#fff",
               border: "none",
-              borderRadius: 8,
-              fontSize: 15,
-              fontWeight: 700,
+              borderRadius: 14,
+              fontSize: 16,
+              fontWeight: 650,
               cursor: loading ? "not-allowed" : "pointer",
-              fontFamily: "var(--font-inter), sans-serif",
-              transition: "background 0.15s",
+              fontFamily: "inherit",
             }}
-            onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = "#E85E00"; }}
-            onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = "#FF6B00"; }}
           >
             {loading ? "Prijava..." : "Prijavi se"}
           </button>

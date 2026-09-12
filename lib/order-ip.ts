@@ -7,7 +7,7 @@ export function stampIp(adresa: string, ip: string): string {
   return `${clean}\n⟦ip:${value}⟧`;
 }
 
-export function stripIp(adresa: string): string {
+export function stripIp(adresa: unknown): string {
   return String(adresa ?? "").replace(IP_MARK_RE, "").trim();
 }
 

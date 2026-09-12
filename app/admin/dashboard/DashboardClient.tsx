@@ -1,20 +1,57 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, type ComponentType } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
+import {
+  LayoutGrid,
+  ClipboardList,
+  Calculator,
+  LogOut,
+  RefreshCw,
+  Search,
+  Download,
+  Phone,
+  MapPin,
+  Globe,
+  Trash2,
+  ChevronRight,
+  Package,
+  Camera,
+  Footprints,
+  Wrench,
+  Layers,
+  Speaker,
+  CircleDot,
+  Paintbrush,
+  Wind,
+  Armchair,
+  Shield,
+  MoveVertical,
+  Axe,
+  Headphones,
+  Truck,
+  Banknote,
+  ShoppingBag,
+  Loader2,
+  FileSpreadsheet,
+  AlertTriangle,
+  X,
+} from "lucide-react";
 import { PRODUCTS } from "@/lib/export-products";
+import "./dashboard.css";
 
-// Recharts — dynamic to avoid SSR issues
-const LineChart       = dynamic(() => import("recharts").then((m) => m.LineChart),       { ssr: false });
-const Line            = dynamic(() => import("recharts").then((m) => m.Line),            { ssr: false });
-const XAxis           = dynamic(() => import("recharts").then((m) => m.XAxis),           { ssr: false });
-const YAxis           = dynamic(() => import("recharts").then((m) => m.YAxis),           { ssr: false });
-const CartesianGrid   = dynamic(() => import("recharts").then((m) => m.CartesianGrid),   { ssr: false });
-const Tooltip         = dynamic(() => import("recharts").then((m) => m.Tooltip),         { ssr: false });
+const LineChart = dynamic(() => import("recharts").then((m) => m.LineChart), { ssr: false });
+const Line = dynamic(() => import("recharts").then((m) => m.Line), { ssr: false });
+const XAxis = dynamic(() => import("recharts").then((m) => m.XAxis), { ssr: false });
+const YAxis = dynamic(() => import("recharts").then((m) => m.YAxis), { ssr: false });
+const CartesianGrid = dynamic(() => import("recharts").then((m) => m.CartesianGrid), { ssr: false });
+const Tooltip = dynamic(() => import("recharts").then((m) => m.Tooltip), { ssr: false });
 const ResponsiveContainer = dynamic(() => import("recharts").then((m) => m.ResponsiveContainer), { ssr: false });
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+type IconCmp = ComponentType<{ size?: number; strokeWidth?: number }>;
+
 type Order = {
   id: string;
   created_at: string;
@@ -30,6 +67,13 @@ type Order = {
   dostava: number;
   ukupno: number;
   status: string;
+  duplicates?: {
+    phone: number;
+    ip: number;
+    person: number;
+    reasons: string[];
+    matches?: { id: string; ime: string; telefon: string; grad: string; created_at: string; via: string[] }[];
+  } | null;
 };
 
 type Stats = {
@@ -43,23 +87,53 @@ type Stats = {
   cameraCount: number;
   cetkaCount: number;
   usmjerivacCount: number;
+  lezaljkaCount?: number;
   chartData: { date: string; narudžbe: number; prihod: number }[];
 };
 
 type Tab = "overview" | "orders" | "margins";
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const STATUS_STYLES: Record<string, { bg: string; color: string }> = {
-  nova:       { bg: "rgba(249,115,22,0.15)",  color: "#f97316" },
-  potvrđena:  { bg: "rgba(96,165,250,0.15)",  color: "#60a5fa" },
-  poslana:    { bg: "rgba(167,139,250,0.15)", color: "#a78bfa" },
-  isporučena: { bg: "rgba(74,222,128,0.15)",  color: "#4ade80" },
+const STATUS_META: Record<string, { label: string; color: string; bg: string }> = {
+  nova: { label: "Nova", color: "#ff9f0a", bg: "rgba(255,159,10,0.14)" },
+  potvrđena: { label: "Potvrđena", color: "#007aff", bg: "rgba(0,122,255,0.12)" },
+  poslana: { label: "Poslana", color: "#af52de", bg: "rgba(175,82,222,0.12)" },
+  isporučena: { label: "Isporučena", color: "#34c759", bg: "rgba(52,199,89,0.14)" },
 };
 
 const STATUS_OPTIONS = ["nova", "potvrđena", "poslana", "isporučena"];
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+const PRODUCT_MAP: Record<string, { label: string; tint: string; ink: string; Icon: IconCmp }> = {
+  CRT: { label: "Radne patike", tint: "rgba(255,159,10,0.18)", ink: "#ffd60a", Icon: Footprints },
+  KMR: { label: "WiFi kamera", tint: "rgba(191,90,242,0.18)", ink: "#d4a4ff", Icon: Camera },
+  MLW: { label: "Milwaukee", tint: "rgba(255,69,58,0.18)", ink: "#ff6961", Icon: Wrench },
+  MS3: { label: "Milwaukee set", tint: "rgba(255,69,58,0.18)", ink: "#ff6961", Icon: Wrench },
+  S2U: { label: "Set 2u1", tint: "rgba(255,159,10,0.18)", ink: "#ffd60a", Icon: Layers },
+  ZQS: { label: "Zvučnik", tint: "rgba(48,209,88,0.16)", ink: "#63e6a0", Icon: Speaker },
+  DWL: { label: "DeWalt", tint: "rgba(255,214,10,0.16)", ink: "#ffe066", Icon: Wrench },
+  DWT: { label: "DeWalt", tint: "rgba(255,214,10,0.16)", ink: "#ffe066", Icon: Wrench },
+  BRS: { label: "Brusilica", tint: "rgba(64,210,255,0.16)", ink: "#64d2ff", Icon: CircleDot },
+  CCT: { label: "Čelična četka", tint: "rgba(48,209,88,0.16)", ink: "#63e6a0", Icon: Paintbrush },
+  USM: { label: "Usmjerivač zraka", tint: "rgba(10,132,255,0.18)", ink: "#64d2ff", Icon: Wind },
+  PAT: { label: "Radne patike", tint: "rgba(94,92,230,0.2)", ink: "#bfbdff", Icon: Footprints },
+  RCH: { label: "Richeng", tint: "rgba(255,159,10,0.18)", ink: "#ffd60a", Icon: Footprints },
+  AEX: { label: "Aeox Plus", tint: "rgba(48,209,88,0.16)", ink: "#63e6a0", Icon: Footprints },
+  HMR: { label: "Hammer", tint: "rgba(255,255,255,0.08)", ink: "#d1d1d6", Icon: Footprints },
+  LEZ: { label: "Ležaljka", tint: "rgba(255,55,95,0.16)", ink: "#ff7aa2", Icon: Armchair },
+  PRS: { label: "Prsluk", tint: "rgba(10,132,255,0.18)", ink: "#64d2ff", Icon: Shield },
+  ZRF: { label: "Žirafa", tint: "rgba(100,210,255,0.14)", ink: "#64d2ff", Icon: MoveVertical },
+  APP: { label: "AirPods Pro", tint: "rgba(255,255,255,0.08)", ink: "#f5f5f7", Icon: Headphones },
+  MTP: { label: "Motorna pila", tint: "rgba(255,159,10,0.18)", ink: "#ff9f0a", Icon: Axe },
+};
+
+const AVATAR_TONES = [
+  { bg: "rgba(10,132,255,0.2)", fg: "#64d2ff" },
+  { bg: "rgba(48,209,88,0.18)", fg: "#63e6a0" },
+  { bg: "rgba(255,159,10,0.18)", fg: "#ffd60a" },
+  { bg: "rgba(191,90,242,0.2)", fg: "#d4a4ff" },
+  { bg: "rgba(255,69,58,0.18)", fg: "#ff6961" },
+  { bg: "rgba(100,210,255,0.16)", fg: "#64d2ff" },
+];
+
 function fmt(n: number) {
   return n.toFixed(2).replace(".", ",") + " KM";
 }
@@ -67,8 +141,8 @@ function fmt(n: number) {
 function fmtDate(iso: string) {
   const d = new Date(iso);
   return (
-    d.toLocaleDateString("bs-BA", { day: "2-digit", month: "2-digit", year: "numeric" }) +
-    " " +
+    d.toLocaleDateString("bs-BA", { day: "2-digit", month: "2-digit" }) +
+    "  " +
     d.toLocaleTimeString("bs-BA", { hour: "2-digit", minute: "2-digit" })
   );
 }
@@ -78,228 +152,475 @@ function fmtShortDate(iso: string) {
   return d.toLocaleDateString("bs-BA", { day: "2-digit", month: "2-digit" });
 }
 
-
-const PRODUCT_MAP: Record<string, { label: string; bg: string; color: string }> = {
-  CRT: { label: "Patike",    bg: "rgba(249,115,22,0.12)",  color: "#f97316" },
-  KMR: { label: "Kamera",   bg: "rgba(129,140,248,0.12)", color: "#818cf8" },
-  MLW: { label: "Milwaukee", bg: "rgba(239,68,68,0.12)",   color: "#ef4444" },
-  MS3: { label: "MW Set 3.1", bg: "rgba(220,0,0,0.12)",    color: "#dc0000" },
-  S2U: { label: "Set 2u1",    bg: "rgba(179,48,0,0.12)",   color: "#B33000" },
-  ZQS: { label: "Zvučnik",  bg: "rgba(34,197,94,0.12)",   color: "#22c55e" },
-  DWL: { label: "DeWalt",   bg: "rgba(234,179,8,0.12)",   color: "#eab308" },
-  DWT: { label: "DeWalt",   bg: "rgba(234,179,8,0.12)",   color: "#eab308" },
-  BRS: { label: "Brusilica", bg: "rgba(20,184,166,0.12)",  color: "#14b8a6" },
-  CCT: { label: "Četka",    bg: "rgba(52,211,153,0.12)",  color: "#34d399" },
-  USM: { label: "Usmjerivač", bg: "rgba(26,95,255,0.12)", color: "#1a5fff" },
-  PAT: { label: "R. Patike",  bg: "rgba(99,102,241,0.12)", color: "#6366f1" },
-  RCH: { label: "Richeng",    bg: "rgba(179,48,0,0.10)",   color: "#B33000" },
-  HMR: { label: "Hammer",     bg: "rgba(55,65,81,0.12)",   color: "#374151" },
-  LEZ: { label: "Ležaljka",   bg: "rgba(236,72,153,0.12)", color: "#ec4899" },
-  PRS: { label: "Prsluk",     bg: "rgba(6,27,56,0.10)",    color: "#061B38" },
-  ZRF: { label: "Žirafa",     bg: "rgba(2,132,199,0.12)",  color: "#0284C7" },
-  APP: { label: "AirPods",    bg: "rgba(29,29,31,0.10)",  color: "#1d1d1f" },
-  MTP: { label: "Motorna pila", bg: "rgba(194,65,12,0.12)", color: "#c2410c" },
-};
-
-function productBadge(orderNumber?: string) {
+function productMeta(orderNumber?: string) {
   const prefix = (orderNumber ?? "").slice(0, 3).toUpperCase();
-  return PRODUCT_MAP[prefix] ?? { label: prefix || "—", bg: "rgba(80,80,80,0.1)", color: "#555" };
+  return PRODUCT_MAP[prefix] ?? { label: prefix || "Proizvod", tint: "rgba(255,255,255,0.08)", ink: "#a1a1a6", Icon: Package };
 }
 
-// Returns YYYY-MM-DD in Sarajevo timezone (used as group key)
 function getDayKey(iso: string): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Sarajevo" }).format(new Date(iso));
 }
 
-// Returns "DD.MM.YYYY" for display
-function getDayLabel(key: string): string {
-  const [y, m, d] = key.split("-");
-  return `${d}.${m}.${y}.`;
+const WEEKDAYS = ["Nedjelja", "Ponedjeljak", "Utorak", "Srijeda", "Četvrtak", "Petak", "Subota"];
+const MONTHS = ["januar", "februar", "mart", "april", "maj", "jun", "juli", "august", "septembar", "oktobar", "novembar", "decembar"];
+
+function getDayPretty(key: string): string {
+  const [y, m, d] = key.split("-").map(Number);
+  const date = new Date(y, m - 1, d);
+  return `${WEEKDAYS[date.getDay()]}, ${d}. ${MONTHS[m - 1]}`;
 }
 
-// ─── Margin Calculator ────────────────────────────────────────────────────────
+function copyText(value?: string) {
+  if (!value) return;
+  navigator.clipboard.writeText(value).catch(() => {});
+}
+
+function PhoneBtn({ phone }: { phone: string }) {
+  const compact = phone.replace(/\s+/g, "");
+  return (
+    <button type="button" className="ad-tel" title="Kopiraj telefon" onClick={() => copyText(compact)}>
+      {phone}
+    </button>
+  );
+}
+
+function initials(name: string) {
+  const p = name.trim().split(/\s+/);
+  return ((p[0]?.[0] ?? "") + (p[1]?.[0] ?? "")).toUpperCase() || "?";
+}
+
+function toneFor(name: string) {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h + name.charCodeAt(i) * (i + 1)) % AVATAR_TONES.length;
+  return AVATAR_TONES[h];
+}
+
+const VIA_LABEL: Record<string, string> = {
+  telefon: "Isti telefon",
+  osoba: "Isto ime i grad",
+  ip: "Isti IP",
+};
+
+function fmtDupWhen(iso: string) {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/Sarajevo",
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(new Date(iso));
+  const g = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+  return `${g("day")}.${g("month")}. u ${g("hour")}:${g("minute")}`;
+}
+
+function DupBadge({ d }: { d: Order["duplicates"] }) {
+  const [tip, setTip] = useState<{ x: number; y: number; above: boolean } | null>(null);
+
+  useEffect(() => {
+    if (!tip) return;
+    const close = () => setTip(null);
+    window.addEventListener("scroll", close, true);
+    return () => window.removeEventListener("scroll", close, true);
+  }, [tip]);
+
+  if (!d) return null;
+
+  const open = (el: HTMLElement) => {
+    const r = el.getBoundingClientRect();
+    const width = 280;
+    const gap = 10;
+    let x = r.right + gap;
+    if (x + width > window.innerWidth - 12) x = Math.max(12, r.left - width - gap);
+    let y = r.top;
+    let above = false;
+    if (y + 180 > window.innerHeight - 12) {
+      above = true;
+      y = r.bottom;
+    }
+    setTip({ x, y, above });
+  };
+
+  const matches = d.matches?.length
+    ? d.matches
+    : d.reasons.map((reason, i) => ({
+        id: String(i),
+        ime: reason,
+        telefon: "",
+        grad: "",
+        created_at: "",
+        via: [],
+      }));
+
+  return (
+    <>
+      <button
+        type="button"
+        className="ad-dup"
+        onMouseEnter={(e) => open(e.currentTarget)}
+        onMouseLeave={() => setTip(null)}
+        onFocus={(e) => open(e.currentTarget)}
+        onBlur={() => setTip(null)}
+      >
+        <AlertTriangle size={12} strokeWidth={2.4} />
+        Duplikat
+      </button>
+      {tip &&
+        createPortal(
+          <div
+            className={`ad-dup-tip${tip.above ? " is-above" : ""}`}
+            style={{ left: tip.x, top: tip.y }}
+          >
+            <div className="ad-dup-tip-kicker">Zašto je duplikat</div>
+            {matches.map((m) => (
+              <div key={m.id} className="ad-dup-hit">
+                {m.created_at ? (
+                  <>
+                    <strong>{m.ime}</strong>
+                    <span>naručio {fmtDupWhen(m.created_at)}</span>
+                    <span>
+                      telefon {m.telefon}
+                      {m.grad ? ` · ${m.grad}` : ""}
+                    </span>
+                    {m.via.length > 0 && (
+                      <em>{m.via.map((v) => VIA_LABEL[v] ?? v).join(" · ")}</em>
+                    )}
+                  </>
+                ) : (
+                  <span>{m.ime}</span>
+                )}
+              </div>
+            ))}
+          </div>,
+          document.body
+        )}
+    </>
+  );
+}
+
+function ProductBadge({ orderNumber, qty }: { orderNumber?: string; qty?: number }) {
+  const p = productMeta(orderNumber);
+  const Icon = p.Icon;
+  return (
+    <span className="ad-badge" style={{ background: p.tint, color: p.ink }}>
+      <i>
+        <Icon size={11} strokeWidth={2.2} />
+      </i>
+      {p.label}
+      {qty && qty > 1 ? ` ×${qty}` : ""}
+    </span>
+  );
+}
+
+function StatusSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const st = STATUS_META[value] ?? { label: value, color: "#a1a1a6", bg: "rgba(255,255,255,0.06)" };
+  return (
+    <select
+      className="ad-status"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      style={{ background: st.bg, color: st.color, ["--st" as string]: st.color }}
+    >
+      {STATUS_OPTIONS.map((s) => (
+        <option key={s} value={s}>
+          {STATUS_META[s].label}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+function DeleteBtn({ onClick }: { onClick: () => void }) {
+  return (
+    <button className="ad-del" onClick={onClick} title="Obriši narudžbu" aria-label="Obriši narudžbu">
+      <Trash2 size={16} strokeWidth={2} />
+    </button>
+  );
+}
+
+function OrderCard({
+  order,
+  onStatus,
+  onDelete,
+}: {
+  order: Order;
+  onStatus: (id: string, status: string) => void;
+  onDelete: (id: string, ime: string) => void;
+}) {
+  const tone = toneFor(order.ime);
+  return (
+    <article className={`ad-card${order.duplicates ? " is-dup" : ""}`}>
+      <div className="ad-card-top">
+        <div className="ad-card-id">
+          <div className="ad-avatar" style={{ background: tone.bg, color: tone.fg }}>
+            {initials(order.ime)}
+          </div>
+          <div>
+            <div className="ad-card-name">
+              {order.ime}
+              <DupBadge d={order.duplicates} />
+            </div>
+            <div className="ad-card-meta">
+              {fmtDate(order.created_at)} · {order.order_number ?? "—"}
+            </div>
+          </div>
+        </div>
+        <div className="ad-card-sum">{fmt(order.ukupno)}</div>
+      </div>
+      <div className="ad-card-rows">
+        <div className="ad-row">
+          <Phone size={15} strokeWidth={2} />
+          <span>
+            <PhoneBtn phone={order.telefon} />
+          </span>
+        </div>
+        <div className="ad-row">
+          <MapPin size={15} strokeWidth={2} />
+          <span>{order.grad}</span>
+        </div>
+        <div className="ad-row">
+          <Globe size={15} strokeWidth={2} />
+          <span>
+            {order.ip_address ? (
+              <button className="ad-ip" title="Kopiraj IP" onClick={() => copyText(order.ip_address)}>
+                {order.ip_address}
+              </button>
+            ) : (
+              "—"
+            )}
+          </span>
+        </div>
+        <div className="ad-row">
+          <Package size={15} strokeWidth={2} />
+          <ProductBadge orderNumber={order.order_number} qty={order.ukupno_pari} />
+        </div>
+      </div>
+      <div className="ad-card-foot">
+        <StatusSelect value={order.status} onChange={(v) => onStatus(order.id, v)} />
+        <DeleteBtn onClick={() => onDelete(order.id, order.ime)} />
+      </div>
+    </article>
+  );
+}
+
+function OrderTable({
+  orders,
+  loading,
+  empty,
+  onStatus,
+  onDelete,
+}: {
+  orders: Order[];
+  loading?: boolean;
+  empty?: string;
+  onStatus: (id: string, status: string) => void;
+  onDelete: (id: string, ime: string) => void;
+}) {
+  return (
+    <div className="ad-table-wrap">
+      <table className="ad-table">
+        <thead>
+          <tr>
+            {["Datum", "Broj", "Kupac", "Telefon", "Grad", "IP", "Proizvod", "Kol.", "Iznos", "Status", ""].map((h) => (
+              <th key={h}>{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {loading ? (
+            <tr>
+              <td colSpan={11} className="ad-empty">Učitavanje...</td>
+            </tr>
+          ) : orders.length === 0 ? (
+            <tr>
+              <td colSpan={11} className="ad-empty">{empty}</td>
+            </tr>
+          ) : (
+            orders.map((order) => {
+              const tone = toneFor(order.ime);
+              return (
+                <tr key={order.id} className={order.duplicates ? "is-dup" : undefined}>
+                  <td style={{ color: "#86868b", whiteSpace: "nowrap", fontSize: 13 }}>{fmtDate(order.created_at)}</td>
+                  <td style={{ color: "#86868b", fontSize: 11, fontFamily: "ui-monospace, Menlo, monospace", whiteSpace: "nowrap" }}>
+                    {order.order_number ?? "—"}
+                  </td>
+                  <td>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                      <div className="ad-avatar" style={{ width: 28, height: 28, borderRadius: 9, fontSize: 10, background: tone.bg, color: tone.fg }}>
+                        {initials(order.ime)}
+                      </div>
+                      <span style={{ fontWeight: 600 }}>{order.ime}</span>
+                      <DupBadge d={order.duplicates} />
+                    </div>
+                  </td>
+                  <td>
+                    <PhoneBtn phone={order.telefon} />
+                  </td>
+                  <td style={{ color: "#6e6e73" }}>{order.grad}</td>
+                  <td style={{ fontFamily: "ui-monospace, Menlo, monospace", fontSize: 12, color: "#86868b", whiteSpace: "nowrap" }}>
+                    {order.ip_address ? (
+                      <button className="ad-ip" title="Kopiraj IP" onClick={() => copyText(order.ip_address)}>
+                        {order.ip_address}
+                      </button>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
+                  <td>
+                    <ProductBadge orderNumber={order.order_number} />
+                  </td>
+                  <td style={{ textAlign: "center", color: "#86868b" }}>{order.ukupno_pari}</td>
+                  <td style={{ fontWeight: 700, whiteSpace: "nowrap" }}>{fmt(order.ukupno)}</td>
+                  <td>
+                    <StatusSelect value={order.status} onChange={(v) => onStatus(order.id, v)} />
+                  </td>
+                  <td>
+                    <DeleteBtn onClick={() => onDelete(order.id, order.ime)} />
+                  </td>
+                </tr>
+              );
+            })
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 function MarginCalc() {
-  const saved = typeof window !== "undefined" ? {
-    sell: parseFloat(localStorage.getItem("calc_sell") ?? "99.9"),
-    cost: parseFloat(localStorage.getItem("calc_cost") ?? "0"),
-    qty:  parseInt(localStorage.getItem("calc_qty")  ?? "1", 10),
-  } : { sell: 99.9, cost: 0, qty: 1 };
+  const saved =
+    typeof window !== "undefined"
+      ? {
+          sell: parseFloat(localStorage.getItem("calc_sell") ?? "99.9"),
+          cost: parseFloat(localStorage.getItem("calc_cost") ?? "0"),
+          qty: parseInt(localStorage.getItem("calc_qty") ?? "1", 10),
+        }
+      : { sell: 99.9, cost: 0, qty: 1 };
 
   const [sell, setSell] = useState(saved.sell);
   const [cost, setCost] = useState(saved.cost);
-  const [qty,  setQty]  = useState(saved.qty);
+  const [qty, setQty] = useState(saved.qty);
 
-  const margin    = sell - cost;
+  const margin = sell - cost;
   const marginPct = sell > 0 ? (margin / sell) * 100 : 0;
-  const mColor    = margin > 0 ? "#4ade80" : margin < 0 ? "#ef4444" : "#555";
-  const costPct   = sell > 0 ? Math.min(100, (cost / sell) * 100) : 0;
-  const totalNet  = margin * qty;
-
-  const inputStyle: React.CSSProperties = {
-    width: "100%", padding: "14px 16px", background: "#0d0d0d",
-    border: "1px solid #2a2a2a", borderRadius: 10,
-    fontSize: 22, fontWeight: 800, color: "#f5f5f7", outline: "none",
-    fontFamily: "inherit", boxSizing: "border-box",
-  };
+  const mColor = margin > 0 ? "#34c759" : margin < 0 ? "#ff3b30" : "#86868b";
+  const costPct = sell > 0 ? Math.min(100, (cost / sell) * 100) : 0;
+  const totalNet = margin * qty;
 
   return (
-    <div style={{ maxWidth: 560, margin: "0 auto" }}>
-      <div style={{ background: "#141414", borderRadius: 16, border: "1px solid #222", overflow: "hidden" }}>
-
-        {/* ── Inputs ── */}
-        <div style={{ padding: "28px 28px 0" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
-            {/* Prodajna */}
-            <div>
-              <p style={{ fontSize: 10, color: "#555", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>Prodajna cijena</p>
-              <div style={{ position: "relative" }}>
-                <input
-                  type="number" value={sell} min={0} step={0.1}
-                  onChange={(e) => { const v = parseFloat(e.target.value) || 0; setSell(v); localStorage.setItem("calc_sell", String(v)); }}
-                  style={{ ...inputStyle, color: "#f97316", paddingRight: 44 }}
-                  onFocus={(e) => { e.currentTarget.style.borderColor = "#f97316"; }}
-                  onBlur={(e)  => { e.currentTarget.style.borderColor = "#2a2a2a"; }}
-                />
-                <span style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", fontSize: 12, fontWeight: 600, color: "#444" }}>KM</span>
-              </div>
-            </div>
-            {/* Nabavna */}
-            <div>
-              <p style={{ fontSize: 10, color: "#555", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>Nabavna cijena</p>
-              <div style={{ position: "relative" }}>
-                <input
-                  type="number" value={cost} min={0} step={0.1}
-                  onChange={(e) => { const v = parseFloat(e.target.value) || 0; setCost(v); localStorage.setItem("calc_cost", String(v)); }}
-                  style={{ ...inputStyle, paddingRight: 44 }}
-                  onFocus={(e) => { e.currentTarget.style.borderColor = "#60a5fa"; }}
-                  onBlur={(e)  => { e.currentTarget.style.borderColor = "#2a2a2a"; }}
-                />
-                <span style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", fontSize: 12, fontWeight: 600, color: "#444" }}>KM</span>
-              </div>
-            </div>
-            {/* Prodano komada */}
-            <div>
-              <p style={{ fontSize: 10, color: "#555", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>Prodano komada</p>
+    <div className="ad-calc">
+      <div className="ad-calc-card">
+        <div className="ad-calc-grid">
+          <div>
+            <p>Prodajna cijena</p>
+            <div className="ad-field">
               <input
-                type="number" value={qty} min={0} step={1}
-                onChange={(e) => { const v = Math.max(0, parseInt(e.target.value) || 0); setQty(v); localStorage.setItem("calc_qty", String(v)); }}
-                style={{ ...inputStyle }}
-                onFocus={(e) => { e.currentTarget.style.borderColor = "#4ade80"; }}
-                onBlur={(e)  => { e.currentTarget.style.borderColor = "#2a2a2a"; }}
+                type="number"
+                value={sell}
+                min={0}
+                step={0.1}
+                onChange={(e) => {
+                  const v = parseFloat(e.target.value) || 0;
+                  setSell(v);
+                  localStorage.setItem("calc_sell", String(v));
+                }}
+                style={{ color: "#007aff" }}
+              />
+              <i>KM</i>
+            </div>
+          </div>
+          <div>
+            <p>Nabavna cijena</p>
+            <div className="ad-field">
+              <input
+                type="number"
+                value={cost}
+                min={0}
+                step={0.1}
+                onChange={(e) => {
+                  const v = parseFloat(e.target.value) || 0;
+                  setCost(v);
+                  localStorage.setItem("calc_cost", String(v));
+                }}
+              />
+              <i>KM</i>
+            </div>
+          </div>
+          <div>
+            <p>Prodano komada</p>
+            <div className="ad-field">
+              <input
+                type="number"
+                value={qty}
+                min={0}
+                step={1}
+                onChange={(e) => {
+                  const v = Math.max(0, parseInt(e.target.value) || 0);
+                  setQty(v);
+                  localStorage.setItem("calc_qty", String(v));
+                }}
               />
             </div>
           </div>
         </div>
 
-        {/* ── Margin result ── */}
-        <div style={{ padding: "20px 28px" }}>
-          <div style={{ background: "#0d0d0d", borderRadius: 12, border: `1px solid ${mColor}28`, padding: "20px 24px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 16 }}>
-              <div>
-                <p style={{ fontSize: 10, color: "#444", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 6px" }}>Marža / komad</p>
-                <p style={{ fontSize: 42, fontWeight: 900, color: mColor, margin: 0, letterSpacing: "-0.03em", lineHeight: 1 }}>{fmt(margin)}</p>
-              </div>
-              <p style={{ fontSize: 42, fontWeight: 900, color: mColor, margin: 0, letterSpacing: "-0.03em", lineHeight: 1, opacity: 0.7 }}>{marginPct.toFixed(1)}%</p>
+        <div className="ad-calc-result">
+          <div className="ad-calc-result-row">
+            <div>
+              <p style={{ margin: "0 0 6px", fontSize: 12, fontWeight: 600, color: "#86868b" }}>Marža po komadu</p>
+              <strong style={{ color: mColor }}>{fmt(margin)}</strong>
             </div>
-
-            {/* Visual cost/profit bar */}
-            <div style={{ height: 6, borderRadius: 99, background: "#1a1a1a", overflow: "hidden" }}>
-              <div style={{
-                height: "100%", borderRadius: 99, transition: "width 0.3s ease",
-                background: margin >= 0
-                  ? `linear-gradient(90deg, #374151 ${costPct}%, #4ade80 ${costPct}%)`
-                  : "#ef4444",
-                width: "100%",
-              }} />
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }}>
-              <span style={{ fontSize: 10, color: "#444" }}>Nabavna {costPct.toFixed(0)}%</span>
-              <span style={{ fontSize: 10, color: "#444" }}>Zarada {(100 - costPct).toFixed(0)}%</span>
-            </div>
-
-            {qty > 0 && (
-              <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid #1a1a1a", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: 11, color: "#555", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>Ukupna zarada ({qty} kom)</span>
-                <span style={{ fontSize: 28, fontWeight: 900, color: mColor, letterSpacing: "-0.02em" }}>{fmt(totalNet)}</span>
-              </div>
-            )}
+            <p style={{ color: mColor }}>{marginPct.toFixed(1)}%</p>
           </div>
+          <div style={{ height: 8, borderRadius: 99, background: "#e5e5ea", overflow: "hidden" }}>
+            <div
+              style={{
+                height: "100%",
+                borderRadius: 99,
+                width: "100%",
+                background:
+                  margin >= 0
+                    ? `linear-gradient(90deg, #d1d1d6 ${costPct}%, #34c759 ${costPct}%)`
+                    : "#ff3b30",
+              }}
+            />
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
+            <span style={{ fontSize: 12, color: "#86868b" }}>Trošak {costPct.toFixed(0)}%</span>
+            <span style={{ fontSize: 12, color: "#86868b" }}>Zarada {(100 - costPct).toFixed(0)}%</span>
+          </div>
+          {qty > 0 && (
+            <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid rgba(60,60,67,0.12)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: 13, color: "#6e6e73", fontWeight: 500 }}>Ukupna zarada · {qty} kom</span>
+              <span style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.04em", color: mColor }}>{fmt(totalNet)}</span>
+            </div>
+          )}
         </div>
-
-
       </div>
     </div>
   );
 }
 
-// ─── Icon helpers ─────────────────────────────────────────────────────────────
-const IconGrid = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-    <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
-  </svg>
-);
-const IconOrders = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
-  </svg>
-);
-const IconMargins = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
-  </svg>
-);
-const IconLogout = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
-  </svg>
-);
-const IconRefresh = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/>
-  </svg>
-);
-const IconDownload = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-  </svg>
-);
-const IconMenu = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-  </svg>
-);
-
-// ─── Main Dashboard ───────────────────────────────────────────────────────────
 export default function DashboardClient() {
   const router = useRouter();
-  const [activeTab, setActiveTab]     = useState<Tab>("overview");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  // Stats
-  const [stats, setStats]               = useState<Stats | null>(null);
+  const [activeTab, setActiveTab] = useState<Tab>("orders");
+  const [stats, setStats] = useState<Stats | null>(null);
   const [loadingStats, setLoadingStats] = useState(true);
-
-  // Orders
-  const [orders, setOrders]                   = useState<Order[]>([]);
-  const [total, setTotal]                     = useState(0);
-  const [page, setPage]                       = useState(1);
-  const [search, setSearch]                   = useState("");
-  const [searchInput, setSearchInput]         = useState("");
-  const [statusFilter, setStatusFilter]       = useState("all");
-  const [loadingOrders, setLoadingOrders]     = useState(true);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [loadingOrders, setLoadingOrders] = useState(true);
   const pageSize = 20;
-
-  // View mode: flat ("sve") vs grouped by day ("po_danu")
-  const [viewMode, setViewMode]           = useState<"sve" | "po_danu">("sve");
-  const [allOrders, setAllOrders]         = useState<Order[]>([]);
-  const [loadingAll, setLoadingAll]       = useState(false);
-  const [expandedDays, setExpandedDays]   = useState<Set<string>>(new Set());
-
-  // ── Courier export (per-product dropdown → X Express / Skytec Express) ──────
+  const [viewMode, setViewMode] = useState<"sve" | "po_danu">("po_danu");
+  const [allOrders, setAllOrders] = useState<Order[]>([]);
+  const [loadingAll, setLoadingAll] = useState(true);
+  const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set());
   const todayStr = new Date().toISOString().slice(0, 10);
   const [exportProduct, setExportProduct] = useState("svi");
-  const [exportDate, setExportDate]       = useState(todayStr);
+  const [exportDate, setExportDate] = useState(todayStr);
   const [exportLoading, setExportLoading] = useState<"xexpress" | "skytec" | "csv" | null>(null);
 
   const runExport = async (courier: "xexpress" | "skytec") => {
@@ -314,10 +635,10 @@ export default function DashboardClient() {
         return;
       }
       const blob = await res.blob();
-      const url  = URL.createObjectURL(blob);
-      const a    = document.createElement("a");
-      a.href     = url;
-      const tag  = courier === "xexpress" ? "XExpress" : "Skytec";
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const tag = courier === "xexpress" ? "XExpress" : "Skytec";
       a.download = `${tag}_${exportProduct}_${exportDate}.xlsx`;
       document.body.appendChild(a);
       a.click();
@@ -337,24 +658,29 @@ export default function DashboardClient() {
       if (search) params.set("search", search);
       if (statusFilter !== "all") params.set("status", statusFilter);
       const res = await fetch(`/api/admin/orders?${params.toString()}`);
-      if (res.status === 401) { router.push("/admin"); return; }
+      if (res.status === 401) {
+        router.push("/admin");
+        return;
+      }
       const data = await res.json();
       const list = (data.orders ?? []) as Order[];
       const header = ["Broj narudžbe", "Datum", "Kupac", "Telefon", "Grad", "IP", "Proizvod", "Ukupno", "Status"];
       const escCsv = (v: string) => `"${String(v ?? "").replace(/"/g, '""')}"`;
       const lines = [
         header.join(","),
-        ...list.map((o) => [
-          escCsv(o.order_number ?? ""),
-          escCsv(fmtDate(o.created_at)),
-          escCsv(o.ime),
-          escCsv(o.telefon),
-          escCsv(o.grad),
-          escCsv(o.ip_address ?? ""),
-          escCsv(productBadge(o.order_number).label),
-          escCsv(fmt(o.ukupno)),
-          escCsv(o.status),
-        ].join(",")),
+        ...list.map((o) =>
+          [
+            escCsv(o.order_number ?? ""),
+            escCsv(fmtDate(o.created_at)),
+            escCsv(o.ime),
+            escCsv(o.telefon),
+            escCsv(o.grad),
+            escCsv(o.ip_address ?? ""),
+            escCsv(productMeta(o.order_number).label),
+            escCsv(fmt(o.ukupno)),
+            escCsv(o.status),
+          ].join(",")
+        ),
       ];
       const blob = new Blob(["\uFEFF" + lines.join("\n")], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
@@ -372,12 +698,13 @@ export default function DashboardClient() {
     }
   };
 
-  // Margins
-
   const fetchStats = useCallback(async () => {
     setLoadingStats(true);
     const res = await fetch("/api/admin/stats");
-    if (res.status === 401) { router.push("/admin"); return; }
+    if (res.status === 401) {
+      router.push("/admin");
+      return;
+    }
     setStats(await res.json());
     setLoadingStats(false);
   }, [router]);
@@ -386,7 +713,10 @@ export default function DashboardClient() {
     setLoadingOrders(true);
     const params = new URLSearchParams({ page: String(page), search, status: statusFilter });
     const res = await fetch(`/api/admin/orders?${params}`);
-    if (res.status === 401) { router.push("/admin"); return; }
+    if (res.status === 401) {
+      router.push("/admin");
+      return;
+    }
     const data = await res.json();
     setOrders(data.orders ?? []);
     setTotal(data.total ?? 0);
@@ -397,22 +727,33 @@ export default function DashboardClient() {
     setLoadingAll(true);
     const params = new URLSearchParams({ all: "true", search, status: statusFilter });
     const res = await fetch(`/api/admin/orders?${params}`);
-    if (res.status === 401) { router.push("/admin"); return; }
+    if (res.status === 401) {
+      router.push("/admin");
+      return;
+    }
     const data = await res.json();
     const fetched: Order[] = data.orders ?? [];
     setAllOrders(fetched);
-    // Auto-expand most recent day only on first load (when expandedDays is empty)
     if (fetched.length > 0) {
-      setExpandedDays((prev) => prev.size === 0 ? new Set([getDayKey(fetched[0].created_at)]) : prev);
+      setExpandedDays((prev) => (prev.size === 0 ? new Set([getDayKey(fetched[0].created_at)]) : prev));
     }
     setLoadingAll(false);
-  }, [search, statusFilter, router]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [search, statusFilter, router]);
 
-  useEffect(() => { fetchStats(); }, [fetchStats]);
-  useEffect(() => { if (viewMode === "sve")     fetchOrders();    }, [fetchOrders, viewMode]);
-  useEffect(() => { if (viewMode === "po_danu") fetchAllOrders(); }, [fetchAllOrders, viewMode]);
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
+  useEffect(() => {
+    if (viewMode === "sve") fetchOrders();
+  }, [fetchOrders, viewMode]);
+  useEffect(() => {
+    if (viewMode === "po_danu") fetchAllOrders();
+  }, [fetchAllOrders, viewMode]);
 
-  const handleSearch = () => { setPage(1); setSearch(searchInput); };
+  const handleSearch = () => {
+    setPage(1);
+    setSearch(searchInput);
+  };
 
   const handleLogout = async () => {
     await fetch("/api/admin/logout", { method: "POST" });
@@ -420,7 +761,8 @@ export default function DashboardClient() {
   };
 
   const handleStatusChange = async (id: string, status: string) => {
-    setOrders((prev) => prev.map((o) => o.id === id ? { ...o, status } : o));
+    setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)));
+    setAllOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)));
     await fetch(`/api/admin/orders/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -430,19 +772,25 @@ export default function DashboardClient() {
 
   const handleDelete = async (id: string, ime: string) => {
     if (!window.confirm(`Obrisati narudžbu od "${ime}"?\n\nOva akcija se ne može poništiti.`)) return;
-    // Optimistic remove from both lists
     setOrders((prev) => prev.filter((o) => o.id !== id));
     setAllOrders((prev) => prev.filter((o) => o.id !== id));
     setTotal((prev) => Math.max(0, prev - 1));
     await fetch(`/api/admin/orders/${id}`, { method: "DELETE" });
   };
 
-  const handleStatusFilter = (s: string) => { setStatusFilter(s); setPage(1); };
+  const handleStatusFilter = (s: string) => {
+    setStatusFilter(s);
+    setPage(1);
+  };
 
+  const refresh = () => {
+    fetchStats();
+    if (viewMode === "sve") fetchOrders();
+    else fetchAllOrders();
+  };
 
   const totalPages = Math.ceil(total / pageSize);
 
-  // Group allOrders by Sarajevo date for "Po danu" view
   const groupedByDay = useMemo(() => {
     const map = new Map<string, Order[]>();
     for (const o of allOrders) {
@@ -456,678 +804,368 @@ export default function DashboardClient() {
   const toggleDay = (key: string) =>
     setExpandedDays((prev) => {
       const next = new Set(prev);
-      if (next.has(key)) { next.delete(key); } else { next.add(key); }
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
       return next;
     });
 
   const TAB_LABELS: Record<Tab, string> = {
     overview: "Pregled",
-    orders:   "Narudžbe",
-    margins:  "Kalkulator Marže",
+    orders: "Narudžbe",
+    margins: "Kalkulator",
   };
 
+  const NAV = [
+    { tab: "overview" as Tab, label: "Pregled", Icon: LayoutGrid },
+    { tab: "orders" as Tab, label: "Narudžbe", Icon: ClipboardList },
+    { tab: "margins" as Tab, label: "Kalkulator", Icon: Calculator },
+  ];
+
+  const emptyText = search ? "Nema rezultata." : "Nema narudžbi.";
+
+  const productRows = [
+    { label: "Radne patike", value: stats?.shoeCount ?? 0, Icon: Footprints, bg: "rgba(255,159,10,0.16)", fg: "#ffd60a" },
+    { label: "WiFi kamera", value: stats?.cameraCount ?? 0, Icon: Camera, bg: "rgba(191,90,242,0.16)", fg: "#d4a4ff" },
+    { label: "Čelična četka", value: stats?.cetkaCount ?? 0, Icon: Paintbrush, bg: "rgba(48,209,88,0.16)", fg: "#63e6a0" },
+    { label: "Usmjerivač zraka", value: stats?.usmjerivacCount ?? 0, Icon: Wind, bg: "rgba(10,132,255,0.16)", fg: "#64d2ff" },
+    { label: "Ležaljka", value: stats?.lezaljkaCount ?? 0, Icon: Armchair, bg: "rgba(255,55,95,0.16)", fg: "#ff7aa2" },
+  ];
+
   return (
-    <>
-      <style>{`
-        @keyframes realTimePulse {
-          0%, 100% { transform: scale(1); opacity: 0.6; }
-          50% { transform: scale(2); opacity: 0; }
-        }
-        @keyframes dashIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to   { transform: rotate(360deg); }
-        }
-        .dash-sidebar {
-          width: 240px; min-height: 100vh;
-          background: #0a0a0a; border-right: 1px solid #1a1a1a;
-          display: flex; flex-direction: column;
-          padding: 24px 14px;
-          position: fixed; top: 0; left: 0; bottom: 0; z-index: 100;
-          transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .dash-main    { margin-left: 240px; }
-        .dash-hamburger { display: none !important; }
-        .dash-overlay { display: none; }
-        .stat-grid    { grid-template-columns: repeat(3, 1fr) !important; }
-        .margin-grid  { grid-template-columns: repeat(2, 1fr) !important; }
-        @media (max-width: 900px) {
-          .stat-grid { grid-template-columns: repeat(2, 1fr) !important; }
-        }
-        @media (max-width: 768px) {
-          .dash-sidebar    { transform: translateX(-100%); }
-          .dash-sidebar.open { transform: translateX(0); }
-          .dash-main       { margin-left: 0 !important; }
-          .dash-hamburger  { display: flex !important; }
-          .dash-overlay    { display: block; }
-          .margin-grid     { grid-template-columns: 1fr !important; }
-          .export-spacer   { display: none !important; }
-          .export-ctl      { width: 100%; }
-          .export-ctl > select,
-          .export-ctl > input { flex: 1 1 140px; min-width: 0 !important; }
-          .export-ctl > button { flex: 1 1 140px; }
-        }
-        @media (max-width: 520px) {
-          .stat-grid { grid-template-columns: 1fr !important; }
-          .export-ctl > select,
-          .export-ctl > input { flex-basis: 100%; }
-        }
-        select option { background: #1a1a1a; color: #f5f5f7; }
-        .nav-btn:hover { color: #d4d4d8 !important; }
-        .refresh-btn:hover { color: #f5f5f7 !important; border-color: #3a3a3a !important; }
-        .csv-btn:hover { background: #253025 !important; }
-        .posta-btn:hover { background: #1a2535 !important; }
-      `}</style>
-
-      <div style={{ display: "flex", minHeight: "100vh", background: "#0f0f0f", fontFamily: "var(--font-inter), Inter, sans-serif" }}>
-
-        {/* Overlay (mobile) */}
-        {sidebarOpen && (
-          <div
-            className="dash-overlay"
-            onClick={() => setSidebarOpen(false)}
-            style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.65)", zIndex: 99 }}
-          />
-        )}
-
-        {/* ─── Sidebar ──────────────────────────────────────────────────────── */}
-        <div className={`dash-sidebar${sidebarOpen ? " open" : ""}`}>
-          {/* Logo */}
-          <div style={{ padding: "4px 8px 22px", borderBottom: "1px solid #1a1a1a", marginBottom: 14 }}>
-            <div style={{ fontSize: 21, fontWeight: 900, color: "#f5f5f7", letterSpacing: "-0.04em", lineHeight: 1 }}>
-              cartly<span style={{ color: "#f97316" }}>.</span>ba
-            </div>
-            <div style={{ fontSize: 10, fontWeight: 700, color: "#333", letterSpacing: "0.12em", textTransform: "uppercase", marginTop: 5 }}>
-              Admin Panel
-            </div>
+    <div className="ad">
+      <aside className="ad-sidebar">
+        <div className="ad-logo">
+          <div className="ad-logo-name">
+            cartly<span>.</span>ba
           </div>
-
-          {/* Nav */}
-          <nav style={{ display: "flex", flexDirection: "column", gap: 3, flex: 1 }}>
-            {([
-              { tab: "overview" as Tab, label: "Pregled",    Icon: IconGrid },
-              { tab: "orders"   as Tab, label: "Narudžbe",   Icon: IconOrders },
-              { tab: "margins"  as Tab, label: "Kalkulator", Icon: IconMargins },
-            ] as const).map(({ tab, label, Icon }) => {
-              const active = activeTab === tab;
-              return (
-                <button
-                  key={tab}
-                  onClick={() => { setActiveTab(tab); setSidebarOpen(false); }}
-                  className="nav-btn"
-                  style={{
-                    display: "flex", alignItems: "center", gap: 11,
-                    width: "100%", padding: "10px 13px", borderRadius: 9,
-                    background: active ? "rgba(249,115,22,0.1)" : "transparent",
-                    border: active ? "1px solid rgba(249,115,22,0.2)" : "1px solid transparent",
-                    color: active ? "#f97316" : "#555",
-                    fontSize: 14, fontWeight: active ? 600 : 400,
-                    cursor: "pointer", textAlign: "left",
-                    fontFamily: "inherit", transition: "all 0.14s",
-                  }}
-                >
-                  <Icon />
-                  <span style={{ flex: 1 }}>{label}</span>
-                  {tab === "orders" && total > 0 && (
-                    <span style={{
-                      background: active ? "rgba(249,115,22,0.25)" : "#1f1f1f",
-                      color: active ? "#f97316" : "#555",
-                      fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 99,
-                    }}>
-                      {total}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </nav>
-
-          {/* Logout */}
-          <div style={{ paddingTop: 16, borderTop: "1px solid #1a1a1a" }}>
-            <button
-              onClick={handleLogout}
-              style={{
-                display: "flex", alignItems: "center", gap: 11,
-                width: "100%", padding: "10px 13px", borderRadius: 9,
-                background: "transparent", border: "1px solid transparent",
-                color: "#444", fontSize: 14, cursor: "pointer",
-                fontFamily: "inherit", transition: "all 0.14s",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = "#ef4444";
-                e.currentTarget.style.borderColor = "rgba(239,68,68,0.15)";
-                e.currentTarget.style.background = "rgba(239,68,68,0.05)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = "#444";
-                e.currentTarget.style.borderColor = "transparent";
-                e.currentTarget.style.background = "transparent";
-              }}
-            >
-              <IconLogout />
-              Odjava
-            </button>
-          </div>
+          <div className="ad-logo-sub">Admin</div>
         </div>
-
-        {/* ─── Main ─────────────────────────────────────────────────────────── */}
-        <div className="dash-main" style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-
-          {/* Top header */}
-          <header style={{
-            height: 56, background: "#0a0a0a", borderBottom: "1px solid #1a1a1a",
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-            padding: "0 28px", position: "sticky", top: 0, zIndex: 50,
-          }}>
-            {/* Hamburger */}
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="dash-hamburger"
-              style={{ background: "none", border: "none", color: "#666", cursor: "pointer", padding: 0, alignItems: "center" }}
-            >
-              <IconMenu />
+        <nav className="ad-nav">
+          {NAV.map(({ tab, label, Icon }) => (
+            <button key={tab} className={`ad-nav-btn${activeTab === tab ? " is-on" : ""}`} onClick={() => setActiveTab(tab)}>
+              <span className="ad-nav-ico">
+                <Icon size={16} strokeWidth={2} />
+              </span>
+              <span style={{ flex: 1 }}>{label}</span>
+              {tab === "orders" && total > 0 && <span className="ad-nav-count">{total}</span>}
             </button>
+          ))}
+        </nav>
+        <div className="ad-logout">
+          <button onClick={handleLogout}>
+            <LogOut size={16} strokeWidth={2} />
+            Odjava
+          </button>
+        </div>
+      </aside>
 
-            {/* Page title */}
-            <h1 style={{ fontSize: 15, fontWeight: 700, color: "#f5f5f7", margin: 0, letterSpacing: "-0.02em" }}>
-              {TAB_LABELS[activeTab]}
-            </h1>
+      <div className="ad-main">
+        <header className="ad-top">
+          <h1>{TAB_LABELS[activeTab]}</h1>
+          <div className="ad-top-right">
+            <div className="ad-live">
+              <div className={`ad-dot${(stats?.recentCount ?? 0) > 0 ? " is-on" : ""}`} />
+              {loadingStats ? "..." : (stats?.recentCount ?? 0) > 0 ? `${stats!.recentCount} nove` : "Mirno"}
+            </div>
+            <button className="ad-icon-btn" onClick={refresh} aria-label="Osvježi">
+              <RefreshCw size={16} strokeWidth={2} />
+              <span>Osvježi</span>
+            </button>
+            <button className="ad-top-logout" onClick={handleLogout} aria-label="Odjava">
+              <LogOut size={16} strokeWidth={2} />
+            </button>
+          </div>
+        </header>
 
-            {/* Right controls */}
-            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-              {/* Live pulse */}
-              <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                <div style={{ position: "relative", width: 8, height: 8 }}>
-                  <div style={{ width: 8, height: 8, borderRadius: "50%", background: (stats?.recentCount ?? 0) > 0 ? "#22c55e" : "#2a2a2a" }} />
-                  {(stats?.recentCount ?? 0) > 0 && (
-                    <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "rgba(34,197,94,0.5)", animation: "realTimePulse 1.5s ease-in-out infinite" }} />
-                  )}
+        <main className="ad-content">
+          {activeTab === "overview" && (
+            <div className="ov">
+              <div className="ov-hero">
+                <div>
+                  <p className="ov-hero-kicker">Prihod danas</p>
+                  <p className="ov-hero-value">{loadingStats ? "—" : fmt(stats?.todayRevenue ?? 0)}</p>
+                  <p className="ov-hero-sub">{loadingStats ? "" : `${stats?.todayCount ?? 0} narudžb${(stats?.todayCount ?? 0) === 1 ? "a" : "i"}`}</p>
                 </div>
-                <span style={{ fontSize: 12, color: "#444", fontWeight: 500 }}>
-                  {loadingStats ? "..." : (stats?.recentCount ?? 0) > 0 ? `${stats!.recentCount} nova` : "Mirno"}
-                </span>
+                <div className="ov-hero-live">
+                  <div className={`ad-dot${(stats?.recentCount ?? 0) > 0 ? " is-on" : ""}`} />
+                  {loadingStats
+                    ? "..."
+                    : (stats?.recentCount ?? 0) > 0
+                      ? `${stats!.recentCount} u zadnjih 30 min`
+                      : "Mirno"}
+                </div>
               </div>
 
-              {/* Refresh */}
-              <button
-                onClick={() => { fetchStats(); fetchOrders(); }}
-                className="refresh-btn"
-                style={{
-                  background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: 8,
-                  padding: "7px 14px", fontSize: 12, color: "#666", cursor: "pointer",
-                  fontFamily: "inherit", fontWeight: 500,
-                  display: "flex", alignItems: "center", gap: 6, transition: "all 0.14s",
-                }}
-              >
-                <IconRefresh /> Osvježi
-              </button>
-            </div>
-          </header>
-
-          {/* Content */}
-          <main style={{ flex: 1, padding: "28px", animation: "dashIn 0.3s ease forwards" }}>
-
-            {/* ══════════════════ OVERVIEW ══════════════════ */}
-            {activeTab === "overview" && (
-              <>
-                {/* Stat grid — 6 cards */}
-                <div className="stat-grid" style={{ display: "grid", gap: 14, marginBottom: 18 }}>
-                  {[
-                    { label: "Ukupno narudžbi",    value: loadingStats ? "—" : String(stats?.totalCount ?? 0),     sub: "od početka",    accent: false },
-                    { label: "Prihod danas",        value: loadingStats ? "—" : fmt(stats?.todayRevenue ?? 0),     sub: loadingStats ? "" : `${stats?.todayCount ?? 0} narudžb${(stats?.todayCount ?? 0) === 1 ? "a" : "i"} danas`, accent: true },
-                    { label: "Ukupni prihod",       value: loadingStats ? "—" : fmt(stats?.totalRevenue ?? 0),     sub: "svih vremena",  accent: false },
-                    { label: "Prosječna narudžba",  value: loadingStats ? "—" : fmt(stats?.avgOrder ?? 0),         sub: "po narudžbi",   accent: false },
-                    { label: "Patike S3",           value: loadingStats ? "—" : String(stats?.shoeCount ?? 0),     sub: "narudžbi",      accent: false },
-                    { label: "V380 Kamera",         value: loadingStats ? "—" : String(stats?.cameraCount ?? 0),   sub: "narudžbi",      accent: false },
-                    { label: "Čelična Četka",       value: loadingStats ? "—" : String(stats?.cetkaCount ?? 0),        sub: "narudžbi", accent: false },
-                    { label: "Usmjerivač Klime",    value: loadingStats ? "—" : String(stats?.usmjerivacCount ?? 0),   sub: "narudžbi", accent: false },
-                  ].map(({ label, value, sub, accent }) => (
-                    <div key={label} style={{ background: "#1a1a1a", borderRadius: 12, padding: "20px 22px", border: "1px solid #242424" }}>
-                      <p style={{ fontSize: 10, color: "#484848", margin: "0 0 10px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.09em" }}>{label}</p>
-                      <p style={{ fontSize: 30, fontWeight: 900, color: accent ? "#f97316" : "#f5f5f7", margin: 0, letterSpacing: "-0.03em", lineHeight: 1 }}>{value}</p>
-                      {sub && <p style={{ fontSize: 12, color: "#3a3a3a", margin: "7px 0 0", fontWeight: 500 }}>{sub}</p>}
+              <div className="ov-kpis">
+                {[
+                  { label: "Ukupno narudžbi", value: loadingStats ? "—" : String(stats?.totalCount ?? 0), sub: "od početka", Icon: ClipboardList },
+                  { label: "Ukupni prihod", value: loadingStats ? "—" : fmt(stats?.totalRevenue ?? 0), sub: "svih vremena", Icon: Banknote },
+                  { label: "Prosječna narudžba", value: loadingStats ? "—" : fmt(stats?.avgOrder ?? 0), sub: "po narudžbi", Icon: ShoppingBag },
+                ].map(({ label, value, sub, Icon }) => (
+                  <div key={label} className="ad-stat">
+                    <div className="ad-stat-top">
+                      <p className="ad-stat-label">{label}</p>
+                      <span className="ad-stat-ico" style={{ background: "var(--fill-2)", color: "var(--muted)" }}>
+                        <Icon size={15} strokeWidth={2} />
+                      </span>
                     </div>
-                  ))}
-                </div>
-
-                {/* Live indicator strip */}
-                <div style={{ background: "#1a1a1a", borderRadius: 12, padding: "13px 20px", marginBottom: 18, border: "1px solid #242424", display: "flex", alignItems: "center", gap: 12 }}>
-                  <div style={{ position: "relative", width: 10, height: 10, flexShrink: 0 }}>
-                    <div style={{ width: 10, height: 10, borderRadius: "50%", background: (stats?.recentCount ?? 0) > 0 ? "#22c55e" : "#2a2a2a" }} />
-                    {(stats?.recentCount ?? 0) > 0 && (
-                      <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "rgba(34,197,94,0.45)", animation: "realTimePulse 1.5s ease-in-out infinite" }} />
-                    )}
+                    <p className="ad-stat-value">{value}</p>
+                    <p className="ad-stat-sub">{sub}</p>
                   </div>
-                  <span style={{ fontSize: 13, color: "#666", fontWeight: 500 }}>
-                    {loadingStats ? "Učitavanje..." : (stats?.recentCount ?? 0) > 0 ? (
-                      <><span style={{ color: "#22c55e", fontWeight: 700 }}>{stats!.recentCount} narudžb{stats!.recentCount === 1 ? "a" : "i"}</span> u posljednjih 30 minuta</>
-                    ) : "Nema novih narudžbi u posljednjih 30 minuta"}
-                  </span>
-                </div>
+                ))}
+              </div>
 
-                {/* Chart */}
-                <div style={{ background: "#1a1a1a", borderRadius: 12, padding: "22px 24px", border: "1px solid #242424" }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 22 }}>
-                    <h2 style={{ fontSize: 14, fontWeight: 700, color: "#f5f5f7", margin: 0, letterSpacing: "-0.01em" }}>Narudžbe — 14 dana</h2>
-                    <span style={{ fontSize: 11, color: "#3a3a3a", fontWeight: 500 }}>Posljednjih 14 dana</span>
+              <div className="ov-split">
+                <div className="ad-chart">
+                  <div className="ad-chart-head">
+                    <h2>Narudžbe</h2>
+                    <span>14 dana</span>
                   </div>
                   {loadingStats || !stats ? (
-                    <div style={{ height: 240, display: "flex", alignItems: "center", justifyContent: "center", color: "#2a2a2a", fontSize: 13 }}>
+                    <div className="ad-empty" style={{ height: 240, display: "flex", alignItems: "center", justifyContent: "center" }}>
                       Učitavanje...
                     </div>
                   ) : (
-                    <div style={{ height: 240 }}>
+                    <div style={{ width: "100%", height: 240, minWidth: 0 }}>
                       <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={stats.chartData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#1f1f1f" />
-                          <XAxis
-                            dataKey="date"
-                            tickFormatter={fmtShortDate}
-                            tick={{ fontSize: 11, fill: "#3a3a3a" }}
-                            axisLine={false} tickLine={false}
-                          />
-                          <YAxis
-                            allowDecimals={false}
-                            tick={{ fontSize: 11, fill: "#3a3a3a" }}
-                            axisLine={false} tickLine={false}
-                          />
+                          <CartesianGrid strokeDasharray="3 3" stroke="#2c2c2e" />
+                          <XAxis dataKey="date" tickFormatter={fmtShortDate} tick={{ fontSize: 11, fill: "#6e6e73" }} axisLine={false} tickLine={false} />
+                          <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "#6e6e73" }} axisLine={false} tickLine={false} />
                           <Tooltip
                             labelFormatter={(v) => fmtShortDate(v as string)}
                             formatter={(v) => [v, "Narudžbi"]}
-                            contentStyle={{ borderRadius: 8, border: "1px solid #2a2a2a", background: "#111", fontSize: 12, color: "#f5f5f7" }}
+                            contentStyle={{ borderRadius: 12, border: "1px solid rgba(255,255,255,0.08)", background: "#1c1c1e", fontSize: 13, color: "#f5f5f7" }}
                           />
                           <Line
                             type="monotone"
                             dataKey="narudžbe"
-                            stroke="#f97316"
+                            stroke="#0a84ff"
                             strokeWidth={2.5}
-                            dot={{ fill: "#f97316", r: 4, strokeWidth: 0 }}
-                            activeDot={{ r: 6, fill: "#f97316", stroke: "rgba(249,115,22,0.3)", strokeWidth: 4 }}
+                            dot={{ fill: "#0a84ff", r: 3.5, strokeWidth: 0 }}
+                            activeDot={{ r: 6, fill: "#0a84ff", stroke: "rgba(10,132,255,0.25)", strokeWidth: 4 }}
                           />
                         </LineChart>
                       </ResponsiveContainer>
                     </div>
                   )}
                 </div>
-              </>
-            )}
 
-            {/* ══════════════════ ORDERS ══════════════════ */}
-            {activeTab === "orders" && (
-              <div style={{ background: "#1a1a1a", borderRadius: 14, border: "1px solid #242424", overflow: "hidden" }}>
+                <div className="ov-products">
+                  <h2>Proizvodi</h2>
+                  {productRows.map(({ label, value, Icon, bg, fg }) => (
+                    <div key={label} className="ov-prod">
+                      <span className="ov-prod-ico" style={{ background: bg, color: fg }}>
+                        <Icon size={15} strokeWidth={2} />
+                      </span>
+                      <b>{label}</b>
+                      <span>{loadingStats ? "—" : value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
 
-                {/* Table toolbar */}
-                <div style={{ padding: "16px 24px", borderBottom: "1px solid #1f1f1f", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                  {/* Search */}
+          {activeTab === "orders" && (
+            <div className="ad-panel">
+              <div className="ad-toolbar">
+                <div className="ad-search">
+                  <Search className="ad-search-ico" size={16} strokeWidth={2} />
                   <input
-                    type="text"
-                    placeholder="Pretraži ime, telefon, grad, IP..."
+                    type="search"
+                    placeholder="Ime, telefon, grad, IP"
                     value={searchInput}
                     onChange={(e) => setSearchInput(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                    style={{
-                      padding: "8px 14px", fontSize: 13, border: "1px solid #2a2a2a",
-                      borderRadius: 8, background: "#111", outline: "none", width: 220,
-                      fontFamily: "inherit", color: "#f5f5f7", transition: "border-color 0.15s",
-                    }}
-                    onFocus={(e) => { e.currentTarget.style.borderColor = "#f97316"; }}
-                    onBlur={(e)  => { e.currentTarget.style.borderColor = "#2a2a2a"; }}
                   />
-                  <button
-                    onClick={handleSearch}
-                    style={{ padding: "8px 18px", background: "#f97316", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}
-                  >
-                    Traži
-                  </button>
-                  {search && (
+                  <button onClick={handleSearch}>Traži</button>
+                  {search ? (
                     <button
-                      onClick={() => { setSearch(""); setSearchInput(""); setPage(1); }}
-                      style={{ padding: "8px 12px", background: "#222", color: "#666", border: "1px solid #2a2a2a", borderRadius: 8, fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}
-                    >✕</button>
-                  )}
-
-                  {/* Spacer */}
-                  <span className="export-spacer" style={{ flex: 1 }} />
-
-                  {/* ── Courier export: pick product → X Express / Skytec ── */}
-                  <div
-                    className="export-ctl"
-                    style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}
-                  >
-                    <select
-                      value={exportProduct}
-                      onChange={(e) => setExportProduct(e.target.value)}
-                      style={{
-                        padding: "8px 12px", fontSize: 13, border: "1px solid #2a2a2a",
-                        borderRadius: 8, background: "#111", outline: "none",
-                        fontFamily: "inherit", color: "#f5f5f7", cursor: "pointer",
-                        minWidth: 170,
+                      className="ad-btn ghost"
+                      onClick={() => {
+                        setSearch("");
+                        setSearchInput("");
+                        setPage(1);
                       }}
-                      onFocus={(e) => { e.currentTarget.style.borderColor = "#f97316"; }}
-                      onBlur={(e)  => { e.currentTarget.style.borderColor = "#2a2a2a"; }}
+                      aria-label="Poništi pretragu"
                     >
-                      <option value="svi">Svi proizvodi</option>
-                      {PRODUCTS.map((p) => (
-                        <option key={p.key} value={p.key}>{p.label}</option>
-                      ))}
-                    </select>
-
-                    <input
-                      type="date"
-                      value={exportDate}
-                      onChange={(e) => setExportDate(e.target.value)}
-                      style={{
-                        padding: "8px 12px", fontSize: 13, border: "1px solid #2a2a2a",
-                        borderRadius: 8, background: "#111", outline: "none",
-                        fontFamily: "inherit", color: "#f5f5f7",
-                        colorScheme: "dark", cursor: "pointer",
-                      }}
-                      onFocus={(e) => { e.currentTarget.style.borderColor = "#f97316"; }}
-                      onBlur={(e)  => { e.currentTarget.style.borderColor = "#2a2a2a"; }}
-                    />
-
-                    {([
-                      { courier: "xexpress" as const, label: "X Express", bg: "#1a1500", color: "#facc15", border: "#854d0e" },
-                      { courier: "skytec"   as const, label: "Skytec Express", bg: "#111d2e", color: "#60a5fa", border: "#1e3a5f" },
-                    ]).map(({ courier, label, bg, color, border }) => {
-                      const loading = exportLoading === courier;
-                      const busy = exportLoading !== null;
-                      return (
-                        <button
-                          key={courier}
-                          onClick={() => runExport(courier)}
-                          disabled={busy}
-                          style={{
-                            padding: "8px 16px", background: bg, color,
-                            border: `1px solid ${border}`, borderRadius: 8, fontSize: 13, fontWeight: 600,
-                            cursor: busy ? "not-allowed" : "pointer", fontFamily: "inherit",
-                            display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
-                            opacity: busy && !loading ? 0.4 : loading ? 0.7 : 1, whiteSpace: "nowrap",
-                          }}
-                        >
-                          {loading ? (
-                            <>
-                              <svg style={{ animation: "spin 1s linear infinite" }} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                                <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-                              </svg>
-                              Generišem...
-                            </>
-                          ) : (
-                            <><IconDownload /> {label}</>
-                          )}
-                        </button>
-                      );
-                    })}
-                    <button
-                      onClick={runCsvExport}
-                      disabled={exportLoading !== null}
-                      style={{
-                        padding: "8px 16px", background: "#111", color: "#d4d4d8",
-                        border: "1px solid #2a2a2a", borderRadius: 8, fontSize: 13, fontWeight: 600,
-                        cursor: exportLoading !== null ? "not-allowed" : "pointer", fontFamily: "inherit",
-                        display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
-                        opacity: exportLoading && exportLoading !== "csv" ? 0.4 : exportLoading === "csv" ? 0.7 : 1,
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {exportLoading === "csv" ? "Pripremam..." : "Preuzmi CSV"}
+                      <X size={16} />
                     </button>
-                  </div>
-
+                  ) : null}
                 </div>
 
-                {/* Filter bar: view toggle + status pills */}
-                <div style={{ padding: "12px 24px", borderBottom: "1px solid #1f1f1f", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                <div className="ad-exports">
+                  <select value={exportProduct} onChange={(e) => setExportProduct(e.target.value)}>
+                    <option value="svi">Svi proizvodi</option>
+                    {PRODUCTS.map((p) => (
+                      <option key={p.key} value={p.key}>
+                        {p.label}
+                      </option>
+                    ))}
+                  </select>
+                  <input type="date" value={exportDate} onChange={(e) => setExportDate(e.target.value)} />
+                  <button
+                    className="ad-export-btn xe"
+                    onClick={() => runExport("xexpress")}
+                    disabled={exportLoading !== null}
+                  >
+                    {exportLoading === "xexpress" ? <Loader2 className="ad-spin" size={14} /> : <Truck size={14} />}
+                    X Express
+                  </button>
+                  <button
+                    className="ad-export-btn sk"
+                    onClick={() => runExport("skytec")}
+                    disabled={exportLoading !== null}
+                  >
+                    {exportLoading === "skytec" ? <Loader2 className="ad-spin" size={14} /> : <Download size={14} />}
+                    Skytec
+                  </button>
+                  <button
+                    className="ad-export-btn csv span-2"
+                    onClick={runCsvExport}
+                    disabled={exportLoading !== null}
+                  >
+                    {exportLoading === "csv" ? <Loader2 className="ad-spin" size={14} /> : <FileSpreadsheet size={14} />}
+                    Preuzmi CSV
+                  </button>
+                </div>
+              </div>
 
-                  {/* View mode toggle */}
-                  <div style={{ display: "flex", background: "#111", border: "1px solid #2a2a2a", borderRadius: 8, padding: 3, gap: 2, flexShrink: 0 }}>
-                    {(["sve", "po_danu"] as const).map((mode) => {
-                      const active = viewMode === mode;
-                      return (
-                        <button
-                          key={mode}
-                          onClick={() => {
-                            setViewMode(mode);
-                            if (mode === "po_danu") setExpandedDays(new Set()); // reset so auto-expand fires
-                          }}
-                          style={{
-                            padding: "4px 13px", borderRadius: 6, fontSize: 12, fontWeight: 600,
-                            cursor: "pointer", border: "none", fontFamily: "inherit",
-                            background: active ? "#f97316" : "transparent",
-                            color: active ? "#fff" : "#555",
-                            transition: "all 0.14s",
-                          }}
-                        >
-                          {mode === "sve" ? "Sve" : "Po danu"}
-                        </button>
-                      );
-                    })}
+              <div className="ad-filters">
+                <div className="ad-seg">
+                  {(["sve", "po_danu"] as const).map((mode) => (
+                    <button
+                      key={mode}
+                      className={viewMode === mode ? "is-on" : ""}
+                      onClick={() => {
+                        setViewMode(mode);
+                        if (mode === "po_danu") setExpandedDays(new Set());
+                      }}
+                    >
+                      {mode === "sve" ? "Lista" : "Po danu"}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  className={`ad-chip${statusFilter === "all" ? " is-on" : ""}`}
+                  onClick={() => handleStatusFilter("all")}
+                >
+                  Svi statusi
+                </button>
+                {STATUS_OPTIONS.map((s) => {
+                  const active = statusFilter === s;
+                  const st = STATUS_META[s];
+                  return (
+                    <button key={s} className={`ad-chip${active ? " is-on" : ""}`} onClick={() => handleStatusFilter(s)}>
+                      <span className="dot" style={{ background: st.color }} />
+                      {st.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {viewMode === "sve" ? (
+                <>
+                  <div className="ad-cards">
+                    {loadingOrders ? (
+                      <div className="ad-empty">Učitavanje...</div>
+                    ) : orders.length === 0 ? (
+                      <div className="ad-empty">{emptyText}</div>
+                    ) : (
+                      orders.map((o) => (
+                        <OrderCard key={o.id} order={o} onStatus={handleStatusChange} onDelete={handleDelete} />
+                      ))
+                    )}
                   </div>
-
-                  <div style={{ width: 1, height: 20, background: "#2a2a2a", flexShrink: 0 }} />
-
-                  {/* Status filter pills */}
-                  {["all", ...STATUS_OPTIONS].map((s) => {
-                    const active = statusFilter === s;
-                    const st = STATUS_STYLES[s];
+                  <OrderTable
+                    orders={orders}
+                    loading={loadingOrders}
+                    empty={emptyText}
+                    onStatus={handleStatusChange}
+                    onDelete={handleDelete}
+                  />
+                  {totalPages > 1 && (
+                    <div className="ad-pager">
+                      <span>
+                        Stranica {page} od {totalPages}
+                      </span>
+                      <div>
+                        <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>
+                          ‹
+                        </button>
+                        {Array.from({ length: Math.min(5, totalPages) }, (_, idx) => {
+                          const p = Math.max(1, Math.min(page - 2, totalPages - 4)) + idx;
+                          return (
+                            <button key={p} className={p === page ? "is-on" : ""} onClick={() => setPage(p)}>
+                              {p}
+                            </button>
+                          );
+                        })}
+                        <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}>
+                          ›
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : loadingAll ? (
+                <div className="ad-empty">Učitavanje...</div>
+              ) : allOrders.length === 0 ? (
+                <div className="ad-empty">{emptyText}</div>
+              ) : (
+                <div className="ad-days">
+                  {groupedByDay.map(([dayKey, dayOrders]) => {
+                    const isOpen = expandedDays.has(dayKey);
+                    const dayTotal = dayOrders.reduce((s, o) => s + o.ukupno, 0);
+                    const countLabel =
+                      dayOrders.length === 1
+                        ? "1 narudžba"
+                        : dayOrders.length < 5
+                          ? `${dayOrders.length} narudžbe`
+                          : `${dayOrders.length} narudžbi`;
                     return (
-                      <button
-                        key={s}
-                        onClick={() => handleStatusFilter(s)}
-                        style={{
-                          padding: "5px 14px", borderRadius: 99, fontSize: 12, fontWeight: 600,
-                          cursor: "pointer", border: "1px solid",
-                          background: active ? (st?.bg ?? "rgba(249,115,22,0.15)") : "transparent",
-                          color:      active ? (st?.color ?? "#f97316") : "#444",
-                          borderColor: active ? ((st?.color ?? "#f97316") + "44") : "#2a2a2a",
-                          fontFamily: "inherit", transition: "all 0.14s",
-                        }}
-                      >
-                        {s === "all" ? "Sve" : s.charAt(0).toUpperCase() + s.slice(1)}
-                      </button>
+                      <div key={dayKey} className="ad-day">
+                        <button className="ad-day-h" onClick={() => toggleDay(dayKey)}>
+                          <ChevronRight
+                            size={16}
+                            strokeWidth={2.2}
+                            style={{ transform: isOpen ? "rotate(90deg)" : "none", transition: "0.18s", color: "#86868b" }}
+                          />
+                          <strong>{getDayPretty(dayKey)}</strong>
+                          <em>{countLabel}</em>
+                          <b>{fmt(dayTotal)}</b>
+                        </button>
+                        {isOpen && (
+                          <div className="ad-day-body">
+                            <div className="ad-cards">
+                              {dayOrders.map((o) => (
+                                <OrderCard key={o.id} order={o} onStatus={handleStatusChange} onDelete={handleDelete} />
+                              ))}
+                            </div>
+                            <OrderTable orders={dayOrders} onStatus={handleStatusChange} onDelete={handleDelete} />
+                          </div>
+                        )}
+                      </div>
                     );
                   })}
                 </div>
+              )}
+            </div>
+          )}
 
-                {/* ── Shared row renderer ── */}
-                {(() => {
-                  const renderRow = (order: Order, i: number) => {
-                    const st = STATUS_STYLES[order.status] ?? { bg: "rgba(80,80,80,0.1)", color: "#555" };
-                    const b        = productBadge(order.order_number);
-                    return (
-                      <tr key={order.id} style={{ borderBottom: "1px solid #1a1a1a", background: i % 2 === 0 ? "transparent" : "#151515" }}>
-                        <td style={{ padding: "11px 14px", color: "#444", whiteSpace: "nowrap", fontSize: 12 }}>{fmtDate(order.created_at)}</td>
-                        <td style={{ padding: "11px 14px", color: "#333", fontSize: 11, fontFamily: "monospace" }}>{order.order_number ?? "—"}</td>
-                        <td style={{ padding: "11px 14px", fontWeight: 600, color: "#d4d4d8" }}>{order.ime}</td>
-                        <td style={{ padding: "11px 14px", color: "#777" }}>{order.telefon}</td>
-                        <td style={{ padding: "11px 14px", color: "#777" }}>{order.grad}</td>
-                        <td
-                          style={{ padding: "11px 14px", color: "#888", fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontSize: 11, whiteSpace: "nowrap", cursor: order.ip_address ? "pointer" : "default" }}
-                          title={order.ip_address ? "Klikni da kopiraš IP" : ""}
-                          onClick={() => {
-                            if (!order.ip_address) return;
-                            navigator.clipboard.writeText(order.ip_address).catch(() => {});
-                          }}
-                        >
-                          {order.ip_address || "—"}
-                        </td>
-                        <td style={{ padding: "11px 14px" }}>
-                          <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 5, background: b.bg, color: b.color, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                            {b.label}
-                          </span>
-                        </td>
-                        <td style={{ padding: "11px 14px", color: "#666", textAlign: "center" }}>{order.ukupno_pari}</td>
-                        <td style={{ padding: "11px 14px", fontWeight: 700, color: "#f97316", whiteSpace: "nowrap" }}>{fmt(order.ukupno)}</td>
-                        <td style={{ padding: "11px 14px" }}>
-                          <select value={order.status} onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                            style={{ padding: "5px 10px", borderRadius: 6, border: "none", background: st.bg, color: st.color, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", outline: "none" }}>
-                            {STATUS_OPTIONS.map((s) => (
-                              <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
-                            ))}
-                          </select>
-                        </td>
-                        <td style={{ padding: "11px 10px" }}>
-                          <button
-                            onClick={() => handleDelete(order.id, order.ime)}
-                            title="Obriši narudžbu"
-                            style={{
-                              background: "transparent", border: "none", cursor: "pointer",
-                              padding: "5px 7px", borderRadius: 6, color: "#3a3a3a",
-                              display: "flex", alignItems: "center", transition: "all 0.14s",
-                            }}
-                            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(239,68,68,0.12)"; e.currentTarget.style.color = "#ef4444"; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#3a3a3a"; }}
-                          >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
-                            </svg>
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  };
-
-                  const tableHead = (
-                    <thead>
-                      <tr style={{ borderBottom: "1px solid #1f1f1f" }}>
-                        {["Datum", "Br.", "Ime", "Telefon", "Grad", "IP", "Proizvod", "Kol.", "Iznos", "Status", ""].map((h) => (
-                          <th key={h} style={{ padding: "10px 14px", textAlign: "left", fontSize: 10, fontWeight: 700, color: "#3a3a3a", textTransform: "uppercase", letterSpacing: "0.08em", whiteSpace: "nowrap" }}>
-                            {h}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                  );
-
-                  // ── SVE (flat + pagination) ──────────────────────────────
-                  if (viewMode === "sve") return (
-                    <>
-                      <div style={{ overflowX: "auto" }}>
-                        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-                          {tableHead}
-                          <tbody>
-                            {loadingOrders ? (
-                              <tr><td colSpan={10} style={{ padding: "52px", textAlign: "center", color: "#2a2a2a", fontSize: 14 }}>Učitavanje...</td></tr>
-                            ) : orders.length === 0 ? (
-                              <tr><td colSpan={10} style={{ padding: "52px", textAlign: "center", color: "#2a2a2a", fontSize: 14 }}>{search ? "Nema rezultata." : "Nema narudžbi."}</td></tr>
-                            ) : orders.map((o, i) => renderRow(o, i))}
-                          </tbody>
-                        </table>
-                      </div>
-                      {totalPages > 1 && (
-                        <div style={{ padding: "16px 24px", borderTop: "1px solid #1f1f1f", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
-                          <span style={{ fontSize: 12, color: "#3a3a3a" }}>Stranica {page} od {totalPages}</span>
-                          <div style={{ display: "flex", gap: 5 }}>
-                            <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
-                              style={{ padding: "7px 13px", borderRadius: 7, border: "1px solid #2a2a2a", background: page === 1 ? "#111" : "#222", color: page === 1 ? "#2a2a2a" : "#777", fontSize: 12, cursor: page === 1 ? "not-allowed" : "pointer", fontFamily: "inherit" }}>←</button>
-                            {Array.from({ length: Math.min(5, totalPages) }, (_, idx) => {
-                              const p = Math.max(1, Math.min(page - 2, totalPages - 4)) + idx;
-                              return (
-                                <button key={p} onClick={() => setPage(p)}
-                                  style={{ padding: "7px 12px", borderRadius: 7, border: p === page ? "none" : "1px solid #2a2a2a", background: p === page ? "#f97316" : "#222", color: p === page ? "#fff" : "#777", fontSize: 12, cursor: "pointer", fontWeight: p === page ? 700 : 400, fontFamily: "inherit" }}>
-                                  {p}
-                                </button>
-                              );
-                            })}
-                            <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}
-                              style={{ padding: "7px 13px", borderRadius: 7, border: "1px solid #2a2a2a", background: page === totalPages ? "#111" : "#222", color: page === totalPages ? "#2a2a2a" : "#777", fontSize: 12, cursor: page === totalPages ? "not-allowed" : "pointer", fontFamily: "inherit" }}>→</button>
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  );
-
-                  // ── PO DANU (collapsible day groups) ────────────────────
-                  if (loadingAll) return (
-                    <div style={{ padding: "52px", textAlign: "center", color: "#2a2a2a", fontSize: 14 }}>Učitavanje...</div>
-                  );
-                  if (allOrders.length === 0) return (
-                    <div style={{ padding: "52px", textAlign: "center", color: "#2a2a2a", fontSize: 14 }}>{search ? "Nema rezultata." : "Nema narudžbi."}</div>
-                  );
-
-                  return (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: "12px 16px" }}>
-                      {groupedByDay.map(([dayKey, dayOrders]) => {
-                        const isOpen   = expandedDays.has(dayKey);
-                        const dayTotal = dayOrders.reduce((s, o) => s + o.ukupno, 0);
-                        const countLabel = dayOrders.length === 1 ? "1 narudžba" : dayOrders.length < 5 ? `${dayOrders.length} narudžbe` : `${dayOrders.length} narudžbi`;
-                        return (
-                          <div key={dayKey} style={{
-                            borderRadius: 10,
-                            border: isOpen ? "1px solid #2a2a2a" : "1px solid #1f1f1f",
-                            overflow: "hidden",
-                            background: "#111",
-                            transition: "border-color 0.14s",
-                          }}>
-                            {/* Day header */}
-                            <button
-                              onClick={() => toggleDay(dayKey)}
-                              style={{
-                                width: "100%", display: "flex", alignItems: "center",
-                                padding: "12px 18px", background: "transparent",
-                                border: "none", cursor: "pointer", fontFamily: "inherit",
-                                borderBottom: isOpen ? "1px solid #1f1f1f" : "none",
-                                gap: 0,
-                              }}
-                            >
-                              {/* Chevron */}
-                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                                style={{ flexShrink: 0, marginRight: 12, transform: isOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.18s" }}>
-                                <polyline points="9 18 15 12 9 6"/>
-                              </svg>
-
-                              {/* Date */}
-                              <span style={{ fontSize: 14, fontWeight: 700, color: isOpen ? "#f5f5f7" : "#888", letterSpacing: "0.01em", minWidth: 100 }}>
-                                {getDayLabel(dayKey)}
-                              </span>
-
-                              {/* Count pill */}
-                              <span style={{
-                                marginLeft: 14, fontSize: 11, fontWeight: 600, color: "#555",
-                                background: "#1a1a1a", border: "1px solid #252525",
-                                borderRadius: 99, padding: "2px 10px",
-                              }}>
-                                {countLabel}
-                              </span>
-
-                              {/* Spacer */}
-                              <span style={{ flex: 1 }} />
-
-                              {/* Total */}
-                              <span style={{ fontSize: 15, fontWeight: 800, color: isOpen ? "#f97316" : "#6b3a1f", letterSpacing: "-0.01em" }}>
-                                {fmt(dayTotal)}
-                              </span>
-                            </button>
-
-                            {/* Day orders table */}
-                            {isOpen && (
-                              <div style={{ overflowX: "auto" }}>
-                                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-                                  {tableHead}
-                                  <tbody>
-                                    {dayOrders.map((o, i) => renderRow(o, i))}
-                                  </tbody>
-                                </table>
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  );
-                })()}
-              </div>
-            )}
-
-            {/* ══════════════════ MARGINS ══════════════════ */}
-            {activeTab === "margins" && <MarginCalc />}
-
-          </main>
-        </div>
+          {activeTab === "margins" && <MarginCalc />}
+        </main>
       </div>
-    </>
+
+      <nav className="ad-bottom">
+        {NAV.map(({ tab, label, Icon }) => (
+          <button key={tab} className={activeTab === tab ? "is-on" : ""} onClick={() => setActiveTab(tab)}>
+            <Icon size={22} strokeWidth={activeTab === tab ? 2.2 : 1.8} />
+            {label}
+          </button>
+        ))}
+      </nav>
+    </div>
   );
 }
