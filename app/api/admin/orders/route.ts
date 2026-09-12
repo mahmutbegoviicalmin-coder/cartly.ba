@@ -160,7 +160,15 @@ export async function GET(request: Request) {
 
   // ── Merge + sort by date desc ────────────────────────────────────────────────
   const merged = [
-    ...((resOrders.data ?? []) as { adresa?: string; ip_address?: string; created_at: string }[]).map((o) => ({
+    ...((resOrders.data ?? []) as {
+      id: string;
+      created_at: string;
+      ime?: string;
+      telefon?: string;
+      grad?: string;
+      adresa?: string;
+      ip_address?: string;
+    }[]).map((o) => ({
       ...o,
       ip_address: readIp(o.adresa, o.ip_address),
       adresa: stripIp(o.adresa ?? ""),
@@ -257,10 +265,10 @@ function markDuplicates<T extends { id: string; created_at: string; ime?: string
       if ((samePhone || samePerson) && sameIp) addHit(other, "ip");
     }
 
-    const matches = [...hits.values()]
+    const matches = Array.from(hits.values())
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
       .slice(0, 8)
-      .map((h) => ({ ...h, via: [...h.via] }));
+      .map((h) => ({ ...h, via: Array.from(h.via) }));
 
     const viaLabel: Record<string, string> = {
       telefon: "isti telefon",
