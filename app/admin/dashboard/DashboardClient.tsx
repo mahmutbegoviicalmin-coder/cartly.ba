@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, type ComponentType } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import {
+  type LucideIcon,
   LayoutGrid,
   ClipboardList,
   Calculator,
@@ -50,7 +51,7 @@ const CartesianGrid = dynamic(() => import("recharts").then((m) => m.CartesianGr
 const Tooltip = dynamic(() => import("recharts").then((m) => m.Tooltip), { ssr: false });
 const ResponsiveContainer = dynamic(() => import("recharts").then((m) => m.ResponsiveContainer), { ssr: false });
 
-type IconCmp = ComponentType<{ size?: number; strokeWidth?: number }>;
+type IconCmp = LucideIcon;
 
 type Order = {
   id: string;
