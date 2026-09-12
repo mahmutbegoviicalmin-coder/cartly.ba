@@ -1,14 +1,12 @@
 "use client";
 
 import { useState, FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import { Lock } from "lucide-react";
 
 export default function AdminLogin() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -25,7 +23,7 @@ export default function AdminLogin() {
     setLoading(false);
 
     if (data.success) {
-      router.push("/admin/dashboard");
+      window.location.assign("/admin/dashboard");
     } else {
       setError(data.error ?? "Greška pri prijavi.");
     }

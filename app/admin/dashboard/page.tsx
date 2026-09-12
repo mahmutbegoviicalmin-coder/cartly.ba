@@ -1,6 +1,9 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import DashboardClient from "./DashboardClient";
+import AdminErrorBoundary from "../AdminErrorBoundary";
+
+export const dynamic = "force-dynamic";
 
 export default function DashboardPage() {
   const cookieStore = cookies();
@@ -10,5 +13,9 @@ export default function DashboardPage() {
     redirect("/admin");
   }
 
-  return <DashboardClient />;
+  return (
+    <AdminErrorBoundary>
+      <DashboardClient />
+    </AdminErrorBoundary>
+  );
 }

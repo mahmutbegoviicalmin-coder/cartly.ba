@@ -41,15 +41,8 @@ import {
   X,
 } from "lucide-react";
 import { PRODUCTS } from "@/lib/export-products";
-import "./dashboard.css";
 
-const LineChart = dynamic(() => import("recharts").then((m) => m.LineChart), { ssr: false });
-const Line = dynamic(() => import("recharts").then((m) => m.Line), { ssr: false });
-const XAxis = dynamic(() => import("recharts").then((m) => m.XAxis), { ssr: false });
-const YAxis = dynamic(() => import("recharts").then((m) => m.YAxis), { ssr: false });
-const CartesianGrid = dynamic(() => import("recharts").then((m) => m.CartesianGrid), { ssr: false });
-const Tooltip = dynamic(() => import("recharts").then((m) => m.Tooltip), { ssr: false });
-const ResponsiveContainer = dynamic(() => import("recharts").then((m) => m.ResponsiveContainer), { ssr: false });
+const OverviewChart = dynamic(() => import("./OverviewChart"), { ssr: false });
 
 type IconCmp = LucideIcon;
 
@@ -136,7 +129,9 @@ const AVATAR_TONES = [
 ];
 
 function fmt(n: number) {
-  return n.toFixed(2).replace(".", ",") + " KM";
+  const x = Number(n);
+  if (!Number.isFinite(x)) return "—";
+  return x.toFixed(2).replace(".", ",") + " KM";
 }
 
 function fmtDate(iso: string) {
@@ -146,11 +141,6 @@ function fmtDate(iso: string) {
     "  " +
     d.toLocaleTimeString("bs-BA", { hour: "2-digit", minute: "2-digit" })
   );
-}
-
-function fmtShortDate(iso: string) {
-  const d = new Date(iso + "T00:00:00");
-  return d.toLocaleDateString("bs-BA", { day: "2-digit", month: "2-digit" });
 }
 
 function productMeta(orderNumber?: string) {
@@ -244,7 +234,7 @@ function DupBadge({ d }: { d: Order["duplicates"] }) {
 
   const matches = d.matches?.length
     ? d.matches
-    : d.reasons.map((reason, i) => ({
+    : (d.reasons ?? []).map((reason, i) => ({
         id: String(i),
         ime: reason,
         telefon: "",
@@ -927,28 +917,7 @@ export default function DashboardClient() {
                       Učitavanje...
                     </div>
                   ) : (
-                    <div style={{ width: "100%", height: 240, minWidth: 0 }}>
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={stats.chartData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#2c2c2e" />
-                          <XAxis dataKey="date" tickFormatter={fmtShortDate} tick={{ fontSize: 11, fill: "#6e6e73" }} axisLine={false} tickLine={false} />
-                          <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "#6e6e73" }} axisLine={false} tickLine={false} />
-                          <Tooltip
-                            labelFormatter={(v) => fmtShortDate(v as string)}
-                            formatter={(v) => [v, "Narudžbi"]}
-                            contentStyle={{ borderRadius: 12, border: "1px solid rgba(255,255,255,0.08)", background: "#1c1c1e", fontSize: 13, color: "#f5f5f7" }}
-                          />
-                          <Line
-                            type="monotone"
-                            dataKey="narudžbe"
-                            stroke="#0a84ff"
-                            strokeWidth={2.5}
-                            dot={{ fill: "#0a84ff", r: 3.5, strokeWidth: 0 }}
-                            activeDot={{ r: 6, fill: "#0a84ff", stroke: "rgba(10,132,255,0.25)", strokeWidth: 4 }}
-                          />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </div>
+                    <OverviewChart data={stats.chartData} />
                   )}
                 </div>
 

@@ -1,5 +1,12 @@
 /* Cartly admin — Apple-inspired */
 
+.ad-shell {
+  min-height: 100dvh;
+  background: #070708;
+  color: #f5f5f7;
+  color-scheme: dark;
+}
+
 .ad {
   --bg: #070708;
   --card: #141416;
