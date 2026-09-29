@@ -33,6 +33,11 @@ const IMAGES = [
 ];
 
 const SIZES = [41, 42, 43, 44, 45, 46, 47];
+/* Stock: sizes not in stock can't be selected; LOW_STOCK caps qty and shows a red note */
+const OUT_OF_STOCK = new Set<number>([47]);
+const LOW_STOCK: Record<number, number> = { 41: 5 };
+const maxQty = (s: number) => LOW_STOCK[s] ?? 5;
+const LOW_STOCK_RED = "#DC2626";
 
 const TRUST = [
   {
@@ -82,7 +87,7 @@ const REVIEWS = [
 
 const FAQS = [
   { q: "Da li su vodootporne?",             a: "Da, prednji dio ima vodonepropusnu foliju. Stopala ostaju suha na kiši i vlažnim podovima." },
-  { q: "Koje brojeve imate?",               a: "Dostupni su brojevi od 41 do 47 EU. Naručite vaš uobičajeni broj. Ako ste između, uzmite veći." },
+  { q: "Koje brojeve imate?",               a: "Dostupni su brojevi od 41 do 46 EU. Naručite vaš uobičajeni broj. Ako ste između, uzmite veći." },
   { q: "Koliko traje dostava?",             a: "Dostava putem Euro Express kurirske službe traje 1-3 radna dana na cijelu BiH. Dostava je besplatna." },
   { q: "Koja je garancija?",                a: "Aeox Plus S3 patike dolaze s garancijom od 1 godine na materijal i izradu." },
   { q: "Plaćanje unaprijed ili pouzećem?",  a: "Isključivo plaćanje pouzećem. Platite vozaču pri preuzimanju paketa, bez predujma." },
@@ -378,7 +383,7 @@ function Hero({ onOrder }: { onOrder: () => void }) {
                     icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg> },
                   { title: "Ortopedski uložak", sub: "Anatomski footbed",
                     icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> },
-                  { title: "Veličine 41-47", sub: "Dostupne sve veličine",
+                  { title: "Veličine 41-46", sub: "Broj 47 trenutno nema",
                     icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l2.5 2.5L16 9"/></svg> },
                 ] as { title: string; sub: string; icon: React.ReactNode }[]).map((f, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, background: "#FAFAFA", border: "1px solid #F0F0F0", borderRadius: 12, padding: "12px 14px" }}>
@@ -760,11 +765,27 @@ function OrderModal({ open, onClose, initialSize }: { open: boolean; onClose: ()
                 Odaberite veličinu {errors.size && <span style={{ color: "#ef4444", textTransform: "none", fontWeight: 600 }}>- {errors.size}</span>}
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                {SIZES.map(s => (
-                  <button key={s} onClick={() => { setSize(s); setErrors(er => ({ ...er, size: "" })); }}
-                    style={{ width: 48, height: 48, border: `2px solid ${size===s ? ACCENT : "#E5E7EB"}`, background: size===s ? "rgba(179,48,0,0.06)" : "#fff", borderRadius: 10, fontSize: 14, fontWeight: 700, color: size===s ? ACCENT : "#0A0A0A", cursor: "pointer", transition: "all 0.15s", fontFamily: F }}>
-                    {s}
-                  </button>
+                {SIZES.map(s => {
+                  const out = OUT_OF_STOCK.has(s);
+                  const low = LOW_STOCK[s] !== undefined;
+                  return (
+                    <button key={s} type="button" disabled={out}
+                      aria-label={out ? `Broj ${s} - nema na stanju` : low ? `Broj ${s} - još ${LOW_STOCK[s]} komada na stanju` : `Broj ${s}`}
+                      title={out ? "Nema na stanju" : undefined}
+                      onClick={() => { if (out) return; setSize(s); setQty(q => Math.min(q, maxQty(s))); setErrors(er => ({ ...er, size: "" })); }}
+                      style={{ position: "relative", width: 48, height: 48, border: `2px solid ${size===s ? ACCENT : low ? "rgba(220,38,38,0.45)" : "#E5E7EB"}`, background: out ? "#F5F5F5" : size===s ? "rgba(179,48,0,0.06)" : "#fff", borderRadius: 10, fontSize: 14, fontWeight: 700, color: out ? "#BDBDBD" : size===s ? ACCENT : "#0A0A0A", textDecoration: out ? "line-through" : "none", cursor: out ? "not-allowed" : "pointer", transition: "all 0.15s", fontFamily: F }}>
+                      {s}
+                      {low && <span aria-hidden style={{ position: "absolute", top: -4, right: -4, width: 10, height: 10, borderRadius: "50%", background: LOW_STOCK_RED, border: "2px solid #fff" }} />}
+                    </button>
+                  );
+                })}
+              </div>
+              <div style={{ marginTop: 10, display: "flex", flexWrap: "wrap", columnGap: 14, rowGap: 4, fontSize: 12, fontFamily: F, lineHeight: 1.4 }}>
+                {Object.entries(LOW_STOCK).map(([sz, n]) => (
+                  <span key={sz} style={{ color: LOW_STOCK_RED, fontWeight: 700 }}>Broj {sz}: još {n} komada na stanju</span>
+                ))}
+                {Array.from(OUT_OF_STOCK).map(sz => (
+                  <span key={sz} style={{ color: "#9CA3AF", fontWeight: 600 }}>Broj {sz}: nema na stanju</span>
                 ))}
               </div>
             </div>
@@ -775,7 +796,7 @@ function OrderModal({ open, onClose, initialSize }: { open: boolean; onClose: ()
               <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                 <button onClick={() => setQty(q => Math.max(1, q-1))} style={{ width: 40, height: 40, border: "1.5px solid #E5E7EB", background: "#fff", borderRadius: 10, fontSize: 18, fontWeight: 700, color: "#0A0A0A", cursor: "pointer", fontFamily: F }}>−</button>
                 <span style={{ fontSize: 16, fontWeight: 800, color: "#0A0A0A", fontFamily: F, minWidth: 20, textAlign: "center" }}>{qty}</span>
-                <button onClick={() => setQty(q => Math.min(5, q+1))} style={{ width: 40, height: 40, border: "none", background: ACCENT, borderRadius: 10, fontSize: 18, fontWeight: 700, color: "#fff", cursor: "pointer" }}>+</button>
+                <button onClick={() => setQty(q => Math.min(size !== undefined ? maxQty(size) : 5, q+1))} style={{ width: 40, height: 40, border: "none", background: ACCENT, borderRadius: 10, fontSize: 18, fontWeight: 700, color: "#fff", cursor: "pointer" }}>+</button>
               </div>
             </div>
 
@@ -866,7 +887,8 @@ function QuickOrderSection({ onDone }: { onDone?: (orderNumber: string, total: n
 
   const changeQty = (s: number, d: number) => {
     setQtys(prev => {
-      const next = Math.max(0, (prev[s] ?? 0) + d);
+      if (OUT_OF_STOCK.has(s)) return prev;
+      const next = Math.min(maxQty(s), Math.max(0, (prev[s] ?? 0) + d));
       const up = { ...prev, [s]: next };
       if (next === 0) delete up[s];
       return up;
@@ -929,6 +951,10 @@ function QuickOrderSection({ onDone }: { onDone?: (orderNumber: string, total: n
         .rq-sz-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid #F2F2F2; }
         .rq-sz-row:last-child { border-bottom:none; padding-bottom:0; }
         .rq-sz-row:first-child { padding-top:0; }
+        .rq-sz-row { gap:12px; }
+        .rq-sz-info { display:flex; align-items:center; flex-wrap:wrap; column-gap:10px; row-gap:2px; min-width:0; }
+        .rq-sz-note { font-size:12px; font-weight:700; font-family:${F}; line-height:1.3; }
+        @media(max-width:380px) { .rq-sz-note { font-size:11px; } .rq-sz-info { column-gap:8px; } }
         .rq-q-btn { width:32px; height:32px; border-radius:8px; border:1.5px solid #E0E0E0; background:#fff; font-size:18px; font-weight:700; color:#444; display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0; flex-shrink:0; transition:all 120ms; font-family:${F}; line-height:1; }
         .rq-q-btn:hover { border-color:${ACCENT}; background:${ACCENT}; color:#fff; }
         .rq-q-btn:disabled { opacity:.3; cursor:not-allowed; }
@@ -963,16 +989,20 @@ function QuickOrderSection({ onDone }: { onDone?: (orderNumber: string, total: n
             <div style={{ padding: "4px 18px 8px" }}>
               {SIZES.map(s => {
                 const qty = qtys[s] ?? 0;
+                const out = OUT_OF_STOCK.has(s);
+                const low = LOW_STOCK[s];
                 return (
-                  <div key={s} className="rq-sz-row">
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <span style={{ fontFamily: F, fontWeight: 700, fontSize: 15, color: qty > 0 ? ACCENT : "#0A0A0A", minWidth: 28 }}>{s}</span>
+                  <div key={s} className="rq-sz-row" style={out ? { opacity: 0.55 } : undefined}>
+                    <div className="rq-sz-info">
+                      <span style={{ fontFamily: F, fontWeight: 700, fontSize: 15, color: out ? "#9CA3AF" : qty > 0 ? ACCENT : "#0A0A0A", minWidth: 28, textDecoration: out ? "line-through" : "none" }}>{s}</span>
+                      {out && <span className="rq-sz-note" style={{ color: "#9CA3AF" }}>Nema na stanju</span>}
+                      {!out && low !== undefined && <span className="rq-sz-note" style={{ color: LOW_STOCK_RED }}>Još {low} komada na stanju</span>}
                       {qty > 0 && <span style={{ fontSize: 11, color: ACCENT, fontFamily: F, fontWeight: 600 }}>{(qty * PRICE).toFixed(2).replace(".",",")} KM</span>}
                     </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      <button type="button" className="rq-q-btn" disabled={qty === 0} onClick={() => changeQty(s,-1)}>−</button>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
+                      <button type="button" className="rq-q-btn" disabled={out || qty === 0} onClick={() => changeQty(s,-1)} aria-label={`Smanji broj ${s}`}>−</button>
                       <span style={{ fontFamily: F, fontWeight: 800, fontSize: 16, color: qty > 0 ? ACCENT : "#CCC", minWidth: 20, textAlign: "center" }}>{qty}</span>
-                      <button type="button" className="rq-q-btn" onClick={() => changeQty(s,+1)}>+</button>
+                      <button type="button" className="rq-q-btn" disabled={out || qty >= maxQty(s)} onClick={() => changeQty(s,+1)} aria-label={`Povećaj broj ${s}`}>+</button>
                     </div>
                   </div>
                 );

@@ -7,7 +7,7 @@ import { stampIp } from "@/lib/order-ip";
 
 const UNIT_PRICE = 59.90;
 const DELIVERY   = 0;
-const ALLOWED_SIZES = new Set([41, 42, 43, 44, 45, 46, 47]);
+const ALLOWED_SIZES = new Set([41, 42, 43, 44, 45, 46]); // 47 out of stock
 const CONTENT_NAME = "Aeox Plus S3 Radne Patike";
 const CONTENT_IDS  = ["radne-patike-aeox"];
 
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
 
     const lines = parseLines(body);
     if (lines.length === 0) {
-      return NextResponse.json({ success: false, error: "Odaberite veličinu (41-47)." }, { status: 400 });
+      return NextResponse.json({ success: false, error: "Odaberite veličinu (41-46)." }, { status: 400 });
     }
 
     const qty = lines.reduce((s, l) => s + l.kolicina, 0);
