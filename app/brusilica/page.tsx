@@ -400,7 +400,7 @@ export default function BrusilicaPage() {
                   -50%
                 </span>
                 <span style={{ fontSize: 13, fontFamily: INTER, fontWeight: 600, color: "rgba(255,255,255,0.5)", alignSelf: "center" }}>
-                  Uštedi 80 KM
+                  Uštedi 75 KM
                 </span>
               </div>
               <p style={{ fontSize: 13, fontFamily: INTER, color: "rgba(255,255,255,0.45)", display: "flex", alignItems: "center", gap: 5, fontWeight: 500 }}>
