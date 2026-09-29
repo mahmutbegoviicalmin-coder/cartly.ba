@@ -5,7 +5,7 @@ import { sendCAPIEvent, getClientIP, getClientUA, getFbc, getFbp } from "@/lib/m
 import { guardCustomerOrder } from "@/lib/order-guard";
 import { stampIp } from "@/lib/order-ip";
 
-const UNIT_PRICE = 69.9;
+const UNIT_PRICE = 74.9;
 const DELIVERY   = 10.0;
 
 function generateOrderNumber(date: Date): string {
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     const guarded = await guardCustomerOrder(request, body);
     if (!guarded.ok) return guarded.response;
     const { ime, telefon, adresa, grad } = guarded.fields;
-    const { napomena } = body;
+    const { napomena, externalId } = body as { napomena?: string; externalId?: string };
 
     const cijena_proizvoda = UNIT_PRICE;
     const ukupno          = cijena_proizvoda + DELIVERY;
@@ -83,6 +83,9 @@ export async function POST(request: NextRequest) {
       value:       ukupno,
       currency:    "BAM",
       contentName: "Akumulatorska Brusilica Set",
+      contentIds:  ["brusilica-m18-set"],
+      numItems:    1,
+      externalId:  typeof externalId === "string" ? externalId : "",
       phone:       telefon,
       ip:          getClientIP(request),
       userAgent:   getClientUA(request),

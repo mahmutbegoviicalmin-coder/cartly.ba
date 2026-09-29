@@ -109,7 +109,7 @@ export default function BrusilicaPage() {
       content_name: "Akumulatorska Brusilica M18 Set",
       content_ids:  ["brusilica-m18-set"],
       content_type: "product",
-      value:        69.9,
+      value:        74.9,
       currency:     "BAM",
     });
   }, []);
@@ -143,7 +143,7 @@ export default function BrusilicaPage() {
   }, []);
 
   function scrollToForm() {
-    if (!checkoutFired.current) { checkoutFired.current = true; event("InitiateCheckout", { value: 69.9, currency: "BAM" }); }
+    if (!checkoutFired.current) { checkoutFired.current = true; event("InitiateCheckout", { value: 74.9, currency: "BAM" }); }
     document.getElementById("narudzba")?.scrollIntoView({ behavior: "smooth" });
   }
 
@@ -162,10 +162,10 @@ export default function BrusilicaPage() {
     if (!/^[0-9+\s\-()]{6,}$/.test(telefon.trim())) { setError("Unesite ispravan broj telefona."); return; }
     setLoading(true); setError(null);
     try {
-      const res  = await fetch("/api/brusilica-order", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ime, adresa: `${adresa}, ${postanski_broj} ${grad}`, grad, telefon }) });
+      const res  = await fetch("/api/brusilica-order", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ime, adresa: `${adresa}, ${postanski_broj} ${grad}`, grad, telefon, externalId: (() => { try { return localStorage.getItem("_crt_eid") || ""; } catch { return ""; } })() }) });
       const json = await res.json();
       if (!res.ok || !json.success) throw new Error(json.error || "Greška pri slanju.");
-      event("Purchase", { content_name: "Akumulatorska Brusilica M18 Set", content_ids: ["brusilica-m18-set"], content_type: "product", value: 69.9, currency: "BAM" }, json.orderNumber);
+      event("Purchase", { content_name: "Akumulatorska Brusilica M18 Set", content_ids: ["brusilica-m18-set"], content_type: "product", value: 84.9, currency: "BAM" }, json.orderNumber);
       setSuccess(true);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Greška pri slanju narudžbe. Pokušajte ponovo.");
@@ -394,10 +394,10 @@ export default function BrusilicaPage() {
               </span>
               <div style={{ display: "flex", alignItems: "baseline", gap: 14, flexWrap: "wrap", marginBottom: 8 }}>
                 <span className="brs-h" style={{ fontSize: "clamp(52px, 7vw, 84px)", fontWeight: 900, color: C.white, letterSpacing: "-0.05em", lineHeight: 1 }}>
-                  69,90 KM
+                  74,90 KM
                 </span>
                 <span style={{ background: "#16A34A", color: "#fff", fontSize: 13, fontWeight: 700, fontFamily: SORA, padding: "5px 12px", borderRadius: 6, alignSelf: "center" }}>
-                  -53%
+                  -50%
                 </span>
                 <span style={{ fontSize: 13, fontFamily: INTER, fontWeight: 600, color: "rgba(255,255,255,0.5)", alignSelf: "center" }}>
                   Uštedi 80 KM
@@ -414,7 +414,7 @@ export default function BrusilicaPage() {
               fontSize: 16, border: "none", borderRadius: 14, padding: "17px 30px",
               cursor: "pointer", marginBottom: 20, width: "fit-content",
             }}>
-              Naruči odmah · 69,90 KM
+              Naruči odmah · 74,90 KM
               <ChevronRight size={18} strokeWidth={2.5} />
             </button>
 
@@ -550,7 +550,7 @@ export default function BrusilicaPage() {
             </div>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", lineHeight: 1 }}>
               <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 3, color: C.black }}>Naruči odmah</span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: C.red, letterSpacing: "-0.01em" }}>69,90 KM</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: C.red, letterSpacing: "-0.01em" }}>74,90 KM</span>
             </div>
             <ChevronRight size={15} strokeWidth={2.5} style={{ color: "#ccc", marginLeft: 4, flexShrink: 0 }} />
           </button>
@@ -764,7 +764,7 @@ export default function BrusilicaPage() {
           ) : (
             <div className="brs-form-grid" style={{ display: "flex", gap: 28, alignItems: "flex-start" }}>
               <form onSubmit={onSubmit} style={{ flex: 1, background: C.white, border: `1px solid ${C.border}`, borderRadius: 20, padding: "32px" }}
-                onFocus={() => { if (!checkoutFired.current) { checkoutFired.current = true; event("InitiateCheckout", { value: 69.9, currency: "BAM" }); } }}
+                onFocus={() => { if (!checkoutFired.current) { checkoutFired.current = true; event("InitiateCheckout", { value: 74.9, currency: "BAM" }); } }}
               >
                 <h3 className="brs-h" style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", color: C.black, marginBottom: 24 }}>
                   Podaci za dostavu
@@ -824,7 +824,7 @@ export default function BrusilicaPage() {
                     Sažetak narudžbe
                   </h4>
                   {[
-                    { label: "Akumulatorska Brusilica M18", value: "69,90 KM" },
+                    { label: "Akumulatorska Brusilica M18", value: "74,90 KM" },
                     { label: "Dostava",                      value: "10,00 KM" },
                     { label: "Plaćanje",                     value: "Pouzećem" },
                   ].map(({ label, value }) => (
@@ -836,7 +836,7 @@ export default function BrusilicaPage() {
                   <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 18, display: "flex", justifyContent: "space-between", alignItems: "baseline", marginTop: 4 }}>
                     <span className="brs-h" style={{ fontSize: 17, fontWeight: 700, color: C.black }}>Ukupno</span>
                     <span className="brs-h" style={{ fontSize: 40, fontWeight: 800, letterSpacing: "-0.04em", color: C.black, lineHeight: 1 }}>
-                      79,90 KM
+                      84,90 KM
                     </span>
                   </div>
                 </div>
