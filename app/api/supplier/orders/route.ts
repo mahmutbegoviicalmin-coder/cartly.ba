@@ -30,6 +30,7 @@ export async function GET(req: NextRequest) {
     ZQS: "Zvučnik", KMR: "Kamera",
     MSS: "Mašina za šišanje",
     APP: "AirPods Pro",
+    MKB: "Makita Aku Brusilica",
   };
 
   const [resOrders, resCetka, resUsm, resKomr] = await Promise.all([

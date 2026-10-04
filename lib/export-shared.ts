@@ -97,7 +97,7 @@ const PREFIX_OPIS: Record<string, string> = {
   MLW: "Milwaukee M18 Bušilica", MS3: "Milwaukee Set 3.1", DWL: "DeWalt Set", DWT: "DeWalt Set",
   S2U: "Set 2 u 1", BRS: "Brusilica", ZQS: "Zvučnik", KMR: "Kamera",
   ZRF: "Žirafa Brusilica za Zidove", APP: "AirPods Pro", MTP: "Motorna pila", HMR: "Hammer S3 Patike",
-  AEX: "Aeox Plus S3 Patike", RCH: "Richeng S3 Patike", PAT: "Richeng S3 Patike", PRS: "Prsluk za spašavanje",
+  AEX: "Aeox Plus S3 Patike", MKB: "Makita Brusilica", RCH: "Richeng S3 Patike", PAT: "Richeng S3 Patike", PRS: "Prsluk za spašavanje",
 };
 
 const COLOR_LABELS: Record<string, string> = {
@@ -146,6 +146,11 @@ function ordersOpis(orderNumber: string, velicine: Velicina[]): string {
     };
     if (active.length === 1 && active[0].kolicina === 1) return `${label} EU${eu(active[0])}`;
     return active.map((v) => `EU${eu(v)}×${v.kolicina}`).join(" ");
+  }
+
+  if (prefix === "MKB") {
+    const gift = (velicine ?? []).some((v) => /poklon/i.test(String(v.velicina)));
+    return gift ? "Makita Brusilica + Poklon" : "Makita Brusilica";
   }
 
   if (PREFIX_OPIS[prefix]) return PREFIX_OPIS[prefix];

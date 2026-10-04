@@ -70,6 +70,11 @@ export interface CAPIOptions {
   fbc?:        string;
   fbp?:        string;
   externalId?: string; // stable per-browser ID from localStorage (_crt_eid)
+  firstName?:  string;
+  lastName?:   string;
+  city?:       string;
+  country?:    string; // ISO-2, e.g. "ba"
+  sourceUrl?:  string;
   contentIds?: string[];
   numItems?:   number;
   testCode?:   string; // META_TEST_EVENT_CODE — only for Test Events tool
@@ -93,6 +98,10 @@ export async function sendCAPIEvent(opts: CAPIOptions): Promise<void> {
   if (opts.fbc)        userData.fbc                 = opts.fbc;
   if (opts.fbp)        userData.fbp                 = opts.fbp;
   if (opts.externalId) userData.external_id         = sha256(opts.externalId);
+  if (opts.firstName)  userData.fn                  = sha256(opts.firstName);
+  if (opts.lastName)   userData.ln                  = sha256(opts.lastName);
+  if (opts.city)       userData.ct                  = sha256(opts.city.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z]/g, ""));
+  if (opts.country)    userData.country             = sha256(opts.country);
 
   const payload: Record<string, unknown> = {
     data: [
@@ -101,6 +110,7 @@ export async function sendCAPIEvent(opts: CAPIOptions): Promise<void> {
         event_time:    Math.floor(Date.now() / 1000),
         event_id:      opts.eventId,        // deduplication key
         action_source: "website",
+        ...(opts.sourceUrl ? { event_source_url: opts.sourceUrl } : {}),
         user_data:     userData,
         custom_data: {
           value:        opts.value,

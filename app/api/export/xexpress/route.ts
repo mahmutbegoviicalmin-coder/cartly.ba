@@ -73,7 +73,11 @@ function opisPosiljke(orderNumber: string, velicine: Velicina[]): string {
     HMR: "Hammer S3 Patike",
     AEX: "Aeox Plus S3 Patike",
     ZRF: "Žirafa Brusilica za Zidove",
+    MKB: "Makita Brusilica",
   };
+  if (prefix === "MKB" && (velicine ?? []).some((v) => /poklon/i.test(String(v.velicina)))) {
+    return "Makita Brusilica + Poklon";
+  }
   if (prefix === "CRT") {
     const active = (velicine ?? []).filter((v) => v.kolicina > 0);
     if (active.length === 1 && active[0].kolicina === 1) return `Patike EU${active[0].velicina}`;

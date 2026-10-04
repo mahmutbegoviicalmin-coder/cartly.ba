@@ -272,6 +272,7 @@ function sadrzaj(orderNumber: string, velicine: Velicina[]): string {
     USM: "Usmjerivač",
     ZRF: "Žirafa Brusilica za Zidove",
     APP: "AirPods Pro",
+    MKB: "Makita Brusilica",
   };
   return MAP[prefix] ?? "Paket";
 }
