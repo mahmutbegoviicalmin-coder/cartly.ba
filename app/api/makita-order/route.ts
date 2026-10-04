@@ -52,9 +52,9 @@ function esc(s: string) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const guarded = await guardCustomerOrder(request, body, { requirePrezime: true });
+    const guarded = await guardCustomerOrder(request, body, { requirePrezime: true, requirePostal: true });
     if (!guarded.ok) return guarded.response;
-    const { ime, imeFirst, prezime, telefon, adresa, grad } = guarded.fields;
+    const { ime, imeFirst, prezime, telefon, adresa, grad, postanski } = guarded.fields;
     const { poklon, externalId, sourceUrl } = body as {
       poklon?: boolean; externalId?: string; sourceUrl?: string;
     };
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
       .insert({
         ime,
         telefon,
-        adresa: stampIp(adresa, guarded.fields.ip),
+        adresa: stampIp(`${adresa}, ${postanski}`, guarded.fields.ip),
         grad,
         velicine:        [{ velicina: label, kolicina: 1 }],
         ukupno_pari:     1,
@@ -137,6 +137,7 @@ export async function POST(request: NextRequest) {
         ["Telefon", esc(telefon)],
         ["Adresa", esc(adresa)],
         ["Grad", esc(grad)],
+        ["Poštanski broj", esc(postanski)],
       ].map(([lbl, val]) => `
       <tr><td style="padding-bottom:8px;">
         <div style="background:#F7F7F7;border-radius:8px;padding:10px 14px;">

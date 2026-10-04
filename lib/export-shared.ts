@@ -116,6 +116,7 @@ export type NormOrder = {
   order_number: string;
   opis: string;   // package description
   units: number;  // physical items → weight (kg) + package count
+  ptt?: string;   // postal code typed by the customer, when the order stored one
 };
 
 type Velicina = { velicina: number | string; kolicina: number };
@@ -182,10 +183,18 @@ async function fetchFromOrders(
 
   return ((data ?? []) as unknown as Row[]).map((o) => {
     const velicine = o.velicine ?? [];
+    let adresa = stripIp(String(o.adresa ?? ""));
+    let ptt: string | undefined;
+    // Makita orders store "Ulica 1, 71000" → split the customer's postal code back out.
+    if (String(o.order_number ?? "").startsWith("MKB-")) {
+      const m = adresa.match(/^(.*),\s*(\d{5})$/);
+      if (m) { adresa = m[1]; ptt = m[2]; }
+    }
     return {
       ime: String(o.ime ?? ""),
       telefon: String(o.telefon ?? ""),
-      adresa: stripIp(String(o.adresa ?? "")),
+      adresa,
+      ptt,
       grad: String(o.grad ?? ""),
       ukupno: Number(o.ukupno ?? 0),
       order_number: String(o.order_number ?? ""),
@@ -282,7 +291,7 @@ export function buildXExpress(rows: NormOrder[]) {
   const dataRows = rows.map((o) => [
     o.ime,
     o.adresa,
-    lookupPTT(o.grad),
+    o.ptt || lookupPTT(o.grad),
     correctCityName(o.grad),
     (o.ime ?? "").split(" ")[0],
     o.telefon,
@@ -322,7 +331,7 @@ export function buildSkytec(rows: NormOrder[]) {
 
   const dataRows = rows.map((o) => [
     o.ime,
-    lookupPTT(o.grad),
+    o.ptt || lookupPTT(o.grad),
     o.adresa,
     correctCityName(o.grad),
     o.telefon,

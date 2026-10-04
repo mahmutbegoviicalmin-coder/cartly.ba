@@ -11,10 +11,16 @@ import {
   PRODUCT, CONTENT_ID, UNIT_PRICE, GIFT_PRICE, DELIVERY, fmt,
 } from "./theme";
 
-type Fields = { ime: string; prezime: string; telefon: string; grad: string; adresa: string };
+type Fields = { ime: string; prezime: string; telefon: string; grad: string; postanski: string; adresa: string };
 type Errs   = Partial<Record<keyof Fields, string>>;
 
-const EMPTY: Fields = { ime: "", prezime: "", telefon: "", grad: "", adresa: "" };
+const EMPTY: Fields = { ime: "", prezime: "", telefon: "", grad: "", postanski: "", adresa: "" };
+
+/** Saturday or Sunday in Sarajevo: couriers don't pick up, so the parcel leaves on Monday. */
+function isWeekendInSarajevo(): boolean {
+  const day = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Sarajevo", weekday: "short" }).format(new Date());
+  return day === "Sat" || day === "Sun";
+}
 
 // Shared by the inline form and the popup so InitiateCheckout fires once per page view.
 let checkoutTracked = false;
@@ -84,6 +90,7 @@ export default function OrderForm({ onClose }: { onClose?: () => void }) {
   const [loading,   setLoading]   = useState(false);
   const [done,      setDone]      = useState<string | null>(null);
   const [serverErr, setServerErr] = useState<string | null>(null);
+  const [weekend,   setWeekend]   = useState(false);
   const { honeypot, protectionPayload } = useOrderProtection();
 
   const total = UNIT_PRICE + (gift ? GIFT_PRICE : 0) + DELIVERY;
@@ -114,6 +121,7 @@ export default function OrderForm({ onClose }: { onClose?: () => void }) {
     if (fields.prezime.trim().length < 2) e.prezime = "Unesite prezime";
     if (!isValidBaPhone(fields.telefon))  e.telefon = PHONE_ERROR;
     if (fields.grad.trim().length < 2)    e.grad    = "Unesite grad";
+    if (!/^\d{5}$/.test(fields.postanski)) e.postanski = "Unesite poštanski broj (5 cifara)";
     if (fields.adresa.trim().length < 3)  e.adresa  = "Unesite ulicu i broj";
     return e;
   }
@@ -145,6 +153,7 @@ export default function OrderForm({ onClose }: { onClose?: () => void }) {
 
       // Same eventID as the server-side CAPI Purchase → Meta deduplicates them.
       if (!data.duplicate) event("Purchase", pixelContents(gift), data.orderNumber);
+      setWeekend(isWeekendInSarajevo());
       setDone(data.orderNumber);
     } catch (err) {
       setServerErr(err instanceof Error ? err.message : "Greška pri slanju narudžbe. Pokušajte ponovo.");
@@ -172,7 +181,10 @@ export default function OrderForm({ onClose }: { onClose?: () => void }) {
           Hvala, {fields.ime.trim()}!
         </h3>
         <p style={{ margin: "0 auto", maxWidth: 340, fontSize: 15, lineHeight: 1.55, color: MUTED }}>
-          Vaša narudžba je primljena{gift ? " zajedno sa poklonom iznenađenja" : ""}. Javit ćemo vam se telefonom radi potvrde, a paket stiže za 1 do 3 radna dana.
+          Vaša narudžba je primljena{gift ? " zajedno sa poklonom iznenađenja" : ""}.{" "}
+          {weekend
+            ? "Brza pošta ne radi vikendom, pa vaš paket šaljemo u ponedjeljak. Dostava traje 1 do 3 radna dana."
+            : "Paket šaljemo u najkraćem roku i stiže za 1 do 3 radna dana."}
         </p>
         <div style={{ marginTop: 20, display: "inline-flex", gap: 8, padding: "10px 16px", borderRadius: 999, background: BG, fontSize: 13, color: MUTED }}>
           Broj narudžbe <strong style={{ color: INK, fontWeight: 600 }}>{done}</strong>
@@ -210,9 +222,12 @@ export default function OrderForm({ onClose }: { onClose?: () => void }) {
       <div className="mk-grid">
         <Field label="Grad" placeholder="Sarajevo" autoComplete="address-level2"
           value={fields.grad} error={errors.grad} onChange={(v) => set("grad", v)} />
-        <Field label="Adresa" placeholder="Ulica i broj" autoComplete="street-address"
-          value={fields.adresa} error={errors.adresa} onChange={(v) => set("adresa", v)} />
+        <Field label="Poštanski broj" placeholder="71000" autoComplete="postal-code" inputMode="numeric"
+          value={fields.postanski} error={errors.postanski}
+          onChange={(v) => set("postanski", v.replace(/\D/g, "").slice(0, 5))} />
       </div>
+      <Field label="Adresa" placeholder="Ulica i broj" autoComplete="street-address"
+        value={fields.adresa} error={errors.adresa} onChange={(v) => set("adresa", v)} />
 
       {/* Gift upsell */}
       <button type="button" onClick={toggleGift} aria-pressed={gift} className="mk-gift" data-on={gift ? "1" : undefined}>

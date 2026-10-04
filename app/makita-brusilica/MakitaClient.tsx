@@ -114,7 +114,7 @@ const DISTRIBUTION = [
 
 const FAQ = [
   { q: "Kako plaćam?", a: "Plaćate gotovinom kuriru u trenutku preuzimanja paketa. Nema plaćanja unaprijed niti kartice." },
-  { q: "Koliko traje dostava i koliko košta?", a: "Dostava je besplatna na cijelu BiH i traje 1 do 3 radna dana. Prije slanja vas zovemo radi potvrde." },
+  { q: "Koliko traje dostava i koliko košta?", a: "Dostava je besplatna na cijelu BiH i traje 1 do 3 radna dana. Narudžbe pristigle vikendom šaljemo u ponedjeljak, jer brza pošta vikendom ne radi." },
   { q: "Šta je potenciometar i zašto mi treba?", a: "To je točkić za regulaciju brzine. Nižim obrtajima polirate i brusite osjetljive materijale, višim brzo režete metal, kamen i beton." },
   { q: "Šta je poklon iznenađenja?", a: "Za samo 5 KM uz narudžbu dobijate koristan dodatak za radionicu, spakovan u isti paket. Opciju birate u formi za narudžbu." },
   { q: "Imam li garanciju i pravo na povrat?", a: "Da. Imate 14 dana za povrat ako niste zadovoljni, kao i garanciju na ispravnost uređaja." },
@@ -375,7 +375,7 @@ export default function MakitaClient() {
         <motion.div {...fadeUp} style={{ textAlign: "center", maxWidth: 620, margin: "0 auto 32px" }}>
           <div className="mk-eyebrow">Naručite danas</div>
           <h2 className="mk-h2">Narudžba za manje od minute.</h2>
-          <p className="mk-lead">Popunite podatke, nazovemo vas radi potvrde i paket stiže za 1 do 3 radna dana.</p>
+          <p className="mk-lead">Popunite podatke i plaćate tek kad paket stigne. Dostava traje 1 do 3 radna dana.</p>
         </motion.div>
 
         <motion.div {...fadeUp} className="mk-order">
