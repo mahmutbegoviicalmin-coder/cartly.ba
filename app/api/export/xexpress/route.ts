@@ -74,9 +74,10 @@ function opisPosiljke(orderNumber: string, velicine: Velicina[]): string {
     AEX: "Aeox Plus S3 Patike",
     ZRF: "Žirafa Brusilica za Zidove",
     MKB: "Makita Brusilica",
+    MKK: "Makita Brusilica 1500W",
   };
-  if (prefix === "MKB" && (velicine ?? []).some((v) => /poklon/i.test(String(v.velicina)))) {
-    return "Makita Brusilica + Poklon";
+  if ((prefix === "MKB" || prefix === "MKK") && (velicine ?? []).some((v) => /poklon/i.test(String(v.velicina)))) {
+    return `${MAP[prefix]} + Poklon`;
   }
   if (prefix === "CRT") {
     const active = (velicine ?? []).filter((v) => v.kolicina > 0);

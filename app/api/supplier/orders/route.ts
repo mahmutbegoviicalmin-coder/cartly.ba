@@ -31,6 +31,7 @@ export async function GET(req: NextRequest) {
     MSS: "Mašina za šišanje",
     APP: "AirPods Pro",
     MKB: "Makita Aku Brusilica",
+    MKK: "Makita Brusilica 1500W",
   };
 
   const [resOrders, resCetka, resUsm, resKomr] = await Promise.all([

@@ -97,7 +97,7 @@ const PREFIX_OPIS: Record<string, string> = {
   MLW: "Milwaukee M18 Bušilica", MS3: "Milwaukee Set 3.1", DWL: "DeWalt Set", DWT: "DeWalt Set",
   S2U: "Set 2 u 1", BRS: "Brusilica", ZQS: "Zvučnik", KMR: "Kamera",
   ZRF: "Žirafa Brusilica za Zidove", APP: "AirPods Pro", MTP: "Motorna pila", HMR: "Hammer S3 Patike",
-  AEX: "Aeox Plus S3 Patike", MKB: "Makita Brusilica", RCH: "Richeng S3 Patike", PAT: "Richeng S3 Patike", PRS: "Prsluk za spašavanje",
+  AEX: "Aeox Plus S3 Patike", MKB: "Makita Brusilica", MKK: "Makita Brusilica 1500W", RCH: "Richeng S3 Patike", PAT: "Richeng S3 Patike", PRS: "Prsluk za spašavanje",
 };
 
 const COLOR_LABELS: Record<string, string> = {
@@ -149,9 +149,9 @@ function ordersOpis(orderNumber: string, velicine: Velicina[]): string {
     return active.map((v) => `EU${eu(v)}×${v.kolicina}`).join(" ");
   }
 
-  if (prefix === "MKB") {
+  if (prefix === "MKB" || prefix === "MKK") {
     const gift = (velicine ?? []).some((v) => /poklon/i.test(String(v.velicina)));
-    return gift ? "Makita Brusilica + Poklon" : "Makita Brusilica";
+    return gift ? `${PREFIX_OPIS[prefix]} + Poklon` : PREFIX_OPIS[prefix];
   }
 
   if (PREFIX_OPIS[prefix]) return PREFIX_OPIS[prefix];
@@ -186,7 +186,7 @@ async function fetchFromOrders(
     let adresa = stripIp(String(o.adresa ?? ""));
     let ptt: string | undefined;
     // Makita orders store "Ulica 1, 71000" → split the customer's postal code back out.
-    if (String(o.order_number ?? "").startsWith("MKB-")) {
+    if (/^MK[BK]-/.test(String(o.order_number ?? ""))) {
       const m = adresa.match(/^(.*),\s*(\d{5})$/);
       if (m) { adresa = m[1]; ptt = m[2]; }
     }

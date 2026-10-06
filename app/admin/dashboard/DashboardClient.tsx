@@ -115,6 +115,7 @@ const PRODUCT_MAP: Record<string, { label: string; tint: string; ink: string; Ic
   LEZ: { label: "Ležaljka", tint: "rgba(255,55,95,0.16)", ink: "#ff7aa2", Icon: Armchair },
   PRS: { label: "Prsluk", tint: "rgba(10,132,255,0.18)", ink: "#64d2ff", Icon: Shield },
   ZRF: { label: "Žirafa", tint: "rgba(100,210,255,0.14)", ink: "#64d2ff", Icon: MoveVertical },
+  MKK: { label: "Makita 1500W", tint: "rgba(0,199,190,0.16)", ink: "#66d4cf", Icon: CircleDot },
   MKB: { label: "Makita brusilica", tint: "rgba(0,199,190,0.16)", ink: "#66d4cf", Icon: CircleDot },
   APP: { label: "AirPods Pro", tint: "rgba(255,255,255,0.08)", ink: "#f5f5f7", Icon: Headphones },
   MTP: { label: "Motorna pila", tint: "rgba(255,159,10,0.18)", ink: "#ff9f0a", Icon: Axe },

@@ -273,6 +273,7 @@ function sadrzaj(orderNumber: string, velicine: Velicina[]): string {
     ZRF: "Žirafa Brusilica za Zidove",
     APP: "AirPods Pro",
     MKB: "Makita Brusilica",
+    MKK: "Makita Brusilica 1500W",
   };
   return MAP[prefix] ?? "Paket";
 }
