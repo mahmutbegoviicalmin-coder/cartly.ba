@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useRef, useEffect, FormEvent, CSSProperties } from "react";
+import "./aeox.css";
 import Image from "next/image";
 import { createPortal } from "react-dom";
 import { event as fbEvent } from "@/lib/fbpixel";
 
 /* ── Constants ───────────────────────────────────────────────────── */
-const ACCENT  = "#B33000";
+const ACCENT  = "#C14822";
 const F       = "var(--font-manrope, 'Inter', sans-serif)";
 const PRICE    = 59.90;
 const DELIVERY = 0;
@@ -39,62 +40,18 @@ const LOW_STOCK: Record<number, number> = { 41: 5 };
 const maxQty = (s: number) => LOW_STOCK[s] ?? 5;
 const LOW_STOCK_RED = "#DC2626";
 
-const TRUST = [
-  {
-    label: "Plaćanje pouzećem",
-    svg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>,
-  },
-  {
-    label: "Besplatna dostava",
-    svg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>,
-  },
-  {
-    label: "Povrat 14 dana",
-    svg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>,
-  },
-  {
-    label: "S3 Certifikat",
-    svg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
-  },
-];
-
 const REVIEWS = [
-  {
-    name: "Haris D.",
-    age: 32,
-    city: "Ilijaš",
-    role: "Montažer limova",
-    rating: 5,
-    text: "Uzeo 43, stigle u petak. Radio sam u njima cijeli tjedan na krovu, noga me nije bolela ni poslije 8 sati. Prije sam nosio neke iz Bauhausa, ove su osjetno lakše.",
-  },
-  {
-    name: "Mehmed S.",
-    age: 51,
-    city: "Zenica",
-    role: "Skladište",
-    rating: 5,
-    text: "Trebao mi je kevlar jer nam po podu stalno nešto padne. Nosim ih sad treću sedmicu, đon drži i kad je mokro. Za ovu cijenu nisam očekivao da će biti ovako.",
-  },
-  {
-    name: "Nermin A.",
-    age: 34,
-    city: "Mostar",
-    role: "Automehaničar",
-    rating: 5,
-    text: "Naručio u četvrtak, u subotu već na nogama. Broj 44, sjedne kako treba. Ulje, voda, sve imamo u servisu i nisu klizale. Žena je naručila i meni, nisam ja gledao internet.",
-  },
+  { name: "Haris D.", age: 32, city: "Ilijaš", role: "Montažer", rating: 5, text: "Nosim ih cijeli dan na krovu. Laganije su nego što sam očekivao i noga se manje umara." },
+  { name: "Mehmed S.", age: 51, city: "Zenica", role: "Skladište", rating: 5, text: "Đon dobro drži i na mokrom podu. Uzeo sam ih zbog zaštite od proboja i zadovoljan sam." },
+  { name: "Nermin A.", age: 34, city: "Mostar", role: "Automehaničar", rating: 5, text: "Broj mi odgovara, a u servisu se nisu klizale ni po vodi ni po ulju." },
 ];
 
 const FAQS = [
-  { q: "Da li su vodootporne?",             a: "Da, prednji dio ima vodonepropusnu foliju. Stopala ostaju suha na kiši i vlažnim podovima." },
-  { q: "Koje brojeve imate?",               a: "Dostupni su brojevi od 41 do 46 EU. Naručite vaš uobičajeni broj. Ako ste između, uzmite veći." },
-  { q: "Koliko traje dostava?",             a: "Dostava putem Euro Express kurirske službe traje 1-3 radna dana na cijelu BiH. Dostava je besplatna." },
-  { q: "Koja je garancija?",                a: "Aeox Plus S3 patike dolaze s garancijom od 1 godine na materijal i izradu." },
-  { q: "Plaćanje unaprijed ili pouzećem?",  a: "Isključivo plaćanje pouzećem. Platite vozaču pri preuzimanju paketa, bez predujma." },
-  { q: "Mogu li ih vratiti?",               a: "Prihvatamo povrat u roku od 14 dana od primanja, ukoliko patike nisu nošene i nalaze se u originalnom pakovanju." },
-  { q: "Jesu li pogodne za građevinu?",     a: "Da. S3 certifikat, metalna kapica, kevlar zaštita od proboja i protuklizni đon. Koriste se na gradilištima, u industriji i skladištima." },
-  { q: "Šta je kevlar đon?",                a: "Kevlar sloj u srednjem đonu štiti stopalo od proboja ekserima, staklom i oštrim predmetima. To je dio S3 zaštite." },
-  { q: "Da li su teške za nošenje?",        a: "Ne. Iako imaju kapicu i kevlar, pravljene su da se nose cijeli radni dan." },
+  { q: "Koju veličinu da odaberem?", a: "Naručite broj koji inače nosite. Ako ste između dva broja, odaberite veći." },
+  { q: "Jesu li vodootporne?", a: "Prednji dio ima vodonepropusnu foliju koja štiti stopalo na kiši i vlažnim podovima." },
+  { q: "Koliko traje dostava?", a: "Dostava širom BiH traje 1–3 radna dana i besplatna je." },
+  { q: "Kako plaćam narudžbu?", a: "Plaćate pouzećem, kuriru pri preuzimanju paketa." },
+  { q: "Mogu li vratiti patike?", a: "Povrat je moguć u roku od 14 dana od primitka, za nenošene patike u originalnom pakovanju." },
 ];
 
 /* ── Helpers ─────────────────────────────────────────────────────── */
@@ -116,381 +73,163 @@ function getExternalId() {
   try { return localStorage.getItem("_crt_eid") || ""; } catch { return ""; }
 }
 
+function useDayCountdown() {
+  const [remaining, setRemaining] = useState<number | null>(null);
+  useEffect(() => {
+    const update = () => {
+      const now = new Date();
+      const midnight = new Date(now);
+      midnight.setHours(24, 0, 0, 0);
+      setRemaining(Math.max(0, Math.ceil((midnight.getTime() - now.getTime()) / 1000)));
+    };
+    update();
+    const interval = window.setInterval(update, 1000);
+    return () => window.clearInterval(interval);
+  }, []);
+  return remaining;
+}
+
+function countdownText(remaining: number | null) {
+  if (remaining === null) return "--:--:--";
+  const hours = Math.floor(remaining / 3600);
+  const minutes = Math.floor((remaining % 3600) / 60);
+  const seconds = remaining % 60;
+  return [hours, minutes, seconds].map(part => String(part).padStart(2, "0")).join(":");
+}
+
 /* ── Header ──────────────────────────────────────────────────────── */
 function Header({ onOrder }: { onOrder: () => void }) {
-  const [scrolled, setScrolled] = useState(false);
-  useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 12);
-    window.addEventListener("scroll", h, { passive: true });
-    return () => window.removeEventListener("scroll", h);
-  }, []);
-  return (
-    <header style={{
-      position: "sticky", top: 0, zIndex: 50, width: "100%",
-      background: "#fff",
-      borderBottom: scrolled ? "1px solid rgba(0,0,0,0.07)" : "1px solid #F0EDE8",
-      boxShadow: scrolled ? "0 2px 20px rgba(0,0,0,0.06)" : "none",
-      transition: "box-shadow 300ms, border-color 300ms",
-    }}>
-      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <a href="/" style={{ textDecoration: "none" }}>
-          <span style={{ fontSize: 17, fontWeight: 900, color: "#0A0A0A", letterSpacing: "-0.03em", fontFamily: F }}>
-            Cartly<span style={{ color: ACCENT }}>.</span>ba
-          </span>
-        </a>
-        <button onClick={onOrder}
-          style={{ padding: "10px 24px", background: ACCENT, color: "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 800, fontFamily: F, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
-          </svg>
-          Naruči odmah
-        </button>
-      </div>
-    </header>
-  );
+  return <header className="ae-header"><div className="ae-header-inner"><a href="/" className="ae-logo">cartly<span>.</span>ba</a><nav aria-label="Navigacija proizvoda"><a href="#konstrukcija">Konstrukcija</a><a href="#naruci">Veličine i narudžba</a><a href="#iskustva">Iskustva</a></nav><button type="button" onClick={onOrder}>Naruči <span>↗</span></button></div></header>;
 }
 
 /* ── Hero ────────────────────────────────────────────────────────── */
-function Hero({ onOrder }: { onOrder: () => void }) {
-  const [imgIndex, setImgIndex] = useState(0);
-  const [viewers,  setViewers]  = useState(0);
-  const [secs,     setSecs]     = useState<number | null>(null);
-  const touchStartX = useRef<number | null>(null);
-
-  useEffect(() => {
-    const r = (a: number, b: number) => Math.floor(Math.random() * (b - a + 1)) + a;
-    setSecs(r(12, 48) * 60);
-    const id = setInterval(() => {
-      setSecs(p => p === null ? null : p <= 1 ? r(15, 44) * 60 : p - 1);
-    }, 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  useEffect(() => {
-    const r = (a: number, b: number) => Math.floor(Math.random() * (b - a + 1)) + a;
-    setViewers(r(38, 74));
-    const id = setInterval(() => {
-      setViewers(v => Math.min(95, Math.max(28, v + r(-3, 4))));
-    }, r(18_000, 32_000));
-    return () => clearInterval(id);
-  }, []);
-
-  const prev = () => setImgIndex(i => i === 0 ? IMAGES.length - 1 : i - 1);
-  const next = () => setImgIndex(i => i === IMAGES.length - 1 ? 0 : i + 1);
-  const onTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX; };
-  const onTouchEnd   = (e: React.TouchEvent) => {
-    if (touchStartX.current === null) return;
-    const diff = touchStartX.current - e.changedTouches[0].clientX;
-    if (Math.abs(diff) > 40) { if (diff > 0) next(); else prev(); }
-    touchStartX.current = null;
-  };
-
-  const handleCTA = () => {
-    pixel("AddToCart");
-    onOrder();
-  };
-
-  return (
-    <>
-      <style suppressHydrationWarning>{`
-        @keyframes r-pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-        .r-live-dot { animation: r-pulse 2s ease-in-out infinite; }
-        .r-thumb { border: 2px solid transparent; transition: border-color 150ms, transform 150ms; cursor: pointer; }
-        .r-thumb:hover { transform: scale(1.05); }
-        .r-thumb.active { border-color: ${ACCENT}; }
-        .r-cta { background: ${ACCENT}; transition: background 200ms, transform 180ms, box-shadow 200ms; }
-        .r-cta:hover { background: #8B2200; transform: translateY(-2px); box-shadow: 0 12px 32px rgba(179,48,0,0.38); }
-        .r-cta:active { transform: scale(0.97); }
-        .r-arrow { opacity: 0; transition: opacity 200ms, background 150ms; }
-        .r-slider:hover .r-arrow { opacity: 1; }
-        @media(max-width:1023px) {
-          .r-hero-grid  { flex-direction: column !important; gap: 0 !important; }
-          .r-img-col    { width: 100% !important; max-width: 100% !important; }
-          .r-inner      { padding: 0 0 32px !important; }
-          .r-badge-row  { display: none !important; }
-          .r-slider     { border-radius: 0 !important; box-shadow: none !important; aspect-ratio: 1/1 !important; }
-          .r-thumbs     { padding: 10px 16px 0 !important; gap: 8px !important; }
-          .r-info-inner { padding: 16px 16px 0 !important; }
-          .r-info-col   { width: 100% !important; padding-top: 0 !important; }
-          .r-arrow      { opacity: 1 !important; }
-          .r-cta:hover  { transform: none !important; }
-        }
-        @media(max-width:640px) {
-          .r-trust-grid { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
-        }
-      `}</style>
-
-      <section style={{ background: "#fff", paddingTop: 0 }}>
-        <div className="r-inner" style={{ maxWidth: 1200, margin: "0 auto", padding: "48px 24px 56px" }}>
-
-          {/* Badge row - desktop */}
-          <div className="r-badge-row" style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 28, flexWrap: "wrap" }}>
-            <span style={{ background: "#0A0A0A", color: "#fff", fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", padding: "5px 13px", borderRadius: 4, fontFamily: F }}>
-              EN ISO 20345 S3
-            </span>
-                  <span style={{ background: `rgba(179,48,0,0.08)`, color: ACCENT, border: `1px solid rgba(179,48,0,0.25)`, fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", padding: "5px 13px", borderRadius: 4, fontFamily: F }}>
-              Metalna kapica 200J
-            </span>
-            <span style={{ background: "rgba(22,163,74,0.08)", color: "#16A34A", border: "1px solid rgba(22,163,74,0.2)", fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", padding: "5px 13px", borderRadius: 4, fontFamily: F }}>
-              ✓ Na stanju
-            </span>
-            {viewers > 0 && (
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "rgba(0,0,0,0.04)", borderRadius: 4, padding: "5px 12px", marginLeft: "auto", fontFamily: F }}>
-                <span className="r-live-dot" style={{ width: 7, height: 7, borderRadius: "50%", background: "#ef4444", display: "inline-block" }} />
-                <span style={{ fontSize: 12, fontWeight: 600, color: "#444" }}><strong style={{ color: "#0A0A0A" }}>{viewers}</strong> osoba trenutno gleda</span>
-              </span>
-            )}
-          </div>
-
-          {/* Main grid */}
-          <div className="r-hero-grid" style={{ display: "flex", gap: 52, alignItems: "flex-start" }}>
-
-            {/* IMAGE COLUMN */}
-            <div className="r-img-col" style={{ flex: "0 0 480px", display: "flex", flexDirection: "column", gap: 14 }}>
-              <div
-                className="r-slider"
-                style={{ position: "relative", aspectRatio: "1/1", borderRadius: 20, overflow: "hidden", background: "linear-gradient(145deg,#F7F4EF 0%,#EEEBE4 100%)", boxShadow: "0 4px 32px rgba(0,0,0,0.08),inset 0 0 0 1px rgba(0,0,0,0.06)", userSelect: "none" }}
-                onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}
-              >
-                <div aria-hidden style={{ position: "absolute", bottom: "-10%", left: "50%", transform: "translateX(-50%)", width: "70%", height: "40%", borderRadius: "50%", background: "radial-gradient(ellipse,rgba(255,107,0,0.14) 0%,transparent 70%)", zIndex: 0, pointerEvents: "none" }} />
-
-                {IMAGES.map((img, i) => (
-                  <div key={i} style={{ position: "absolute", inset: 0, zIndex: i === imgIndex ? 1 : 0, opacity: i === imgIndex ? 1 : 0, transition: "opacity 350ms ease" }}>
-                    <Image
-                      src={img.src}
-                      alt={img.alt}
-                      fill
-                      sizes="(max-width: 1023px) 100vw, 480px"
-                      quality={75}
-                      style={{ objectFit: "contain", padding: 12 }}
-                      priority={i === 0}
-                    />
-                  </div>
-                ))}
-
-                {/* Arrows */}
-                {[{ dir: "prev", side: "left", onclick: prev, path: "M15 18 9 12 15 6" }, { dir: "next", side: "right", onclick: next, path: "M9 18 15 12 9 6" }].map(a => (
-                  <button key={a.dir} className="r-arrow" onClick={a.onclick} aria-label={a.dir}
-                    style={{ position: "absolute", [a.side]: 12, top: "50%", transform: "translateY(-50%)", zIndex: 10, width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.92)", border: "1px solid rgba(0,0,0,0.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.12)" }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points={a.path}/></svg>
-                  </button>
-                ))}
-
-                <div style={{ position: "absolute", bottom: 14, right: 14, zIndex: 10, background: "rgba(0,0,0,0.48)", backdropFilter: "blur(4px)", borderRadius: 6, padding: "4px 10px", fontSize: 11, fontWeight: 700, color: "#fff", fontFamily: F, letterSpacing: "0.05em" }}>
-                  {imgIndex + 1} / {IMAGES.length}
-                </div>
-
-                {/* Mobile overlays */}
-                <style suppressHydrationWarning>{`
-                  .r-mob-badges,.r-mob-viewers { display:none; }
-                  @media(max-width:1023px) { .r-mob-badges,.r-mob-viewers { display:flex !important; } }
-                `}</style>
-                <div className="r-mob-badges" style={{ position: "absolute", top: 12, left: 12, zIndex: 10, flexDirection: "column", gap: 6 }}>
-                  <span style={{ background: "rgba(10,10,10,0.72)", backdropFilter: "blur(8px)", color: "#fff", fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", padding: "5px 10px", borderRadius: 6, fontFamily: F, width: "fit-content" }}>EN ISO 20345 S3</span>
-                  <span style={{ background: `rgba(179,48,0,0.85)`, backdropFilter: "blur(8px)", color: "#fff", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", padding: "5px 10px", borderRadius: 6, fontFamily: F, width: "fit-content" }}>Metalna kapica</span>
-                </div>
-                {viewers > 0 && (
-                  <div className="r-mob-viewers" style={{ position: "absolute", top: 12, right: 12, zIndex: 10, alignItems: "center", gap: 5, background: "rgba(0,0,0,0.58)", backdropFilter: "blur(8px)", borderRadius: 8, padding: "6px 10px" }}>
-                    <span className="r-live-dot" style={{ width: 6, height: 6, borderRadius: "50%", background: "#ef4444", display: "inline-block" }} />
-                    <span style={{ fontSize: 11, fontWeight: 700, color: "#fff", fontFamily: F }}>{viewers} gleda</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Thumbnails */}
-              <div className="r-thumbs" style={{ display: "flex", gap: 10 }}>
-                {IMAGES.map((img, i) => (
-                  <button key={i} onClick={() => setImgIndex(i)} className={`r-thumb${i === imgIndex ? " active" : ""}`} aria-label={`Slika ${i+1}`}
-                    style={{ flex: 1, aspectRatio: "1/1", borderRadius: 10, overflow: "hidden", background: "#F5F5F5", position: "relative" }}>
-                    <Image src={img.src} alt={img.alt} fill sizes="96px" quality={60} style={{ objectFit: "contain", padding: 4 }} />
-                    {i === imgIndex && <div style={{ position: "absolute", inset: 0, background: "rgba(255,107,0,0.12)" }} />}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* INFO COLUMN */}
-            <div className="r-info-col r-info-inner" style={{ flex: 1, display: "flex", flexDirection: "column", gap: 0, paddingTop: 4 }}>
-
-              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: ACCENT, display: "block", marginBottom: 12, fontFamily: F }}>
-                Zaštitna obuća S3 · Aeox Plus
-              </span>
-
-              <h1 style={{ fontSize: "clamp(32px,4.5vw,52px)", fontWeight: 900, lineHeight: 1.06, letterSpacing: "-0.03em", color: "#0A0A0A", marginBottom: 16, fontFamily: F }}>
-                Radne Patike S3<br />
-                <span style={{ color: "rgba(10,10,10,0.3)", fontWeight: 700 }}>Aeox Plus</span>
-              </h1>
-
-              {/* Stars */}
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24 }}>
-                <div style={{ display: "flex", gap: 3 }}>
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <svg key={i} width="16" height="16" viewBox="0 0 24 24" fill={ACCENT} stroke={ACCENT} strokeWidth="1.5">
-                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/>
-                    </svg>
-                  ))}
-                </div>
-                <span style={{ fontSize: 13, fontWeight: 600, color: "#0A0A0A", fontFamily: F }}>4,9</span>
-                <span style={{ fontSize: 13, color: "#999", fontFamily: F }}>/ 2.000+ zadovoljnih kupaca</span>
-              </div>
-
-              {/* Price block */}
-              <div style={{ background: "linear-gradient(135deg,#FFF8F4 0%,#FFF3EB 100%)", border: "1px solid rgba(255,107,0,0.15)", borderRadius: 16, padding: "20px 22px", marginBottom: 24 }}>
-                <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
-                  <span style={{ fontSize: "clamp(40px,5vw,56px)", fontWeight: 900, color: "#0A0A0A", letterSpacing: "-0.04em", lineHeight: 1, fontFamily: F }}>
-                    59,90 KM
-                  </span>
-                  <span style={{ fontSize: 16, color: "rgba(0,0,0,0.35)", textDecoration: "line-through", fontWeight: 500, fontFamily: F }}>
-                    139,90 KM
-                  </span>
-                  <span style={{ background: "#16A34A", color: "#fff", fontSize: 13, fontWeight: 800, padding: "4px 10px", borderRadius: 6, fontFamily: F }}>
-                    −57%
-                  </span>
-                </div>
-                <p style={{ fontSize: 12, color: "rgba(0,0,0,0.5)", margin: "0 0 14px", fontFamily: F }}>
-                  Besplatna dostava · Plaćanje pouzećem · Nema skrivenih troškova
-                </p>
-                {secs !== null && (
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, background: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,107,0,0.2)", borderRadius: 10, padding: "10px 14px" }}>
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                      <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                    </svg>
-                    <span style={{ fontSize: 12, fontWeight: 500, color: "rgba(0,0,0,0.55)", fontFamily: F, flexShrink: 0 }}>Akcijska cijena ističe za:</span>
-                    <span style={{ fontSize: 14, fontWeight: 900, color: ACCENT, letterSpacing: "0.06em", fontFamily: F, fontVariantNumeric: "tabular-nums" }}>
-                      {String(Math.floor(secs / 3600)).padStart(2,"0")}:{String(Math.floor((secs % 3600) / 60)).padStart(2,"0")}:{String(secs % 60).padStart(2,"0")}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Description */}
-              <p style={{ fontSize: 15, lineHeight: 1.7, color: "rgba(10,10,10,0.6)", marginBottom: 28, fontFamily: F }}>
-                Profesionalna zaštitna obuća s <strong style={{ color: "#0A0A0A" }}>metalnom kapicom</strong> i{" "}
-                <strong style={{ color: "#0A0A0A" }}>kevlar đonom</strong> po{" "}
-                <strong style={{ color: "#0A0A0A" }}>EN ISO 20345 S3</strong> standardu. Vodootporne, lagane i udobne, za maksimalnu zaštitu tokom cijelog radnog dana na gradilištu, u industriji ili skladištu.
-              </p>
-
-              {/* Features grid */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 24 }}>
-                {([
-                  { title: "Metalna kapica", sub: "Zaštita do 200J udara",
-                    icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> },
-                  { title: "Vodootpornost", sub: "Folija na prednjem dijelu",
-                    icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg> },
-                  { title: "Kevlar đon", sub: "Zaštita od proboja",
-                    icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12h6"/></svg> },
-                  { title: "EN ISO 20345 S3", sub: "Europski S3 certifikat",
-                    icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg> },
-                  { title: "Ortopedski uložak", sub: "Anatomski footbed",
-                    icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> },
-                  { title: "Veličine 41-46", sub: "Broj 47 trenutno nema",
-                    icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l2.5 2.5L16 9"/></svg> },
-                ] as { title: string; sub: string; icon: React.ReactNode }[]).map((f, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, background: "#FAFAFA", border: "1px solid #F0F0F0", borderRadius: 12, padding: "12px 14px" }}>
-                    <div style={{ flexShrink: 0 }}>{f.icon}</div>
-                    <div>
-                      <div style={{ fontFamily: F, fontWeight: 700, fontSize: 13, color: "#0A0A0A", lineHeight: 1.2 }}>{f.title}</div>
-                      <div style={{ fontFamily: F, fontSize: 11, color: "#888", marginTop: 2, lineHeight: 1.3 }}>{f.sub}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* CTA */}
-              <button onClick={handleCTA} className="r-cta"
-                style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, color: "#fff", borderRadius: 14, padding: "18px 32px", fontFamily: F, fontWeight: 800, fontSize: 17, border: "none", cursor: "pointer", letterSpacing: "0.01em", marginBottom: 12 }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
-                </svg>
-                Odaberi veličinu i naruči
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-              </button>
-              <p style={{ textAlign: "center", fontSize: 12, color: "#bbb", marginBottom: 24, fontFamily: F }}>Naruči bez plaćanja · platite pri preuzimanju paketa</p>
-
-              {/* Trust grid */}
-              <div className="r-trust-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10, borderTop: "1px solid #F0F0F0", paddingTop: 20 }}>
-                {TRUST.map(({ label, svg }) => (
-                  <div key={label} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, padding: "14px 8px", borderRadius: 12, background: "#FAFAFA", border: "1px solid #F0F0F0", textAlign: "center" }}>
-                    <div style={{ color: ACCENT }}>{svg}</div>
-                    <span style={{ fontSize: 11, fontWeight: 600, color: "#555", lineHeight: 1.35, fontFamily: F }}>{label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </>
-  );
-}
-
-/* ── Exploded construction view ──────────────────────────────────── */
-function ExplodedView() {
-  const SPECS = [
-    { t: "Metalna kapica 200J", d: "Zaštita prstiju od udara i pada predmeta" },
-    { t: "Kevlar srednji đon", d: "Otpornost na proboj ekserima i oštrim predmetima" },
-    { t: "Vodonepropusna folija", d: "Prednji dio ostaje suh na kiši i vlažnim podovima" },
-    { t: "Ortopedski uložak", d: "Anatomska podrška kroz cijeli radni dan" },
-    { t: "Paropropusni sloj", d: "Stopala dišu, bez pregrijavanja" },
-    { t: "SRC protuklizni đon", d: "Drži na ulju, vodi i svim podlogama" },
+function Hero({ onOrder, remaining }: { onOrder: () => void; remaining: number | null }) {
+  const [active, setActive] = useState(0);
+  const touchStart = useRef<number | null>(null);
+  const gallery = [
+    { src: "/aeoxplus/2.webp", alt: "Aeox Plus S3 radna patika, bočni pogled" },
+    { src: "/aeoxplus/11.webp", alt: "Aeox Plus S3 patike i protuklizni đon" },
+    { src: "/aeoxplus/1.webp", alt: "Aeox Plus S3 radna patika, drugi pogled" },
   ];
+  const move = (step: number) => setActive(index => (index + step + gallery.length) % gallery.length);
+  const order = () => { pixel("AddToCart"); onOrder(); };
 
   return (
-    <section className="ae-explode" style={{ background: "#F6F3EE", padding: "80px 24px 72px", borderTop: "1px solid #E8E4DC", borderBottom: "1px solid #E8E4DC" }}>
-      <style suppressHydrationWarning>{`
-        .ae-explode-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-        .ae-explode-fig { margin: 0 0 36px; background: #fff; border-radius: 20px; overflow: hidden; border: 1px solid #E8E4DC; box-shadow: 0 18px 50px rgba(20,16,12,0.06); }
-        @media(max-width:900px) {
-          .ae-explode { padding: 48px 16px 40px !important; }
-          .ae-explode-grid { grid-template-columns: 1fr 1fr !important; }
-          .ae-explode-fig { border-radius: 14px !important; margin-bottom: 20px !important; }
-        }
-        @media(max-width:560px) {
-          .ae-explode-grid { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
-      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: 36 }}>
-          <span style={{ display: "inline-block", fontSize: 11, fontWeight: 800, letterSpacing: "0.16em", textTransform: "uppercase", color: ACCENT, fontFamily: F, marginBottom: 12 }}>
-            Konstrukcija
-          </span>
-          <h2 style={{ fontSize: "clamp(24px,3.4vw,40px)", fontWeight: 900, color: "#14110E", letterSpacing: "-0.03em", margin: "0 0 10px", fontFamily: F, lineHeight: 1.12 }}>
-            Svaki sloj ima svoju ulogu.
-          </h2>
-          <p style={{ fontSize: 15, color: "#6B6560", fontFamily: F, margin: 0, maxWidth: 480, marginLeft: "auto", marginRight: "auto", lineHeight: 1.7 }}>
-            Metalna kapica, kevlar, ortopedski uložak i SRC đon. Rastavljeni pregled Aeox Plus S3.
-          </p>
+    <section className="ae-hero">
+      <div className="ae-hero-inner">
+        <div className="ae-hero-head">
+          <span className="ae-eyebrow"><span className="ae-eyebrow-line" /> AEOX PLUS S3 / RADNE PATIKE</span>
+          <span className="ae-hero-code">ZAŠTITA ZA SVAKI RADNI DAN</span>
         </div>
-
-        <figure className="ae-explode-fig">
-          <Image
-            src="/aeoxplus/4.webp"
-            alt="Aeox Plus S3 rastavljeni pregled: metalna kapica, kevlar đon, ortopedski uložak i protuklizni don"
-            width={1312}
-            height={1199}
-            sizes="(max-width: 1100px) 100vw, 1100px"
-            quality={78}
-            style={{ width: "100%", height: "auto", display: "block" }}
-          />
-        </figure>
-
-        <div className="ae-explode-grid">
-          {SPECS.map((s) => (
-            <div key={s.t} style={{ background: "#fff", border: "1px solid #E8E4DC", borderRadius: 14, padding: "16px 16px 14px" }}>
-              <div style={{ fontSize: 14, fontWeight: 800, color: "#14110E", fontFamily: F, marginBottom: 5, letterSpacing: "-0.02em" }}>{s.t}</div>
-              <div style={{ fontSize: 13, color: "#7A746E", fontFamily: F, lineHeight: 1.5 }}>{s.d}</div>
+        <div className="ae-hero-grid">
+          <div className="ae-hero-copy">
+            <div className="ae-offer-kicker"><span className="ae-offer-kicker-dot" /> AKCIJSKA PONUDA <span>UŠTEDA 80 KM</span></div>
+            <h1>Siguran korak.<br /><em>Lakši radni dan.</em></h1>
+            <p className="ae-hero-lead">S3 zaštita u patikama koje možeš nositi cijeli dan.</p>
+            <div className="ae-hero-proof"><span>200 J zaštita prstiju</span><span>Protuklizni đon</span><span>Besplatna dostava</span></div>
+          </div>
+          <div className="ae-gallery">
+            <div className="ae-gallery-main" onTouchStart={e => { touchStart.current = e.touches[0].clientX; }} onTouchEnd={e => { if (touchStart.current !== null) { const delta = e.changedTouches[0].clientX - touchStart.current; if (Math.abs(delta) > 40) move(delta < 0 ? 1 : -1); touchStart.current = null; } }}>
+              <span className="ae-gallery-tag">EN ISO 20345 / S3</span>
+              {gallery.map((item, index) => (
+                <div className={`ae-gallery-slide${index === active ? " is-active" : ""}`} key={item.src}>
+                  <Image src={item.src} alt={item.alt} fill sizes="(max-width: 900px) 100vw, 690px" quality={85} priority={index === 0} style={{ objectFit: "contain" }} />
+                </div>
+              ))}
+              <div className="ae-gallery-controls">
+                <span className="ae-gallery-count">0{active + 1} <span>/ 0{gallery.length}</span></span>
+                <div className="ae-gallery-arrows">
+                  <button type="button" onClick={() => move(-1)} aria-label="Prethodna slika">←</button>
+                  <button type="button" onClick={() => move(1)} aria-label="Sljedeća slika">→</button>
+                </div>
+              </div>
             </div>
-          ))}
+            <div className="ae-gallery-thumbs" aria-label="Fotografije proizvoda">
+              {gallery.map((item, index) => (
+                <button type="button" className={`ae-thumb${index === active ? " is-active" : ""}`} key={item.src} onClick={() => setActive(index)} aria-label={`Prikaži sliku ${index + 1}`} aria-pressed={index === active}>
+                  <Image src={item.src} alt="" fill sizes="100px" style={{ objectFit: "contain" }} />
+                </button>
+              ))}
+              <div className="ae-gallery-note">Pogledaj iz svakog ugla</div>
+            </div>
+          </div>
+          <div className="ae-buy-panel">
+            <div className="ae-price-row"><div><span className="ae-price-label">Akcijska cijena / par</span><div className="ae-price">59,90 <small>KM</small></div></div><span className="ae-old-price">139,90 KM</span></div>
+            <div className="ae-promo-timer" role="timer" aria-label={`Akcijska cijena ističe za ${countdownText(remaining)}`}>
+              <span><i aria-hidden="true" /> Akcijska cijena ističe za</span>
+              <strong>{countdownText(remaining)}</strong>
+            </div>
+            <button className="ae-primary-button" type="button" onClick={order}>Odaberi veličinu i naruči <span aria-hidden>↗</span></button>
+            <div className="ae-buy-meta"><span>✓ Plaćanje pouzećem</span><span>✓ Dostava 0 KM</span></div>
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
+/* ── Exploded construction view ──────────────────────────────────── */
+function ExplodedView() {
+  const details = [
+    { number: "01", title: "Metalna kapica", text: "Štiti prste od udara do 200 J." },
+    { number: "02", title: "Kevlar sloj", text: "Štiti stopalo od proboja odozdo." },
+    { number: "03", title: "Protuklizni đon", text: "Stabilan oslonac na zahtjevnim površinama." },
+  ];
+  return (
+    <section className="ae-anatomy" id="konstrukcija">
+      <div className="ae-section-shell">
+        <div className="ae-anatomy-intro"><span className="ae-eyebrow"><span className="ae-eyebrow-line" /> Ispod površine</span><h2>Zaštita je u<br /><em>svakom sloju.</em></h2><p>Od kapice do đona, svaki detalj ima svoju ulogu. Pogledaj kako je Aeox Plus S3 napravljen.</p></div>
+        <div className="ae-anatomy-grid">
+          <figure className="ae-anatomy-image"><a href="/aeoxplus/4.webp" target="_blank" rel="noopener noreferrer" aria-label="Otvori uvećani prikaz konstrukcije"><Image src="/aeoxplus/4.webp" alt="Rastavljeni prikaz Aeox Plus S3 patike sa metalnom kapicom, uloškom, kevlar slojem i protukliznim đonom" width={1312} height={1199} quality={85} sizes="(max-width: 900px) 100vw, 750px" style={{ display: "block", width: "100%", height: "auto" }} /></a><figcaption><span>01—06 / Anatomija Aeox Plus S3 patike</span><a href="/aeoxplus/4.webp" target="_blank" rel="noopener noreferrer">Povećaj prikaz ↗</a></figcaption></figure>
+          <div className="ae-anatomy-details"><span className="ae-detail-kicker">KONSTRUKCIJA / S3</span>{details.map(detail => <div className="ae-detail" key={detail.number}><span>{detail.number}</span><div><h3>{detail.title}</h3><p>{detail.text}</p></div></div>)}<a href="#naruci" className="ae-anatomy-link">Pronađi svoj broj <span>↗</span></a></div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FloatingBar({ onOrder, remaining, hidden }: { onOrder: () => void; remaining: number | null; hidden: boolean }) {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const update = () => {
+      const hero = document.querySelector(".ae-hero");
+      const order = document.getElementById("naruci");
+      const footer = document.querySelector("footer");
+      if (!hero || !order || !footer) return;
+      const form = order.getBoundingClientRect();
+      const bottom = footer.getBoundingClientRect();
+      const formInView = form.top < window.innerHeight - 120 && form.bottom > 80;
+      const footerInView = bottom.top < window.innerHeight;
+      setVisible(hero.getBoundingClientRect().bottom < 80 && !formInView && !footerInView);
+    };
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, []);
+
+  if (!visible || hidden) return null;
+
+  return (
+    <div className="ae-floating-cta">
+      <div className="ae-floating-info">
+        <span className="ae-floating-label">Aeox Plus S3</span>
+        <strong>59,90 <small>KM</small></strong>
+        <span className="ae-floating-time">Akcija ističe za {countdownText(remaining)}</span>
+      </div>
+      <button type="button" onClick={() => { pixel("AddToCart"); onOrder(); }}>Naruči odmah <span aria-hidden="true">↗</span></button>
+    </div>
+  );
+}
+
 /* ── Reviews ─────────────────────────────────────────────────────── */
 function Reviews() {
   return (
-    <section style={{ background: "#FAFAFA", padding: "80px 24px", borderTop: "1px solid #F0F0F0" }} className="ae-reviews">
+    <section id="iskustva" style={{ background: "#FAFAFA", padding: "80px 24px", borderTop: "1px solid #F0F0F0" }} className="ae-reviews">
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 52 }}>
           <div style={{ display: "flex", justifyContent: "center", gap: 4, marginBottom: 12 }}>
@@ -501,9 +240,9 @@ function Reviews() {
             ))}
           </div>
           <h2 style={{ fontSize: "clamp(24px,3vw,36px)", fontWeight: 900, color: "#0A0A0A", letterSpacing: "-0.03em", margin: "0 0 8px", fontFamily: F }}>
-            Šta kažu naši kupci
+            Iskustva s terena
           </h2>
-          <p style={{ fontSize: 14, color: "#999", fontFamily: F }}>5,0 / 5 · Kupci koji ih stvarno nose na poslu</p>
+          <p style={{ fontSize: 14, color: "#999", fontFamily: F }}>Kako se patike nose kroz stvaran radni dan</p>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }} className="r-reviews-grid">
@@ -549,7 +288,7 @@ function FAQ() {
       <div style={{ maxWidth: 720, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 48 }}>
           <h2 style={{ fontSize: "clamp(22px,2.8vw,34px)", fontWeight: 900, color: "#0A0A0A", letterSpacing: "-0.03em", margin: "0 0 8px", fontFamily: F }}>Česta pitanja</h2>
-          <p style={{ fontSize: 14, color: "#999", fontFamily: F }}>Sve što trebate znati prije narudžbe</p>
+          <p style={{ fontSize: 14, color: "#999", fontFamily: F }}>Kratko i jasno prije narudžbe</p>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {FAQS.map((item, i) => (
@@ -584,98 +323,14 @@ function Footer() {
           <p style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", fontFamily: F, margin: 0 }}>Aeox Plus S3 Radne Patike · Plaćanje pouzećem · BiH</p>
         </div>
         <div style={{ display: "flex", gap: 28, flexWrap: "wrap", alignItems: "center" }}>
-          {["Politika privatnosti", "Uvjeti korištenja", "Kontakt"].map(t => (
-            <span key={t} style={{ fontSize: 13, color: "rgba(255,255,255,0.35)", fontFamily: F, cursor: "pointer" }}>{t}</span>
-          ))}
+          <span style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", fontFamily: F }}>Dostava širom BiH</span>
+          <a href="mailto:taysibog@gmail.com" style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", fontFamily: F, textDecoration: "none" }}>Kontakt</a>
         </div>
       </div>
       <div style={{ maxWidth: 1100, margin: "24px auto 0", paddingTop: 20, borderTop: "1px solid rgba(255,255,255,0.06)" }}>
         <p style={{ fontSize: 12, color: "rgba(255,255,255,0.2)", fontFamily: F, margin: 0 }}>© {new Date().getFullYear()} Cartly.ba · Sva prava pridržana</p>
       </div>
     </footer>
-  );
-}
-
-/* ── Floating CTA ────────────────────────────────────────────────── */
-function FloatingBar({ onOrder }: { onOrder: () => void }) {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const t = setTimeout(() => setVisible(true), 1400);
-    return () => clearTimeout(t);
-  }, []);
-
-  const handleClick = () => {
-    pixel("AddToCart");
-    onOrder();
-  };
-
-  return (
-    <>
-      <style suppressHydrationWarning>{`
-        @keyframes rfcta-glow {
-          0%,100% { box-shadow: 0 4px 20px rgba(179,48,0,0.25); }
-          50%      { box-shadow: 0 6px 28px rgba(179,48,0,0.45); }
-        }
-        @keyframes rfcta-dot {
-          0%,100% { opacity:1; transform:scale(1); }
-          50%      { opacity:0.3; transform:scale(0.5); }
-        }
-        .rfcta-wrap {
-          position:fixed; bottom:0; left:0; right:0; z-index:9998;
-          background:#fff; border-top:1px solid #EBEBEB;
-          padding:10px 16px;
-          padding-bottom:calc(10px + env(safe-area-inset-bottom));
-          display:flex; align-items:center; gap:12px;
-          box-shadow:0 -4px 24px rgba(0,0,0,0.07);
-          transition:transform 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.35s ease;
-        }
-        .rfcta-wrap.hidden { opacity:0; transform:translateY(100%); pointer-events:none; }
-        @media(min-width:640px) {
-          .rfcta-wrap {
-            bottom:20px; left:auto; right:20px;
-            border-radius:16px; border:1px solid #E8E8E8;
-            padding:12px 16px; max-width:340px;
-            box-shadow:0 8px 32px rgba(0,0,0,0.12);
-          }
-        }
-        .rfcta-btn {
-          flex-shrink:0; background:${ACCENT}; color:#fff;
-          border:none; border-radius:11px; padding:12px 18px;
-          font-size:14px; font-weight:800; font-family:${F};
-          letter-spacing:-0.01em; cursor:pointer; white-space:nowrap;
-          animation:rfcta-glow 3s ease-in-out 2s infinite;
-          transition:background 150ms,transform 150ms;
-          display:flex; align-items:center; gap:5px;
-        }
-        .rfcta-btn:hover  { background:#961f00; transform:scale(1.02); }
-        .rfcta-btn:active { transform:scale(0.97); }
-        .rfcta-pulse {
-          width:6px; height:6px; border-radius:50%;
-          background:#22c55e; flex-shrink:0;
-          animation:rfcta-dot 2s ease-in-out infinite;
-        }
-      `}</style>
-
-      <div className={`rfcta-wrap${!visible ? " hidden" : ""}`}>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 2 }}>
-            <span className="rfcta-pulse" />
-            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#22c55e", fontFamily: F }}>Na stanju</span>
-          </div>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 7, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 19, fontWeight: 900, color: "#0A0A0A", fontFamily: F, letterSpacing: "-0.03em", lineHeight: 1 }}>59,90 KM</span>
-            <span style={{ fontSize: 12, color: "#BBBBBB", textDecoration: "line-through", fontFamily: F }}>139,90</span>
-            <span style={{ fontSize: 10, fontWeight: 800, color: ACCENT, background: "#FFF0EB", border: "1px solid rgba(179,48,0,0.2)", borderRadius: 5, padding: "2px 6px", fontFamily: F }}>−57%</span>
-          </div>
-          <div style={{ fontSize: 10, color: "#AAAAAA", fontFamily: F, marginTop: 1 }}>Pouzećem · Besplatna dostava</div>
-        </div>
-        <button onClick={handleClick} className="rfcta-btn">
-          Naruči
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
-      </div>
-    </>
   );
 }
 
@@ -764,12 +419,12 @@ function OrderModal({ open, onClose, initialSize }: { open: boolean; onClose: ()
               <div style={{ fontSize: 11, fontWeight: 800, color: "#888", textTransform: "uppercase", letterSpacing: "0.09em", marginBottom: 12, fontFamily: F }}>
                 Odaberite veličinu {errors.size && <span style={{ color: "#ef4444", textTransform: "none", fontWeight: 600 }}>- {errors.size}</span>}
               </div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              <div className="ae-modal-sizes" style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                 {SIZES.map(s => {
                   const out = OUT_OF_STOCK.has(s);
                   const low = LOW_STOCK[s] !== undefined;
                   return (
-                    <button key={s} type="button" disabled={out}
+                    <button key={s} type="button" disabled={out} className="ae-modal-size"
                       aria-label={out ? `Broj ${s} - nema na stanju` : low ? `Broj ${s} - još ${LOW_STOCK[s]} komada na stanju` : `Broj ${s}`}
                       title={out ? "Nema na stanju" : undefined}
                       onClick={() => { if (out) return; setSize(s); setQty(q => Math.min(q, maxQty(s))); setErrors(er => ({ ...er, size: "" })); }}
@@ -940,7 +595,7 @@ function QuickOrderSection({ onDone }: { onDone?: (orderNumber: string, total: n
   );
 
   return (
-    <section id="naruci" style={{ background: "#F9F9F9", borderTop: "1px solid #EBEBEB", borderBottom: "1px solid #EBEBEB", padding: "52px 20px" }}>
+    <section id="naruci" className="ae-order" style={{ background: "#F9F9F9", borderTop: "1px solid #EBEBEB", borderBottom: "1px solid #EBEBEB", padding: "52px 20px" }}>
       <style suppressHydrationWarning>{`
         .rq-inp { width:100%; border:1.5px solid #E2E2E2; border-radius:10px; padding:12px 14px; font-size:15px; font-family:${F}; outline:none; background:#fff; box-sizing:border-box; color:#0A0A0A; transition:border-color 130ms; }
         .rq-inp:focus { border-color:${ACCENT}; }
@@ -1097,11 +752,11 @@ function B2BSection() {
             </div>
             <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
               {[
-                { title:"Zaštita vaših zaposlenika", desc:"EN ISO 20345 S3 certifikat · ispunjavate zakonsku obavezu zaštite na radu.",
+                { title:"Zaštita vaših zaposlenika", desc:"Zaštitna obuća za timove na terenu.",
                   icon:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg> },
-                { title:"Dostava na adresu firme", desc:"Organizujemo dostavu direktno na vaše radno mjesto.",
+                { title:"Dostava na adresu firme", desc:"Dostava direktno na adresu firme.",
                   icon:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> },
-                { title:"Faktura i PDV račun", desc:"Izdajemo sve potrebne dokumente za vaše računovodstvo.",
+                { title:"Faktura i PDV račun", desc:"Dokumentacija za jednostavniju nabavku.",
                   icon:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> },
               ].map(item => (
                 <div key={item.title} style={{ display:"flex", gap:14, alignItems:"flex-start" }}>
@@ -1175,6 +830,7 @@ function B2BSection() {
 export default function AeoxPage() {
   const [modalOpen, setModalOpen]       = useState(false);
   const [initialSize, setInitialSize]   = useState<number|undefined>();
+  const remaining = useDayCountdown();
 
   useEffect(() => {
     pixel("ViewContent");
@@ -1191,7 +847,7 @@ export default function AeoxPage() {
       <style suppressHydrationWarning>{`html { scroll-behavior: smooth; } *, *::before, *::after { box-sizing: border-box; } body { margin: 0; }`}</style>
       <Header onOrder={() => openOrder()} />
       <main>
-        <Hero onOrder={() => openOrder()} />
+        <Hero onOrder={() => openOrder()} remaining={remaining} />
         <ExplodedView />
         <QuickOrderSection />
         <Reviews />
@@ -1199,7 +855,7 @@ export default function AeoxPage() {
         <FAQ />
       </main>
       <Footer />
-      <FloatingBar onOrder={() => openOrder()} />
+      <FloatingBar onOrder={() => openOrder()} remaining={remaining} hidden={modalOpen} />
       <OrderModal open={modalOpen} onClose={() => setModalOpen(false)} initialSize={initialSize} />
     </>
   );
