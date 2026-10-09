@@ -27,12 +27,6 @@ function OrderReceivedCopy({ style }: { style: CSSProperties }) {
   );
 }
 
-const IMAGES = [
-  { src: "/aeoxplus/11.webp", alt: "Aeox Plus S3 - par i protuklizni đon" },
-  { src: "/aeoxplus/2.webp",  alt: "Aeox Plus S3 - bočni pogled" },
-  { src: "/aeoxplus/1.webp",  alt: "Aeox Plus S3 - unutrašnja strana" },
-];
-
 const SIZES = [41, 42, 43, 44, 45, 46, 47];
 /* Stock: sizes not in stock can't be selected; LOW_STOCK caps qty and shows a red note */
 const OUT_OF_STOCK = new Set<number>([47]);
