@@ -29,6 +29,8 @@ import {
 } from "lucide-react";
 import { event } from "@/lib/fbpixel";
 
+import GiftAddon from "@/components/GiftAddon";
+import { GIFT_PRICE } from "@/lib/gift";
 const PRICE = 104.9;
 const OLD_PRICE = 199.9;
 const DELIVERY = 10;
@@ -96,6 +98,7 @@ const EMPTY: FormFields = {
 export default function Set2u1Client() {
   const [fields, setFields] = useState<FormFields>(EMPTY);
   const [qty, setQty] = useState(1);
+  const [gift, setGift] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -107,7 +110,7 @@ export default function Set2u1Client() {
   const formRef = useRef<HTMLElement>(null);
 
   const productTotal = PRICE * qty;
-  const total = productTotal + DELIVERY;
+  const total = productTotal + DELIVERY + (gift ? GIFT_PRICE : 0);
   const stockPct = Math.max(12, Math.min(92, (stockLeft / 40) * 100));
 
   useEffect(() => {
@@ -210,6 +213,7 @@ export default function Set2u1Client() {
           postanski_broj: f.postanski_broj.trim(),
           telefon: f.telefon.trim(),
           kolicina: q,
+          poklon: gift,
         }),
       });
       const data = await res.json();
@@ -220,7 +224,7 @@ export default function Set2u1Client() {
           content_name: PRODUCT_NAME,
           content_ids: [CONTENT_ID],
           content_type: "product",
-          value: PRICE * q + DELIVERY,
+          value: PRICE * q + DELIVERY + (gift ? GIFT_PRICE : 0),
           currency: "BAM",
           num_items: q,
         },
@@ -939,6 +943,7 @@ export default function Set2u1Client() {
                 </div>
               )}
 
+              <GiftAddon checked={gift} onChange={setGift} accent={C.red} style={{ marginBottom: 12 }} />
               <button
                 type="submit"
                 disabled={loading}
@@ -1128,6 +1133,8 @@ export default function Set2u1Client() {
             error={error}
             productTotal={productTotal}
             total={total}
+            gift={gift}
+            onGift={setGift}
             onClose={() => setPopupOpen(false)}
             onChange={update}
             onQty={setQty}
@@ -1178,11 +1185,15 @@ function OrderPopup({
   error,
   productTotal,
   total,
+  gift,
+  onGift,
   onClose,
   onChange,
   onQty,
   onSubmit,
 }: {
+  gift: boolean;
+  onGift: (v: boolean) => void;
   fields: FormFields;
   qty: number;
   loading: boolean;
@@ -1395,6 +1406,7 @@ function OrderPopup({
           <p style={{ fontSize: 13, color: C.red, marginBottom: 12, fontWeight: 500 }}>{error}</p>
         )}
 
+        <GiftAddon checked={gift} onChange={onGift} accent={C.red} style={{ marginBottom: 12 }} />
         <button
           type="button"
           disabled={loading}

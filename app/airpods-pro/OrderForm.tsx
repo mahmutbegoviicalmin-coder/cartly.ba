@@ -5,6 +5,8 @@ import { event } from "@/lib/fbpixel";
 import { CheckIcon } from "./icons";
 import { INK, MUTED, BG, F } from "./theme";
 
+import GiftAddon from "@/components/GiftAddon";
+import { GIFT_PRICE } from "@/lib/gift";
 export const UNIT_PRICE = 49.9;
 export const DELIVERY   = 10;
 export const PRODUCT    = "AirPods Pro";
@@ -67,6 +69,7 @@ interface Props {
 export default function OrderForm({ compact, onSuccess }: Props) {
   const [fields,    setFields]    = useState<Fields>({ ime: "", telefon: "", adresa: "", grad: "" });
   const [qty,       setQty]       = useState(1);
+  const [gift,      setGift]      = useState(false);
   const [errors,    setErrors]    = useState<Errs>({});
   const [loading,   setLoading]   = useState(false);
   const [done,      setDone]      = useState(false);
@@ -74,7 +77,7 @@ export default function OrderForm({ compact, onSuccess }: Props) {
   const checkoutTracked = useRef(false);
 
   const subtotal = qty * UNIT_PRICE;
-  const total    = subtotal + DELIVERY;
+  const total    = subtotal + DELIVERY + (gift ? GIFT_PRICE : 0);
 
   function trackCheckout() {
     if (checkoutTracked.current) return;
@@ -110,7 +113,7 @@ export default function OrderForm({ compact, onSuccess }: Props) {
       const res = await fetch("/api/airpods-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...fields, kolicina: qty, externalId }),
+        body: JSON.stringify({ ...fields, kolicina: qty, poklon: gift, externalId }),
       });
       const data = await res.json();
       if (!data.success) throw new Error(data.error || "Greška");
@@ -266,6 +269,7 @@ export default function OrderForm({ compact, onSuccess }: Props) {
         </div>
       )}
 
+      <GiftAddon checked={gift} onChange={setGift} accent={"#1D1D1F"} style={{ marginBottom: 12 }} />
       <button
         type="submit"
         disabled={loading}

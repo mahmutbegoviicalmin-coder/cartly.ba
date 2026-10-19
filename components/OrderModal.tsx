@@ -7,6 +7,8 @@ import { track } from "@vercel/analytics";
 import { isValidBaPhone, PHONE_ERROR } from "@/lib/ba-phone";
 import { useOrderProtection } from "@/lib/order-protection";
 
+import GiftAddon from "@/components/GiftAddon";
+import { GIFT_PRICE } from "@/lib/gift";
 const SIZES = [39, 40, 41, 42, 43, 44, 45, 46, 47];
 const OUT_OF_STOCK = new Set<number>([47]);
 const PRICE = 59.9;
@@ -27,6 +29,7 @@ export default function OrderModal({ open, onClose, initialSize }: Props) {
   const [city, setCity]           = useState("");
   const [zip, setZip]             = useState("");
   const [errors, setErrors]       = useState<Record<string, string>>({});
+  const [gift, setGift]           = useState(false);
   const [loading, setLoading]     = useState(false);
   const [done, setDone]           = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -43,7 +46,7 @@ export default function OrderModal({ open, onClose, initialSize }: Props) {
   };
 
   const totalPairs = Object.values(qtys).reduce((a, b) => a + b, 0);
-  const totalPrice = PRICE * totalPairs + (totalPairs > 0 ? DELIVERY : 0);
+  const totalPrice = PRICE * totalPairs + (totalPairs > 0 ? DELIVERY + (gift ? GIFT_PRICE : 0) : 0);
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -85,7 +88,7 @@ export default function OrderModal({ open, onClose, initialSize }: Props) {
       const res = await fetch("/api/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ime: name, telefon: phone, adresa: `${address}, ${zip} ${city}`, grad: city, velicine, externalId, ...protectionPayload() }),
+        body: JSON.stringify({ ime: name, telefon: phone, adresa: `${address}, ${zip} ${city}`, grad: city, velicine, poklon: gift, externalId, ...protectionPayload() }),
       });
       const data = await res.json();
       if (data.success) {
@@ -226,6 +229,7 @@ export default function OrderModal({ open, onClose, initialSize }: Props) {
                 </div>
               </div>
 
+              <GiftAddon checked={gift} onChange={setGift} accent="#B33000" style={{ marginBottom: 12 }} />
               <button type="submit" className="om-bt" disabled={loading}>{loading ? "Slanje..." : "Pošalji narudžbu"}</button>
               <p style={{ fontSize: 11, color: "#bbb", textAlign: "center", margin: "8px 0 0", fontFamily: "var(--font-manrope), sans-serif" }}>Plaćanje pouzećem · Bez kartice · Povrat 14 dana</p>
             </form>

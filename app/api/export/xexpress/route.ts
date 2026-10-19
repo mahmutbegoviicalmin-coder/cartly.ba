@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { stripIp } from "@/lib/order-ip";
 import * as XLSX from "xlsx";
+import { hasGift } from "@/lib/gift";
 import pttData from "@/data/ptt-bih.json";
 
 // ── PTT lookup (same as Pošta export) ─────────────────────────────────────────
@@ -231,7 +232,10 @@ export async function GET(request: NextRequest) {
         qty,                                                           // Masa pošiljke (kg)
         qty,                                                           // Broj paketa
         0,                                                             // Vrijednost
-        opisPosiljke((o as { order_number?: string }).order_number ?? "", velicine), // Opis
+        (() => {
+          const opis = opisPosiljke((o as { order_number?: string }).order_number ?? "", velicine);
+          return hasGift(o as Parameters<typeof hasGift>[0]) && !/poklon/i.test(opis) ? `${opis} + Poklon` : opis;
+        })(), // Opis
         "",                                                            // Hitna pošiljka
         (o as { ukupno: number }).ukupno,                              // Otkupnina iznos (COD)
         "ne",                                                          // Povratnica

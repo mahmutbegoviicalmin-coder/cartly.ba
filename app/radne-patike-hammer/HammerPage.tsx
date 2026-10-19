@@ -4,6 +4,8 @@ import { useState, useRef, useEffect, FormEvent } from "react";
 import Image from "next/image";
 import { createPortal } from "react-dom";
 
+import GiftAddon from "@/components/GiftAddon";
+import { GIFT_PRICE } from "@/lib/gift";
 /* ── Constants ───────────────────────────────────────────────────── */
 const ACCENT  = "#B33000";
 const F       = "var(--font-manrope, 'Inter', sans-serif)";
@@ -563,6 +565,7 @@ function OrderModal({ open, onClose, initialSize }: { open: boolean; onClose: ()
   const [qty,        setQty]        = useState(1);
   const [fields,     setFields]     = useState<Fields>({ ime:"", telefon:"", adresa:"", grad:"" });
   const [errors,     setErrors]     = useState<Record<string,string>>({});
+  const [gift, setGift] = useState(false);
   const [loading,    setLoading]    = useState(false);
   const [done,       setDone]       = useState(false);
   const [serverError,setServerError]= useState<string|null>(null);
@@ -571,7 +574,7 @@ function OrderModal({ open, onClose, initialSize }: { open: boolean; onClose: ()
   useEffect(() => { if (open) setSize(initialSize); }, [open, initialSize]);
   useEffect(() => { document.body.style.overflow = open ? "hidden" : ""; return () => { document.body.style.overflow = ""; }; }, [open]);
 
-  const total = PRICE * qty + DELIVERY;
+  const total = PRICE * qty + DELIVERY + (gift ? GIFT_PRICE : 0);
 
   function validate() {
     const e: Record<string,string> = {};
@@ -589,7 +592,7 @@ function OrderModal({ open, onClose, initialSize }: { open: boolean; onClose: ()
     if (Object.keys(validate()).length) return;
     setLoading(true); setServerError(null);
     try {
-      const res  = await fetch("/api/hammer-order", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...fields, velicina: size, kolicina: qty }) });
+      const res  = await fetch("/api/hammer-order", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ poklon: gift, ...fields, velicina: size, kolicina: qty }) });
       const data = await res.json();
       if (!data.success) throw new Error(data.error || "Greška");
       fireFbq("track", "Purchase", { value: total, currency: "BAM", content_name: "Hammer S3 Radne Patike", content_ids: ["radne-patike-hammer"], num_items: qty }, { eventID: data.orderNumber });
@@ -695,6 +698,7 @@ function OrderModal({ open, onClose, initialSize }: { open: boolean; onClose: ()
                     <div style={{ fontSize:13, fontWeight:800, color:"#fff", fontFamily:F }}>10,00 KM</div>
                   </div>
                 </div>
+                <GiftAddon checked={gift} onChange={setGift} accent={ACCENT} style={{ marginBottom: 12 }} />
                 <button type="submit" disabled={loading} className="r-cta"
                   style={{ width:"100%", padding:"15px", color:"#fff", border:"none", borderRadius:12, fontSize:15, fontWeight:900, cursor:loading ? "not-allowed" : "pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:8, marginTop:14, boxShadow:"0 4px 20px rgba(0,0,0,0.15)", fontFamily:F, opacity: loading ? 0.7 : 1 }}>
                   {loading ? "Šalje se..." : "Naruči — Plaćanje pouzećem"}
@@ -740,6 +744,7 @@ function QuickOrderSection({ onDone }: { onDone?: (orderNumber: string, total: n
   const [addr, setAddr]   = useState("");
   const [city, setCity]   = useState("");
   const [errors, setErrors]     = useState<Record<string,string>>({});
+  const [gift, setGift] = useState(false);
   const [loading, setLoading]   = useState(false);
   const [done,    setDone]      = useState(false);
   const [srvErr,  setSrvErr]    = useState<string|null>(null);
@@ -755,7 +760,7 @@ function QuickOrderSection({ onDone }: { onDone?: (orderNumber: string, total: n
   };
 
   const totalPairs = Object.values(qtys).reduce((a,b) => a+b, 0);
-  const total = PRICE * totalPairs + DELIVERY;
+  const total = PRICE * totalPairs + DELIVERY + (gift ? GIFT_PRICE : 0);
 
   function validate() {
     const e: Record<string,string> = {};
@@ -774,7 +779,7 @@ function QuickOrderSection({ onDone }: { onDone?: (orderNumber: string, total: n
     setLoading(true); setSrvErr(null);
     const velicine = Object.entries(qtys).map(([s,k]) => ({ velicina: Number(s), kolicina: k }));
     try {
-      const res  = await fetch("/api/hammer-order", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ime: name, telefon: phone, adresa: addr, grad: city, velicina: velicine[0]?.velicina, kolicina: totalPairs, velicine }) });
+      const res  = await fetch("/api/hammer-order", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ poklon: gift, ime: name, telefon: phone, adresa: addr, grad: city, velicina: velicine[0]?.velicina, kolicina: totalPairs, velicine }) });
       const data = await res.json();
       if (!data.success) throw new Error(data.error || "Greška");
       fireFbq("track", "Purchase", { value: total, currency: "BAM", content_name: "Hammer S3 Radne Patike", content_ids: ["radne-patike-hammer"], num_items: totalPairs }, { eventID: data.orderNumber });
@@ -872,6 +877,7 @@ function QuickOrderSection({ onDone }: { onDone?: (orderNumber: string, total: n
             </span>
           </div>
 
+          <GiftAddon checked={gift} onChange={setGift} accent={ACCENT} style={{ marginBottom: 12 }} />
           <button type="submit" className="rq-sub" disabled={loading}>{loading ? "Slanje..." : "Pošalji narudžbu"}</button>
           <p style={{ fontSize:11, color:"#BBB", textAlign:"center", marginTop:10, fontFamily:F }}>Plaćanje pouzećem · Bez kartice · Povrat 14 dana</p>
         </form>

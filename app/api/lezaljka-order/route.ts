@@ -5,6 +5,7 @@ import { sendCAPIEvent, getClientIP, getClientUA, getFbc, getFbp } from "@/lib/m
 import { guardCustomerOrder } from "@/lib/order-guard";
 import { stampIp } from "@/lib/order-ip";
 
+import { wantsGift, giftTag, giftEmailBanner, GIFT_PRICE } from "@/lib/gift";
 const BOSNIAN_MONTHS = [
   "januar", "februar", "mart", "april", "maj", "juni",
   "juli", "august", "septembar", "oktobar", "novembar", "decembar",
@@ -62,6 +63,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const guarded = await guardCustomerOrder(request, body);
     if (!guarded.ok) return guarded.response;
+    const gift = wantsGift(body);
     const { ime, telefon, adresa, grad } = guarded.fields;
     const { postanski_broj, boja, kolicina, externalId } = body;
 
@@ -72,7 +74,7 @@ export async function POST(request: NextRequest) {
     const PRICE = 59.9;
     const DELIVERY = 10.0;
     const cijenaProizvoda = PRICE * kolicina;
-    const ukupno = cijenaProizvoda + DELIVERY;
+    const ukupno = cijenaProizvoda + DELIVERY + (gift ? GIFT_PRICE : 0);
     const colorLabel = COLOR_LABELS[boja] ?? boja;
     const colorHex = COLOR_HEX[boja] ?? "#000";
     const fullAdresa = postanski_broj ? `${adresa}, ${postanski_broj} ${grad}` : `${adresa}, ${grad}`;
@@ -116,7 +118,7 @@ export async function POST(request: NextRequest) {
     await resend.emails.send({
       from: "onboarding@resend.dev",
       to: process.env.OWNER_EMAIL!,
-      subject: `#NARUDZBA [LEZALJKA] - ${ime} - ${colorLabel} ×${kolicina} - ${sarajevoTime(now)}`,
+      subject: `#NARUDZBA [LEZALJKA${giftTag(gift)}] - ${ime} - ${colorLabel} ×${kolicina} - ${sarajevoTime(now)}`,
       html: `
 <!DOCTYPE html>
 <html lang="bs">
@@ -150,6 +152,7 @@ export async function POST(request: NextRequest) {
     <!-- BODY -->
     <tr>
       <td style="background:#ffffff;padding:32px;border-left:1px solid #E5E5E5;border-right:1px solid #E5E5E5;">
+${giftEmailBanner(gift)}
 
         <!-- Boja swatch -->
         <div style="display:inline-flex;align-items:center;gap:10px;background:#F7F7F7;border-radius:10px;padding:10px 16px;margin-bottom:24px;">

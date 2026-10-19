@@ -9,6 +9,7 @@ import type { getSupabaseAdmin } from "@/lib/supabase-server";
 import pttData from "@/data/ptt-bih.json";
 import { PRODUCTS, findProduct, type ProductDef } from "@/lib/export-products";
 import { stripIp } from "@/lib/order-ip";
+import { hasGift } from "@/lib/gift";
 
 export { PRODUCTS, findProduct };
 export type { ProductDef };
@@ -161,6 +162,11 @@ function ordersOpis(orderNumber: string, velicine: Velicina[]): string {
   return typeof raw === "string" && raw ? raw : "Paket";
 }
 
+/** Append "+ Poklon" when the order includes the gift add-on (once). */
+function withGift(opis: string, o: Parameters<typeof hasGift>[0]): string {
+  return hasGift(o) && !/poklon/i.test(opis) ? `${opis} + Poklon` : opis;
+}
+
 // ── Order fetching ───────────────────────────────────────────────────────────
 
 type Sb = ReturnType<typeof getSupabaseAdmin>;
@@ -198,7 +204,7 @@ async function fetchFromOrders(
       grad: String(o.grad ?? ""),
       ukupno: Number(o.ukupno ?? 0),
       order_number: String(o.order_number ?? ""),
-      opis: ordersOpis(String(o.order_number ?? ""), velicine),
+      opis: withGift(ordersOpis(String(o.order_number ?? ""), velicine), o),
       units: totalUnits(velicine),
     };
   });
@@ -241,7 +247,7 @@ async function fetchFromAux(
       grad: String(o.grad ?? ""),
       ukupno: Number(o.ukupno ?? 0),
       order_number: String(o.order_number ?? ""),
-      opis,
+      opis: withGift(opis, o),
       units,
     };
   });

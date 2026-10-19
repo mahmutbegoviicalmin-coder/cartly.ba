@@ -4,6 +4,8 @@ import { useState, useRef, FormEvent } from "react";
 import { event } from "@/lib/fbpixel";
 import OrderSuccess from "@/components/OrderSuccess";
 
+import GiftAddon from "@/components/GiftAddon";
+import { GIFT_PRICE } from "@/lib/gift";
 const ACCENT     = "#FF6B00";
 const UNIT_PRICE = 59.9;
 const DELIVERY   = 10.0;
@@ -16,6 +18,7 @@ export default function OrderForm() {
   const [form, setForm] = useState({
     ime: "", telefon: "", adresa: "", postanski_broj: "", grad: "", kolicina: "1",
   });
+  const [gift,    setGift]    = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error,   setError]   = useState<string | null>(null);
@@ -23,7 +26,7 @@ export default function OrderForm() {
 
   const qty      = Math.max(1, Math.min(5, Number(form.kolicina) || 1));
   const subtotal = qty * UNIT_PRICE;
-  const total    = subtotal + DELIVERY;
+  const total    = subtotal + DELIVERY + (gift ? GIFT_PRICE : 0);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -42,7 +45,7 @@ export default function OrderForm() {
       const res  = await fetch("/api/order-zvucnik", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ ime: form.ime, telefon: form.telefon, adresa: form.adresa, grad: form.grad, kolicina: qty }),
+        body:    JSON.stringify({ ime: form.ime, telefon: form.telefon, adresa: form.adresa, grad: form.grad, kolicina: qty, poklon: gift }),
       });
       const json = await res.json();
       if (!res.ok || !json.success) throw new Error(json.error || "Greška.");
@@ -152,6 +155,7 @@ export default function OrderForm() {
       )}
 
       {/* Submit */}
+      <GiftAddon checked={gift} onChange={setGift} accent={ACCENT} style={{ marginBottom: 12 }} />
       <button
         type="submit"
         disabled={loading}

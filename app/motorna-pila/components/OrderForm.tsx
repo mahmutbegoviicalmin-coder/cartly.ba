@@ -14,6 +14,8 @@ import OrderSuccess from "./OrderSuccess";
 import { isValidBaPhone, PHONE_ERROR } from "@/lib/ba-phone";
 import { useOrderProtection } from "@/lib/order-protection";
 
+import GiftAddon from "@/components/GiftAddon";
+import { GIFT_PRICE } from "@/lib/gift";
 type Fields = {
   ime: string;
   prezime: string;
@@ -87,7 +89,9 @@ export default function OrderForm({
 }) {
   const [fields, setFields] = useState<Fields>(EMPTY);
   const [errors, setErrors] = useState<Errs>({});
+  const [gift, setGift] = useState(false);
   const [loading, setLoading] = useState(false);
+  const total = ORDER_TOTAL + (gift ? GIFT_PRICE : 0);
   const [done, setDone] = useState(false);
   const [orderNumber, setOrderNumber] = useState("");
   const [paidTotal, setPaidTotal] = useState(ORDER_TOTAL);
@@ -134,7 +138,7 @@ export default function OrderForm({
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...fields, productId: PRODUCT_ID, externalId, ...protectionPayload() }),
+        body: JSON.stringify({ ...fields, productId: PRODUCT_ID, poklon: gift, externalId, ...protectionPayload() }),
       });
 
       const data = await res.json().catch(() => null);
@@ -151,12 +155,12 @@ export default function OrderForm({
         id: PRODUCT_ID,
         name: PRODUCT_NAME,
         category: "Alati",
-        value: Number(data.total) || ORDER_TOTAL,
+        value: Number(data.total) || total,
         orderId: data.orderNumber,
       });
 
       setOrderNumber(data.orderNumber);
-      setPaidTotal(Number(data.total) || ORDER_TOTAL);
+      setPaidTotal(Number(data.total) || total);
       setDone(true);
     } catch {
       setServerErr("Došlo je do greške. Pokušaj ponovo.");
@@ -184,6 +188,8 @@ export default function OrderForm({
         </div>
       </div>
 
+      <GiftAddon checked={gift} onChange={setGift} accent="#E85C04" />
+
       <div className="mp-summary" aria-label="Pregled narudžbe">
         <div className="mp-summary-row">
           <span>Motorna pila</span>
@@ -193,9 +199,15 @@ export default function OrderForm({
           <span>Dostava</span>
           <strong>{fmtKM(DELIVERY_PRICE)}</strong>
         </div>
+        {gift && (
+          <div className="mp-summary-row">
+            <span>Poklon iznenađenja</span>
+            <strong>+{fmtKM(GIFT_PRICE)}</strong>
+          </div>
+        )}
         <div className="mp-summary-total">
           <span style={{ fontWeight: 600, color: "#141414" }}>Ukupno za plaćanje</span>
-          <strong style={{ fontSize: 20, letterSpacing: "-0.03em" }}>{fmtKM(ORDER_TOTAL)}</strong>
+          <strong style={{ fontSize: 20, letterSpacing: "-0.03em" }}>{fmtKM(total)}</strong>
         </div>
       </div>
 

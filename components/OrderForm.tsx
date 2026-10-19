@@ -8,6 +8,8 @@ import OrderSuccess from "./OrderSuccess";
 import { isValidBaPhone, PHONE_ERROR } from "@/lib/ba-phone";
 import { useOrderProtection } from "@/lib/order-protection";
 
+import GiftAddon from "@/components/GiftAddon";
+import { GIFT_PRICE } from "@/lib/gift";
 const SIZES = [39, 40, 41, 42, 43, 44, 45, 46, 47];
 const OUT_OF_STOCK = new Set([47]);
 const PRICE_PER_PAIR = 59.9;
@@ -67,6 +69,7 @@ export default function OrderForm() {
   );
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitted, setSubmitted] = useState(false);
+  const [gift, setGift] = useState(false);
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
@@ -76,7 +79,7 @@ export default function OrderForm() {
   const totalPairs    = Object.values(quantities).reduce((a, b) => a + b, 0);
   const productTotal  = calcProductTotal(totalPairs);
   const deliveryCost  = DELIVERY;
-  const grandTotal    = totalPairs > 0 ? productTotal + deliveryCost : 0;
+  const grandTotal    = totalPairs > 0 ? productTotal + deliveryCost + (gift ? GIFT_PRICE : 0) : 0;
   const selectedSizes = SIZES.filter((s) => quantities[s] > 0);
 
   const addToCartTracked = useRef(false);
@@ -141,6 +144,7 @@ export default function OrderForm() {
             : fields.address,
           grad: fields.city,
           velicine: SIZES.map((s) => ({ velicina: s, kolicina: quantities[s] ?? 0 })),
+          poklon: gift,
           externalId: (() => { try { return localStorage.getItem('_crt_eid') || ''; } catch { return ''; } })(),
           ...protectionPayload(),
         }),
@@ -417,6 +421,7 @@ export default function OrderForm() {
                 )}
 
                 {/* Submit */}
+                <GiftAddon checked={gift} onChange={setGift} accent="#B33000" style={{ marginBottom: 12 }} />
                 <button
                   type="submit"
                   disabled={loading}

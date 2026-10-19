@@ -60,8 +60,8 @@ export async function POST(request: NextRequest) {
     };
 
     const gift             = poklon === true;
-    const cijena_proizvoda = UNIT_PRICE + (gift ? GIFT_PRICE : 0);
-    const ukupno           = cijena_proizvoda + DELIVERY;
+    const cijena_proizvoda = UNIT_PRICE;
+    const ukupno           = cijena_proizvoda + DELIVERY + (gift ? GIFT_PRICE : 0);
     const now              = new Date();
     const orderNumber      = generateOrderNumber(now);
     const label            = gift ? `${PRODUCT} + Poklon iznenađenja` : PRODUCT;

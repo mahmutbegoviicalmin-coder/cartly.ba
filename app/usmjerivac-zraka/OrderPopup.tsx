@@ -4,6 +4,8 @@ import React, { useState, useEffect, FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { event } from "@/lib/fbpixel";
 
+import GiftAddon from "@/components/GiftAddon";
+import { GIFT_PRICE } from "@/lib/gift";
 const BLUE  = "#1a5fff";
 const BLUE2 = "#1448d4";
 const BLK   = "#0a0a1a";
@@ -50,6 +52,7 @@ export default function OrderPopup({ open, onClose, initialBundle }: Props) {
   const [bundle,    setBundle]    = useState<BID>(initialBundle);
   const [fields,    setFields]    = useState<Fields>({ ime: "", telefon: "", adresa: "", grad: "" });
   const [errors,    setErrors]    = useState<Errs>({});
+  const [gift,      setGift]      = useState(false);
   const [loading,   setLoading]   = useState(false);
   const [done,      setDone]      = useState(false);
   const [serverErr, setServerErr] = useState<string | null>(null);
@@ -74,6 +77,7 @@ export default function OrderPopup({ open, onClose, initialBundle }: Props) {
   }, [open]);
 
   const sel = BUNDLES.find(b => b.id === bundle)!;
+  const total = sel.total + (gift ? GIFT_PRICE : 0);
 
   function validate(): Errs {
     const e: Errs = {};
@@ -90,15 +94,15 @@ export default function OrderPopup({ open, onClose, initialBundle }: Props) {
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setLoading(true); setServerErr(null);
     try {
-      event("InitiateCheckout", { content_name: "Usmjerivač Zraka Klime", content_ids: ["usmjerivac-zraka"], content_type: "product", value: sel.total, currency: "BAM", num_items: sel.id });
+      event("InitiateCheckout", { content_name: "Usmjerivač Zraka Klime", content_ids: ["usmjerivac-zraka"], content_type: "product", value: total, currency: "BAM", num_items: sel.id });
       const externalId = typeof localStorage !== "undefined" ? localStorage.getItem("_crt_eid") || "" : "";
       const res  = await fetch("/api/usmjerivac-order", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...fields, bundle, externalId }),
+        body: JSON.stringify({ ...fields, bundle, poklon: gift, externalId }),
       });
       const data = await res.json();
       if (!data.success) throw new Error(data.error || "Greška");
-      event("Purchase", { content_name: "Usmjerivač Zraka Klime", content_ids: ["usmjerivac-zraka"], content_type: "product", value: sel.total, currency: "BAM", num_items: sel.id }, data.orderNumber);
+      event("Purchase", { content_name: "Usmjerivač Zraka Klime", content_ids: ["usmjerivac-zraka"], content_type: "product", value: total, currency: "BAM", num_items: sel.id }, data.orderNumber);
       setDone(true);
     } catch {
       setServerErr("Greška pri slanju narudžbe. Pokušajte ponovo.");
@@ -326,7 +330,7 @@ export default function OrderPopup({ open, onClose, initialBundle }: Props) {
                           <div style={{ fontSize: 10, color: GR, fontFamily: F }}>{sel.qty} · dostava uključena</div>
                         </div>
                         <div style={{ fontSize: 20, fontWeight: 900, color: BLUE, fontFamily: F, letterSpacing: "-0.04em" }}>
-                          {fmt(sel.total)}
+                          {fmt(total)}
                         </div>
                       </div>
                     </div>
@@ -366,7 +370,7 @@ export default function OrderPopup({ open, onClose, initialBundle }: Props) {
                               Ukupno za plaćanje
                             </div>
                             <div style={{ fontSize: 30, fontWeight: 900, color: "#fff", fontFamily: F, letterSpacing: "-0.05em", lineHeight: 1 }}>
-                              {fmt(sel.total)}
+                              {fmt(total)}
                             </div>
                           </div>
                           <div style={{ background: "rgba(74,222,128,0.18)", border: "1px solid rgba(74,222,128,0.32)", borderRadius: 10, padding: "6px 12px", textAlign: "center" }}>
@@ -376,6 +380,7 @@ export default function OrderPopup({ open, onClose, initialBundle }: Props) {
                         </div>
 
                         {/* Submit button */}
+                        <GiftAddon checked={gift} onChange={setGift} accent={BLUE} style={{ marginBottom: 12 }} />
                         <button
                           type="submit"
                           disabled={loading}

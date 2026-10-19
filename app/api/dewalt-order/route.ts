@@ -5,6 +5,7 @@ import { sendCAPIEvent, getClientIP, getClientUA, getFbc, getFbp } from "@/lib/m
 import { guardCustomerOrder } from "@/lib/order-guard";
 import { stampIp } from "@/lib/order-ip";
 
+import { wantsGift, giftTag, giftEmailBanner, GIFT_PRICE } from "@/lib/gift";
 const UNIT_PRICE = 69.9;
 const DELIVERY   = 10.0;
 
@@ -44,10 +45,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const guarded = await guardCustomerOrder(request, body);
     if (!guarded.ok) return guarded.response;
+    const gift = wantsGift(body);
     const { ime, telefon, adresa, grad } = guarded.fields;
 
     const cijena_proizvoda = UNIT_PRICE;
-    const ukupno           = cijena_proizvoda + DELIVERY;
+    const ukupno           = cijena_proizvoda + DELIVERY + (gift ? GIFT_PRICE : 0);
     const now              = new Date();
     const orderNumber      = generateOrderNumber(now);
 
@@ -96,7 +98,7 @@ export async function POST(request: NextRequest) {
       await resend.emails.send({
         from:    "Cartly.ba <onboarding@resend.dev>",
         to:      process.env.OWNER_EMAIL!,
-        subject: `#NARUDZBA [DEWALT] - ${ime} - 1kom - ${sarajevoTime(now)}`,
+        subject: `#NARUDZBA [DEWALT${giftTag(gift)}] - ${ime} - 1kom - ${sarajevoTime(now)}`,
         html: `
 <div style="font-family:Inter,-apple-system,sans-serif;max-width:600px;margin:0 auto;background:#ffffff;border:1px solid #F0F0F0;">
 
@@ -108,6 +110,7 @@ export async function POST(request: NextRequest) {
 
   <!-- Body -->
   <div style="padding:32px 40px;">
+${giftEmailBanner(gift)}
     <h2 style="font-size:13px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 12px;">Podaci kupca</h2>
 
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">

@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import { event } from "@/lib/fbpixel";
 
+import GiftAddon from "@/components/GiftAddon";
+import { GIFT_PRICE } from "@/lib/gift";
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const C = {
   red:    "#CC0000",
@@ -105,6 +107,7 @@ export default function MilwaukeePage() {
   const [notifShow,  setNotifShow]  = useState(false);
   const [viewers,    setViewers]    = useState(0);
   const [form,       setForm]       = useState({ ime: "", adresa: "", postanski_broj: "", grad: "", telefon: "" });
+  const [gift,       setGift]       = useState(false);
   const [loading,    setLoading]    = useState(false);
   const [success,    setSuccess]    = useState(false);
   const [error,      setError]      = useState<string | null>(null);
@@ -170,10 +173,10 @@ export default function MilwaukeePage() {
     if (!/^[0-9+\s\-()]{6,}$/.test(telefon.trim())) { setError("Unesite ispravan broj telefona."); return; }
     setLoading(true); setError(null);
     try {
-      const res  = await fetch("/api/narudzba", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ime, adresa, grad, telefon }) });
+      const res  = await fetch("/api/narudzba", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ime, adresa, grad, telefon, poklon: gift }) });
       const json = await res.json();
       if (!res.ok || !json.success) throw new Error(json.error || "Greška pri slanju.");
-      event("Purchase", { content_name: "Milwaukee M18 Bušilica Set", value: 69.9, currency: "BAM" }, json.orderNumber);
+      event("Purchase", { content_name: "Milwaukee M18 Bušilica Set", value: 79.9 + (gift ? GIFT_PRICE : 0), currency: "BAM" }, json.orderNumber);
       setSuccess(true);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Greška pri slanju narudžbe. Pokušajte ponovo.");
@@ -845,6 +848,7 @@ export default function MilwaukeePage() {
                     </div>
                   )}
 
+                  <GiftAddon checked={gift} onChange={setGift} accent={C.red} style={{ marginBottom: 12 }} />
                   <button type="submit" disabled={loading} className="mw-btn" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: loading ? "rgba(11,11,11,0.5)" : C.black, color: C.white, fontFamily: SORA, fontWeight: 700, fontSize: 17, border: "none", borderRadius: 12, padding: "18px", cursor: loading ? "not-allowed" : "pointer", width: "100%", marginTop: 4 }}>
                     {loading ? (
                       <>
@@ -885,7 +889,7 @@ export default function MilwaukeePage() {
                   <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 18, display: "flex", justifyContent: "space-between", alignItems: "baseline", marginTop: 4 }}>
                     <span className="mw-h" style={{ fontSize: 17, fontWeight: 700, color: C.black }}>Ukupno</span>
                     <span className="mw-h" style={{ fontSize: 40, fontWeight: 800, letterSpacing: "-0.04em", color: C.black, lineHeight: 1 }}>
-                      79,90 KM
+                      {(79.9 + (gift ? GIFT_PRICE : 0)).toFixed(2).replace(".", ",")} KM
                     </span>
                   </div>
                 </div>

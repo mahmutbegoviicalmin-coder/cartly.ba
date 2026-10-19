@@ -5,6 +5,7 @@ import { sendCAPIEvent, getClientIP, getClientUA, getFbc, getFbp } from "@/lib/m
 import { guardCustomerOrder } from "@/lib/order-guard";
 import { stampIp } from "@/lib/order-ip";
 
+import { wantsGift, giftTag, giftEmailBanner, GIFT_PRICE } from "@/lib/gift";
 const UNIT_PRICE = 149;
 const DELIVERY = 10.0;
 const PRODUCT_LABEL = "Milwaukee Set 3.1";
@@ -51,6 +52,7 @@ export async function POST(request: NextRequest) {
       requirePostal: true,
     });
     if (!guarded.ok) return guarded.response;
+    const gift = wantsGift(body);
     const ime = guarded.fields.imeFirst;
     const prezime = guarded.fields.prezime;
     const telefon = guarded.fields.telefon;
@@ -66,8 +68,7 @@ export async function POST(request: NextRequest) {
     const now = new Date();
     const orderNumber = generateOrderNumber(now);
     const cijena_proizvoda = UNIT_PRICE * qty;
-    const ukupno = cijena_proizvoda + DELIVERY;
-
+    const ukupno = cijena_proizvoda + DELIVERY + (gift ? GIFT_PRICE : 0);
     const { error: dbError } = await getSupabaseAdmin()
       .from("orders")
       .insert({
@@ -114,7 +115,7 @@ export async function POST(request: NextRequest) {
       await resend.emails.send({
         from: "Cartly.ba <onboarding@resend.dev>",
         to: process.env.OWNER_EMAIL!,
-        subject: `#NARUDZBA [MILWAUKEE SET 3.1] - ${fullName} - ${qty}kom - ${sarajevoTime(now)}`,
+        subject: `#NARUDZBA [MILWAUKEE SET 3.1${giftTag(gift)}] - ${fullName} - ${qty}kom - ${sarajevoTime(now)}`,
         html: `
 <!DOCTYPE html>
 <html lang="bs">
@@ -131,6 +132,7 @@ export async function POST(request: NextRequest) {
     </tr>
     <tr>
       <td style="background:#ffffff;padding:32px;border-left:1px solid #E5E5E5;border-right:1px solid #E5E5E5;">
+${giftEmailBanner(gift)}
         <p style="margin:0 0 12px;font-size:11px;font-weight:700;color:#DC0000;text-transform:uppercase;letter-spacing:0.1em;">Podaci kupca</p>
         <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
           ${[

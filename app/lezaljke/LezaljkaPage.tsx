@@ -11,6 +11,8 @@ import GallerySection from "./components/GallerySection";
 import { CountdownBanner, OrderNotifications } from "./components/SocialProof";
 import { PRODUCT } from "./components/types";
 
+import GiftAddon from "@/components/GiftAddon";
+import { GIFT_PRICE } from "@/lib/gift";
 const PRICE = 59.9;
 const DELIVERY = 10.0;
 
@@ -30,6 +32,7 @@ export default function LezaljkaPage() {
   const [city, setCity] = useState("");
   const [zip, setZip] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [gift, setGift] = useState(false);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -37,7 +40,7 @@ export default function LezaljkaPage() {
   const [checkoutFired, setCheckoutFired] = useState(false);
 
   const activeColor = PRODUCT;
-  const total = PRICE * qty + DELIVERY;
+  const total = PRICE * qty + DELIVERY + (gift ? GIFT_PRICE : 0);
 
   useEffect(() => {
     const t = setTimeout(() => setFloatVisible(true), 1800);
@@ -91,7 +94,7 @@ export default function LezaljkaPage() {
       const res = await fetch("/api/lezaljka-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ime: name, telefon: phone, adresa: address, grad: city, postanski_broj: zip, boja: PRODUCT.id, kolicina: qty, externalId }),
+        body: JSON.stringify({ ime: name, telefon: phone, adresa: address, grad: city, postanski_broj: zip, boja: PRODUCT.id, kolicina: qty, poklon: gift, externalId }),
       });
       const data = await res.json();
       if (data.success) {
@@ -496,6 +499,7 @@ export default function LezaljkaPage() {
                 </p>
               )}
 
+              <GiftAddon checked={gift} onChange={setGift} accent={activeColor.hex} style={{ marginBottom: 12 }} />
               <button type="submit" form="lz-form" className="lz-sub" disabled={loading}
                 style={{ background: activeColor.hex, transition: "background 400ms" }}>
                 {loading ? "Slanje..." : `Potvrdi narudžbu · ${total.toFixed(2).replace(".", ",")} KM`}

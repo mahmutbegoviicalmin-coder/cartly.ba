@@ -4,6 +4,8 @@ import { useState, useEffect, useRef, FormEvent } from "react";
 import Image from "next/image";
 import { event } from "@/lib/fbpixel";
 
+import GiftAddon from "@/components/GiftAddon";
+import { GIFT_PRICE } from "@/lib/gift";
 /* ─── CONSTANTS ──────────────────────────────────────── */
 const ACCENT       = "#5C8B5A";
 const ACCENT_DARK  = "#4A7248";
@@ -469,13 +471,14 @@ export default function KomarnikClient() {
   const [bundle,    setBundle]    = useState<BundleId>(2);
   const [fields,    setFields]    = useState<Fields>({ ime: "", telefon: "", adresa: "", grad: "" });
   const [errors,    setErrors]    = useState<Errors>({});
+  const [gift,      setGift]      = useState(false);
   const [loading,   setLoading]   = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [serverErr, setServerErr] = useState<string | null>(null);
   const [openFaq,   setOpenFaq]   = useState<number | null>(null);
 
   const selectedBundle = BUNDLES.find(b => b.id === bundle)!;
-  const total = selectedBundle.price + selectedBundle.delivery;
+  const total = selectedBundle.price + selectedBundle.delivery + (gift ? GIFT_PRICE : 0);
 
   function handleBundleSelect(id: BundleId) {
     setBundle(id);
@@ -506,7 +509,7 @@ export default function KomarnikClient() {
       const externalId = typeof localStorage !== "undefined" ? localStorage.getItem("_crt_eid") || "" : "";
       const res = await fetch("/api/komarnik-order", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...fields, bundle, externalId }),
+        body: JSON.stringify({ ...fields, bundle, poklon: gift, externalId }),
       });
       const data = await res.json();
       if (!data.success) throw new Error(data.error || "Greška");
@@ -1071,6 +1074,7 @@ export default function KomarnikClient() {
                   </div>
                 )}
 
+                <GiftAddon checked={gift} onChange={setGift} accent={ACCENT} style={{ marginBottom: 12 }} />
                 <button
                   type="submit"
                   disabled={loading}

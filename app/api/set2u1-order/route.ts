@@ -5,6 +5,7 @@ import { sendCAPIEvent, getClientIP, getClientUA, getFbc, getFbp } from "@/lib/m
 import { guardCustomerOrder } from "@/lib/order-guard";
 import { stampIp } from "@/lib/order-ip";
 
+import { wantsGift, giftTag, giftEmailBanner, GIFT_PRICE } from "@/lib/gift";
 const UNIT_PRICE = 104.9;
 const DELIVERY = 10.0;
 const PRODUCT_LABEL = "Set 2 u 1 — Bušilica + Brusilica";
@@ -48,6 +49,7 @@ export async function POST(request: NextRequest) {
       requirePostal: true,
     });
     if (!guarded.ok) return guarded.response;
+    const gift = wantsGift(body);
     const ime = guarded.fields.imeFirst;
     const prezime = guarded.fields.prezime;
     const telefon = guarded.fields.telefon;
@@ -63,8 +65,7 @@ export async function POST(request: NextRequest) {
     const now = new Date();
     const orderNumber = generateOrderNumber(now);
     const cijena_proizvoda = UNIT_PRICE * qty;
-    const ukupno = cijena_proizvoda + DELIVERY;
-
+    const ukupno = cijena_proizvoda + DELIVERY + (gift ? GIFT_PRICE : 0);
     const { error: dbError } = await getSupabaseAdmin()
       .from("orders")
       .insert({
@@ -107,7 +108,7 @@ export async function POST(request: NextRequest) {
       await resend.emails.send({
         from: "Cartly.ba <onboarding@resend.dev>",
         to: process.env.OWNER_EMAIL!,
-        subject: `#NARUDZBA [SET 2U1] - ${fullName} - x${qty} - ${sarajevoTime(now)}`,
+        subject: `#NARUDZBA [SET 2U1${giftTag(gift)}] - ${fullName} - x${qty} - ${sarajevoTime(now)}`,
         html: `
           <div style="font-family:Inter,-apple-system,sans-serif;max-width:600px;margin:0 auto;background:#fff;border:1px solid #F0F0F0;">
             <div style="background:#B33000;padding:28px 36px;">
@@ -115,6 +116,7 @@ export async function POST(request: NextRequest) {
               <p style="color:rgba(255,255,255,0.75);margin:6px 0 0;font-size:13px;">${orderNumber} · ${formatDateBosnian(now)}</p>
             </div>
             <div style="padding:28px 36px;">
+${giftEmailBanner(gift)}
               <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
                 ${[["Ime i prezime", fullName], ["Telefon", telefon], ["Adresa", fullAdresa], ["Grad", grad]].map(([lbl, val]) => `
                 <tr><td style="padding-bottom:8px;">

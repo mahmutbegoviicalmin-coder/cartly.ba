@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import { event } from "@/lib/fbpixel";
 
+import GiftAddon from "@/components/GiftAddon";
+import { GIFT_PRICE } from "@/lib/gift";
 const PRICE = 149;
 const OLD_PRICE = 220;
 const DELIVERY = 10;
@@ -187,6 +189,7 @@ function SafeImage({
 export default function MilwaukeeSetClient() {
   const [fields, setFields] = useState<FormFields>(EMPTY);
   const [qty, setQty] = useState(1);
+  const [gift, setGift] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -200,7 +203,7 @@ export default function MilwaukeeSetClient() {
   const deadlineRef = useRef(0);
 
   const productTotal = PRICE * qty;
-  const total = productTotal + DELIVERY;
+  const total = productTotal + DELIVERY + (gift ? GIFT_PRICE : 0);
   const stockPct = Math.max(8, Math.min(100, (stockLeft / STOCK_CAP) * 100));
 
   useEffect(() => {
@@ -327,6 +330,7 @@ export default function MilwaukeeSetClient() {
           postanski_broj: f.postanski_broj.trim(),
           telefon: f.telefon.trim(),
           kolicina: q,
+          poklon: gift,
           externalId,
         }),
       });
@@ -338,7 +342,7 @@ export default function MilwaukeeSetClient() {
           content_name: PRODUCT_NAME,
           content_ids: [CONTENT_ID],
           content_type: "product",
-          value: PRICE * q + DELIVERY,
+          value: PRICE * q + DELIVERY + (gift ? GIFT_PRICE : 0),
           currency: "BAM",
           num_items: q,
         },
@@ -758,6 +762,7 @@ export default function MilwaukeeSetClient() {
                 </div>
               )}
 
+              <GiftAddon checked={gift} onChange={setGift} accent={C.red} style={{ marginBottom: 12 }} />
               <button type="submit" disabled={loading} className="ms3-btn" style={{ width: "100%", background: loading ? "#444" : C.black, color: C.white, border: "none", borderRadius: 14, padding: "17px", fontWeight: 800, fontSize: 16, cursor: loading ? "not-allowed" : "pointer", fontFamily: FONT }}>
                 {loading ? "Slanje..." : `Potvrdi narudžbu · ${fmt(total)}`}
               </button>
@@ -817,6 +822,8 @@ export default function MilwaukeeSetClient() {
             error={error}
             productTotal={productTotal}
             total={total}
+            gift={gift}
+            onGift={setGift}
             onClose={() => setPopupOpen(false)}
             onChange={update}
             onQty={setQty}
@@ -936,11 +943,15 @@ function OrderPopup({
   error,
   productTotal,
   total,
+  gift,
+  onGift,
   onClose,
   onChange,
   onQty,
   onSubmit,
 }: {
+  gift: boolean;
+  onGift: (v: boolean) => void;
   fields: FormFields;
   qty: number;
   loading: boolean;
@@ -1059,6 +1070,7 @@ function OrderPopup({
 
         {error && <p style={{ fontSize: 13, color: C.red, marginBottom: 12, fontWeight: 500 }}>{error}</p>}
 
+        <GiftAddon checked={gift} onChange={onGift} accent={C.red} style={{ marginBottom: 12 }} />
         <button type="button" disabled={loading} onClick={onSubmit} className="ms3-btn" style={{ width: "100%", background: C.black, color: C.white, border: "none", borderRadius: 14, padding: "16px", fontWeight: 800, fontSize: 16, cursor: loading ? "not-allowed" : "pointer", fontFamily: FONT }}>
           {loading ? "Slanje..." : `Pošalji · ${fmt(total)}`}
         </button>

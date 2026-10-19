@@ -7,6 +7,8 @@ import SocialProofToast from "./SocialProofToast";
 import FloatingCTA from "./FloatingCTA";
 import OrderSuccess from "@/components/OrderSuccess";
 
+import GiftAddon from "@/components/GiftAddon";
+import { GIFT_PRICE } from "@/lib/gift";
 const ACCENT = "#FF6B00";
 
 const IMAGES = [
@@ -213,6 +215,7 @@ export default function CetkaClient() {
   const [viewers,    setViewers]    = useState(0);
   const [fields,     setFields]     = useState<Fields>({ name: "", phone: "", address: "", city: "" });
   const [errors,     setErrors]     = useState<FieldErrors>({});
+  const [gift,       setGift]       = useState(false);
   const [loading,    setLoading]    = useState(false);
   const [submitted,  setSubmitted]  = useState(false);
   const [serverError,setServerError]= useState<string | null>(null);
@@ -222,7 +225,7 @@ export default function CetkaClient() {
 
   // 1+1 GRATIS — uvijek 2 četke po cijeni jedne
   const productTotal = PRICE_BASE;
-  const grandTotal   = PRICE_BASE + DELIVERY;
+  const grandTotal   = PRICE_BASE + DELIVERY + (gift ? GIFT_PRICE : 0);
 
   /* countdown */
   useEffect(() => {
@@ -280,7 +283,7 @@ export default function CetkaClient() {
     try {
       const res  = await fetch("/api/cetka-order", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ime: fields.name, telefon: fields.phone, adresa: fields.address, grad: fields.city }),
+        body: JSON.stringify({ ime: fields.name, telefon: fields.phone, adresa: fields.address, grad: fields.city, poklon: gift }),
       });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.error || "Greška");
@@ -858,6 +861,7 @@ export default function CetkaClient() {
               }}>{serverError}</p>
             )}
 
+            <GiftAddon checked={gift} onChange={setGift} accent={ACCENT} style={{ marginBottom: 12 }} />
             <button type="submit" disabled={loading} className="cta-btn" style={{
               background: loading ? "#CCC" : `linear-gradient(135deg, #FF7A20 0%, #FF5000 100%)`,
               color: "#FFFFFF", fontWeight: 800, fontSize: 17,

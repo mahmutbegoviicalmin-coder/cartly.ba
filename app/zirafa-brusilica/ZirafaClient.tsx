@@ -10,6 +10,8 @@ import { event } from "@/lib/fbpixel";
 import OrderPopup from "./OrderPopup";
 import ZirafaFloatingCTA from "./FloatingCTA";
 
+import GiftAddon from "@/components/GiftAddon";
+import { GIFT_PRICE } from "@/lib/gift";
 const manrope = Manrope({ subsets: ["latin"], weight: ["400","500","600","700","800"], display: "swap" });
 
 /* ─── TOKENS ──────────────────────────────────── */
@@ -286,8 +288,10 @@ function InlineField({ label, type = "text", placeholder = "", value, onChange, 
 function InlineOrderForm() {
   const [fields, setFields]   = useState<Fields>({ ime: "", telefon: "", adresa: "", grad: "" });
   const [errors, setErrors]   = useState<Errs>({});
+  const [gift, setGift]       = useState(false);
   const [loading, setLoading] = useState(false);
   const [done, setDone]       = useState(false);
+  const total = TOTAL + (gift ? GIFT_PRICE : 0);
   const [orderNum, setOrderNum] = useState("");
   const [serverErr, setServerErr] = useState<string | null>(null);
 
@@ -306,16 +310,16 @@ function InlineOrderForm() {
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setLoading(true); setServerErr(null);
     try {
-      event("InitiateCheckout", { content_name: "Žirafa Brusilica za Zidove", content_ids: ["zirafa-brusilica"], content_type: "product", value: TOTAL, currency: "BAM", num_items: 1 });
+      event("InitiateCheckout", { content_name: "Žirafa Brusilica za Zidove", content_ids: ["zirafa-brusilica"], content_type: "product", value: total, currency: "BAM", num_items: 1 });
       const externalId = typeof localStorage !== "undefined" ? localStorage.getItem("_crt_eid") || "" : "";
       const res  = await fetch("/api/zirafa-order", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...fields, externalId }),
+        body: JSON.stringify({ ...fields, poklon: gift, externalId }),
       });
       const data = await res.json();
       if (!data.success) throw new Error(data.error || "Greška");
-      event("Purchase", { content_name: "Žirafa Brusilica za Zidove", content_ids: ["zirafa-brusilica"], content_type: "product", value: TOTAL, currency: "BAM", num_items: 1 }, data.orderNumber);
-      track("order_submitted", { total: TOTAL, source: "zirafa-inline" });
+      event("Purchase", { content_name: "Žirafa Brusilica za Zidove", content_ids: ["zirafa-brusilica"], content_type: "product", value: total, currency: "BAM", num_items: 1 }, data.orderNumber);
+      track("order_submitted", { total: total, source: "zirafa-inline" });
       setOrderNum(data.orderNumber);
       setDone(true);
     } catch {
@@ -371,10 +375,11 @@ function InlineOrderForm() {
         <div>
           <div style={{ fontSize: 10, color: GR, fontFamily: F, textTransform: "uppercase", letterSpacing: "0.08em" }}>Ukupno za plaćanje</div>
           <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-            <span style={{ fontSize: 26, fontWeight: 900, color: ACC, fontFamily: F, letterSpacing: "-0.04em" }}>{fmt(TOTAL)}</span>
+            <span style={{ fontSize: 26, fontWeight: 900, color: ACC, fontFamily: F, letterSpacing: "-0.04em" }}>{fmt(total)}</span>
             <span style={{ fontSize: 12, color: GR, fontFamily: F }}>uklj. dostavu</span>
           </div>
         </div>
+        <GiftAddon checked={gift} onChange={setGift} accent={ACC} style={{ marginBottom: 12 }} />
         <button type="submit" disabled={loading} className="z-inline-submit">
           {loading ? (
             <>

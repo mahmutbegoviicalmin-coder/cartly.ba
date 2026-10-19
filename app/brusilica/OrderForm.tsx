@@ -5,6 +5,8 @@ import { ChevronRight, Truck, CreditCard, RotateCcw } from "lucide-react";
 import { event } from "@/lib/fbpixel";
 import OrderSuccess from "@/components/OrderSuccess";
 
+import GiftAddon from "@/components/GiftAddon";
+import { GIFT_PRICE } from "@/lib/gift";
 const ACCENT = "#FF6B00";
 
 const TRUST_ITEMS = [
@@ -26,6 +28,7 @@ export default function OrderForm() {
   const [formData, setFormData] = useState<FormData>({
     ime: "", telefon: "", adresa: "", postanski_broj: "", grad: "", napomena: "",
   });
+  const [gift,    setGift]    = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error,   setError]   = useState<string | null>(null);
@@ -51,12 +54,12 @@ export default function OrderForm() {
       const res = await fetch("/api/brusilica-order", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ ime: formData.ime, telefon: formData.telefon, adresa: formData.adresa, grad: formData.grad, napomena: formData.napomena }),
+        body:    JSON.stringify({ ime: formData.ime, telefon: formData.telefon, adresa: formData.adresa, grad: formData.grad, napomena: formData.napomena, poklon: gift }),
       });
       const json = await res.json();
       if (!res.ok || !json.success) throw new Error(json.error || "Greška pri slanju narudžbe.");
 
-      event("Purchase", { content_name: "Akumulatorska Brusilica", value: 74.9, currency: "BAM" }, json.orderNumber);
+      event("Purchase", { content_name: "Akumulatorska Brusilica", value: 84.9 + (gift ? GIFT_PRICE : 0), currency: "BAM" }, json.orderNumber);
       setSuccess(true);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Greška pri slanju narudžbe. Pokušajte ponovo.");
@@ -215,6 +218,7 @@ export default function OrderForm() {
         )}
 
         {/* Submit */}
+        <GiftAddon checked={gift} onChange={setGift} accent={ACCENT} style={{ marginBottom: 12 }} />
         <button
           type="submit"
           disabled={loading}
@@ -277,7 +281,7 @@ export default function OrderForm() {
             <div className="border-t pt-3 flex items-center justify-between" style={{ borderColor: "#E5E2DC" }}>
               <span className="text-base font-bold text-[#1a1a1a]">Ukupno</span>
               <span className="font-extrabold leading-none" style={{ fontSize: 28, color: ACCENT }}>
-                84,90 KM
+                {(84.9 + (gift ? GIFT_PRICE : 0)).toFixed(2).replace(".", ",")} KM
               </span>
             </div>
           </div>

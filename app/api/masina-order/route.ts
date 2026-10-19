@@ -5,6 +5,7 @@ import { sendCAPIEvent, getClientIP, getClientUA, getFbc, getFbp } from "@/lib/m
 import { guardCustomerOrder } from "@/lib/order-guard";
 import { stampIp } from "@/lib/order-ip";
 
+import { wantsGift, giftTag, giftEmailBanner, GIFT_PRICE } from "@/lib/gift";
 const BOSNIAN_MONTHS = [
   "januar", "februar", "mart", "april", "maj", "juni",
   "juli", "august", "septembar", "oktobar", "novembar", "decembar",
@@ -49,6 +50,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const guarded = await guardCustomerOrder(request, body);
     if (!guarded.ok) return guarded.response;
+    const gift = wantsGift(body);
     const { ime, telefon, adresa, grad } = guarded.fields;
     const { kolicina = 1, externalId } = body as {
       kolicina: number; externalId?: string;
@@ -58,8 +60,7 @@ export async function POST(request: NextRequest) {
     const orderNumber     = generateOrderNumber(now);
     const dateBosnian     = formatDateBosnian(now);
     const cijenaProizvoda = PRICE_BASE * kolicina;
-    const ukupno          = cijenaProizvoda + DELIVERY;
-
+    const ukupno          = cijenaProizvoda + DELIVERY + (gift ? GIFT_PRICE : 0);
     // 1. Save to Supabase
     const { error: dbError } = await getSupabaseAdmin().from("masina_orders").insert({
       ime, telefon, adresa: stampIp(adresa, guarded.fields.ip), grad,
@@ -94,7 +95,7 @@ export async function POST(request: NextRequest) {
     await resend.emails.send({
       from:    "onboarding@resend.dev",
       to:      process.env.OWNER_EMAIL!,
-      subject: `#NARUDZBA [MASINA] · ${ime} · ${kolicina}x · ${sarajevoTime(now)}`,
+      subject: `#NARUDZBA [MASINA${giftTag(gift)}] · ${ime} · ${kolicina}x · ${sarajevoTime(now)}`,
       html: `
 <!DOCTYPE html>
 <html lang="bs">
@@ -123,6 +124,7 @@ export async function POST(request: NextRequest) {
 
     <tr>
       <td style="background:#fff;padding:32px;border-left:1px solid #E5E5E5;border-right:1px solid #E5E5E5;">
+${giftEmailBanner(gift)}
 
         <p style="margin:0 0 12px;font-size:11px;font-weight:700;color:#FF6B00;text-transform:uppercase;letter-spacing:0.1em;">Podaci kupca</p>
         <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">

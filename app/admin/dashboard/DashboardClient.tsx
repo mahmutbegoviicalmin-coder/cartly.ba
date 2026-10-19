@@ -41,6 +41,7 @@ import {
   X,
 } from "lucide-react";
 import { PRODUCTS } from "@/lib/export-products";
+import { hasGift } from "@/lib/gift";
 
 const OverviewChart = dynamic(() => import("./OverviewChart"), { ssr: false });
 
@@ -205,6 +206,21 @@ function fmtDupWhen(iso: string) {
   }).formatToParts(new Date(iso));
   const g = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
   return `${g("day")}.${g("month")}. u ${g("hour")}:${g("minute")}`;
+}
+
+function GiftBadge() {
+  return (
+    <span
+      title="Kupac je odabrao poklon iznenađenja (+5 KM)"
+      style={{
+        display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 8px", borderRadius: 999,
+        fontSize: 11, fontWeight: 700, whiteSpace: "nowrap",
+        background: "rgba(48,209,88,0.16)", color: "#63e6a0",
+      }}
+    >
+      🎁 Poklon
+    </span>
+  );
 }
 
 function DupBadge({ d }: { d: Order["duplicates"] }) {
@@ -386,6 +402,7 @@ function OrderCard({
         <div className="ad-row">
           <Package size={15} strokeWidth={2} />
           <ProductBadge orderNumber={order.order_number} qty={order.ukupno_pari} />
+          {hasGift(order) && <GiftBadge />}
         </div>
       </div>
       <div className="ad-card-foot">
@@ -460,7 +477,10 @@ function OrderTable({
                     )}
                   </td>
                   <td>
-                    <ProductBadge orderNumber={order.order_number} />
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                      <ProductBadge orderNumber={order.order_number} />
+                      {hasGift(order) && <GiftBadge />}
+                    </div>
                   </td>
                   <td style={{ textAlign: "center", color: "#86868b" }}>{order.ukupno_pari}</td>
                   <td style={{ fontWeight: 700, whiteSpace: "nowrap" }}>{fmt(order.ukupno)}</td>
@@ -669,7 +689,7 @@ export default function DashboardClient() {
             escCsv(o.telefon),
             escCsv(o.grad),
             escCsv(o.ip_address ?? ""),
-            escCsv(productMeta(o.order_number).label),
+            escCsv(productMeta(o.order_number).label + (hasGift(o) ? " + Poklon" : "")),
             escCsv(fmt(o.ukupno)),
             escCsv(o.status),
           ].join(",")

@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { track } from "@vercel/analytics";
 import { event } from "@/lib/fbpixel";
 
+import GiftAddon from "@/components/GiftAddon";
+import { GIFT_PRICE } from "@/lib/gift";
 const manrope = Manrope({ subsets: ["latin"], weight: ["400","500","600","700","800"], display: "swap" });
 
 const ACC  = "#0284C7";
@@ -55,7 +57,9 @@ function Field({ label, type = "text", placeholder = "", value, onChange, error 
 export default function OrderPopup({ open, onClose }: Props) {
   const [fields,    setFields]    = useState<Fields>({ ime: "", telefon: "", adresa: "", grad: "" });
   const [errors,    setErrors]    = useState<Errs>({});
+  const [gift,      setGift]      = useState(false);
   const [loading,   setLoading]   = useState(false);
+  const total = TOTAL + (gift ? GIFT_PRICE : 0);
   const [done,      setDone]      = useState(false);
   const [orderNum,  setOrderNum]  = useState("");
   const [serverErr, setServerErr] = useState<string | null>(null);
@@ -92,16 +96,16 @@ export default function OrderPopup({ open, onClose }: Props) {
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setLoading(true); setServerErr(null);
     try {
-      event("InitiateCheckout", { content_name: "Žirafa Brusilica za Zidove", content_ids: ["zirafa-brusilica"], content_type: "product", value: TOTAL, currency: "BAM", num_items: 1 });
+      event("InitiateCheckout", { content_name: "Žirafa Brusilica za Zidove", content_ids: ["zirafa-brusilica"], content_type: "product", value: total, currency: "BAM", num_items: 1 });
       const externalId = typeof localStorage !== "undefined" ? localStorage.getItem("_crt_eid") || "" : "";
       const res  = await fetch("/api/zirafa-order", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...fields, externalId }),
+        body: JSON.stringify({ ...fields, poklon: gift, externalId }),
       });
       const data = await res.json();
       if (!data.success) throw new Error(data.error || "Greška");
-      event("Purchase", { content_name: "Žirafa Brusilica za Zidove", content_ids: ["zirafa-brusilica"], content_type: "product", value: TOTAL, currency: "BAM", num_items: 1 }, data.orderNumber);
-      track("order_submitted", { total: TOTAL, source: "zirafa-popup" });
+      event("Purchase", { content_name: "Žirafa Brusilica za Zidove", content_ids: ["zirafa-brusilica"], content_type: "product", value: total, currency: "BAM", num_items: 1 }, data.orderNumber);
+      track("order_submitted", { total: total, source: "zirafa-popup" });
       setOrderNum(data.orderNumber);
       setDone(true);
     } catch {
@@ -256,7 +260,7 @@ export default function OrderPopup({ open, onClose }: Props) {
                           <span>Dostava · Euro Express · 1-2 dana</span><span style={{ color: BLK, fontWeight: 600, whiteSpace: "nowrap" }}>{fmt(DELIVERY)}</span>
                         </div>
                         <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13.5, fontFamily: F, color: BLK, fontWeight: 800, borderTop: "1px dashed rgba(0,0,0,0.12)", paddingTop: 8, marginTop: 2 }}>
-                          <span>Ukupno</span><span style={{ color: ACC }}>{fmt(TOTAL)}</span>
+                          <span>Ukupno</span><span style={{ color: ACC }}>{fmt(total)}</span>
                         </div>
                       </div>
                     </div>
@@ -294,7 +298,7 @@ export default function OrderPopup({ open, onClose }: Props) {
                               Ukupno za plaćanje
                             </div>
                             <div style={{ fontSize: 30, fontWeight: 900, color: "#fff", fontFamily: F, letterSpacing: "-0.05em", lineHeight: 1 }}>
-                              {fmt(TOTAL)}
+                              {fmt(total)}
                             </div>
                           </div>
                           <div style={{ background: "rgba(74,222,128,0.18)", border: "1px solid rgba(74,222,128,0.32)", borderRadius: 10, padding: "6px 12px", textAlign: "center" }}>
@@ -303,6 +307,7 @@ export default function OrderPopup({ open, onClose }: Props) {
                           </div>
                         </div>
 
+                        <GiftAddon checked={gift} onChange={setGift} accent={ACC} style={{ marginBottom: 12 }} />
                         <button
                           type="submit" disabled={loading}
                           style={{

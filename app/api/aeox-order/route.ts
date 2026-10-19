@@ -5,6 +5,7 @@ import { sendCAPIEvent, getClientIP, getClientUA, getFbc, getFbp } from "@/lib/m
 import { guardCustomerOrder } from "@/lib/order-guard";
 import { stampIp } from "@/lib/order-ip";
 
+import { wantsGift, giftTag, giftEmailBanner, GIFT_PRICE } from "@/lib/gift";
 const UNIT_PRICE = 59.90;
 const DELIVERY   = 0;
 const ALLOWED_SIZES = new Set([41, 42, 43, 44, 45, 46]); // 47 out of stock
@@ -57,6 +58,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const guarded = await guardCustomerOrder(request, body);
     if (!guarded.ok) return guarded.response;
+    const gift = wantsGift(body);
     const { ime, telefon, adresa, grad } = guarded.fields;
     const { externalId } = body as { externalId?: string };
 
@@ -67,7 +69,7 @@ export async function POST(request: NextRequest) {
 
     const qty = lines.reduce((s, l) => s + l.kolicina, 0);
     const cijena_proizvoda = qty * UNIT_PRICE;
-    const ukupno = cijena_proizvoda + DELIVERY;
+    const ukupno = cijena_proizvoda + DELIVERY + (gift ? GIFT_PRICE : 0);
     const now = new Date();
     const orderNumber = generateOrderNumber(now);
     const sizeLabel = lines.map((l) => `EU${l.velicina}x${l.kolicina}`).join(" ");
@@ -121,7 +123,7 @@ export async function POST(request: NextRequest) {
         const sent = await resend.emails.send({
           from: "Cartly.ba <onboarding@resend.dev>",
           to: ownerEmail,
-          subject: `#NARUDZBA [AEOX PLUS S3] - ${ime} - ${sizeLabel} - ${sarajevoTime(now)}`,
+          subject: `#NARUDZBA [AEOX PLUS S3${giftTag(gift)}] - ${ime} - ${sizeLabel} - ${sarajevoTime(now)}`,
           html: `
             <div style="font-family: Inter, -apple-system, sans-serif; max-width: 600px; margin: 0 auto; background: #fff; border: 1px solid #F0F0F0;">
               <div style="background: #111; padding: 32px 40px;">
@@ -129,6 +131,7 @@ export async function POST(request: NextRequest) {
                 <p style="color:rgba(255,255,255,0.6); margin:6px 0 0; font-size:13px;">${orderNumber} &nbsp;·&nbsp; ${formatDateBosnian(now)}</p>
               </div>
               <div style="padding: 32px 40px;">
+${giftEmailBanner(gift)}
                 <h2 style="font-size:13px; font-weight:600; color:#999; text-transform:uppercase; letter-spacing:0.08em; margin:0 0 12px;">Podaci kupca</h2>
                 <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
                   ${[["Ime i prezime", ime], ["Telefon", telefon], ["Adresa", adresa], ["Grad", grad]].map(([lbl, val]) => `

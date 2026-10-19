@@ -5,6 +5,7 @@ import { sendCAPIEvent, getClientIP, getClientUA, getFbc, getFbp } from "@/lib/m
 import { guardCustomerOrder } from "@/lib/order-guard";
 import { stampIp } from "@/lib/order-ip";
 
+import { wantsGift, giftTag, giftEmailBanner, GIFT_PRICE } from "@/lib/gift";
 const UNIT_PRICE = 104.9;
 const DELIVERY = 10;
 const PRODUCT = "Motorna pila";
@@ -55,6 +56,7 @@ export async function POST(request: NextRequest) {
       requirePostal: true,
     });
     if (!guarded.ok) return guarded.response;
+    const gift = wantsGift(body);
     const ime = guarded.fields.imeFirst;
     const prezime = guarded.fields.prezime;
     const adresa = guarded.fields.adresa;
@@ -65,7 +67,7 @@ export async function POST(request: NextRequest) {
 
     // Never trust client prices.
     const cijena_proizvoda = UNIT_PRICE;
-    const ukupno = UNIT_PRICE + DELIVERY;
+    const ukupno = UNIT_PRICE + DELIVERY + (gift ? GIFT_PRICE : 0);
     const now = new Date();
     const fullName = guarded.fields.fullName;
     const fullAddress = `${adresa}, ${postanski}`;
@@ -118,7 +120,7 @@ export async function POST(request: NextRequest) {
       await resend.emails.send({
         from: "Cartly.ba <onboarding@resend.dev>",
         to: process.env.OWNER_EMAIL!,
-        subject: `#NARUDZBA [MOTORNA PILA] · ${esc(fullName)} · ${sarajevoTime(now)}`,
+        subject: `#NARUDZBA [MOTORNA PILA${giftTag(gift)}] · ${esc(fullName)} · ${sarajevoTime(now)}`,
         html: `
 <div style="font-family:Inter,-apple-system,BlinkMacSystemFont,sans-serif;max-width:600px;margin:0 auto;background:#ffffff;border:1px solid #E4E2DC;">
   <div style="background:${ACCENT};padding:32px 40px;">
@@ -126,6 +128,7 @@ export async function POST(request: NextRequest) {
     <p style="color:rgba(255,255,255,0.7);margin:6px 0 0;font-size:13px;">${esc(orderNumber)} · ${formatDateBosnian(now)}</p>
   </div>
   <div style="padding:32px 40px;">
+${giftEmailBanner(gift)}
     <h2 style="font-size:13px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 12px;">Kupac</h2>
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
       ${[

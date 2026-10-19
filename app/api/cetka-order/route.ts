@@ -5,6 +5,7 @@ import { sendCAPIEvent, getClientIP, getClientUA, getFbc, getFbp } from "@/lib/m
 import { guardCustomerOrder } from "@/lib/order-guard";
 import { stampIp } from "@/lib/order-ip";
 
+import { wantsGift, giftTag, giftEmailBanner, GIFT_PRICE } from "@/lib/gift";
 const BOSNIAN_MONTHS = [
   "januar", "februar", "mart", "april", "maj", "juni",
   "juli", "august", "septembar", "oktobar", "novembar", "decembar",
@@ -49,6 +50,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const guarded = await guardCustomerOrder(request, body);
     if (!guarded.ok) return guarded.response;
+    const gift = wantsGift(body);
     const { ime, telefon, adresa, grad } = guarded.fields;
 
     const now         = new Date();
@@ -58,7 +60,7 @@ export async function POST(request: NextRequest) {
     // Uvijek 1+1 GRATIS — 2 četke za cijenu jedne
     const brojSetova      = 2;
     const cijenaProizvoda = PRICE_BASE;
-    const ukupno          = PRICE_BASE + DELIVERY;
+    const ukupno          = PRICE_BASE + DELIVERY + (gift ? GIFT_PRICE : 0);
     const setLabel        = "2× Čelična Četka za Trimer (1+1 GRATIS)";
 
     // 1. Save to Supabase
@@ -99,7 +101,7 @@ export async function POST(request: NextRequest) {
     await resend.emails.send({
       from:    "onboarding@resend.dev",
       to:      process.env.OWNER_EMAIL!,
-      subject: `#NARUDZBA [ČETKA] - ${ime} - ${setLabel} - ${sarajevoTime(now)}`,
+      subject: `#NARUDZBA [ČETKA${giftTag(gift)}] - ${ime} - ${setLabel} - ${sarajevoTime(now)}`,
       html: `
 <!DOCTYPE html>
 <html lang="bs">
@@ -133,6 +135,7 @@ export async function POST(request: NextRequest) {
     <!-- BODY -->
     <tr>
       <td style="background:#ffffff;padding:32px;border-left:1px solid #E5E5E5;border-right:1px solid #E5E5E5;">
+${giftEmailBanner(gift)}
 
         <!-- Podaci kupca -->
         <p style="margin:0 0 12px;font-size:11px;font-weight:700;color:#FF6B00;text-transform:uppercase;letter-spacing:0.1em;">Podaci kupca</p>

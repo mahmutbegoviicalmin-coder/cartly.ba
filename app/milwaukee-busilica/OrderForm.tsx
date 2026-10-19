@@ -5,6 +5,8 @@ import { ChevronRight } from "lucide-react";
 import { event } from "@/lib/fbpixel";
 import OrderSuccess from "@/components/OrderSuccess";
 
+import GiftAddon from "@/components/GiftAddon";
+import { GIFT_PRICE } from "@/lib/gift";
 const ACCENT = "#E8460A";
 const BEBAS: React.CSSProperties = { fontFamily: "var(--font-manrope, sans-serif)" };
 
@@ -24,6 +26,7 @@ export default function OrderForm() {
     grad: "",
     telefon: "",
   });
+  const [gift, setGift] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,7 +52,7 @@ export default function OrderForm() {
       const res = await fetch("/api/narudzba", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ime, adresa, grad, telefon }),
+        body: JSON.stringify({ ime, adresa, grad, telefon, poklon: gift }),
       });
       const json = await res.json();
       if (!res.ok || !json.success) {
@@ -57,7 +60,7 @@ export default function OrderForm() {
       }
       event("Purchase", {
         content_name: "Milwaukee M18 Bušilica",
-        value:        69.90,
+        value:        79.9 + (gift ? GIFT_PRICE : 0),
         currency:     "BAM",
       }, json.orderNumber);
       setSuccess(true);
@@ -219,6 +222,7 @@ export default function OrderForm() {
         )}
 
         {/* Submit */}
+        <GiftAddon checked={gift} onChange={setGift} accent={ACCENT} style={{ marginBottom: 12 }} />
         <button
           type="submit"
           disabled={loading}
@@ -290,7 +294,7 @@ export default function OrderForm() {
                 className="leading-none"
                 style={{ ...BEBAS, fontSize: 28, color: ACCENT }}
               >
-                79,90 KM
+                {(79.9 + (gift ? GIFT_PRICE : 0)).toFixed(2).replace(".", ",")} KM
               </span>
             </div>
           </div>

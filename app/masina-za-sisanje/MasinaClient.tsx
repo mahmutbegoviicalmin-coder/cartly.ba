@@ -4,6 +4,8 @@ import { useState, useEffect, FormEvent } from "react";
 import Image from "next/image";
 import { event } from "@/lib/fbpixel";
 
+import GiftAddon from "@/components/GiftAddon";
+import { GIFT_PRICE } from "@/lib/gift";
 const ACCENT    = "#FF6B00";
 const PRICE    = 89.90;
 const DELIVERY = 10.00;
@@ -173,6 +175,7 @@ export default function MasinaClient() {
   const [fields,   setFields]    = useState<Fields>({ ime: "", telefon: "", adresa: "", grad: "" });
   const [errors,   setErrors]    = useState<Errors>({});
   const [kolicina, setKolicina]  = useState(1);
+  const [gift,     setGift]      = useState(false);
   const [loading,  setLoading]   = useState(false);
   const [submitted,setSubmitted] = useState(false);
   const [serverErr,setServerErr] = useState<string | null>(null);
@@ -223,11 +226,11 @@ export default function MasinaClient() {
       const externalId = (() => { try { return localStorage.getItem("_crt_eid") || ""; } catch { return ""; } })();
       const res = await fetch("/api/masina-order", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...fields, kolicina, externalId }),
+        body: JSON.stringify({ ...fields, kolicina, poklon: gift, externalId }),
       });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.error || "Greška");
-      event("Purchase", { value: PRICE * kolicina + DELIVERY, currency: "BAM", content_name: "Masina za Sisanje Ovaca 1200W" }, data.orderNumber);
+      event("Purchase", { value: PRICE * kolicina + DELIVERY + (gift ? GIFT_PRICE : 0), currency: "BAM", content_name: "Masina za Sisanje Ovaca 1200W" }, data.orderNumber);
       setSubmitted(true);
       document.getElementById("order")?.scrollIntoView({ behavior: "smooth" });
     } catch {
@@ -237,7 +240,7 @@ export default function MasinaClient() {
     }
   }
 
-  const total = PRICE * kolicina + DELIVERY;
+  const total = PRICE * kolicina + DELIVERY + (gift ? GIFT_PRICE : 0);
 
   return (
     <>
@@ -859,6 +862,7 @@ export default function MasinaClient() {
                 </p>
               )}
 
+              <GiftAddon checked={gift} onChange={setGift} accent={ACCENT} style={{ marginBottom: 12 }} />
               <button type="submit" disabled={loading} className="msn-submit"
                 style={{
                   color:"#fff", fontWeight:800, fontSize:16, border:"none",

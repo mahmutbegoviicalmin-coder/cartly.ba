@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Check, Truck, ShieldCheck, Users } from "lucide-react";
 import { event } from "@/lib/fbpixel";
 
+import GiftAddon from "@/components/GiftAddon";
+import { GIFT_PRICE } from "@/lib/gift";
 const SIZES = [
   { size: "S", price: 42, desc: "Djeca do 9 godina" },
   { size: "M", price: 45, desc: "Djeca do 15 godina" },
@@ -39,6 +41,7 @@ export default function OrderModal({ open, onClose, initialSize, initialColor }:
   const [city, setCity] = useState("");
   const [zip, setZip] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [gift, setGift] = useState(false);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -67,7 +70,7 @@ export default function OrderModal({ open, onClose, initialSize, initialColor }:
 
   const selectedSizeInfo = ALL_OPTIONS.find((s) => s.size === size);
   const price = selectedSizeInfo?.price ?? 0;
-  const total = size ? price + DELIVERY : 0;
+  const total = size ? price + DELIVERY + (gift ? GIFT_PRICE : 0) : 0;
   const sizeLabel = size === "PORODICNI" ? FAMILY_PACKAGE.label : size;
 
   const validate = () => {
@@ -93,7 +96,7 @@ export default function OrderModal({ open, onClose, initialSize, initialColor }:
       const res = await fetch("/api/prsluk-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ime: name, telefon: phone, adresa: `${address}, ${zip}`, grad: city, velicina: size, boja: color, externalId }),
+        body: JSON.stringify({ ime: name, telefon: phone, adresa: `${address}, ${zip}`, grad: city, velicina: size, boja: color, poklon: gift, externalId }),
       });
       const data = await res.json();
       if (data.success) {
@@ -317,6 +320,7 @@ export default function OrderModal({ open, onClose, initialSize, initialColor }:
                     </div>
                   </div>
 
+                  <GiftAddon checked={gift} onChange={setGift} accent="#061B38" style={{ marginBottom: 12 }} />
                   <button
                     type="submit"
                     disabled={loading}

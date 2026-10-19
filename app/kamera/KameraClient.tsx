@@ -11,6 +11,8 @@ import {
   MapPin,
 } from "lucide-react";
 
+import GiftAddon from "@/components/GiftAddon";
+import { GIFT_PRICE } from "@/lib/gift";
 /* ─── TOKENS ─────────────────────────────────────────────────────── */
 const F      = "var(--font-manrope),'Inter',-apple-system,sans-serif";
 const NAVY   = "#0F172A";
@@ -767,10 +769,11 @@ function OrderModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [qty,     setQty]     = useState(1);
   const [fields,  setFields]  = useState({ ime:"", telefon:"", adresa:"", grad:"" });
   const [errors,  setErrors]  = useState<Record<string,string>>({});
+  const [gift, setGift] = useState(false);
   const [loading, setLoading] = useState(false);
   const [done,    setDone]    = useState(false);
   const [srvErr,  setSrvErr]  = useState<string|null>(null);
-  const total = (BASE_PRICE + SD_EXTRA[sd]) * qty + DELIVERY_COST;
+  const total = (BASE_PRICE + SD_EXTRA[sd]) * qty + DELIVERY_COST + (gift ? GIFT_PRICE : 0);
 
   useEffect(() => {
     if (open) document.body.style.overflow = "hidden";
@@ -793,7 +796,7 @@ function OrderModal({ open, onClose }: { open: boolean; onClose: () => void }) {
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setLoading(true); setSrvErr(null);
     try {
-      const res  = await fetch("/api/kamera-order", { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify({ ...fields, kolicina:qty, sdCard:sd }) });
+      const res  = await fetch("/api/kamera-order", { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify({ ...fields, kolicina:qty, sdCard:sd, poklon:gift }) });
       const data = await res.json();
       if (!data.success) throw new Error(data.error || "Greška");
       if (typeof window !== "undefined" && (window as unknown as { fbq?: (...a: unknown[]) => void }).fbq) {
@@ -938,6 +941,7 @@ function OrderModal({ open, onClose }: { open: boolean; onClose: () => void }) {
                           <div style={{ fontSize:13, fontWeight:800, color:"#fff" }}>10,00 KM</div>
                         </div>
                       </div>
+                      <GiftAddon checked={gift} onChange={setGift} accent={BLUE} style={{ marginBottom: 12 }} />
                       <button type="submit" disabled={loading}
                         style={{ width:"100%", padding:"15px 20px", background:loading?"rgba(255,255,255,0.5)":"#fff", color:BLUE, border:"none", borderRadius:12, fontSize:15, fontWeight:900, cursor:loading?"not-allowed":"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:8, letterSpacing:"-0.01em" }}
                         onMouseEnter={e => { if(!loading) e.currentTarget.style.transform="scale(1.01)"; }}
@@ -1012,11 +1016,12 @@ function OfferSection() {
   const [qty,     setQty]     = useState(1);
   const [fields,  setFields]  = useState({ ime:"", telefon:"", adresa:"", grad:"" });
   const [errors,  setErrors]  = useState<Record<string,string>>({});
+  const [gift, setGift] = useState(false);
   const [loading, setLoading] = useState(false);
   const [done,    setDone]    = useState(false);
   const [srvErr,  setSrvErr]  = useState<string|null>(null);
 
-  const total = (BASE_PRICE + SD_EXTRA[sd]) * qty + DELIVERY_COST;
+  const total = (BASE_PRICE + SD_EXTRA[sd]) * qty + DELIVERY_COST + (gift ? GIFT_PRICE : 0);
 
   function validate() {
     const e: Record<string,string> = {};
@@ -1035,7 +1040,7 @@ function OfferSection() {
     try {
       const res  = await fetch("/api/kamera-order", {
         method:"POST", headers:{ "Content-Type":"application/json" },
-        body:JSON.stringify({ ...fields, kolicina:qty, sdCard:sd }),
+        body:JSON.stringify({ ...fields, kolicina:qty, sdCard:sd, poklon:gift }),
       });
       const data = await res.json();
       if (!data.success) throw new Error(data.error || "Greška");
@@ -1173,6 +1178,7 @@ function OfferSection() {
                       <div style={{ fontSize:14, fontWeight:800, color:"#fff", fontFamily:F }}>10,00 KM</div>
                     </div>
                   </div>
+                  <GiftAddon checked={gift} onChange={setGift} accent="#4ADE80" dark style={{ marginBottom: 14 }} />
                   <button type="submit" disabled={loading} style={{ width:"100%", padding:"16px 24px", background:loading?"rgba(255,255,255,0.5)":"#fff", color:BLUE, border:"none", borderRadius:14, fontSize:16, fontWeight:900, fontFamily:F, cursor:loading?"not-allowed":"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:10, boxShadow:"0 4px 20px rgba(0,0,0,0.14)", letterSpacing:"-0.01em" }}>
                     {loading ? "Šalje se..." : (<>Naruči odmah — Plaćanje pouzećem <ArrowRight size={17} /></>)}
                   </button>

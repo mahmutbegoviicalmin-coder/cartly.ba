@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import { event } from "@/lib/fbpixel";
 
+import GiftAddon from "@/components/GiftAddon";
+import { GIFT_PRICE } from "@/lib/gift";
 // ─── Out-of-stock flag ────────────────────────────────────────────────────────
 const OUT_OF_STOCK = false;
 
@@ -116,6 +118,7 @@ export default function DeWaltPage() {
   const [notifShow,  setNotifShow]  = useState(false);
   const [viewers,    setViewers]    = useState(0);
   const [form,       setForm]       = useState({ ime: "", adresa: "", postanski_broj: "", grad: "", telefon: "" });
+  const [gift,       setGift]       = useState(false);
   const [loading,    setLoading]    = useState(false);
   const [success,    setSuccess]    = useState(false);
   const [error,      setError]      = useState<string | null>(null);
@@ -186,11 +189,11 @@ export default function DeWaltPage() {
     if (!/^[0-9+\s\-()]{6,}$/.test(telefon.trim())) { setError("Unesite ispravan broj telefona."); return; }
     setLoading(true); setError(null);
     try {
-      const res  = await fetch("/api/dewalt-order", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ime: form.ime, adresa: form.adresa, grad: form.grad, telefon: form.telefon }) });
+      const res  = await fetch("/api/dewalt-order", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ime: form.ime, adresa: form.adresa, grad: form.grad, telefon: form.telefon, poklon: gift }) });
       const json = await res.json();
       if (!res.ok || !json.success) throw new Error(json.error || "Greška pri slanju.");
       // Pass orderNumber as eventID to deduplicate against server-side CAPI event
-      event("Purchase", { content_name: "DeWalt 28V XR Set", value: 69.9, currency: "BAM" }, json.orderNumber);
+      event("Purchase", { content_name: "DeWalt 28V XR Set", value: 79.9 + (gift ? GIFT_PRICE : 0), currency: "BAM" }, json.orderNumber);
       setSuccess(true);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Greška pri slanju narudžbe. Pokušajte ponovo.");
@@ -1319,6 +1322,7 @@ export default function DeWaltPage() {
                     </div>
                   )}
 
+                  <GiftAddon checked={gift} onChange={setGift} accent={"#B8860B"} style={{ marginBottom: 12 }} />
                   <button
                     type="submit"
                     disabled={loading}
@@ -1366,7 +1370,7 @@ export default function DeWaltPage() {
                   <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 18, display: "flex", justifyContent: "space-between", alignItems: "baseline", marginTop: 4 }}>
                     <span className="dw-h" style={{ fontSize: 17, fontWeight: 700, color: C.black }}>Ukupno</span>
                     <span className="dw-h" style={{ fontSize: 40, fontWeight: 800, letterSpacing: "-0.04em", color: C.black, lineHeight: 1 }}>
-                      79,90 KM
+                      {(79.9 + (gift ? GIFT_PRICE : 0)).toFixed(2).replace(".", ",")} KM
                     </span>
                   </div>
                 </div>

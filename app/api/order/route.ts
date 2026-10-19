@@ -5,6 +5,7 @@ import { sendCAPIEvent, getClientIP, getClientUA, getFbc, getFbp } from "@/lib/m
 import { guardCustomerOrder } from "@/lib/order-guard";
 import { stampIp } from "@/lib/order-ip";
 
+import { wantsGift, giftTag, giftEmailBanner, GIFT_PRICE } from "@/lib/gift";
 const BOSNIAN_MONTHS = [
   "januar", "februar", "mart", "april", "maj", "juni",
   "juli", "august", "septembar", "oktobar", "novembar", "decembar",
@@ -46,6 +47,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const guarded = await guardCustomerOrder(request, body);
     if (!guarded.ok) return guarded.response;
+    const gift = wantsGift(body);
     const { ime, telefon, adresa, grad } = guarded.fields;
     const { velicine, externalId } = body;
 
@@ -65,8 +67,7 @@ export async function POST(request: NextRequest) {
     const PRICE_PER_PAIR = 59.9;
     const cijenaProizvoda = ukupnoPari * PRICE_PER_PAIR;
     const dostava   = 10.0;
-    const ukupno    = cijenaProizvoda + dostava;
-
+    const ukupno    = cijenaProizvoda + dostava + (gift ? GIFT_PRICE : 0);
     // Build size rows for email
     const sizeRows = selectedSizes
       .map(
@@ -117,7 +118,7 @@ export async function POST(request: NextRequest) {
     await resend.emails.send({
       from: "onboarding@resend.dev",
       to: process.env.OWNER_EMAIL!,
-      subject: `#NARUDZBA [PATIKE S3] - ${ime} - ${selectedSizes.map(v => `EU${v.velicina}×${v.kolicina}`).join(" ")} - ${sarajevoTime(now)}`,
+      subject: `#NARUDZBA [PATIKE S3${giftTag(gift)}] - ${ime} - ${selectedSizes.map(v => `EU${v.velicina}×${v.kolicina}`).join(" ")} - ${sarajevoTime(now)}`,
       html: `
 <!DOCTYPE html>
 <html lang="bs">
@@ -151,6 +152,7 @@ export async function POST(request: NextRequest) {
     <!-- BODY -->
     <tr>
       <td style="background:#ffffff;padding:32px;border-left:1px solid #E5E5E5;border-right:1px solid #E5E5E5;">
+${giftEmailBanner(gift)}
 
         <!-- Section 1: Podaci kupca -->
         <p style="margin:0 0 12px;font-size:11px;font-weight:700;color:#FF6B00;text-transform:uppercase;letter-spacing:0.1em;">Podaci kupca</p>
