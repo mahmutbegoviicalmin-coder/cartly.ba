@@ -31,8 +31,8 @@ function OrderReceivedCopy({ style }: { style: CSSProperties }) {
 
 const SIZES = [41, 42, 43, 44, 45, 46, 47];
 /* Stock: sizes not in stock can't be selected; LOW_STOCK caps qty and shows a red note */
-const OUT_OF_STOCK = new Set<number>([47]);
-const LOW_STOCK: Record<number, number> = { 41: 5 };
+const OUT_OF_STOCK = new Set<number>([41, 46, 47]);
+const LOW_STOCK: Record<number, number> = {};
 const maxQty = (s: number) => LOW_STOCK[s] ?? 5;
 const LOW_STOCK_RED = "#DC2626";
 
