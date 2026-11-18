@@ -154,7 +154,7 @@ export async function GET(request: NextRequest) {
         stripIp(o.adresa ?? ""),
         correctCityName(o.grad ?? ""),
         o.telefon ?? "",
-        "",
+        o.order_number ?? "", // Referenca → Skytec webhook/COD map back to our order
         qty,
         qty,
         o.ukupno ?? 0,

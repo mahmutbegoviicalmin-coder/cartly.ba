@@ -44,6 +44,7 @@ import { PRODUCTS } from "@/lib/export-products";
 import { hasGift } from "@/lib/gift";
 
 const OverviewChart = dynamic(() => import("./OverviewChart"), { ssr: false });
+const SkytecPanel = dynamic(() => import("./SkytecPanel"), { ssr: false });
 
 type IconCmp = LucideIcon;
 
@@ -86,16 +87,17 @@ type Stats = {
   chartData: { date: string; narudžbe: number; prihod: number }[];
 };
 
-type Tab = "overview" | "orders" | "margins";
+type Tab = "overview" | "orders" | "skytec" | "margins";
 
 const STATUS_META: Record<string, { label: string; color: string; bg: string }> = {
   nova: { label: "Nova", color: "#ff9f0a", bg: "rgba(255,159,10,0.14)" },
   potvrđena: { label: "Potvrđena", color: "#007aff", bg: "rgba(0,122,255,0.12)" },
   poslana: { label: "Poslana", color: "#af52de", bg: "rgba(175,82,222,0.12)" },
   isporučena: { label: "Isporučena", color: "#34c759", bg: "rgba(52,199,89,0.14)" },
+  vraćena: { label: "Vraćena", color: "#ff453a", bg: "rgba(255,69,58,0.14)" },
 };
 
-const STATUS_OPTIONS = ["nova", "potvrđena", "poslana", "isporučena"];
+const STATUS_OPTIONS = ["nova", "potvrđena", "poslana", "isporučena", "vraćena"];
 
 const PRODUCT_MAP: Record<string, { label: string; tint: string; ink: string; Icon: IconCmp }> = {
   CRT: { label: "Radne patike", tint: "rgba(255,159,10,0.18)", ink: "#ffd60a", Icon: Footprints },
@@ -825,12 +827,14 @@ export default function DashboardClient() {
   const TAB_LABELS: Record<Tab, string> = {
     overview: "Pregled",
     orders: "Narudžbe",
+    skytec: "Skytec",
     margins: "Kalkulator",
   };
 
   const NAV = [
     { tab: "overview" as Tab, label: "Pregled", Icon: LayoutGrid },
     { tab: "orders" as Tab, label: "Narudžbe", Icon: ClipboardList },
+    { tab: "skytec" as Tab, label: "Skytec", Icon: Truck },
     { tab: "margins" as Tab, label: "Kalkulator", Icon: Calculator },
   ];
 
@@ -1145,6 +1149,8 @@ export default function DashboardClient() {
               )}
             </div>
           )}
+
+          {activeTab === "skytec" && <SkytecPanel />}
 
           {activeTab === "margins" && <MarginCalc />}
         </main>

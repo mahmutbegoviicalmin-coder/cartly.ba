@@ -341,7 +341,7 @@ export function buildSkytec(rows: NormOrder[]) {
     o.adresa,
     correctCityName(o.grad),
     o.telefon,
-    "",
+    o.order_number, // Referenca → Skytec webhook/COD map back to our order
     o.units,
     o.units,
     o.ukupno,

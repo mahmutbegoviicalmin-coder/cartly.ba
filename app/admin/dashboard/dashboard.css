@@ -699,7 +699,7 @@
   bottom: 0;
   z-index: 70;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(4, 1fr);
   padding: 6px 8px var(--safe-b);
   background: rgba(14, 14, 16, 0.9);
   border-top: 1px solid var(--line);
