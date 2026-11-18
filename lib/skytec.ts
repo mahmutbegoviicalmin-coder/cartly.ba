@@ -203,6 +203,10 @@ export function toPosiljka(o: NormOrder, ptt: string) {
     opisPosiljke: o.opis.slice(0, 100),
     brojPaketa: Math.min(99, Math.max(1, o.units)),
     tezina: Math.max(1, o.units),
+    // Skytec rejects the parcel without dimensions ("[duzina] je obavezno polje").
+    duzina: 1,
+    sirina: 1,
+    visina: 1,
     vrednostPosiljke: 0,
     otkupnina: cod > 0,
     ...(cod > 0 ? { iznosOtkupnine: cod } : {}),
