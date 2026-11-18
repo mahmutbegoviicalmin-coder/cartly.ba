@@ -247,8 +247,14 @@ export async function cancelShipment(reference: string) {
   });
 }
 
-export async function getCodPayments(datum: string, tipDatuma: "ISPLATA" | "PRESJEK" = "ISPLATA"): Promise<SkyCod[]> {
-  return skyJson<SkyCod[]>(`/cod-payments?datum=${datum}&tipDatuma=${tipDatuma}`);
+export async function getCodPayments(
+  datum: string,
+  tipDatuma: "ISPLATA" | "PRESJEK" = "ISPLATA",
+  includeInTransit = false,
+): Promise<SkyCod[]> {
+  return skyJson<SkyCod[]>(
+    `/cod-payments?datum=${datum}&tipDatuma=${tipDatuma}${includeInTransit ? "&ukljuciNedostavljene=true" : ""}`
+  );
 }
 
 export async function registerWebhook(callbackUrl: string, secret: string) {
@@ -364,12 +370,31 @@ export async function applyState(
   return { duplicate: false, matched: true, orderNumber: row.order_number };
 }
 
-/** Pull COD remittances for one day, store them, and mark matching shipments paid. */
+/**
+ * Pull COD remittances for one day and store them.
+ *  - ISPLATA: remittances paid out to us that day (status 10)
+ *  - PRESJEK + in-transit: remittances Skytec settled that day, incl. those
+ *    still on their way to us (status 3)
+ * Matching shipments get cod_presjek_at / cod_paid_at.
+ */
 export async function syncCodDay(sb: Sb, datum: string): Promise<{ count: number; matched: number }> {
-  const list = await getCodPayments(datum, "ISPLATA");
-  let matched = 0;
-  for (const c of list) {
+  const [paid, settled] = await Promise.all([
+    getCodPayments(datum, "ISPLATA"),
+    getCodPayments(datum, "PRESJEK", true),
+  ]);
+  const byCode = new Map<string, SkyCod>();
+  for (const c of [...settled, ...paid]) {
     if (!c.sifraOtkupnine) continue;
+    const prev = byCode.get(c.sifraOtkupnine);
+    if (!prev || (c.status ?? 0) >= (prev.status ?? 0)) byCode.set(c.sifraOtkupnine, c);
+  }
+
+  let matched = 0;
+  for (const c of Array.from(byCode.values())) {
+    // Never downgrade a remittance we already know is paid.
+    const { data: known } = await sb.from("skytec_cod_payments").select("status").eq("sifra_otkupnine", c.sifraOtkupnine!).limit(1);
+    if ((known?.[0] as { status?: number } | undefined)?.status === 10 && c.status !== 10) continue;
+
     await sb.from("skytec_cod_payments").upsert({
       sifra_otkupnine: c.sifraOtkupnine,
       sifra_izvorne_posiljke: c.sifraIzvornePosiljke ?? null,
@@ -382,17 +407,20 @@ export async function syncCodDay(sb: Sb, datum: string): Promise<{ count: number
       nalog_sifra: c.nalogSifra ?? null,
       raw: c,
     });
-    if (c.status === 10 && c.sifraIzvornePosiljke) {
-      const { data } = await sb.from("skytec_shipments").update({
-        cod_paid_at: parseSkyDate(c.datumDostave),
-        cod_presjek_at: parseSkyDate(c.datumPresjeka),
-        cod_paid_amount: c.iznosOtkupnine ?? null,
-        updated_at: new Date().toISOString(),
-      }).eq("sky_sifra", c.sifraIzvornePosiljke).select("id");
-      if (data && data.length > 0) matched++;
-    }
+    if (!c.sifraIzvornePosiljke) continue;
+    const patch = c.status === 10
+      ? {
+          cod_paid_at: parseSkyDate(c.datumDostave),
+          cod_presjek_at: parseSkyDate(c.datumPresjeka),
+          cod_paid_amount: c.iznosOtkupnine ?? null,
+        }
+      : { cod_presjek_at: parseSkyDate(c.datumPresjeka) };
+    const { data } = await sb.from("skytec_shipments")
+      .update({ ...patch, updated_at: new Date().toISOString() })
+      .eq("sky_sifra", c.sifraIzvornePosiljke).select("id");
+    if (data && data.length > 0) matched++;
   }
-  return { count: list.length, matched };
+  return { count: byCode.size, matched };
 }
 
 /** Poll /shipment/status for open shipments (fallback when a webhook was missed). */

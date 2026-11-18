@@ -45,6 +45,7 @@ import { hasGift } from "@/lib/gift";
 
 const OverviewChart = dynamic(() => import("./OverviewChart"), { ssr: false });
 const SkytecPanel = dynamic(() => import("./SkytecPanel"), { ssr: false });
+const CodPanel = dynamic(() => import("./CodPanel"), { ssr: false });
 
 type IconCmp = LucideIcon;
 
@@ -87,7 +88,7 @@ type Stats = {
   chartData: { date: string; narudžbe: number; prihod: number }[];
 };
 
-type Tab = "overview" | "orders" | "skytec" | "margins";
+type Tab = "overview" | "orders" | "skytec" | "otkupnine" | "margins";
 
 const STATUS_META: Record<string, { label: string; color: string; bg: string }> = {
   nova: { label: "Nova", color: "#ff9f0a", bg: "rgba(255,159,10,0.14)" },
@@ -828,6 +829,7 @@ export default function DashboardClient() {
     overview: "Pregled",
     orders: "Narudžbe",
     skytec: "Skytec",
+    otkupnine: "Otkupnine",
     margins: "Kalkulator",
   };
 
@@ -835,6 +837,7 @@ export default function DashboardClient() {
     { tab: "overview" as Tab, label: "Pregled", Icon: LayoutGrid },
     { tab: "orders" as Tab, label: "Narudžbe", Icon: ClipboardList },
     { tab: "skytec" as Tab, label: "Skytec", Icon: Truck },
+    { tab: "otkupnine" as Tab, label: "Otkupnine", Icon: Banknote },
     { tab: "margins" as Tab, label: "Kalkulator", Icon: Calculator },
   ];
 
@@ -1151,6 +1154,8 @@ export default function DashboardClient() {
           )}
 
           {activeTab === "skytec" && <SkytecPanel />}
+
+          {activeTab === "otkupnine" && <CodPanel />}
 
           {activeTab === "margins" && <MarginCalc />}
         </main>
