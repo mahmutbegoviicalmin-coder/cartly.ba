@@ -216,14 +216,14 @@ function OptionGrid({ title, options, value, onChange, accent, on, cols }: {
 }) {
   return (
     <fieldset className="mb-5">
-      <legend className="mb-2 text-[18px] font-semibold text-[#1D1D1F]">{title}</legend>
+      <legend className="mb-2 text-[15.5px] font-semibold text-[#1D1D1F]">{title}</legend>
       <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
         {options.map(o => {
           const sel = o.value === value;
           return (
             <button
               key={o.value} type="button" disabled={o.soldOut} onClick={() => onChange(o.value)} aria-pressed={sel}
-              className={`flex min-h-[60px] flex-col items-center justify-center rounded-[14px] border-2 px-2 py-2 text-center text-[18px] font-bold transition-colors ${o.soldOut ? "cursor-not-allowed border-black/10 bg-black/[0.03] text-black/30 line-through" : sel ? "" : "border-black/15 bg-white text-[#1D1D1F]"}`}
+              className={`flex min-h-[50px] flex-col items-center justify-center rounded-[14px] border-2 px-2 py-2 text-center text-[15.5px] font-bold transition-colors ${o.soldOut ? "cursor-not-allowed border-black/10 bg-black/[0.03] text-black/30 line-through" : sel ? "" : "border-black/15 bg-white text-[#1D1D1F]"}`}
               style={sel ? { borderColor: accent, background: accent, color: on } : undefined}
             >
               {o.label}
@@ -334,20 +334,20 @@ function OrderDialog({ slug, cfg, onClose }: { slug: string; cfg: QuickOrderConf
   }
 
   const input = (k: FieldKey, props: React.InputHTMLAttributes<HTMLInputElement> = {}) => (
-    <div className="mb-4">
-      <label htmlFor={`qo-${k}`} className="mb-1.5 block text-[18px] font-semibold text-[#1D1D1F]">{LABELS[k]}</label>
+    <div className="mb-3">
+      <label htmlFor={`qo-${k}`} className="mb-1.5 block text-[15.5px] font-semibold text-[#1D1D1F]">{LABELS[k]}</label>
       <input
         id={`qo-${k}`} ref={k === "ime" ? firstInput : undefined} value={fields[k]} onChange={set(k)}
         aria-invalid={!!errors[k]} aria-describedby={errors[k] ? `qo-${k}-err` : undefined}
-        className={`h-[60px] w-full rounded-[14px] border-2 bg-white px-4 text-[19px] text-[#1D1D1F] outline-none transition-colors placeholder:text-black/35 focus:border-[#1D1D1F] ${errors[k] ? "border-[#D70015] bg-[#FFF5F5]" : "border-black/20"}`}
+        className={`h-[50px] w-full rounded-[14px] border-2 bg-white px-4 text-[16px] text-[#1D1D1F] outline-none transition-colors placeholder:text-black/35 focus:border-[#1D1D1F] ${errors[k] ? "border-[#D70015] bg-[#FFF5F5]" : "border-black/20"}`}
         {...props}
       />
-      {errors[k] && <p id={`qo-${k}-err`} className="mt-1.5 text-[16px] font-semibold text-[#D70015]">{errors[k]}</p>}
+      {errors[k] && <p id={`qo-${k}-err`} className="mt-1.5 text-[14px] font-semibold text-[#D70015]">{errors[k]}</p>}
     </div>
   );
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-end justify-center bg-black/55 md:items-center md:p-6" onClick={onClose} role="presentation">
+    <div className="fixed inset-0 z-[20000] flex items-end justify-center bg-black/55 md:items-center md:p-6" onClick={onClose} role="presentation">
       <div
         role="dialog" aria-modal="true" aria-labelledby="qo-title" onClick={e => e.stopPropagation()}
         className="relative flex h-[100dvh] w-full max-w-[560px] flex-col overflow-clip bg-[#F5F5F7] md:h-auto md:max-h-[92vh] md:rounded-[28px]"
@@ -355,9 +355,9 @@ function OrderDialog({ slug, cfg, onClose }: { slug: string; cfg: QuickOrderConf
       >
         {/* Header */}
         <div className="flex items-center gap-3 border-b border-black/[0.08] bg-white px-5 py-4">
-          <h2 id="qo-title" className="min-w-0 flex-1 text-[21px] font-bold leading-tight text-[#1D1D1F]">
+          <h2 id="qo-title" className="min-w-0 flex-1 text-[18px] font-bold leading-tight text-[#1D1D1F]">
             {done !== null ? "Narudžba je primljena" : "Narudžba"}
-            {done === null && <span className="block truncate text-[15px] font-medium text-black/55">{product?.name}</span>}
+            {done === null && <span className="block truncate text-[13.5px] font-medium text-black/55">{product?.name}</span>}
           </h2>
           <button type="button" onClick={onClose} aria-label="Zatvori" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-black/[0.06] text-[#1D1D1F]">
             <X size={26} strokeWidth={2.25} />
@@ -369,14 +369,14 @@ function OrderDialog({ slug, cfg, onClose }: { slug: string; cfg: QuickOrderConf
             <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-[#E8F7EE] text-[#15803D]">
               <Check size={44} strokeWidth={3} />
             </div>
-            <p className="mb-2 text-[22px] font-bold text-[#1D1D1F]">Hvala, {fields.ime.trim()}!</p>
-            <p className="mb-5 text-[18px] leading-relaxed text-black/70">
-              Nazvat ćemo vas na broj <b className="text-[#1D1D1F]">{fields.telefon}</b> da potvrdimo narudžbu.
+            <p className="mb-2 text-[19px] font-bold text-[#1D1D1F]">Hvala, {fields.ime.trim()}!</p>
+            <p className="mb-5 text-[15.5px] leading-relaxed text-black/70">
+              Narudžba je zaprimljena automatski, ne trebate čekati poziv.
               Paket stiže za 1–2 radna dana, a plaćate kad ga preuzmete.
             </p>
-            {done && <p className="mb-6 text-[16px] text-black/55">Broj narudžbe: <b className="text-[#1D1D1F]">{done}</b></p>}
-            <p className="mb-6 text-[18px] font-bold text-[#1D1D1F]">Za platiti pri preuzimanju: {km(total)}</p>
-            <button type="button" onClick={onClose} className="h-[60px] w-full rounded-[16px] bg-[#1D1D1F] text-[19px] font-bold text-white">Zatvori</button>
+            {done && <p className="mb-6 text-[14px] text-black/55">Broj narudžbe: <b className="text-[#1D1D1F]">{done}</b></p>}
+            <p className="mb-6 text-[15.5px] font-bold text-[#1D1D1F]">Za platiti pri preuzimanju: {km(total)}</p>
+            <button type="button" onClick={onClose} className="h-[50px] w-full rounded-[16px] bg-[#1D1D1F] text-[16px] font-bold text-white">Zatvori</button>
           </div>
         ) : (
           <form onSubmit={submit} noValidate className="flex min-h-0 flex-1 flex-col overflow-clip">
@@ -386,7 +386,7 @@ function OrderDialog({ slug, cfg, onClose }: { slug: string; cfg: QuickOrderConf
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full" style={{ background: theme.accent, color: theme.on }}>
                     <Check size={20} strokeWidth={3} />
                   </span>
-                  <p className="text-[17px] font-semibold leading-snug">Black November cijena je već uračunata</p>
+                  <p className="text-[15px] font-semibold leading-snug">Black November cijena je već uračunata</p>
                 </div>
               )}
 
@@ -401,15 +401,15 @@ function OrderDialog({ slug, cfg, onClose }: { slug: string; cfg: QuickOrderConf
 
               {cfg.maxQty && (
                 <div className="mb-5">
-                  <p className="mb-2 text-[18px] font-semibold text-[#1D1D1F]">Količina</p>
+                  <p className="mb-2 text-[15.5px] font-semibold text-[#1D1D1F]">Količina</p>
                   <div className="flex items-center gap-3">
                     <button type="button" aria-label="Manje" onClick={() => setQty(q => Math.max(1, q - 1))} disabled={qty <= 1}
-                      className="flex h-[60px] w-[60px] items-center justify-center rounded-[14px] border-2 border-black/15 bg-white text-[#1D1D1F] disabled:opacity-35">
+                      className="flex h-[50px] w-[50px] items-center justify-center rounded-[14px] border-2 border-black/15 bg-white text-[#1D1D1F] disabled:opacity-35">
                       <Minus size={24} strokeWidth={2.5} />
                     </button>
-                    <span className="w-14 text-center text-[26px] font-bold tabular-nums text-[#1D1D1F]" aria-live="polite">{qty}</span>
+                    <span className="w-14 text-center text-[22px] font-bold tabular-nums text-[#1D1D1F]" aria-live="polite">{qty}</span>
                     <button type="button" aria-label="Više" onClick={() => setQty(q => Math.min(cfg.maxQty!, q + 1))} disabled={qty >= cfg.maxQty}
-                      className="flex h-[60px] w-[60px] items-center justify-center rounded-[14px] border-2 border-black/15 bg-white text-[#1D1D1F] disabled:opacity-35">
+                      className="flex h-[50px] w-[50px] items-center justify-center rounded-[14px] border-2 border-black/15 bg-white text-[#1D1D1F] disabled:opacity-35">
                       <Plus size={24} strokeWidth={2.5} />
                     </button>
                   </div>
@@ -425,8 +425,8 @@ function OrderDialog({ slug, cfg, onClose }: { slug: string; cfg: QuickOrderConf
                 {input("telefon", { type: "tel", autoComplete: "tel", inputMode: "tel", placeholder: "npr. 061 234 567" })}
                 {honeypot}
               </div>
-              <p className="mb-5 flex items-start gap-2 rounded-2xl bg-[#E8F5EC] px-3.5 py-3 text-[15px] font-semibold leading-snug text-[#1E7A3C]">
-                <Check size={18} strokeWidth={3} className="mt-0.5 shrink-0" /> Narudžba se zaprima automatski, bez poziva. Paket šaljemo odmah.
+              <p className="mb-5 flex items-start gap-2 rounded-2xl bg-[#E8F5EC] px-3.5 py-3 text-[13.5px] font-semibold leading-snug text-[#1E7A3C]">
+                <Check size={18} strokeWidth={3} className="mt-0.5 shrink-0" /> Narudžba se zaprima automatski, bez poziva. Paket stiže za 1–2 radna dana.
               </p>
 
               {/* Gift */}
@@ -436,29 +436,29 @@ function OrderDialog({ slug, cfg, onClose }: { slug: string; cfg: QuickOrderConf
                   {gift && <Check size={24} strokeWidth={3.5} />}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="flex items-center gap-2 text-[18px] font-bold text-[#1D1D1F]"><Gift size={20} /> Poklon paket</span>
-                  <span className="block text-[15px] text-black/60">Iznenađenje u paketu, samo +{GIFT_PRICE} KM</span>
+                  <span className="flex items-center gap-2 text-[15.5px] font-bold text-[#1D1D1F]"><Gift size={20} /> Poklon paket</span>
+                  <span className="block text-[13.5px] text-black/60">Iznenađenje u paketu, samo +{GIFT_PRICE} KM</span>
                 </span>
               </label>
 
               {/* Summary */}
-              <div className="rounded-[20px] bg-white p-4 text-[17px] text-[#1D1D1F]">
+              <div className="rounded-[20px] bg-white p-4 text-[15px] text-[#1D1D1F]">
                 <div className="flex justify-between py-1"><span className="text-black/65">Proizvod{cfg.maxQty && qty > 1 ? ` (${qty} kom)` : ""}</span><span className="font-semibold tabular-nums">{km(subtotal)}</span></div>
                 <div className="flex justify-between py-1"><span className="text-black/65">Dostava</span><span className="font-semibold tabular-nums">{cfg.delivery ? km(cfg.delivery) : "Besplatna"}</span></div>
                 {gift && <div className="flex justify-between py-1"><span className="text-black/65">Poklon paket</span><span className="font-semibold tabular-nums">{km(GIFT_PRICE)}</span></div>}
                 <div className="mt-2 flex items-baseline justify-between border-t border-black/10 pt-3">
-                  <span className="text-[19px] font-bold">Ukupno</span>
-                  <span className="text-[26px] font-bold tabular-nums">{km(total)}</span>
+                  <span className="text-[16px] font-bold">Ukupno</span>
+                  <span className="text-[22px] font-bold tabular-nums">{km(total)}</span>
                 </div>
-                <p className="mt-1 text-[15px] text-black/55">Plaćate gotovinom kad preuzmete paket.</p>
+                <p className="mt-1 text-[13.5px] text-black/55">Plaćate gotovinom kad preuzmete paket.</p>
               </div>
             </div>
 
             <div className="border-t border-black/[0.08] bg-white px-5 pt-3" style={{ paddingBottom: "max(14px, env(safe-area-inset-bottom))" }}>
-              {formError && <p role="alert" className="mb-2 text-[16px] font-semibold text-[#D70015]">{formError}</p>}
+              {formError && <p role="alert" className="mb-2 text-[14px] font-semibold text-[#D70015]">{formError}</p>}
               <button
                 type="submit" disabled={sending}
-                className="flex h-[64px] w-full items-center justify-center gap-2 rounded-[18px] text-[20px] font-bold transition-opacity disabled:opacity-60"
+                className="flex h-[54px] w-full items-center justify-center gap-2 rounded-[18px] text-[17px] font-bold transition-opacity disabled:opacity-60"
                 style={{ background: theme.accent, color: theme.on }}
               >
                 {sending ? "Šaljem narudžbu…" : `Naruči · ${km(total)}`}
