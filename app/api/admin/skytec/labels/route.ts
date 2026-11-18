@@ -6,7 +6,7 @@ import { getLabels, SkytecError } from "@/lib/skytec";
 
 export const dynamic = "force-dynamic";
 
-/** GET ?date=YYYY-MM-DD&product=key&format=A4|A410|60MM → PDF with every announced parcel of that day. */
+/** GET ?date=YYYY-MM-DD&format=A4|A410|60MM[&orders=A,B,C] → PDF labels for those orders (default: every announced parcel of that day). */
 export async function GET(req: NextRequest) {
   if (!isAdmin()) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -18,13 +18,18 @@ export async function GET(req: NextRequest) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return NextResponse.json({ error: "Neispravan datum." }, { status: 400 });
 
   try {
+    const orders = (sp.get("orders") ?? "").split(",").map((x) => x.trim()).filter(Boolean);
     let q = getSupabaseAdmin().from("skytec_shipments")
       .select("sky_sifra, product_prefix")
-      .eq("order_date", date)
       .not("sky_sifra", "is", null)
       .neq("state", "otkazana");
-    const p = product !== "svi" ? findProduct(product) : undefined;
-    if (p?.prefixes) q = q.in("product_prefix", p.prefixes);
+    if (orders.length) {
+      q = q.in("order_number", orders);
+    } else {
+      q = q.eq("order_date", date);
+      const p = product !== "svi" ? findProduct(product) : undefined;
+      if (p?.prefixes) q = q.in("product_prefix", p.prefixes);
+    }
 
     const { data, error } = await q.order("created_at", { ascending: true });
     if (error) throw error;

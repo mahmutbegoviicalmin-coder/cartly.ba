@@ -2,11 +2,18 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  Send, Printer, RefreshCw, Loader2, Phone, AlertTriangle, Truck, Banknote,
-  Clock, Undo2, ChevronDown, X, Webhook, CheckCircle2,
+  ChevronLeft, ChevronRight, ChevronDown, Check, Loader2, Send, Printer, Phone,
+  RefreshCw, Link2, AlertCircle, X, Package,
 } from "lucide-react";
 import { PRODUCTS } from "@/lib/export-products";
 import "./skytec.css";
+
+// ── Types ────────────────────────────────────────────────────────────────────
+
+type DayOrder = {
+  order_number: string; ime: string; grad: string; telefon: string; ukupno: number;
+  opis: string; ptt: string | null; sent: boolean; sky_sifra: string | null; state: string | null;
+};
 
 type Ship = {
   order_number: string; order_date: string | null; product_prefix: string | null;
@@ -25,7 +32,6 @@ type Overview = {
   byState: Record<string, number>;
   byProduct: { prefix: string; sent: number; delivered: number; returned: number; open: number }[];
   alerts: Ship[];
-  overdue: Ship[];
   shipments: Ship[];
 };
 
@@ -34,54 +40,72 @@ type SendResult = { order_number: string; ime: string; ok: boolean; sifra?: stri
 type Setup = {
   env: { apiKey: boolean; webhookSecret: boolean; cronSecret: boolean; server: "test" | "prod" };
   webhook: { callbackUrl?: string } | null;
-  error?: string;
 };
 
-const STATES: { key: string; label: string; color: string }[] = [
-  { key: "najava", label: "U najavi", color: "#a1a1a6" },
-  { key: "preuzeto", label: "Preuzeto", color: "#64d2ff" },
-  { key: "u_dostavi", label: "U dostavi", color: "#0a84ff" },
-  { key: "odgodjena", label: "Odgođena", color: "#ff9f0a" },
-  { key: "sporna", label: "Sporna", color: "#ff9f0a" },
-  { key: "dostavljena", label: "Dostavljena", color: "#30d158" },
-  { key: "vracena", label: "Vraćena", color: "#ff453a" },
-  { key: "povrat_dostavljen", label: "Povrat stigao", color: "#ff453a" },
-  { key: "otkazana", label: "Otkazana", color: "#6e6e73" },
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+const STATES: { key: string; label: string; tone: "gray" | "blue" | "orange" | "green" | "red" }[] = [
+  { key: "najava", label: "U najavi", tone: "gray" },
+  { key: "preuzeto", label: "Preuzeto", tone: "blue" },
+  { key: "u_dostavi", label: "U dostavi", tone: "blue" },
+  { key: "odgodjena", label: "Odgođena", tone: "orange" },
+  { key: "sporna", label: "Sporna", tone: "orange" },
+  { key: "dostavljena", label: "Dostavljena", tone: "green" },
+  { key: "vracena", label: "Vraćena", tone: "red" },
+  { key: "povrat_dostavljen", label: "Povrat stigao", tone: "red" },
+  { key: "otkazana", label: "Otkazana", tone: "gray" },
 ];
 const STATE_BY_KEY = Object.fromEntries(STATES.map((s) => [s.key, s]));
 
 const PREFIX_LABEL: Record<string, string> = {};
 for (const p of PRODUCTS) for (const pre of p.prefixes ?? []) PREFIX_LABEL[pre] = p.label;
+const productOf = (prefix: string | null) => (prefix ? PREFIX_LABEL[prefix] ?? prefix : "Bez narudžbe");
 
+/** 1234.5 → "1.234,50 KM" (written by hand: browsers lack a bs-BA locale). */
 function km(n: number) {
-  return `${(Number(n) || 0).toLocaleString("bs-BA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} KM`;
+  const [int, dec] = (Math.round((Number(n) || 0) * 100) / 100).toFixed(2).split(".");
+  return `${int.replace(/\B(?=(\d{3})+(?!\d))/g, ".")},${dec} KM`;
 }
-/** Bosnian plural: 1 paket, 2–4 paketa, 5+ paketa (11–14 → paketa). */
-function paketa(n: number) {
+
+const DAYS = ["Nedjelja", "Ponedjeljak", "Utorak", "Srijeda", "Četvrtak", "Petak", "Subota"];
+const MONTHS = ["januar", "februar", "mart", "april", "maj", "juni", "juli", "august", "septembar", "oktobar", "novembar", "decembar"];
+
+function plural(n: number, one: string, few: string, many: string) {
   const d = n % 10, h = n % 100;
-  return `${n} ${d === 1 && h !== 11 ? "paket" : "paketa"}`;
+  if (d === 1 && h !== 11) return `${n} ${one}`;
+  if (d >= 2 && d <= 4 && (h < 12 || h > 14)) return `${n} ${few}`;
+  return `${n} ${many}`;
 }
+const paket = (n: number) => plural(n, "paket", "paketa", "paketa");
+const narudzba = (n: number) => plural(n, "narudžba", "narudžbe", "narudžbi");
 
 function when(iso: string | null) {
   if (!iso) return "—";
-  return new Date(iso).toLocaleString("bs-BA", {
-    day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Sarajevo",
-  });
+  const p = Object.fromEntries(
+    new Intl.DateTimeFormat("en-GB", {
+      day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "Europe/Sarajevo",
+    }).formatToParts(new Date(iso)).map((x) => [x.type, x.value])
+  );
+  return `${p.day}.${p.month}. u ${p.hour}:${p.minute}`;
 }
 
-function StateBadge({ state }: { state: string }) {
-  const s = STATE_BY_KEY[state] ?? { label: state, color: "#a1a1a6" };
-  return (
-    <span className="sk-badge" style={{ color: s.color, background: `${s.color}22` }}>
-      <span className="dot" style={{ background: s.color }} />
-      {s.label}
-    </span>
-  );
+const todayStr = () => new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Sarajevo" });
+
+function shiftDay(d: string, by: number) {
+  const t = new Date(`${d}T12:00:00Z`);
+  t.setUTCDate(t.getUTCDate() + by);
+  return t.toISOString().slice(0, 10);
+}
+
+function prettyDay(d: string) {
+  if (d === todayStr()) return "Danas";
+  if (d === shiftDay(todayStr(), -1)) return "Jučer";
+  const t = new Date(`${d}T12:00:00Z`);
+  return `${DAYS[t.getUTCDay()]}, ${t.getUTCDate()}. ${MONTHS[t.getUTCMonth()]}`;
 }
 
 async function downloadBlob(res: Response, name: string) {
-  const blob = await res.blob();
-  const url = URL.createObjectURL(blob);
+  const url = URL.createObjectURL(await res.blob());
   const a = document.createElement("a");
   a.href = url;
   a.download = name;
@@ -91,139 +115,171 @@ async function downloadBlob(res: Response, name: string) {
   URL.revokeObjectURL(url);
 }
 
+function Pill({ state }: { state: string }) {
+  const s = STATE_BY_KEY[state] ?? { label: state, tone: "gray" };
+  return <span className={`skx-pill ${s.tone}`}>{s.label}</span>;
+}
+
+function Tick({ on, disabled }: { on: boolean; disabled?: boolean }) {
+  return (
+    <span className={`skx-tick${on ? " on" : ""}${disabled ? " off" : ""}`} aria-hidden>
+      {on && <Check size={13} strokeWidth={3} />}
+    </span>
+  );
+}
+
+// ── Shipment row (history list) ──────────────────────────────────────────────
+
 function ShipRow({ s, onCancel }: { s: Ship; onCancel: (o: string) => void }) {
   const [open, setOpen] = useState(false);
-  const [hist, setHist] = useState<{ track: { datum?: string; naziv?: string; centar?: string }[] } | null>(null);
+  const [track, setTrack] = useState<{ datum?: string; naziv?: string; centar?: string }[] | null>(null);
 
   const toggle = async () => {
     setOpen((v) => !v);
-    if (!hist) {
+    if (!track) {
       const r = await fetch(`/api/admin/skytec/track?order=${encodeURIComponent(s.order_number)}`);
-      setHist(r.ok ? await r.json() : { track: [] });
+      setTrack(r.ok ? (await r.json()).track ?? [] : []);
     }
   };
 
   return (
-    <div className={`sk-row${open ? " is-open" : ""}`}>
-      <button className="sk-row-main" onClick={toggle}>
-        <div className="sk-row-who">
-          <b>{s.ime ?? "—"}</b>
-          <span>
-            {s.grad ?? ""} · {PREFIX_LABEL[s.product_prefix ?? ""] ?? s.product_prefix} · {s.order_number}
-          </span>
-        </div>
-        <div className="sk-row-right">
-          <StateBadge state={s.state} />
-          <span className="sk-row-sum">
+    <div className={`skx-ship${open ? " open" : ""}`}>
+      <button className="skx-row" onClick={toggle}>
+        <span className="skx-row-main">
+          <span className="skx-row-title">{s.ime ?? "—"}</span>
+          <span className="skx-row-sub">{s.grad ?? ""} · {productOf(s.product_prefix)}</span>
+        </span>
+        <span className="skx-row-end">
+          <Pill state={s.state} />
+          <span className="skx-row-amt">
             {km(s.cod_amount)}
-            {s.cod_paid_at ? <em className="paid">isplaćeno</em> : null}
+            {s.cod_paid_at && <em>uplaćeno</em>}
           </span>
-        </div>
-        <ChevronDown size={16} className="sk-chev" />
+        </span>
+        <ChevronDown size={16} className="skx-chev" />
       </button>
       {open && (
-        <div className="sk-row-body">
-          <div className="sk-kv">
-            <span>Pošiljka</span><b>{s.sky_sifra ?? "—"}</b>
-            <span>Zadnja promjena</span><b>{when(s.state_at)}</b>
-            {s.state_note ? (<><span>Razlog</span><b>{s.state_note}</b></>) : null}
-            <span>Telefon</span>
-            <b>{s.telefon ? <a href={`tel:${s.telefon.replace(/\s/g, "")}`}>{s.telefon}</a> : "—"}</b>
-          </div>
-          {hist === null ? (
-            <div className="sk-muted"><Loader2 size={14} className="ad-spin" /> Učitavam historiju…</div>
-          ) : hist.track.length === 0 ? (
-            <div className="sk-muted">Skytec još nema događaja za ovu pošiljku.</div>
-          ) : (
-            <ol className="sk-track">
-              {hist.track.map((t, i) => (
+        <div className="skx-ship-body">
+          <dl className="skx-dl">
+            <dt>Narudžba</dt><dd>{s.order_number.startsWith("SKY-") ? "—" : s.order_number}</dd>
+            <dt>Pošiljka</dt><dd>{s.sky_sifra ?? "—"}</dd>
+            <dt>Zadnja promjena</dt><dd>{when(s.state_at)}</dd>
+            {s.state_note && (<><dt>Razlog</dt><dd>{s.state_note}</dd></>)}
+            <dt>Telefon</dt>
+            <dd>{s.telefon ? <a href={`tel:${s.telefon.replace(/\s/g, "")}`}>{s.telefon}</a> : "—"}</dd>
+          </dl>
+          {track === null ? (
+            <p className="skx-muted"><Loader2 size={14} className="ad-spin" /> Učitavam historiju</p>
+          ) : track.length > 0 ? (
+            <ol className="skx-track">
+              {track.map((t, i) => (
                 <li key={i}>
-                  <b>{t.naziv}</b>
-                  <span>{t.datum ? when(t.datum.replace(/([+-]\d{2})(\d{2})$/, "$1:$2")) : ""}{t.centar ? ` · ${t.centar}` : ""}</span>
+                  <span>{t.naziv}</span>
+                  <small>{t.datum ? when(t.datum.replace(/([+-]\d{2})(\d{2})$/, "$1:$2")) : ""}{t.centar ? ` · ${t.centar}` : ""}</small>
                 </li>
               ))}
             </ol>
+          ) : (
+            <p className="skx-muted">Skytec još nema događaja za ovaj paket.</p>
           )}
-          <div className="sk-row-actions">
-            {s.tracking_url && <a className="sk-link" href={s.tracking_url} target="_blank" rel="noreferrer">Skytec tracking</a>}
-            {s.state === "najava" && s.sky_sifra && (
-              <button className="sk-cancel" onClick={() => onCancel(s.order_number)}>
-                <X size={14} /> Otkaži pošiljku
-              </button>
-            )}
-          </div>
+          {s.state === "najava" && s.sky_sifra && (
+            <button className="skx-btn danger sm" onClick={() => onCancel(s.order_number)}>
+              <X size={14} /> Otkaži pošiljku
+            </button>
+          )}
         </div>
       )}
     </div>
   );
 }
 
+// ── Panel ────────────────────────────────────────────────────────────────────
+
 export default function SkytecPanel() {
-  const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Sarajevo" });
-  const [product, setProduct] = useState("svi");
-  const [date, setDate] = useState(today);
+  const [date, setDate] = useState(todayStr);
+  const [day, setDay] = useState<DayOrder[] | null>(null);
+  const [dayErr, setDayErr] = useState<string | null>(null);
+  const [sel, setSel] = useState<Set<string>>(new Set());
   const [format, setFormat] = useState<"A4" | "A410" | "60MM">("A4");
-  const [busy, setBusy] = useState<"send" | "labels" | "sync" | "webhook" | "import" | null>(null);
+  const [busy, setBusy] = useState<"send" | "labels" | "sync" | "webhook" | null>(null);
+  const [result, setResult] = useState<{ sent: number; failed: number; results: SendResult[] } | null>(null);
   const [data, setData] = useState<Overview | null>(null);
-  const [loadErr, setLoadErr] = useState<{ msg: string; migration?: boolean } | null>(null);
   const [setup, setSetup] = useState<Setup | null>(null);
-  const [sendRes, setSendRes] = useState<{ sent: number; failed: number; skipped: number; results: SendResult[] } | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
+  const [loadErr, setLoadErr] = useState<string | null>(null);
   const [filter, setFilter] = useState("all");
-  const [showHelp, setShowHelp] = useState(true);
+  const [showAll, setShowAll] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
 
-  useEffect(() => {
-    try { if (localStorage.getItem("sk-help-hidden") === "1") setShowHelp(false); } catch { /* ignore */ }
+  const flash = (m: string) => { setToast(m); setTimeout(() => setToast(null), 6000); };
+
+  const loadDay = useCallback(async (d: string) => {
+    setDay(null); setDayErr(null);
+    const r = await fetch(`/api/admin/skytec/day?date=${d}`);
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) { setDayErr(j.error ?? "Greška pri učitavanju."); setDay([]); return; }
+    const list = (j.orders ?? []) as DayOrder[];
+    setDay(list);
+    // Pre-select only for today / yesterday — older unsent orders may have gone with another courier.
+    const recent = d >= shiftDay(todayStr(), -1);
+    setSel(recent ? new Set(list.filter((o) => !o.sent && o.ptt).map((o) => o.order_number)) : new Set());
   }, []);
-  const hideHelp = () => {
-    setShowHelp(false);
-    try { localStorage.setItem("sk-help-hidden", "1"); } catch { /* ignore */ }
-  };
 
-  const load = useCallback(async () => {
+  const loadOverview = useCallback(async () => {
     const [o, w] = await Promise.all([
       fetch("/api/admin/skytec/overview").then(async (r) => ({ ok: r.ok, j: await r.json().catch(() => ({})) })),
       fetch("/api/admin/skytec/webhook").then((r) => r.json()).catch(() => null),
     ]);
-    if (o.ok) { setData(o.j); setLoadErr(null); }
-    else setLoadErr({ msg: o.j.error ?? "Greška", migration: o.j.needsMigration });
+    if (o.ok) { setData(o.j); setLoadErr(null); } else setLoadErr(o.j.error ?? "Greška");
     setSetup(w);
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { setResult(null); loadDay(date); }, [date, loadDay]);
+  useEffect(() => { loadOverview(); }, [loadOverview]);
 
-  const flash = (m: string) => { setToast(m); setTimeout(() => setToast(null), 7000); };
+  const unsent = useMemo(() => (day ?? []).filter((o) => !o.sent), [day]);
+  const sentToday = useMemo(() => (day ?? []).filter((o) => o.sent), [day]);
+  const selectable = useMemo(() => unsent.filter((o) => o.ptt), [unsent]);
+  const chosen = useMemo(() => unsent.filter((o) => sel.has(o.order_number)), [unsent, sel]);
+  const chosenSum = chosen.reduce((a, o) => a + Number(o.ukupno || 0), 0);
+  const allOn = selectable.length > 0 && chosen.length === selectable.length;
+
+  const toggle = (o: DayOrder) => {
+    if (o.sent || !o.ptt) return;
+    setSel((prev) => {
+      const n = new Set(prev);
+      if (n.has(o.order_number)) n.delete(o.order_number); else n.add(o.order_number);
+      return n;
+    });
+  };
+  const toggleAll = () => setSel(allOn ? new Set() : new Set(selectable.map((o) => o.order_number)));
 
   const send = async () => {
-    const label = product === "svi" ? "sve proizvode" : PRODUCTS.find((p) => p.key === product)?.label;
-    if (!confirm(`Poslati narudžbe od ${date} (${label}) u Skytec?\n\nKurir će doći po ove pakete. Ne šalji iste narudžbe i Excelom.`)) return;
-    setBusy("send"); setSendRes(null);
+    if (chosen.length === 0) return;
+    if (!confirm(`Poslati ${narudzba(chosen.length)} (${km(chosenSum)}) u Skytec?\n\nPojavit će se u Skytec web klijentu kao najava i kurir dolazi po pakete.`)) return;
+    setBusy("send"); setResult(null);
     try {
       const r = await fetch("/api/admin/skytec/announce", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ product, date }),
+        body: JSON.stringify({ product: "svi", date, orderNumbers: chosen.map((o) => o.order_number) }),
       });
       const j = await r.json();
-      if (!r.ok) flash(j.error ?? "Greška pri slanju.");
-      else { setSendRes(j); await load(); }
+      if (!r.ok) { flash(j.error ?? "Slanje nije uspjelo."); return; }
+      await Promise.all([loadDay(date), loadOverview()]);
+      setResult(j);
+    } catch {
+      flash("Nema veze sa serverom. Pokušaj ponovo.");
     } finally { setBusy(null); }
   };
 
-  const labels = async () => {
+  const printLabels = async () => {
+    const orders = sentToday.map((o) => o.order_number);
+    if (orders.length === 0) { flash("Za ovaj dan još nema poslanih paketa."); return; }
     setBusy("labels");
     try {
-      const r = await fetch(`/api/admin/skytec/labels?date=${date}&product=${encodeURIComponent(product)}&format=${format}`);
-      if (!r.ok) flash((await r.json().catch(() => ({}))).error ?? "Greška pri naljepnicama.");
+      const r = await fetch(`/api/admin/skytec/labels?date=${date}&format=${format}&orders=${encodeURIComponent(orders.join(","))}`);
+      if (!r.ok) flash((await r.json().catch(() => ({}))).error ?? "Naljepnice nisu dostupne.");
       else await downloadBlob(r, `Skytec_naljepnice_${date}.pdf`);
     } finally { setBusy(null); }
-  };
-
-  const describeImport = (j: { imported?: { imported: number; matched: number; unmatched: number; remittances: number } | null; importError?: string | null }) => {
-    if (j.importError) return `Greška pri uvozu: ${j.importError}`;
-    const i = j.imported;
-    if (!i) return "Gotovo.";
-    if (i.imported === 0) return "Sve je već ažurno — nema novih pošiljki.";
-    return `Uvezeno ${i.imported} pošiljki (${i.matched} povezano s narudžbom${i.unmatched ? `, ${i.unmatched} bez narudžbe` : ""}).`;
   };
 
   const sync = async () => {
@@ -231,20 +287,12 @@ export default function SkytecPanel() {
     try {
       const r = await fetch("/api/admin/skytec/sync", { method: "POST" });
       const j = await r.json();
-      flash(r.ok ? `${describeImport(j)} Statusi: ${j.status.changed} promjena.` : j.error ?? "Greška.");
-      await load();
-    } finally { setBusy(null); }
-  };
-
-  const importOld = async () => {
-    setBusy("import");
-    try {
-      const r = await fetch("/api/admin/skytec/import", {
-        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ days: 60 }),
-      });
-      const j = await r.json();
-      flash(r.ok ? describeImport({ imported: j }) : j.error ?? "Greška.");
-      await load();
+      if (!r.ok) flash(j.error ?? "Greška.");
+      else {
+        const n = j.imported?.imported ?? 0;
+        flash(n ? `Povučeno ${paket(n)} iz Skyteca.` : "Sve je ažurno.");
+      }
+      await Promise.all([loadDay(date), loadOverview()]);
     } finally { setBusy(null); }
   };
 
@@ -253,8 +301,8 @@ export default function SkytecPanel() {
     try {
       const r = await fetch("/api/admin/skytec/webhook", { method: "POST" });
       const j = await r.json();
-      flash(r.ok ? "Spojeno — Skytec će sam javljati statuse." : j.error ?? "Greška.");
-      await load();
+      flash(r.ok ? "Povezano. Skytec će sam javljati statuse." : j.error ?? "Greška.");
+      await loadOverview();
     } finally { setBusy(null); }
   };
 
@@ -264,251 +312,290 @@ export default function SkytecPanel() {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ order }),
     });
     const j = await r.json();
-    flash(r.ok ? "Pošiljka otkazana." : j.error ?? "Greška.");
-    await load();
+    flash(r.ok ? "Pošiljka je otkazana." : j.error ?? "Greška.");
+    await Promise.all([loadDay(date), loadOverview()]);
   };
 
-  const list = useMemo(() => {
+  const ships = useMemo(() => {
     const all = data?.shipments ?? [];
-    return filter === "all" ? all : all.filter((s) => s.state === filter);
-  }, [data, filter]);
+    const f = filter === "all" ? all : all.filter((s) => s.state === filter);
+    return showAll ? f : f.slice(0, 25);
+  }, [data, filter, showAll]);
+  const shipsTotal = filter === "all" ? data?.shipments.length ?? 0 : data?.byState[filter] ?? 0;
 
   const k = data?.kpi;
-  const envMissing = setup && (!setup.env.apiKey || !setup.env.webhookSecret || !setup.env.cronSecret);
   const connected = Boolean(setup?.webhook?.callbackUrl);
 
   return (
-    <div className="ad-panel sk">
-      {toast && <div className="sk-toast" onClick={() => setToast(null)}>{toast}</div>}
+    <div className="skx">
+      {toast && <div className="skx-toast" role="status" onClick={() => setToast(null)}>{toast}</div>}
 
-      {(envMissing || loadErr) && (
-        <div className="sk-setup">
-          <AlertTriangle size={18} />
+      {setup && !setup.env.apiKey && (
+        <div className="skx-banner"><AlertCircle size={16} /> Skytec API ključ nije postavljen na serveru.</div>
+      )}
+      {loadErr && <div className="skx-banner"><AlertCircle size={16} /> {loadErr}</div>}
+
+      {/* ── Send ─────────────────────────────────────────────── */}
+      <section className="skx-section">
+        <header className="skx-section-head">
           <div>
-            <b>Skytec još nije potpuno podešen</b>
-            {loadErr?.migration && <p>Pokreni <code>supabase-skytec-migration.sql</code> u Supabase SQL Editoru.</p>}
-            {loadErr && !loadErr.migration && <p>{loadErr.msg}</p>}
-            {setup && !setup.env.apiKey && <p>Dodaj <code>SKYTEC_API_KEY</code> u Vercel env varijable.</p>}
-            {setup && !setup.env.webhookSecret && <p>Dodaj <code>SKYTEC_WEBHOOK_SECRET</code>.</p>}
-            {setup && !setup.env.cronSecret && <p>Dodaj <code>CRON_SECRET</code>.</p>}
+            <h2>Slanje u Skytec</h2>
+            <p>Narudžbe izabranog dana idu u Skytec web klijent kao najava.</p>
           </div>
-        </div>
-      )}
-
-      {/* ── How it works ─────────────────────────────────────── */}
-      {showHelp && (
-        <div className="sk-card sk-help">
-          <div className="sk-head">
-            <h2>Kako ovo radi</h2>
-            <button className="sk-x" onClick={hideHelp} aria-label="Sakrij uputstvo"><X size={16} /></button>
-          </div>
-          <ol className="sk-steps">
-            <li><b>Izaberi dan</b><span>Datum narudžbi koje danas pakuješ.</span></li>
-            <li><b>Pošalji u Skytec</b><span>Zamjena za Excel. Skytec dobije pakete i kurir dolazi po njih.</span></li>
-            <li><b>Printaj naljepnice</b><span>Zalijepi ih na pakete prije nego kurir dođe.</span></li>
-          </ol>
-          <p className="sk-help-foot">
-            Sve ostalo ide samo: statusi paketa i uplate otkupnina ažuriraju se automatski. Pakete poslane preko
-            Skytec web klijenta ili Excela sistem svako jutro sam povuče i poveže s narudžbom.
-          </p>
-        </div>
-      )}
-
-      {/* ── Daily send ───────────────────────────────────────── */}
-      <div className="ad-toolbar">
-        <div className="sk-head">
-          <h2>Današnje slanje</h2>
           {setup?.env.apiKey && (
-            <span className={`sk-conn${connected ? " ok" : ""}`}>
-              <span className="dot" />
-              {connected ? "Spojeno sa Skytecom" : "Statusi nisu spojeni"}
+            <span className={`skx-status${connected ? " ok" : ""}`}>
+              <i /> {connected ? "Povezano" : "Statusi nisu povezani"}
             </span>
           )}
-        </div>
-        <div className="sk-send-grid">
-          <label className="sk-field">
-            <span>Proizvod</span>
-            <select value={product} onChange={(e) => setProduct(e.target.value)}>
-              <option value="svi">Svi proizvodi</option>
-              {PRODUCTS.map((p) => <option key={p.key} value={p.key}>{p.label}</option>)}
-            </select>
-          </label>
-          <label className="sk-field">
-            <span>Datum narudžbi</span>
-            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-          </label>
-          <button className="sk-primary" onClick={send} disabled={busy !== null}>
-            {busy === "send" ? <Loader2 className="ad-spin" size={16} /> : <Send size={16} />}
-            Pošalji u Skytec
-          </button>
-          <button className="sk-secondary" onClick={labels} disabled={busy !== null}>
-            {busy === "labels" ? <Loader2 className="ad-spin" size={16} /> : <Printer size={16} />}
-            Printaj naljepnice
-          </button>
-        </div>
-        <label className="sk-paper">
-          Papir za naljepnice:
-          <select value={format} onChange={(e) => setFormat(e.target.value as typeof format)}>
-            <option value="A4">A4, 4 po strani</option>
-            <option value="A410">A4, 10 po strani</option>
-            <option value="60MM">Termalni printer 60mm</option>
-          </select>
-        </label>
+        </header>
 
-        {sendRes && (
-          <div className="sk-send">
-            <p>
-              <CheckCircle2 size={15} />
-              {sendRes.sent ? <>Poslano: <b>{paketa(sendRes.sent)}</b>.</> : <>Ništa novo za poslati.</>}
-              {sendRes.skipped ? <> {sendRes.skipped} je već ranije poslano.</> : null}
-              {sendRes.failed ? <> <span className="bad">{sendRes.failed} nije prošlo — popravi adresu i pošalji ponovo:</span></> : null}
-            </p>
-            {sendRes.results.filter((r) => !r.ok).map((r) => (
-              <div key={r.order_number} className="sk-send-err">
-                <b>{r.ime}</b> <span>{r.order_number}</span>
-                <em>{r.error}</em>
+        <div className="skx-group">
+          <div className="skx-daybar">
+            <button className="skx-icon" onClick={() => setDate(shiftDay(date, -1))} aria-label="Prethodni dan">
+              <ChevronLeft size={18} />
+            </button>
+            <label className="skx-daypick">
+              <span>{prettyDay(date)}</span>
+              <small>{date.split("-").reverse().map(Number).join(".")}.</small>
+              <input type="date" value={date} max={todayStr()} onChange={(e) => e.target.value && setDate(e.target.value)} aria-label="Izaberi datum" />
+            </label>
+            <button
+              className="skx-icon"
+              onClick={() => setDate(shiftDay(date, 1))}
+              disabled={date >= todayStr()}
+              aria-label="Sljedeći dan"
+            >
+              <ChevronRight size={18} />
+            </button>
+          </div>
+
+          {day === null ? (
+            <div className="skx-empty"><Loader2 size={20} className="ad-spin" /></div>
+          ) : dayErr ? (
+            <div className="skx-empty"><AlertCircle size={22} /><b>{dayErr}</b></div>
+          ) : day.length === 0 ? (
+            <div className="skx-empty">
+              <Package size={24} strokeWidth={1.6} />
+              <b>Nema narudžbi za ovaj dan</b>
+              <span>Izaberi drugi datum strelicama iznad.</span>
+            </div>
+          ) : (
+            <>
+              {unsent.length > 0 && date < shiftDay(todayStr(), -1) && (
+                <div className="skx-note">
+                  <AlertCircle size={15} />
+                  Stariji dan. Prije slanja provjeri da ove narudžbe nisu već otišle drugim kurirom.
+                </div>
+              )}
+              {unsent.length > 0 && (
+                <button className="skx-row skx-selectall" onClick={toggleAll} disabled={selectable.length === 0}>
+                  <Tick on={allOn} disabled={selectable.length === 0} />
+                  <span className="skx-row-main"><span className="skx-row-title">
+                    {allOn ? "Odznači sve" : "Označi sve"}
+                  </span></span>
+                  <span className="skx-row-meta">{narudzba(unsent.length)} za slanje</span>
+                </button>
+              )}
+              {day.map((o) => {
+                const on = sel.has(o.order_number);
+                const blocked = !o.sent && !o.ptt;
+                return (
+                  <button
+                    key={o.order_number}
+                    className={`skx-row skx-order${o.sent ? " is-sent" : ""}${blocked ? " is-blocked" : ""}`}
+                    onClick={() => toggle(o)}
+                    disabled={o.sent || blocked}
+                  >
+                    {o.sent ? (
+                      <span className="skx-done" aria-hidden><Check size={13} strokeWidth={3} /></span>
+                    ) : (
+                      <Tick on={on} disabled={blocked} />
+                    )}
+                    <span className="skx-row-main">
+                      <span className="skx-row-title">{o.ime}</span>
+                      <span className="skx-row-sub">{o.grad} · {o.opis}</span>
+                      {blocked && <span className="skx-row-warn">Nepoznat poštanski broj za „{o.grad}“. Popravi grad u narudžbi.</span>}
+                    </span>
+                    <span className="skx-row-end">
+                      <span className="skx-row-amt">{km(o.ukupno)}</span>
+                      {o.sent
+                        ? <span className="skx-row-meta ok">{o.state && o.state !== "najava" ? STATE_BY_KEY[o.state]?.label : "Poslano"}</span>
+                        : <span className="skx-row-meta">Nije poslano</span>}
+                    </span>
+                  </button>
+                );
+              })}
+            </>
+          )}
+
+          {result && (
+            <div className={`skx-result${result.failed ? " warn" : ""}`}>
+              <b>{result.sent ? `Poslano: ${paket(result.sent)}. Vidljivo je u Skytec web klijentu.` : "Ništa nije poslano."}</b>
+              {result.results.filter((r) => !r.ok).map((r) => (
+                <span key={r.order_number}>{r.ime}: {r.error}</span>
+              ))}
+            </div>
+          )}
+
+          {(day?.length ?? 0) > 0 && (
+            <div className="skx-actionbar">
+              <div className="skx-actionbar-info">
+                {chosen.length ? (
+                  <><b>{narudzba(chosen.length)}</b><span>{km(chosenSum)} otkupnine</span></>
+                ) : (
+                  <>
+                    <b>{sentToday.length && !unsent.length ? "Sve je poslano" : "Ništa nije označeno"}</b>
+                    <span>{sentToday.length ? `${paket(sentToday.length)} u Skytecu za ovaj dan` : "Označi narudžbe iznad"}</span>
+                  </>
+                )}
+              </div>
+              <div className="skx-actionbar-btns">
+                <div className="skx-print">
+                  <button className="skx-btn" onClick={printLabels} disabled={busy !== null || sentToday.length === 0}>
+                    {busy === "labels" ? <Loader2 size={16} className="ad-spin" /> : <Printer size={16} />}
+                    Naljepnice
+                  </button>
+                  <select value={format} onChange={(e) => setFormat(e.target.value as typeof format)} aria-label="Format naljepnica">
+                    <option value="A4">A4 · 4</option>
+                    <option value="A410">A4 · 10</option>
+                    <option value="60MM">60 mm</option>
+                  </select>
+                </div>
+                <button className="skx-btn primary" onClick={send} disabled={busy !== null || chosen.length === 0}>
+                  {busy === "send" ? <Loader2 size={16} className="ad-spin" /> : <Send size={16} />}
+                  Pošalji{chosen.length ? ` (${chosen.length})` : ""}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ── Money ────────────────────────────────────────────── */}
+      <section className="skx-section">
+        <header className="skx-section-head"><div><h2>Otkupnine</h2><p>Zadnjih 60 dana</p></div></header>
+        <div className="skx-group skx-metrics">
+          <div className="skx-metric">
+            <span>Kod kupaca</span>
+            <b>{k ? km(k.onFieldAmount) : "—"}</b>
+            <small>{k ? `${paket(k.onFieldCount)} u putu` : ""}</small>
+          </div>
+          <div className="skx-metric">
+            <span>Kod Skyteca</span>
+            <b>{k ? km(k.deliveredUnpaidAmount) : "—"}</b>
+            <small className={k?.overdueCount ? "warn" : ""}>
+              {k ? (k.overdueCount ? `${paket(k.overdueCount)} kasni više od 7 dana` : "dostavljeno, čeka uplatu") : ""}
+            </small>
+          </div>
+          <div className="skx-metric">
+            <span>Uplaćeno tebi</span>
+            <b>{k ? km(k.paid30) : "—"}</b>
+            <small>zadnjih 30 dana</small>
+          </div>
+          <div className="skx-metric">
+            <span>Odbijeno</span>
+            <b>{k?.returnRate != null ? `${(k.returnRate * 100).toFixed(1).replace(".", ",")} %` : "—"}</b>
+            <small>{k ? `${k.returnedCount} od ${k.finishedCount} paketa` : ""}</small>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Call list ────────────────────────────────────────── */}
+      {data && data.alerts.length > 0 && (
+        <section className="skx-section">
+          <header className="skx-section-head">
+            <div><h2>Nazovi kupca</h2><p>Dostava je odgođena. Poziv često spasi paket od povrata.</p></div>
+          </header>
+          <div className="skx-group">
+            {data.alerts.map((s) => (
+              <div key={s.order_number} className="skx-row static">
+                <span className="skx-row-main">
+                  <span className="skx-row-title">{s.ime}</span>
+                  <span className="skx-row-sub">{s.state_note || STATE_BY_KEY[s.state]?.label} · {s.grad} · {km(s.cod_amount)}</span>
+                </span>
+                {s.telefon && (
+                  <a className="skx-btn sm" href={`tel:${s.telefon.replace(/\s/g, "")}`}><Phone size={14} /> Nazovi</a>
+                )}
               </div>
             ))}
           </div>
-        )}
-      </div>
+        </section>
+      )}
 
-      {/* ── Money ────────────────────────────────────────────── */}
-      <div className="sk-section-title">Novac od otkupnina <span>zadnjih 60 dana</span></div>
-      <div className="sk-kpis">
-        <div className="ad-stat">
-          <div className="ad-stat-top"><p className="ad-stat-label">Kod kupaca</p><span className="ad-stat-ico sk-i-blue"><Truck size={15} /></span></div>
-          <p className="ad-stat-value">{k ? km(k.onFieldAmount) : "—"}</p>
-          <p className="ad-stat-sub">{k ? `${paketa(k.onFieldCount)} u putu — još nije naplaćeno` : ""}</p>
-        </div>
-        <div className="ad-stat">
-          <div className="ad-stat-top"><p className="ad-stat-label">Kod Skyteca</p><span className="ad-stat-ico sk-i-orange"><Clock size={15} /></span></div>
-          <p className="ad-stat-value">{k ? km(k.deliveredUnpaidAmount) : "—"}</p>
-          <p className={`ad-stat-sub${k && k.overdueCount ? " sk-warn" : ""}`}>
-            {k ? (k.overdueCount
-              ? `${paketa(k.overdueCount)} čeka uplatu duže od 7 dana`
-              : `${paketa(k.deliveredUnpaidCount)} dostavljeno, čeka se uplata`) : ""}
-          </p>
-        </div>
-        <div className="ad-stat">
-          <div className="ad-stat-top"><p className="ad-stat-label">Uplaćeno tebi</p><span className="ad-stat-ico sk-i-green"><Banknote size={15} /></span></div>
-          <p className="ad-stat-value">{k ? km(k.paid30) : "—"}</p>
-          <p className="ad-stat-sub">zadnjih 30 dana, na račun</p>
-        </div>
-        <div className="ad-stat">
-          <div className="ad-stat-top"><p className="ad-stat-label">Odbijeni paketi</p><span className="ad-stat-ico sk-i-red"><Undo2 size={15} /></span></div>
-          <p className="ad-stat-value">{k?.returnRate != null ? `${(k.returnRate * 100).toFixed(1)}%` : "—"}</p>
-          <p className="ad-stat-sub">{k ? (k.finishedCount ? `${k.returnedCount} od ${k.finishedCount} kupac nije preuzeo` : "još nema završenih paketa") : ""}</p>
-        </div>
-      </div>
-
-      {/* ── Needs a call ─────────────────────────────────────── */}
-      {data && data.alerts.length > 0 && (
-        <div className="sk-card sk-alerts">
-          <div className="sk-head">
-            <h2><Phone size={15} /> Nazovi ove kupce</h2>
-            <span>{data.alerts.length}</span>
+      {/* ── Returns by product ───────────────────────────────── */}
+      {data && data.byProduct.length > 0 && (
+        <section className="skx-section">
+          <header className="skx-section-head"><div><h2>Povrati po proizvodu</h2><p>Udio paketa koje kupac nije preuzeo</p></div></header>
+          <div className="skx-group">
+            {data.byProduct.map((p) => {
+              const fin = p.delivered + p.returned;
+              const rate = fin ? p.returned / fin : 0;
+              return (
+                <div key={p.prefix} className="skx-row static skx-prod">
+                  <span className="skx-row-main">
+                    <span className="skx-row-title">{productOf(p.prefix === "?" ? null : p.prefix)}</span>
+                    <span className="skx-row-sub">{paket(p.sent)} · {p.returned} vraćeno</span>
+                  </span>
+                  <span className="skx-bar"><i style={{ width: `${Math.min(100, rate * 100)}%` }} className={rate > 0.2 ? "hi" : ""} /></span>
+                  <span className={`skx-rate${rate > 0.2 ? " hi" : ""}`}>{fin ? `${Math.round(rate * 100)} %` : "—"}</span>
+                </div>
+              );
+            })}
           </div>
-          <p className="sk-hint">Kurir ih nije zatekao ili je dostava odgođena. Jedan poziv često spasi paket od povrata.</p>
-          {data.alerts.map((s) => (
-            <div key={s.order_number} className="sk-alert">
-              <div>
-                <b>{s.ime}</b> <StateBadge state={s.state} />
-                <p>{s.state_note || "Razlog nije naveden"} · {s.grad} · {km(s.cod_amount)}</p>
-              </div>
-              {s.telefon && <a className="sk-call" href={`tel:${s.telefon.replace(/\s/g, "")}`}><Phone size={14} /> {s.telefon}</a>}
-            </div>
+        </section>
+      )}
+
+      {/* ── Parcels ──────────────────────────────────────────── */}
+      <section className="skx-section">
+        <header className="skx-section-head"><div><h2>Paketi</h2><p>Dodirni paket za historiju dostave</p></div></header>
+        <div className="skx-seg" role="tablist">
+          <button className={filter === "all" ? "on" : ""} onClick={() => { setFilter("all"); setShowAll(false); }}>Svi</button>
+          {STATES.filter((s) => data?.byState[s.key]).map((s) => (
+            <button key={s.key} className={filter === s.key ? "on" : ""} onClick={() => { setFilter(s.key); setShowAll(false); }}>
+              {s.label} <em>{data!.byState[s.key]}</em>
+            </button>
           ))}
         </div>
-      )}
-
-      {/* ── Per product ──────────────────────────────────────── */}
-      {data && data.byProduct.length > 0 && (
-        <div className="sk-card">
-          <div className="sk-head"><h2>Koliko se paketa vraća, po proizvodu</h2><span>60 dana</span></div>
-          <div className="sk-prod-head"><span>Proizvod</span><span>Poslano</span><span>Preuzeto</span><span>Vraćeno</span><span>% povrata</span></div>
-          {data.byProduct.map((p) => {
-            const fin = p.delivered + p.returned;
-            const rate = fin ? p.returned / fin : null;
-            return (
-              <div key={p.prefix} className="sk-prod">
-                <b>{p.prefix === "?" ? "Bez narudžbe" : PREFIX_LABEL[p.prefix] ?? p.prefix}</b>
-                <span>{p.sent}</span>
-                <span>{p.delivered}</span>
-                <span>{p.returned}</span>
-                <span className={rate != null && rate > 0.2 ? "bad" : ""}>{rate != null ? `${(rate * 100).toFixed(0)}%` : "—"}</span>
-              </div>
-            );
-          })}
+        <div className="skx-group">
+          {!data ? (
+            <div className="skx-empty"><Loader2 size={20} className="ad-spin" /></div>
+          ) : ships.length === 0 ? (
+            <div className="skx-empty"><Package size={24} strokeWidth={1.6} /><b>Nema paketa</b></div>
+          ) : (
+            ships.map((s) => <ShipRow key={s.order_number} s={s} onCancel={cancel} />)
+          )}
+          {!showAll && shipsTotal > 25 && (
+            <button className="skx-row skx-more" onClick={() => setShowAll(true)}>Prikaži sve ({shipsTotal})</button>
+          )}
         </div>
-      )}
+      </section>
 
-      {/* ── Shipments ────────────────────────────────────────── */}
-      <div className="sk-section-title">Paketi <span>klikni na paket za detalje</span></div>
-      <div className="ad-filters">
-        <button className={`ad-chip${filter === "all" ? " is-on" : ""}`} onClick={() => setFilter("all")}>
-          Svi {data ? `(${data.shipments.length})` : ""}
-        </button>
-        {STATES.filter((s) => data?.byState[s.key]).map((s) => (
-          <button key={s.key} className={`ad-chip${filter === s.key ? " is-on" : ""}`} onClick={() => setFilter(s.key)}>
-            <span className="dot" style={{ background: s.color }} />
-            {s.label} ({data!.byState[s.key]})
-          </button>
-        ))}
-      </div>
-
-      <div className="sk-list">
-        {!data && !loadErr ? (
-          <div className="ad-empty">Učitavanje…</div>
-        ) : list.length === 0 ? (
-          <div className="sk-empty">
-            <b>Još nema paketa ovdje</b>
-            <p>Povuci pakete koje si već poslao Skytecu (zadnjih 60 dana) — sistem ih poveže s narudžbama po broju telefona.</p>
-            <button className="sk-primary" onClick={importOld} disabled={busy !== null}>
-              {busy === "import" ? <Loader2 className="ad-spin" size={16} /> : <RefreshCw size={16} />}
-              Povuci dosadašnje pakete
-            </button>
-          </div>
-        ) : (
-          list.map((s) => <ShipRow key={s.order_number} s={s} onCancel={cancel} />)
-        )}
-      </div>
-
-      {/* ── Advanced ─────────────────────────────────────────── */}
-      <details className="sk-adv">
-        <summary>Napredno</summary>
-        <div className="sk-adv-body">
-          <div className="sk-adv-row">
-            <div><b>Osvježi odmah</b><p>Inače se radi samo svako jutro. Povuče nove pakete, statuse i uplate.</p></div>
-            <button className="sk-secondary" onClick={sync} disabled={busy !== null}>
-              {busy === "sync" ? <Loader2 className="ad-spin" size={16} /> : <RefreshCw size={16} />} Osvježi
-            </button>
-          </div>
-          <div className="sk-adv-row">
-            <div><b>Povuci pakete za zadnjih 60 dana</b><p>Za pakete poslane preko Skytec web klijenta ili Excela.</p></div>
-            <button className="sk-secondary" onClick={importOld} disabled={busy !== null}>
-              {busy === "import" ? <Loader2 className="ad-spin" size={16} /> : <RefreshCw size={16} />} Povuci
+      {/* ── Maintenance ──────────────────────────────────────── */}
+      <section className="skx-section">
+        <div className="skx-group">
+          <div className="skx-row static">
+            <span className="skx-row-main">
+              <span className="skx-row-title">Osvježi iz Skyteca</span>
+              <span className="skx-row-sub">Radi se samo svako jutro. Povuče i pakete poslane preko web klijenta.</span>
+            </span>
+            <button className="skx-btn sm" onClick={sync} disabled={busy !== null}>
+              {busy === "sync" ? <Loader2 size={14} className="ad-spin" /> : <RefreshCw size={14} />} Osvježi
             </button>
           </div>
           {setup?.env.apiKey && (
-            <div className="sk-adv-row">
-              <div>
-                <b>Automatski statusi</b>
-                <p>{connected ? <>Skytec javlja promjene na <code>{setup.webhook!.callbackUrl}</code></> : "Nije spojeno — Skytec neće sam javljati promjene."}</p>
-              </div>
-              <button className="sk-secondary" onClick={registerWebhook} disabled={busy !== null}>
-                {busy === "webhook" ? <Loader2 className="ad-spin" size={16} /> : <Webhook size={16} />}
-                {connected ? "Spoji ponovo" : "Spoji"}
+            <div className="skx-row static">
+              <span className="skx-row-main">
+                <span className="skx-row-title">Automatski statusi</span>
+                <span className="skx-row-sub">{connected ? "Skytec javlja svaku promjenu statusa." : "Nije povezano."}</span>
+              </span>
+              <button className="skx-btn sm" onClick={registerWebhook} disabled={busy !== null}>
+                {busy === "webhook" ? <Loader2 size={14} className="ad-spin" /> : <Link2 size={14} />}
+                {connected ? "Poveži ponovo" : "Poveži"}
               </button>
             </div>
           )}
-          {!showHelp && (
-            <button className="sk-link-btn" onClick={() => { setShowHelp(true); try { localStorage.removeItem("sk-help-hidden"); } catch { /* ignore */ } }}>
-              Prikaži uputstvo „Kako ovo radi“
-            </button>
-          )}
         </div>
-      </details>
+      </section>
     </div>
   );
 }
