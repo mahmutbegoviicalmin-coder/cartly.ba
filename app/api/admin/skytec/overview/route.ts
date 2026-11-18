@@ -40,7 +40,7 @@ export async function GET() {
   const sum = (xs: Ship[], f: (s: Ship) => number) => Math.round(xs.reduce((a, s) => a + f(s), 0) * 100) / 100;
 
   const onField = ships.filter((s) => !CLOSED.has(s.state));
-  const deliveredUnpaid = ships.filter((s) => s.state === "dostavljena" && !s.cod_paid_at);
+  const deliveredUnpaid = ships.filter((s) => s.state === "dostavljena" && !s.cod_paid_at && Number(s.cod_amount) > 0);
   const overdue = deliveredUnpaid.filter((s) => s.state_at && Date.now() - new Date(s.state_at).getTime() > 7 * DAY);
   const finished = ships.filter((s) => s.state === "dostavljena" || RETURNED.has(s.state));
   const returned = finished.filter((s) => RETURNED.has(s.state));

@@ -1,22 +1,23 @@
 import type { getSupabaseAdmin } from "@/lib/supabase-server";
-import { pollOpenShipments, syncCodDay } from "@/lib/skytec";
+import { pollOpenShipments } from "@/lib/skytec";
+import { importHistory } from "@/lib/skytec-import";
 
 type Sb = ReturnType<typeof getSupabaseAdmin>;
 
-/** COD remittances for the last `days` days (Sarajevo calendar days) + status poll of open parcels. */
+/**
+ * Daily / manual sync:
+ *  1. pull parcels sent via the Skytec web client / Excel in the last `days`
+ *     days and match them to orders (also refreshes COD remittances),
+ *  2. poll the status of every still-open parcel.
+ */
 export async function runSkytecSync(sb: Sb, days: number) {
-  const cod = { days: 0, remittances: 0, matched: 0, errors: [] as string[] };
-  for (let i = 0; i < days; i++) {
-    const d = new Date(Date.now() - i * 86400_000).toLocaleDateString("sv-SE", { timeZone: "Europe/Sarajevo" });
-    try {
-      const r = await syncCodDay(sb, d);
-      cod.days++;
-      cod.remittances += r.count;
-      cod.matched += r.matched;
-    } catch (e) {
-      cod.errors.push(`${d}: ${e instanceof Error ? e.message : "greška"}`);
-    }
+  let imported: Awaited<ReturnType<typeof importHistory>> | null = null;
+  let importError: string | null = null;
+  try {
+    imported = await importHistory(sb, days);
+  } catch (e) {
+    importError = e instanceof Error ? e.message : "greška";
   }
   const status = await pollOpenShipments(sb);
-  return { cod, status };
+  return { imported, importError, status };
 }

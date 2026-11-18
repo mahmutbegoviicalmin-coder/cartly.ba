@@ -48,7 +48,7 @@ async function sky(path: string, init: RequestInit & { auth?: boolean } = {}): P
   return res;
 }
 
-async function skyJson<T>(path: string, init?: RequestInit & { auth?: boolean }): Promise<T> {
+export async function skyJson<T>(path: string, init?: RequestInit & { auth?: boolean }): Promise<T> {
   return (await sky(path, init)).json() as Promise<T>;
 }
 
@@ -270,7 +270,7 @@ export async function getWebhook() {
 
 // ── DB helpers ───────────────────────────────────────────────────────────────
 
-const ORDER_TABLES = [
+export const ORDER_TABLES = [
   "orders", "cetka_orders", "komarnik_orders", "usmjerivac_orders", "lezaljka_orders", "masina_orders",
 ] as const;
 
