@@ -255,7 +255,7 @@ export default function SkytecPanel() {
 
   const send = async () => {
     if (chosen.length === 0) return;
-    if (!confirm(`Poslati ${narudzba(chosen.length)} (${km(chosenSum)}) u Skytec?\n\nPojavit će se u Skytec web klijentu kao najava i kurir dolazi po pakete.`)) return;
+    if (!confirm(`Ubaciti ${narudzba(chosen.length)} (${km(chosenSum)}) u Skytec web klijent?\n\nPošiljke se samo ubacuju. Najavu kuriru radiš ručno u web klijentu, kao i do sada.`)) return;
     setBusy("send"); setResult(null);
     try {
       const r = await fetch("/api/admin/skytec/announce", {
@@ -340,7 +340,7 @@ export default function SkytecPanel() {
         <header className="skx-section-head">
           <div>
             <h2>Slanje u Skytec</h2>
-            <p>Narudžbe izabranog dana idu u Skytec web klijent kao najava.</p>
+            <p>Ubacuje pošiljke u Skytec web klijent. Najavu kuriru radiš ručno, kao i do sada.</p>
           </div>
           {setup?.env.apiKey && (
             <span className={`skx-status${connected ? " ok" : ""}`}>
@@ -430,7 +430,7 @@ export default function SkytecPanel() {
 
           {result && (
             <div className={`skx-result${result.failed ? " warn" : ""}`}>
-              <b>{result.sent ? `Poslano: ${paket(result.sent)}. Vidljivo je u Skytec web klijentu.` : "Ništa nije poslano."}</b>
+              <b>{result.sent ? `Ubačeno: ${paket(result.sent)}. Otvori Skytec web klijent i najavi ih kad budeš spreman.` : "Ništa nije ubačeno."}</b>
               {result.results.filter((r) => !r.ok).map((r) => (
                 <span key={r.order_number}>{r.ime}: {r.error}</span>
               ))}
@@ -463,7 +463,7 @@ export default function SkytecPanel() {
                 </div>
                 <button className="skx-btn primary" onClick={send} disabled={busy !== null || chosen.length === 0}>
                   {busy === "send" ? <Loader2 size={16} className="ad-spin" /> : <Send size={16} />}
-                  Pošalji{chosen.length ? ` (${chosen.length})` : ""}
+                  Ubaci u Skytec{chosen.length ? ` (${chosen.length})` : ""}
                 </button>
               </div>
             </div>
