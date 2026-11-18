@@ -4,7 +4,7 @@ import { LifeBuoy } from "lucide-react";
 
 export default function Header({ onOrder }: { onOrder: () => void }) {
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-black/5 bg-white/80 backdrop-blur-md">
+    <header className="sticky top-[var(--bn-h,0px)] z-40 w-full border-b border-black/5 bg-white/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
         <div className="flex items-center gap-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#061B38]">

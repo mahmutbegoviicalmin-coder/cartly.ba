@@ -54,7 +54,7 @@ const REVIEWS = [
 const FAQS = [
   { q: "Da li su vodootporne?",             a: "Da, gornji materijal je vodootporan. Stopala ostaju suha na kiši i vlažnim podovima." },
   { q: "Koje brojeve imate?",               a: "Dostupni su brojevi od 39 do 47 EU. Preporučujemo naručiti vaš uobičajeni broj, a ako ste između — odaberite veći." },
-  { q: "Koliko traje dostava?",             a: "Dostava putem Euro Express kurirske službe traje 1–3 radna dana na cijelu BiH. Cijena dostave je 10 KM." },
+  { q: "Koliko traje dostava?",             a: "Dostava putem Euro Express kurirske službe traje 1–2 radna dana na cijelu BiH. Cijena dostave je 10 KM." },
   { q: "Koja je garancija?",                a: "Hammer S3 patike dolaze s garancijom od 1 godine na materijal i izradu." },
   { q: "Plaćanje unaprijed ili pouzećem?",  a: "Isključivo plaćanje pouzećem — platite vozaču pri preuzimanju paketa. Bez predujma." },
   { q: "Mogu li ih vratiti?",               a: "Prihvatamo povrat u roku od 14 dana od primanja, ukoliko patike nisu nošene i nalaze se u originalnom pakovanju." },
@@ -80,7 +80,7 @@ function Header({ onOrder }: { onOrder: () => void }) {
   }, []);
   return (
     <header style={{
-      position: "sticky", top: 0, zIndex: 50, width: "100%",
+      position: "sticky", top: "var(--bn-h, 0px)", zIndex: 50, width: "100%",
       background: "#fff",
       borderBottom: scrolled ? "1px solid rgba(0,0,0,0.07)" : "1px solid #F0EDE8",
       boxShadow: scrolled ? "0 2px 20px rgba(0,0,0,0.06)" : "none",
@@ -474,87 +474,6 @@ function Footer() {
 }
 
 /* ── Floating CTA ────────────────────────────────────────────────── */
-function FloatingBar({ onOrder }: { onOrder: () => void }) {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const t = setTimeout(() => setVisible(true), 1400);
-    return () => clearTimeout(t);
-  }, []);
-
-  const handleClick = () => {
-    fireFbq("track", "AddToCart", { content_name: "Hammer S3 Radne Patike", value: PRICE, currency: "BAM" });
-    onOrder();
-  };
-
-  return (
-    <>
-      <style suppressHydrationWarning>{`
-        @keyframes rfcta-glow {
-          0%,100% { box-shadow: 0 4px 20px rgba(179,48,0,0.25); }
-          50%      { box-shadow: 0 6px 28px rgba(179,48,0,0.45); }
-        }
-        @keyframes rfcta-dot {
-          0%,100% { opacity:1; transform:scale(1); }
-          50%      { opacity:0.3; transform:scale(0.5); }
-        }
-        .rfcta-wrap {
-          position:fixed; bottom:0; left:0; right:0; z-index:9998;
-          background:#fff; border-top:1px solid #EBEBEB;
-          padding:10px 16px;
-          padding-bottom:calc(10px + env(safe-area-inset-bottom));
-          display:flex; align-items:center; gap:12px;
-          box-shadow:0 -4px 24px rgba(0,0,0,0.07);
-          transition:transform 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.35s ease;
-        }
-        .rfcta-wrap.hidden { opacity:0; transform:translateY(100%); pointer-events:none; }
-        @media(min-width:640px) {
-          .rfcta-wrap {
-            bottom:20px; left:auto; right:20px;
-            border-radius:16px; border:1px solid #E8E8E8;
-            padding:12px 16px; max-width:340px;
-            box-shadow:0 8px 32px rgba(0,0,0,0.12);
-          }
-        }
-        .rfcta-btn {
-          flex-shrink:0; background:${ACCENT}; color:#fff;
-          border:none; border-radius:11px; padding:12px 18px;
-          font-size:14px; font-weight:800; font-family:${F};
-          letter-spacing:-0.01em; cursor:pointer; white-space:nowrap;
-          animation:rfcta-glow 3s ease-in-out 2s infinite;
-          transition:background 150ms,transform 150ms;
-          display:flex; align-items:center; gap:5px;
-        }
-        .rfcta-btn:hover  { background:#961f00; transform:scale(1.02); }
-        .rfcta-btn:active { transform:scale(0.97); }
-        .rfcta-pulse {
-          width:6px; height:6px; border-radius:50%;
-          background:#22c55e; flex-shrink:0;
-          animation:rfcta-dot 2s ease-in-out infinite;
-        }
-      `}</style>
-
-      <div className={`rfcta-wrap${!visible ? " hidden" : ""}`}>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 2 }}>
-            <span className="rfcta-pulse" />
-            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#22c55e", fontFamily: F }}>Na stanju</span>
-          </div>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 7, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 19, fontWeight: 900, color: "#0A0A0A", fontFamily: F, letterSpacing: "-0.03em", lineHeight: 1 }}>59,90 KM</span>
-            <span style={{ fontSize: 12, color: "#BBBBBB", textDecoration: "line-through", fontFamily: F }}>139,90</span>
-            <span style={{ fontSize: 10, fontWeight: 800, color: ACCENT, background: "#FFF0EB", border: "1px solid rgba(179,48,0,0.2)", borderRadius: 5, padding: "2px 6px", fontFamily: F }}>−57%</span>
-          </div>
-          <div style={{ fontSize: 10, color: "#AAAAAA", fontFamily: F, marginTop: 1 }}>Pouzećem · Dostava 10 KM</div>
-        </div>
-        <button onClick={handleClick} className="rfcta-btn">
-          Naruči
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
-      </div>
-    </>
-  );
-}
 
 /* ── Order Modal ─────────────────────────────────────────────────── */
 type Fields = { ime: string; telefon: string; adresa: string; grad: string };
@@ -622,7 +541,7 @@ function OrderModal({ open, onClose, initialSize }: { open: boolean; onClose: ()
               <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l2.5 2.5L16 9"/></svg>
             </div>
             <h3 style={{ fontSize: 22, fontWeight: 900, color: "#0A0A0A", letterSpacing: "-0.03em", margin: "0 0 10px", fontFamily: F }}>Narudžba primljena!</h3>
-            <p style={{ fontSize: 14, color: "#888", lineHeight: 1.75, margin: "0 0 28px", maxWidth: 300, marginLeft: "auto", marginRight: "auto", fontFamily: F }}>Kontaktirat ćemo vas radi potvrde. Dostava 1–3 radna dana.</p>
+            <p style={{ fontSize: 14, color: "#888", lineHeight: 1.75, margin: "0 0 28px", maxWidth: 300, marginLeft: "auto", marginRight: "auto", fontFamily: F }}>Narudžba je 100% zaprimljena. Paket stiže za 1–2 radna dana.</p>
             <button onClick={onClose} style={{ padding: "13px 36px", background: "#0A0A0A", color: "#fff", border: "none", borderRadius: 13, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: F }}>Zatvori</button>
           </div>
         ) : (
@@ -704,7 +623,7 @@ function OrderModal({ open, onClose, initialSize }: { open: boolean; onClose: ()
                   {loading ? "Šalje se..." : "Naruči — Plaćanje pouzećem"}
                 </button>
                 <div style={{ display:"flex", justifyContent:"center", gap:18, marginTop:12, flexWrap:"wrap" }}>
-                  {["Bez predujma","Dostava 1–3 dana","Garancija 1 god."].map((t,i) => (
+                  {["Bez predujma","Dostava 1–2 dana","Garancija 1 god."].map((t,i) => (
                     <span key={i} style={{ fontSize:10, color:"rgba(255,255,255,0.35)", fontFamily:F, display:"flex", alignItems:"center", gap:4 }}>
                       <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                       {t}
@@ -797,7 +716,7 @@ function QuickOrderSection({ onDone }: { onDone?: (orderNumber: string, total: n
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
         <h3 style={{ fontFamily: F, fontWeight: 800, fontSize: 22, color: "#0A0A0A", letterSpacing: "-0.02em", margin: "0 0 10px" }}>Hvala, {name.split(" ")[0]}!</h3>
-        <p style={{ fontFamily: F, fontSize: 15, color: "#666", lineHeight: 1.6, margin: 0 }}>Narudžba primljena. Javit ćemo se na <strong>{phone}</strong> radi potvrde.</p>
+        <p style={{ fontFamily: F, fontSize: 15, color: "#666", lineHeight: 1.6, margin: 0 }}>Narudžba je automatski zaprimljena. Paket stiže na vašu adresu za 1–2 radna dana.</p>
       </div>
     </section>
   );
@@ -1054,7 +973,6 @@ export default function HammerPage() {
         <FAQ />
       </main>
       <Footer />
-      <FloatingBar onOrder={() => openOrder()} />
       <OrderModal open={modalOpen} onClose={() => setModalOpen(false)} initialSize={initialSize} />
     </>
   );

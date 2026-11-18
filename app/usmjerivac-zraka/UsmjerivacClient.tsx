@@ -6,7 +6,6 @@ import React, {
 import { motion, AnimatePresence } from "framer-motion";
 import { event } from "@/lib/fbpixel";
 import OrderPopup from "./OrderPopup";
-import UsmjerivacFloatingCTA from "./FloatingCTA";
 
 /* ─── TOKENS ──────────────────────────────────── */
 const BLK   = "#0a0a1a";
@@ -869,7 +868,6 @@ export default function UsmjerivacClient() {
 
       <PurchaseNotification />
       <OrderPopup open={popupOpen} onClose={() => setPopupOpen(false)} initialBundle={popupBundle} />
-      <UsmjerivacFloatingCTA onOrder={() => openPopup(2)} />
     </>
   );
 }

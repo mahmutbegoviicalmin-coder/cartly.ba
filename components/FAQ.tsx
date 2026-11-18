@@ -9,7 +9,7 @@ const faqs = [
   },
   {
     q: "Kako se vrši dostava i koliko košta?",
-    a: "Dostava se vrši putem Euro Express kurirske službe. Cijena dostave je 10,00 KM bez obzira na količinu. Isporuka je 1–3 radna dana od potvrde narudžbe.",
+    a: "Dostava se vrši putem Euro Express kurirske službe. Cijena dostave je 10,00 KM bez obzira na količinu. Isporuka je 1–2 radna dana od narudžbe.",
   },
   {
     q: "Mogu li platiti karticom ili samo pouzećem?",
@@ -24,8 +24,8 @@ const faqs = [
     a: "Da. Radne Patike S3 ispunjavaju EN ISO 20345 S3 standard, što uključuje čeličnu kapicu (zaštita do 200 J), antistatička svojstva, otpornost na probijanje i energetsku apsorpciju u peti.",
   },
   {
-    q: "Koliko brzo ću dobiti potvrdu narudžbe?",
-    a: "Nakon što popunite formu, naš tim vas kontaktira telefonom u roku od 24 sata radi potvrde narudžbe i dogovora oko dostave.",
+    q: "Kada je moja narudžba zaprimljena?",
+    a: "Odmah. Čim pošaljete formu, narudžba je automatski zaprimljena, bez poziva i dodatne potvrde. Paket stiže na vašu adresu za 1–2 radna dana.",
   },
   {
     q: "Mogu li naručiti više pari odjednom?",

@@ -226,7 +226,7 @@ export default function Header() {
       `}</style>
 
       <header
-        className={`${sora.className} sticky top-0 z-50 w-full transition-all duration-300`}
+        className={`${sora.className} sticky top-[var(--bn-h,0px)] z-50 w-full transition-all duration-300`}
         style={{
           background:           scrolled ? "rgba(255,255,255,0.97)" : "#FFFFFF",
           borderBottom:         scrolled ? "1px solid transparent" : "1px solid #F0EBE3",

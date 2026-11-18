@@ -3,8 +3,10 @@ import ProductPageHeader from "@/components/ProductPageHeader";
 import TickerBar         from "@/components/TickerBar";
 import CetkaClient       from "./CetkaClient";
 import PixelEvents       from "./PixelEvents";
+import { productSeo } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  ...productSeo("celicna-cetka"),
   title: "Čelična Četka za Trimer 1+1 GRATIS · Cartly.ba",
   description:
     "Profesionalna čelična četka za trimer · uklanja korov, suhu travu i korijenje. Akcija 1+1 GRATIS, samo 19,90 KM. Dostava po cijeloj BiH, plaćanje pouzećem.",

@@ -19,7 +19,7 @@ export default function OrderSuccess({
         Narudžba je uspješno primljena.
       </h3>
       <p className="mp-copy" style={{ marginInline: "auto" }}>
-        Uskoro ćemo te kontaktirati radi potvrde narudžbe.
+        Narudžba je automatski zaprimljena. Paket stiže na tvoju adresu za 1–2 radna dana.
       </p>
       <div style={{ marginTop: 22, padding: "16px 0", borderTop: "1px solid #d8d6cf", borderBottom: "1px solid #d8d6cf" }}>
         <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "#6b6e68" }}>

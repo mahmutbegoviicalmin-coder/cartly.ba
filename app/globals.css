@@ -237,3 +237,45 @@ body {
 .om-bt:hover { background: #961f00; }
 .om-bt:disabled { opacity: .55; cursor: not-allowed; }
 .om-er { font-size: 11px; color: #ef4444; margin: 3px 0 0; font-family: var(--font-manrope), sans-serif; }
+
+/* ── Store (home, /proizvodi, cards, product pages) ───────────────────────── */
+/* Product-page headers sit below the sticky campaign tape: they use top: var(--bn-h, 0px). */
+html:has(#bn-strip) { --bn-h: 36px; }
+
+.tape-stripes { background-image: repeating-linear-gradient(-45deg, #F45B39 0 9px, #FFE1D6 9px 18px); background-size: 25.46px 100%; }
+@keyframes tape-move { to { background-position: 25.46px 0; } }
+.tape-stripes-move { animation: tape-move 1.1s linear infinite; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+.marquee { animation: marquee 26s linear infinite; }
+
+/* Black November badge on product cards */
+.bn-badge { background-image: repeating-linear-gradient(-45deg, #F45B39 0 7px, #E2482A 7px 14px); background-size: 19.8px 100%; }
+.group:hover .bn-badge { animation: tape-move .8s linear infinite; }
+@keyframes flame-wiggle { 0%,100% { transform: rotate(0) scale(1); } 25% { transform: rotate(-12deg) scale(1.15); } 75% { transform: rotate(10deg) scale(1.1); } }
+.group:hover .flame-wiggle { animation: flame-wiggle .7s ease-in-out infinite; }
+
+/* Products stand on a floor: image anchored to the bottom, soft contact shadow under it. */
+.product-floor { position: absolute; left: 14%; right: 14%; bottom: calc(var(--floor, 10%) - 2.5%); height: 5%; border-radius: 50%; background: radial-gradient(closest-side, rgba(110,45,25,.28), rgba(110,45,25,0)); pointer-events: none; }
+
+/* Lisko */
+@keyframes lisko-breathe { 0%,100% { transform: scaleY(1); } 50% { transform: scaleY(1.025); } }
+.lisko-breathe { transform-origin: 50% 100%; animation: lisko-breathe 3.2s ease-in-out infinite; }
+@keyframes lisko-hop { 0% { transform: translateY(0) rotate(0); } 30% { transform: translateY(-14%) rotate(-6deg); } 55% { transform: translateY(0) rotate(4deg); } 75% { transform: translateY(-4%) rotate(-2deg); } 100% { transform: translateY(0) rotate(0); } }
+.lisko-hop { transform-origin: 50% 100%; animation: lisko-hop .7s cubic-bezier(.3,.7,.4,1); }
+@keyframes bubble-in { from { opacity: 0; transform: translateY(6px) scale(.92); } to { opacity: 1; transform: none; } }
+.bubble-in { animation: bubble-in .35s cubic-bezier(.22,1,.36,1) both; }
+@keyframes rise-in { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+.rise-in { animation: rise-in .6s cubic-bezier(.22,1,.36,1) both; }
+@keyframes slide-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.slide-progress { transform-origin: left; animation: slide-progress var(--slide-ms, 6000ms) linear forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .tape-stripes-move, .marquee, .lisko-breathe, .lisko-hop, .slide-progress, .rise-in, .bubble-in { animation: none !important; }
+  .group:hover .bn-badge, .group:hover .flame-wiggle { animation: none; }
+}
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* Countdown "Cijena završava za …" in the floating order bar */
+@keyframes urgency-blink { 0%, 55% { opacity: 1; } 75% { opacity: .25; } 100% { opacity: 1; } }
+.urgency-blink { animation: urgency-blink 1.1s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .urgency-blink { animation: none; } }

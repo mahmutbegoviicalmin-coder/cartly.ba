@@ -166,7 +166,7 @@ export default function OrderModal({ open, onClose, initialSize, initialColor }:
                     Hvala, {name.split(" ")[0]}!
                   </h3>
                   <p className="mb-6 text-[14px] leading-relaxed text-[#061B38]/60">
-                    Kontaktiramo vas na <strong>{phone}</strong> u roku od 24h radi potvrde narudžbe.
+                    Narudžba je automatski zaprimljena. Paket stiže na vašu adresu za 1–2 radna dana.
                   </p>
                   <button
                     onClick={onClose}

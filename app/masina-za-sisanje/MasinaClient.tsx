@@ -707,7 +707,7 @@ export default function MasinaClient() {
               Popunite narudžbu
             </h2>
             <p style={{ fontSize:15, color:"rgba(0,0,0,0.45)", fontFamily:"var(--font-manrope),sans-serif" }}>
-              Plaćanje pouzećem · Dostava 1-3 radna dana
+              Plaćanje pouzećem · Dostava 1–2 radna dana
             </p>
           </div>
 
@@ -777,7 +777,7 @@ export default function MasinaClient() {
                 Narudžba primljena!
               </h3>
               <p style={{ fontSize:14, color:"rgba(0,0,0,0.50)", margin:0, lineHeight:1.65, fontFamily:"var(--font-manrope),sans-serif" }}>
-                Kontaktiramo vas u roku od 24h radi potvrde i dogovora o dostavi.
+                Narudžba je automatski zaprimljena. Paket stiže na vašu adresu za 1–2 radna dana.
               </p>
             </div>
           ) : (

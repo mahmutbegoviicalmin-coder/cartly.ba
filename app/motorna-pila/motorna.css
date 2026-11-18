@@ -27,7 +27,7 @@
 /* Header */
 .mp-head {
   position: sticky;
-  top: 0;
+  top: var(--bn-h, 0px);
   z-index: 50;
   background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(14px);

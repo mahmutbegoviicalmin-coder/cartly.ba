@@ -138,7 +138,7 @@ export default function OrderModal({ open, onClose, initialSize }: Props) {
               </div>
               <h3 style={{ fontFamily: "var(--font-manrope), sans-serif", fontWeight: 800, fontSize: 20, color: "#0A0A0A", letterSpacing: "-0.02em", marginBottom: 8 }}>Hvala, {name.split(" ")[0]}!</h3>
               <p style={{ fontFamily: "var(--font-manrope), sans-serif", fontSize: 14, color: "#666", lineHeight: 1.6, marginBottom: 20 }}>
-                Kontaktiramo vas na <strong>{phone}</strong> u roku od 24h radi potvrde.
+                Narudžba je automatski zaprimljena. Paket stiže na vašu adresu za 1–2 radna dana.
               </p>
               <button onClick={onClose} style={{ background: "#0A0A0A", color: "#fff", border: "none", borderRadius: 12, padding: "13px 28px", fontFamily: "var(--font-manrope), sans-serif", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>Zatvori</button>
             </div>

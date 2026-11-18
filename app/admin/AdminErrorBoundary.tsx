@@ -18,14 +18,14 @@ export default class AdminErrorBoundary extends Component<Props, State> {
         <div
           style={{
             minHeight: "100dvh",
-            background: "#070708",
-            color: "#f5f5f7",
+            background: "#F5F5F7",
+            color: "#1D1D1F",
             padding: 32,
             fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif",
           }}
         >
           <h1 style={{ fontSize: 22, margin: "0 0 12px" }}>Admin se srušio</h1>
-          <p style={{ color: "#a1a1a6", margin: "0 0 16px" }}>{this.state.error.message}</p>
+          <p style={{ color: "#6E6E73", margin: "0 0 16px" }}>{this.state.error.message}</p>
           <button
             type="button"
             onClick={() => location.reload()}
@@ -34,7 +34,7 @@ export default class AdminErrorBoundary extends Component<Props, State> {
               padding: "0 18px",
               border: "none",
               borderRadius: 12,
-              background: "#0a84ff",
+              background: "#F45B39",
               color: "#fff",
               fontWeight: 650,
               cursor: "pointer",

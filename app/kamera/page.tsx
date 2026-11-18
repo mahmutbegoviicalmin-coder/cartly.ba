@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import KameraClient from "./KameraClient";
+import { productSeo } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  ...productSeo("kamera"),
   title: "WiFi Sigurnosna Kamera | Akcija 44,90 KM",
   description:
     "Zaštitite svoj dom uz pametnu WiFi sigurnosnu kameru. Noćni vid, detekcija pokreta, mobilna aplikacija i dostava širom BiH.",

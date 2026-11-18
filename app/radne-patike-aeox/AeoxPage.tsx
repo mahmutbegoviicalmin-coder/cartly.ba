@@ -10,7 +10,8 @@ import GiftAddon from "@/components/GiftAddon";
 import { GIFT_PRICE } from "@/lib/gift";
 /* ── Constants ───────────────────────────────────────────────────── */
 const ACCENT  = "#C14822";
-const F       = "var(--font-manrope, 'Inter', sans-serif)";
+// Same system stack as the other product pages (SF Pro on Apple devices); Sora was too cramped here.
+const F       = "-apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"SF Pro Text\", Inter, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif";
 const PRICE    = 59.90;
 const DELIVERY = 0;
 
@@ -45,7 +46,7 @@ const REVIEWS = [
 const FAQS = [
   { q: "Koju veličinu da odaberem?", a: "Naručite broj koji inače nosite. Ako ste između dva broja, odaberite veći." },
   { q: "Jesu li vodootporne?", a: "Prednji dio ima vodonepropusnu foliju koja štiti stopalo na kiši i vlažnim podovima." },
-  { q: "Koliko traje dostava?", a: "Dostava širom BiH traje 1–3 radna dana i besplatna je." },
+  { q: "Koliko traje dostava?", a: "Dostava širom BiH traje 1–2 radna dana i besplatna je." },
   { q: "Kako plaćam narudžbu?", a: "Plaćate pouzećem, kuriru pri preuzimanju paketa." },
   { q: "Mogu li vratiti patike?", a: "Povrat je moguć u roku od 14 dana od primitka, za nenošene patike u originalnom pakovanju." },
 ];
@@ -184,43 +185,6 @@ function ExplodedView() {
   );
 }
 
-function FloatingBar({ onOrder, remaining, hidden }: { onOrder: () => void; remaining: number | null; hidden: boolean }) {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const update = () => {
-      const hero = document.querySelector(".ae-hero");
-      const order = document.getElementById("naruci");
-      const footer = document.querySelector("footer");
-      if (!hero || !order || !footer) return;
-      const form = order.getBoundingClientRect();
-      const bottom = footer.getBoundingClientRect();
-      const formInView = form.top < window.innerHeight - 120 && form.bottom > 80;
-      const footerInView = bottom.top < window.innerHeight;
-      setVisible(hero.getBoundingClientRect().bottom < 80 && !formInView && !footerInView);
-    };
-    update();
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
-    return () => {
-      window.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
-    };
-  }, []);
-
-  if (!visible || hidden) return null;
-
-  return (
-    <div className="ae-floating-cta">
-      <div className="ae-floating-info">
-        <span className="ae-floating-label">Aeox Plus S3</span>
-        <strong>59,90 <small>KM</small></strong>
-        <span className="ae-floating-time">Akcija ističe za {countdownText(remaining)}</span>
-      </div>
-      <button type="button" onClick={() => { pixel("AddToCart"); onOrder(); }}>Naruči odmah <span aria-hidden="true">↗</span></button>
-    </div>
-  );
-}
 
 /* ── Reviews ─────────────────────────────────────────────────────── */
 function Reviews() {
@@ -235,7 +199,7 @@ function Reviews() {
               </svg>
             ))}
           </div>
-          <h2 style={{ fontSize: "clamp(24px,3vw,36px)", fontWeight: 900, color: "#0A0A0A", letterSpacing: "-0.03em", margin: "0 0 8px", fontFamily: F }}>
+          <h2 style={{ fontSize: "clamp(24px,3vw,36px)", fontWeight: 700, color: "#0A0A0A", letterSpacing: "-0.03em", margin: "0 0 8px", fontFamily: F }}>
             Iskustva s terena
           </h2>
           <p style={{ fontSize: 14, color: "#999", fontFamily: F }}>Kako se patike nose kroz stvaran radni dan</p>
@@ -283,7 +247,7 @@ function FAQ() {
     <section style={{ background: "#fff", padding: "80px 24px", borderTop: "1px solid #F0F0F0" }}>
       <div style={{ maxWidth: 720, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 48 }}>
-          <h2 style={{ fontSize: "clamp(22px,2.8vw,34px)", fontWeight: 900, color: "#0A0A0A", letterSpacing: "-0.03em", margin: "0 0 8px", fontFamily: F }}>Česta pitanja</h2>
+          <h2 style={{ fontSize: "clamp(22px,2.8vw,34px)", fontWeight: 700, color: "#0A0A0A", letterSpacing: "-0.03em", margin: "0 0 8px", fontFamily: F }}>Česta pitanja</h2>
           <p style={{ fontSize: 14, color: "#999", fontFamily: F }}>Kratko i jasno prije narudžbe</p>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -313,7 +277,7 @@ function Footer() {
     <footer style={{ background: "#0A0A0A", padding: "48px 24px 36px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
       <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 24 }}>
         <div>
-          <div style={{ fontSize: 18, fontWeight: 900, color: "#fff", letterSpacing: "-0.03em", fontFamily: F, marginBottom: 8 }}>
+          <div style={{ fontSize: 18, fontWeight: 700, color: "#fff", letterSpacing: "-0.03em", fontFamily: F, marginBottom: 8 }}>
             Cartly<span style={{ color: ACCENT }}>.</span>ba
           </div>
           <p style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", fontFamily: F, margin: 0 }}>Aeox Plus S3 Radne Patike · Plaćanje pouzećem · BiH</p>
@@ -395,7 +359,7 @@ function OrderModal({ open, onClose, initialSize }: { open: boolean; onClose: ()
             <div style={{ width: 68, height: 68, borderRadius: "50%", background: "rgba(179,48,0,0.08)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
               <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l2.5 2.5L16 9"/></svg>
             </div>
-            <h3 style={{ fontSize: 22, fontWeight: 900, color: "#0A0A0A", letterSpacing: "-0.03em", margin: "0 0 10px", fontFamily: F }}>Hvala{fields.ime.trim() ? `, ${fields.ime.trim().split(" ")[0]}` : ""}!</h3>
+            <h3 style={{ fontSize: 22, fontWeight: 700, color: "#0A0A0A", letterSpacing: "-0.03em", margin: "0 0 10px", fontFamily: F }}>Hvala{fields.ime.trim() ? `, ${fields.ime.trim().split(" ")[0]}` : ""}!</h3>
             <OrderReceivedCopy style={{ fontSize: 14, color: "#888", lineHeight: 1.75, margin: "0 0 28px", maxWidth: 320, marginLeft: "auto", marginRight: "auto", fontFamily: F }} />
             <button onClick={onClose} style={{ padding: "13px 36px", background: "#0A0A0A", color: "#fff", border: "none", borderRadius: 13, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: F }}>Zatvori</button>
           </div>
@@ -403,10 +367,10 @@ function OrderModal({ open, onClose, initialSize }: { open: boolean; onClose: ()
           <div style={{ padding: "24px 24px 48px" }}>
             {/* Header */}
             <div style={{ marginBottom: 22 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 900, color: "#0A0A0A", letterSpacing: "-0.03em", margin: "0 0 4px", fontFamily: F }}>Naruči Aeox Plus S3</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 700, color: "#0A0A0A", letterSpacing: "-0.03em", margin: "0 0 4px", fontFamily: F }}>Naruči Aeox Plus S3</h2>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <span style={{ fontSize: 13, color: "#ccc", textDecoration: "line-through", fontFamily: F }}>139,90 KM</span>
-                <span style={{ fontSize: 22, fontWeight: 900, color: "#0A0A0A", letterSpacing: "-0.03em", fontFamily: F }}>59,90 KM</span>
+                <span style={{ fontSize: 22, fontWeight: 700, color: "#0A0A0A", letterSpacing: "-0.03em", fontFamily: F }}>59,90 KM</span>
                 <span style={{ background: "#16A34A", color: "#fff", fontSize: 10, fontWeight: 800, padding: "2px 8px", borderRadius: 5, fontFamily: F }}>−57%</span>
               </div>
             </div>
@@ -481,7 +445,7 @@ function OrderModal({ open, onClose, initialSize }: { open: boolean; onClose: ()
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
                   <div>
                     <div style={{ fontSize:10, color:"rgba(255,255,255,0.4)", textTransform:"uppercase", letterSpacing:"0.09em", marginBottom:3, fontFamily:F }}>Ukupno za plaćanje</div>
-                    <div style={{ fontSize:28, fontWeight:900, color:"#fff", letterSpacing:"-0.04em", lineHeight:1, fontFamily:F }}>{fmt(total)}</div>
+                    <div style={{ fontSize:28, fontWeight: 700, color:"#fff", letterSpacing:"-0.04em", lineHeight:1, fontFamily:F }}>{fmt(total)}</div>
                   </div>
                   <div style={{ background:"rgba(255,255,255,0.08)", borderRadius:10, padding:"8px 14px", textAlign:"center" }}>
                     <div style={{ fontSize:9, color:"rgba(255,255,255,0.4)", textTransform:"uppercase", letterSpacing:"0.08em", fontFamily:F }}>Dostava</div>
@@ -490,11 +454,11 @@ function OrderModal({ open, onClose, initialSize }: { open: boolean; onClose: ()
                 </div>
                 <GiftAddon checked={gift} onChange={setGift} accent={ACCENT} style={{ marginBottom: 12 }} />
                 <button type="submit" disabled={loading} className="r-cta"
-                  style={{ width:"100%", padding:"15px", color:"#fff", border:"none", borderRadius:12, fontSize:15, fontWeight:900, cursor:loading ? "not-allowed" : "pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:8, marginTop:14, boxShadow:"0 4px 20px rgba(0,0,0,0.15)", fontFamily:F, opacity: loading ? 0.7 : 1 }}>
+                  style={{ width:"100%", padding:"15px", color:"#fff", border:"none", borderRadius:12, fontSize:15, fontWeight: 700, cursor:loading ? "not-allowed" : "pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:8, marginTop:14, boxShadow:"0 4px 20px rgba(0,0,0,0.15)", fontFamily:F, opacity: loading ? 0.7 : 1 }}>
                   {loading ? "Šalje se..." : "Naruči - Plaćanje pouzećem"}
                 </button>
                 <div style={{ display:"flex", justifyContent:"center", gap:18, marginTop:12, flexWrap:"wrap" }}>
-                  {["Bez predujma","Dostava 1-3 dana","Garancija 1 god."].map((t,i) => (
+                  {["Bez predujma","Dostava 1–2 dana","Garancija 1 god."].map((t,i) => (
                     <span key={i} style={{ fontSize:10, color:"rgba(255,255,255,0.35)", fontFamily:F, display:"flex", alignItems:"center", gap:4 }}>
                       <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                       {t}
@@ -671,7 +635,7 @@ function QuickOrderSection({ onDone }: { onDone?: (orderNumber: string, total: n
             <span style={{ fontFamily: F, fontSize: 13, color: "#888" }}>
               {totalPairs > 0 ? `${totalPairs} par${totalPairs > 1 ? "a" : ""} · besplatna dostava` : "Odaberi veličine"}
             </span>
-            <span style={{ fontFamily: F, fontWeight: 900, fontSize: 24, color: "#0A0A0A", letterSpacing: "-0.03em" }}>
+            <span style={{ fontFamily: F, fontWeight: 700, fontSize: 24, color: "#0A0A0A", letterSpacing: "-0.03em" }}>
               {totalPairs > 0 ? `${total.toFixed(2).replace(".",",")} KM` : "-"}
             </span>
           </div>
@@ -743,7 +707,7 @@ function B2BSection() {
           <div style={{ display:"flex", flexDirection:"column", gap:32 }}>
             <div>
               <span style={{ display:"inline-block", background:"rgba(255,107,0,0.15)", color:ACCENT, fontSize:11, fontWeight:800, letterSpacing:"0.14em", textTransform:"uppercase", padding:"5px 14px", borderRadius:999, fontFamily:F, border:`1px solid rgba(255,107,0,0.3)`, marginBottom:16 }}>B2B</span>
-              <h2 style={{ fontSize:"clamp(28px,4vw,48px)", fontWeight:900, color:"#fff", letterSpacing:"-0.03em", lineHeight:1.1, margin:"0 0 16px", fontFamily:F }}>
+              <h2 style={{ fontSize:"clamp(28px,4vw,48px)", fontWeight: 700, color:"#fff", letterSpacing:"-0.03em", lineHeight:1.1, margin:"0 0 16px", fontFamily:F }}>
                 Naručujete<br /><span style={{ color:"rgba(255,255,255,0.45)", fontWeight:700 }}>za firmu?</span>
               </h2>
               <p style={{ fontSize:15, color:"rgba(255,255,255,0.55)", lineHeight:1.7, margin:0, fontFamily:F, maxWidth:380 }}>
@@ -780,7 +744,7 @@ function B2BSection() {
               <div style={{ width:60, height:60, borderRadius:"50%", background:"rgba(22,163,74,0.10)", border:"2px solid rgba(22,163,74,0.25)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 20px" }}>
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
               </div>
-              <h3 style={{ fontSize:22, fontWeight:900, color:"#111", margin:"0 0 10px", fontFamily:F, letterSpacing:"-0.02em" }}>Upit primljen!</h3>
+              <h3 style={{ fontSize:22, fontWeight: 700, color:"#111", margin:"0 0 10px", fontFamily:F, letterSpacing:"-0.02em" }}>Upit primljen!</h3>
               <p style={{ fontSize:14, color:"#6B7280", margin:0, lineHeight:1.65, fontFamily:F }}>Kontaktiramo vas u roku od 24h sa personalnom ponudom za vašu firmu.</p>
             </div>
           ) : (
@@ -843,7 +807,7 @@ export default function AeoxPage() {
   }
 
   return (
-    <>
+    <div className="ae-root">
       <style suppressHydrationWarning>{`html { scroll-behavior: smooth; } *, *::before, *::after { box-sizing: border-box; } body { margin: 0; }`}</style>
       <Header onOrder={() => openOrder()} />
       <main>
@@ -855,8 +819,7 @@ export default function AeoxPage() {
         <FAQ />
       </main>
       <Footer />
-      <FloatingBar onOrder={() => openOrder()} remaining={remaining} hidden={modalOpen} />
       <OrderModal open={modalOpen} onClose={() => setModalOpen(false)} initialSize={initialSize} />
-    </>
+    </div>
   );
 }

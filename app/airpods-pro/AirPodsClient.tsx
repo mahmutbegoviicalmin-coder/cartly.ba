@@ -6,7 +6,6 @@ import { event } from "@/lib/fbpixel";
 import ProductPageHeader from "@/components/ProductPageHeader";
 import OrderForm from "./OrderForm";
 import OrderPopup from "./OrderPopup";
-import FloatingCTA from "./FloatingCTA";
 import HeroGallery from "./HeroGallery";
 import {
   AncIcon, TransparencyIcon, AdaptiveIcon, SpatialIcon, ChipIcon,
@@ -56,7 +55,7 @@ const REVIEWS = [
 const FAQ = [
   { q: "Radi li sa Androidom?", a: "Da. Povezuju se preko Bluetootha sa iPhone, Android, laptopom i tabletom." },
   { q: "Kako plaćam?", a: "Plaćanje je pouzećem kad ti paket stigne. Ne tražimo predujam." },
-  { q: "Koliko traje dostava?", a: "Dostava je 1 do 3 radna dana na adresu, po cijeloj BiH. Košta 10 KM." },
+  { q: "Koliko traje dostava?", a: "Dostava je 1 do 2 radna dana na adresu, po cijeloj BiH. Košta 10 KM." },
   { q: "Šta je u kutiji?", a: "Slušalice, MagSafe kućište, tri veličine silikonskih vrhova, USB-C kabel i dokumentacija." },
   { q: "Mogu li vratiti?", a: "Da. Imaš 14 dana za povrat ako nisi zadovoljan." },
 ];
@@ -573,7 +572,6 @@ export default function AirPodsClient() {
 
       <PurchaseToast />
       <OrderPopup open={popupOpen} onClose={() => setPopupOpen(false)} />
-      <FloatingCTA onOrder={openPopup} />
     </>
   );
 }

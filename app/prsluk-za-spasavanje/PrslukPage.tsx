@@ -14,7 +14,6 @@ import Benefits from "./components/Benefits";
 import Reviews from "./components/Reviews";
 import FAQ from "./components/FAQ";
 import FinalCTA from "./components/FinalCTA";
-import FloatingCTA from "./components/FloatingCTA";
 import SocialProof from "./components/SocialProof";
 import OrderModal from "./components/OrderModal";
 
@@ -65,7 +64,6 @@ export default function PrslukPage() {
         <FinalCTA onOrder={() => openOrder()} />
       </main>
 
-      <FloatingCTA onOrder={() => openOrder()} />
       <SocialProof />
       <OrderModal
         open={modalOpen}

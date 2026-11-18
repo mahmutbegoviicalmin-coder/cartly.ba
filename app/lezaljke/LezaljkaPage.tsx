@@ -130,7 +130,7 @@ export default function LezaljkaPage() {
             Hvala, {name.split(" ")[0]}!
           </h2>
           <p style={{ fontFamily: "var(--font-manrope), sans-serif", fontSize: 15, color: "#555", lineHeight: 1.6, margin: "0 0 28px" }}>
-            Narudžba primljena. Javit ćemo se na <strong>{phone}</strong> u roku od 24h.
+            Narudžba je automatski zaprimljena. Paket stiže na vašu adresu za 1–2 radna dana.
           </p>
           <Link href="/" style={{ display: "inline-block", background: "#1B4332", color: "#fff", padding: "14px 28px", borderRadius: 12, fontFamily: "var(--font-manrope), sans-serif", fontWeight: 700, fontSize: 15, textDecoration: "none" }}>
             Nazad na početnu
@@ -275,7 +275,7 @@ export default function LezaljkaPage() {
 
       {/* ─── STICKY HEADER ─── */}
       <header style={{
-        position: "sticky", top: 0, zIndex: 1000,
+        position: "sticky", top: "var(--bn-h, 0px)", zIndex: 1000,
         background: "rgba(255,255,255,0.97)",
         backdropFilter: "blur(14px)",
         WebkitBackdropFilter: "blur(14px)",
@@ -378,7 +378,7 @@ export default function LezaljkaPage() {
               fontFamily: "var(--font-manrope), sans-serif",
               fontSize: 14, color: "#6B7280", lineHeight: 1.55,
             }}>
-              Popuni podatke. Dostava u roku od 1-3 radna dana
+              Popuni podatke. Dostava u roku od 1–2 radna dana
             </p>
           </div>
 

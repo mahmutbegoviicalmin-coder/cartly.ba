@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Set2u1Client from "./Set2u1Client";
+import { productSeo } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  ...productSeo("set-2u1"),
   title: "Set 2 u 1 — Bušilica + Brusilica | 104,90 KM — Cartly.ba",
   description:
     "Kompletan Set 2 u 1: bušilica i brusilica s 2 baterije, punjačem i koferom. Akcijska cijena 104,90 KM. Dostava +10 KM širom BiH, plaćanje pouzećem.",

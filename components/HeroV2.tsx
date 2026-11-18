@@ -38,7 +38,7 @@ const TRUST = [
     ),
   },
   {
-    label: "Dostava 1–3 dana",
+    label: "Dostava 1–2 dana",
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <rect x="1" y="3" width="15" height="13" rx="1"/>

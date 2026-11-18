@@ -30,7 +30,7 @@ export default function ProductPageHeader({ ctaHref = "#order", ctaColor, onOrde
 
   return (
     <header
-      className={`${sora.className} sticky top-0 z-50 w-full`}
+      className={`${sora.className} sticky top-[var(--bn-h,0px)] z-50 w-full`}
       style={{
         background:           "#FFFFFF",
         borderBottom:         scrolled ? "1px solid rgba(0,0,0,0.07)" : "1px solid #F0EDE8",

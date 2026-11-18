@@ -90,15 +90,20 @@ type Stats = {
 
 type Tab = "overview" | "orders" | "skytec" | "otkupnine" | "margins";
 
-const STATUS_META: Record<string, { label: string; color: string; bg: string }> = {
-  nova: { label: "Nova", color: "#ff9f0a", bg: "rgba(255,159,10,0.14)" },
-  potvrđena: { label: "Potvrđena", color: "#007aff", bg: "rgba(0,122,255,0.12)" },
-  poslana: { label: "Poslana", color: "#af52de", bg: "rgba(175,82,222,0.12)" },
-  isporučena: { label: "Isporučena", color: "#34c759", bg: "rgba(52,199,89,0.14)" },
-  vraćena: { label: "Vraćena", color: "#ff453a", bg: "rgba(255,69,58,0.14)" },
+// Four statuses only: an order comes in (Nova), goes out with the courier
+// (Poslana) and ends as delivered and paid (Isporučena) or returned (Vraćena).
+// The old "potvrđena" step is gone (no more phone confirmation); such rows
+// show as Nova.
+const STATUS_META: Record<string, { label: string; color: string; bg: string; dot: string }> = {
+  nova:       { label: "Nova",       color: "#C2410C", bg: "#FDEDE7", dot: "#F45B39" },
+  poslana:    { label: "Poslana",    color: "#8E5B00", bg: "#FFF4D6", dot: "#FFB020" },
+  isporučena: { label: "Isporučena", color: "#1A7F3C", bg: "#E6F6EA", dot: "#34C759" },
+  vraćena:    { label: "Vraćena",    color: "#C4161C", bg: "#FDE7E8", dot: "#FF3B30" },
 };
 
-const STATUS_OPTIONS = ["nova", "potvrđena", "poslana", "isporučena", "vraćena"];
+const STATUS_OPTIONS = ["nova", "poslana", "isporučena", "vraćena"];
+
+const normStatus = (s: string) => (s === "potvrđena" ? "nova" : s);
 
 const PRODUCT_MAP: Record<string, { label: string; tint: string; ink: string; Icon: IconCmp }> = {
   CRT: { label: "Radne patike", tint: "rgba(255,159,10,0.18)", ink: "#ffd60a", Icon: Footprints },
@@ -126,12 +131,10 @@ const PRODUCT_MAP: Record<string, { label: string; tint: string; ink: string; Ic
 };
 
 const AVATAR_TONES = [
-  { bg: "rgba(10,132,255,0.2)", fg: "#64d2ff" },
-  { bg: "rgba(48,209,88,0.18)", fg: "#63e6a0" },
-  { bg: "rgba(255,159,10,0.18)", fg: "#ffd60a" },
-  { bg: "rgba(191,90,242,0.2)", fg: "#d4a4ff" },
-  { bg: "rgba(255,69,58,0.18)", fg: "#ff6961" },
-  { bg: "rgba(100,210,255,0.16)", fg: "#64d2ff" },
+  { bg: "#FDEDE7", fg: "#C2410C" },
+  { bg: "#F0F0F2", fg: "#1D1D1F" },
+  { bg: "#FFF4D6", fg: "#8E5B00" },
+  { bg: "#E6F6EA", fg: "#1A7F3C" },
 ];
 
 function fmt(n: number) {
@@ -218,7 +221,7 @@ function GiftBadge() {
       style={{
         display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 8px", borderRadius: 999,
         fontSize: 11, fontWeight: 700, whiteSpace: "nowrap",
-        background: "rgba(48,209,88,0.16)", color: "#63e6a0",
+        background: "#E6F6EA", color: "#1A7F3C",
       }}
     >
       🎁 Poklon
@@ -314,7 +317,7 @@ function ProductBadge({ orderNumber, qty }: { orderNumber?: string; qty?: number
   const p = productMeta(orderNumber);
   const Icon = p.Icon;
   return (
-    <span className="ad-badge" style={{ background: p.tint, color: p.ink }}>
+    <span className="ad-badge">
       <i>
         <Icon size={11} strokeWidth={2.2} />
       </i>
@@ -325,13 +328,14 @@ function ProductBadge({ orderNumber, qty }: { orderNumber?: string; qty?: number
 }
 
 function StatusSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  const st = STATUS_META[value] ?? { label: value, color: "#a1a1a6", bg: "rgba(255,255,255,0.06)" };
+  const v = normStatus(value);
+  const st = STATUS_META[v] ?? { label: v, color: "#6E6E73", bg: "#F0F0F2", dot: "#C7C7CC" };
   return (
     <select
       className="ad-status"
-      value={value}
+      value={v}
       onChange={(e) => onChange(e.target.value)}
-      style={{ background: st.bg, color: st.color, ["--st" as string]: st.color }}
+      style={{ background: st.bg, color: st.color, ["--st" as string]: st.dot }}
     >
       {STATUS_OPTIONS.map((s) => (
         <option key={s} value={s}>
@@ -339,6 +343,33 @@ function StatusSelect({ value, onChange }: { value: string; onChange: (v: string
         </option>
       ))}
     </select>
+  );
+}
+
+/** Big tap targets for phones: one tap moves the order to the next status. */
+function StatusSegment({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const v = normStatus(value);
+  return (
+    <div className="ad-stseg" role="radiogroup" aria-label="Status narudžbe">
+      {STATUS_OPTIONS.map((s) => {
+        const m = STATUS_META[s];
+        const on = v === s;
+        return (
+          <button
+            key={s}
+            type="button"
+            role="radio"
+            aria-checked={on}
+            className={on ? "is-on" : ""}
+            style={on ? { background: m.bg, color: m.color } : undefined}
+            onClick={() => !on && onChange(s)}
+          >
+            <span className="dot" style={{ background: m.dot }} />
+            {m.label}
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
@@ -409,7 +440,7 @@ function OrderCard({
         </div>
       </div>
       <div className="ad-card-foot">
-        <StatusSelect value={order.status} onChange={(v) => onStatus(order.id, v)} />
+        <StatusSegment value={order.status} onChange={(v) => onStatus(order.id, v)} />
         <DeleteBtn onClick={() => onDelete(order.id, order.ime)} />
       </div>
     </article>
@@ -519,7 +550,7 @@ function MarginCalc() {
 
   const margin = sell - cost;
   const marginPct = sell > 0 ? (margin / sell) * 100 : 0;
-  const mColor = margin > 0 ? "#34c759" : margin < 0 ? "#ff3b30" : "#86868b";
+  const mColor = margin > 0 ? "#1A7F3C" : margin < 0 ? "#E0262D" : "#86868b";
   const costPct = sell > 0 ? Math.min(100, (cost / sell) * 100) : 0;
   const totalNet = margin * qty;
 
@@ -540,7 +571,7 @@ function MarginCalc() {
                   setSell(v);
                   localStorage.setItem("calc_sell", String(v));
                 }}
-                style={{ color: "#007aff" }}
+                style={{ color: "var(--brand)" }}
               />
               <i>KM</i>
             </div>
@@ -634,6 +665,8 @@ export default function DashboardClient() {
   const [allOrders, setAllOrders] = useState<Order[]>([]);
   const [loadingAll, setLoadingAll] = useState(true);
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set());
+  // Per-status totals for the filter chips, taken from the unfiltered list.
+  const [statusCounts, setStatusCounts] = useState<Record<string, number> | null>(null);
   const todayStr = new Date().toISOString().slice(0, 10);
   const [exportProduct, setExportProduct] = useState("svi");
   const [exportDate, setExportDate] = useState(todayStr);
@@ -750,6 +783,14 @@ export default function DashboardClient() {
     const data = await res.json();
     const fetched: Order[] = data.orders ?? [];
     setAllOrders(fetched);
+    if (statusFilter === "all" && !search) {
+      const c: Record<string, number> = { all: fetched.length };
+      for (const o of fetched) {
+        const s = normStatus(o.status);
+        c[s] = (c[s] ?? 0) + 1;
+      }
+      setStatusCounts(c);
+    }
     if (fetched.length > 0) {
       setExpandedDays((prev) => (prev.size === 0 ? new Set([getDayKey(fetched[0].created_at)]) : prev));
     }
@@ -777,6 +818,10 @@ export default function DashboardClient() {
   };
 
   const handleStatusChange = async (id: string, status: string) => {
+    const prevStatus = normStatus((allOrders.find((o) => o.id === id) ?? orders.find((o) => o.id === id))?.status ?? "");
+    if (prevStatus && prevStatus !== status) {
+      setStatusCounts((c) => (c ? { ...c, [prevStatus]: Math.max(0, (c[prevStatus] ?? 1) - 1), [status]: (c[status] ?? 0) + 1 } : c));
+    }
     setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)));
     setAllOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)));
     await fetch(`/api/admin/orders/${id}`, {
@@ -844,21 +889,25 @@ export default function DashboardClient() {
   const emptyText = search ? "Nema rezultata." : "Nema narudžbi.";
 
   const productRows = [
-    { label: "Radne patike", value: stats?.shoeCount ?? 0, Icon: Footprints, bg: "rgba(255,159,10,0.16)", fg: "#ffd60a" },
-    { label: "WiFi kamera", value: stats?.cameraCount ?? 0, Icon: Camera, bg: "rgba(191,90,242,0.16)", fg: "#d4a4ff" },
-    { label: "Čelična četka", value: stats?.cetkaCount ?? 0, Icon: Paintbrush, bg: "rgba(48,209,88,0.16)", fg: "#63e6a0" },
-    { label: "Usmjerivač zraka", value: stats?.usmjerivacCount ?? 0, Icon: Wind, bg: "rgba(10,132,255,0.16)", fg: "#64d2ff" },
-    { label: "Ležaljka", value: stats?.lezaljkaCount ?? 0, Icon: Armchair, bg: "rgba(255,55,95,0.16)", fg: "#ff7aa2" },
+    { label: "Radne patike", value: stats?.shoeCount ?? 0, Icon: Footprints, bg: "var(--brand-soft)", fg: "var(--brand-ink)" },
+    { label: "WiFi kamera", value: stats?.cameraCount ?? 0, Icon: Camera, bg: "var(--brand-soft)", fg: "var(--brand-ink)" },
+    { label: "Čelična četka", value: stats?.cetkaCount ?? 0, Icon: Paintbrush, bg: "var(--brand-soft)", fg: "var(--brand-ink)" },
+    { label: "Usmjerivač zraka", value: stats?.usmjerivacCount ?? 0, Icon: Wind, bg: "var(--brand-soft)", fg: "var(--brand-ink)" },
+    { label: "Ležaljka", value: stats?.lezaljkaCount ?? 0, Icon: Armchair, bg: "var(--brand-soft)", fg: "var(--brand-ink)" },
   ];
 
   return (
     <div className="ad">
       <aside className="ad-sidebar">
         <div className="ad-logo">
-          <div className="ad-logo-name">
-            cartly<span>.</span>ba
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/lisko/lisko-160.webp" alt="" width={40} height={43} />
+          <div>
+            <div className="ad-logo-name">
+              cartly<span>.</span>ba
+            </div>
+            <div className="ad-logo-sub">Admin panel</div>
           </div>
-          <div className="ad-logo-sub">Admin</div>
         </div>
         <nav className="ad-nav">
           {NAV.map(({ tab, label, Icon }) => (
@@ -906,14 +955,41 @@ export default function DashboardClient() {
                   <p className="ov-hero-value">{loadingStats ? "—" : fmt(stats?.todayRevenue ?? 0)}</p>
                   <p className="ov-hero-sub">{loadingStats ? "" : `${stats?.todayCount ?? 0} narudžb${(stats?.todayCount ?? 0) === 1 ? "a" : "i"}`}</p>
                 </div>
-                <div className="ov-hero-live">
-                  <div className={`ad-dot${(stats?.recentCount ?? 0) > 0 ? " is-on" : ""}`} />
-                  {loadingStats
-                    ? "..."
-                    : (stats?.recentCount ?? 0) > 0
-                      ? `${stats!.recentCount} u zadnjih 30 min`
-                      : "Mirno"}
+                <div className="ov-hero-side">
+                  <div className="ov-hero-live">
+                    <div className={`ad-dot${(stats?.recentCount ?? 0) > 0 ? " is-on" : ""}`} />
+                    {loadingStats
+                      ? "..."
+                      : (stats?.recentCount ?? 0) > 0
+                        ? `${stats!.recentCount} u zadnjih 30 min`
+                        : "Mirno"}
+                  </div>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img className="ov-lisko" src="/lisko/lisko-320.webp" alt="Lisko" width={110} height={119} />
                 </div>
+              </div>
+
+              <div className="ov-status">
+                {STATUS_OPTIONS.map((s) => {
+                  const m = STATUS_META[s];
+                  return (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => {
+                        handleStatusFilter(s);
+                        setActiveTab("orders");
+                      }}
+                    >
+                      <span className="ov-status-top">
+                        <span className="dot" style={{ background: m.dot }} />
+                        {m.label}
+                      </span>
+                      <b style={{ color: s === "nova" ? m.color : undefined }}>{statusCounts ? statusCounts[s] ?? 0 : "—"}</b>
+                      <ChevronRight size={16} strokeWidth={2} className="ov-status-go" />
+                    </button>
+                  );
+                })}
               </div>
 
               <div className="ov-kpis">
@@ -1050,15 +1126,17 @@ export default function DashboardClient() {
                   className={`ad-chip${statusFilter === "all" ? " is-on" : ""}`}
                   onClick={() => handleStatusFilter("all")}
                 >
-                  Svi statusi
+                  Sve
+                  {statusCounts && <span className="n">{statusCounts.all}</span>}
                 </button>
                 {STATUS_OPTIONS.map((s) => {
                   const active = statusFilter === s;
                   const st = STATUS_META[s];
                   return (
                     <button key={s} className={`ad-chip${active ? " is-on" : ""}`} onClick={() => handleStatusFilter(s)}>
-                      <span className="dot" style={{ background: st.color }} />
+                      <span className="dot" style={{ background: st.dot }} />
                       {st.label}
+                      {statusCounts && <span className="n">{statusCounts[s] ?? 0}</span>}
                     </button>
                   );
                 })}

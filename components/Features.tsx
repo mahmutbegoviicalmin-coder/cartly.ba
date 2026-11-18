@@ -203,7 +203,7 @@ export default function Features() {
               fontSize: 13, color: "rgba(255,255,255,0.75)", margin: 0,
               fontFamily: "var(--font-manrope), sans-serif",
             }}>
-              Plaćanje pouzećem · Dostava 1–3 radna dana · Povrat 14 dana
+              Plaćanje pouzećem · Dostava 1–2 radna dana · Povrat 14 dana
             </p>
           </div>
           <a

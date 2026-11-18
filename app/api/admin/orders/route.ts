@@ -39,11 +39,14 @@ export async function GET(request: Request) {
     qLez    = qLez.or(f);
   }
   if (status && status !== "all") {
-    qOrders = qOrders.eq("status", status);
-    qCetka  = qCetka.eq("status", status);
-    qUsm    = qUsm.eq("status", status);
-    qKomr   = qKomr.eq("status", status);
-    qLez    = qLez.eq("status", status);
+    // "Potvrđena" was retired (orders are no longer confirmed by phone); old
+    // rows with that status are shown and filtered as "Nova".
+    const match = status === "nova" ? ["nova", "potvrđena"] : [status];
+    qOrders = qOrders.in("status", match);
+    qCetka  = qCetka.in("status", match);
+    qUsm    = qUsm.in("status", match);
+    qKomr   = qKomr.in("status", match);
+    qLez    = qLez.in("status", match);
   }
 
   const [resOrders, resCetka, resUsm, resKomr, resLez] = await Promise.all([qOrders, qCetka, qUsm, qKomr, qLez]);

@@ -4,7 +4,6 @@ import { useState, useRef, useEffect, FormEvent } from "react";
 import Image from "next/image";
 import { event } from "@/lib/fbpixel";
 import SocialProofToast from "./SocialProofToast";
-import FloatingCTA from "./FloatingCTA";
 import OrderSuccess from "@/components/OrderSuccess";
 
 import GiftAddon from "@/components/GiftAddon";
@@ -301,7 +300,6 @@ export default function CetkaClient() {
   return (
     <>
       <SocialProofToast />
-      <FloatingCTA />
 
       <style suppressHydrationWarning>{`
         @keyframes spin { to { transform: rotate(360deg); } }

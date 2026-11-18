@@ -8,9 +8,7 @@ import {
 } from "lucide-react";
 import { event } from "@/lib/fbpixel";
 import SmartImage from "./SmartImage";
-import OrderPopup from "./OrderPopup";
 import OrderForm from "./OrderForm";
-import FloatingCTA from "./FloatingCTA";
 import SalesToast from "./SalesToast";
 import { useCountdown } from "./useCountdown";
 import {
@@ -114,7 +112,7 @@ const DISTRIBUTION = [
 
 const FAQ = [
   { q: "Kako plaćam?", a: "Plaćate gotovinom kuriru u trenutku preuzimanja paketa. Nema plaćanja unaprijed niti kartice." },
-  { q: "Koliko traje dostava i koliko košta?", a: "Dostava je besplatna na cijelu BiH i traje 1 do 3 radna dana. Narudžbe pristigle vikendom šaljemo u ponedjeljak, jer brza pošta vikendom ne radi." },
+  { q: "Koliko traje dostava i koliko košta?", a: "Dostava je besplatna na cijelu BiH i traje 1 do 2 radna dana. Narudžbe pristigle vikendom šaljemo u ponedjeljak, jer brza pošta vikendom ne radi." },
   { q: "Šta je potenciometar i zašto mi treba?", a: "To je točkić za regulaciju brzine. Nižim obrtajima polirate i brusite osjetljive materijale, višim brzo režete metal, kamen i beton." },
   { q: "Šta je poklon iznenađenja?", a: "Za samo 5 KM uz narudžbu dobijate koristan dodatak za radionicu, spakovan u isti paket. Opciju birate u formi za narudžbu." },
   { q: "Imam li garanciju i pravo na povrat?", a: "Da. Imate 14 dana za povrat ako niste zadovoljni, kao i garanciju na ispravnost uređaja." },
@@ -180,22 +178,10 @@ function InlineTimer() {
 
 // ── Page ───────────────────────────────────────────────────────────────────
 export default function MakitaClient() {
-  const [open,    setOpen]    = useState(false);
   const [active,  setActive]  = useState(0);
   const [faq,     setFaq]     = useState<number | null>(0);
   const [viewers, setViewers] = useState(27);
   const [stock,   setStock]   = useState(9);
-  const [formInView, setFormInView] = useState(false);
-
-  // Hide the floating CTA while the inline order form is on screen.
-  useEffect(() => {
-    const el = document.getElementById("naruci");
-    if (!el) return;
-    const io = new IntersectionObserver(([e]) => setFormInView(e.isIntersecting), { threshold: 0.15 });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-
   useEffect(() => {
     setViewers(19 + Math.floor(Math.random() * 18));
     setStock(6 + Math.floor(Math.random() * 6));
@@ -217,17 +203,6 @@ export default function MakitaClient() {
     document.getElementById("naruci")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  function openOrder(placement: string) {
-    event("AddToCart", {
-      content_name: PRODUCT,
-      content_ids:  [CONTENT_ID],
-      content_type: "product",
-      value:        UNIT_PRICE,
-      currency:     "BAM",
-      placement,
-    });
-    setOpen(true);
-  }
 
   return (
     <div className="mk-root" style={{ fontFamily: F, background: PAGE, color: INK }}>
@@ -341,7 +316,7 @@ export default function MakitaClient() {
 
           <div className="mk-trust">
             {[
-              { Icon: Truck,     t: "Besplatna dostava", d: "1 do 3 radna dana" },
+              { Icon: Truck,     t: "Besplatna dostava", d: "1 do 2 radna dana" },
               { Icon: Banknote,  t: "Pouzećem",          d: "Platite kuriru" },
               { Icon: RotateCcw, t: "Povrat 14 dana",    d: "Bez rizika" },
             ].map(({ Icon, t, d }) => (
@@ -375,7 +350,7 @@ export default function MakitaClient() {
         <motion.div {...fadeUp} style={{ textAlign: "center", maxWidth: 620, margin: "0 auto 32px" }}>
           <div className="mk-eyebrow">Naručite danas</div>
           <h2 className="mk-h2">Narudžba za manje od minute.</h2>
-          <p className="mk-lead">Popunite podatke i plaćate tek kad paket stigne. Dostava traje 1 do 3 radna dana.</p>
+          <p className="mk-lead">Popunite podatke i plaćate tek kad paket stigne. Dostava traje 1 do 2 radna dana.</p>
         </motion.div>
 
         <motion.div {...fadeUp} className="mk-order">
@@ -656,9 +631,7 @@ export default function MakitaClient() {
         </div>
       </section>
 
-      <FloatingCTA onOrder={() => openOrder("floating")} hidden={open || formInView} />
       <SalesToast />
-      <OrderPopup open={open} onClose={() => setOpen(false)} />
     </div>
   );
 }

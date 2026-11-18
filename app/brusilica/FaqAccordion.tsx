@@ -8,7 +8,7 @@ const ACCENT = "#FF6B00";
 const FAQ_ITEMS = [
   {
     q: "Kako se vrši dostava?",
-    a: "Dostava se vrši putem Euro Express kurirske službe. Isporuka u roku 1–3 radna dana na cijeloj teritoriji Bosne i Hercegovine.",
+    a: "Dostava se vrši putem Euro Express kurirske službe. Isporuka u roku 1–2 radna dana na cijeloj teritoriji Bosne i Hercegovine.",
   },
   {
     q: "Kako plaćam?",

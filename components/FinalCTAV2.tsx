@@ -41,7 +41,7 @@ export default function FinalCTAV2({ onOrder }: { onOrder: () => void }) {
           margin: 0,
           maxWidth: 420,
         }}>
-          Naruči danas, dostava za 1–3 radna dana. Plaćanje pouzećem — bez rizika.
+          Naruči danas, dostava za 1–2 radna dana. Plaćanje pouzećem — bez rizika.
         </p>
 
         <button

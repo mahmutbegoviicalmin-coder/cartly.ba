@@ -1,188 +1,50 @@
 ﻿"use client";
 
-import { useState, useEffect, useRef } from "react";
-import { Search, LayoutGrid, SlidersHorizontal, X } from "lucide-react";
-import Header from "@/components/Header";
-import FilterSidebar, { FilterState } from "./FilterSidebar";
-import ProductCard, { Product } from "./ProductCard";
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { ChevronLeft, Search, X } from "lucide-react";
+import StoreHeader from "@/components/store/StoreHeader";
+import StoreFooter from "@/components/store/StoreFooter";
+import ProductCard from "@/components/store/ProductCard";
+import { CATALOG, CATEGORIES, CategoryId, discountPct, searchCatalog } from "@/lib/catalog";
 import { event } from "@/lib/fbpixel";
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
-const ACCENT = "#FF6B00";
+const FONT = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
 
-const ALL_PRODUCTS: Product[] = [
-  {
-    name:     "Motorna pila 4,9 KS",
-    desc:     "Benzinski motor 4,9 KS, mač 40 cm, lanac .325 i automatsko podmazivanje",
-    price:    104.90,
-    oldPrice: 299,
-    tag:      "ALATI",
-    href:     "/motorna-pila",
-    image:    "/motorka/motorka1.png",
-    hot:      true,
-  },
-  {
-    name:     "Milwaukee Set 3.1",
-    desc:     "Bušilica, udarni odvijač 226 Nm, brusilica, 2× baterija 5.0 Ah i kofer",
-    price:    149,
-    oldPrice: 220,
-    tag:      "ALATI",
-    href:     "/milwaukee-set-31",
-    image:    "/milwaukee-set-31/hero.png",
-    hot:      true,
-  },
-  {
-    name:     "Mašina za Šišanje Ovaca 1200W",
-    desc:     "Profesionalni set · kofer, rezervni nož GRATIS i mazivo · 2800 okr./min · 1 godina garancije",
-    price:    89.90,
-    oldPrice: 169.90,
-    tag:      "ALATI",
-    href:     "/masina-za-sisanje",
-    image:    "/masina1.jpeg",
-    hot:      true,
-  },
-  {
-    name:     "Milwaukee Bušilica M18",
-    desc:     "Profesionalna akumulatorska bušilica 18V brushless",
-    price:    69.90,
-    oldPrice: 299.90,
-    tag:      "ALATI",
-    href:     "/milwaukee-busilica",
-    image:    "/images/milw2.webp",
-    hot:      true,
-  },
-  {
-    name:     "Akumulatorska Brusilica",
-    desc:     "125mm disk, anti-kickback zaštita, AVS sistem, komplet sa 2 baterije",
-    price:    74.90,
-    oldPrice: 159.90,
-    tag:      "ALATI",
-    href:     "/brusilica",
-    image:    "/images/brusilica.webp",
-    hot:      false,
-  },
-  {
-    name:     "Žirafa Brusilica za Zidove",
-    desc:     "Teleskopska šipka 100-175cm, LED prsten i priključak za usisavač - brušenje bez ljestvi",
-    price:    169.90,
-    oldPrice: 269.90,
-    tag:      "ALATI",
-    href:     "/zirafa-brusilica",
-    image:    "/zirafa/heroslika.png",
-    hot:      true,
-  },
-  {
-    name:     "Kamera V380 Pro",
-    desc:     "Bežični HD video nadzor za unutarnje i vanjske prostore",
-    price:    129.90,
-    oldPrice: 149.90,
-    tag:      "VIDEO NADZOR",
-    href:     "/kamera",
-    image:    "/images/kamere.png",
-    hot:      false,
-  },
-  {
-    name:     "Radne Patike S3",
-    desc:     "Zaštitna obuća s čeličnom kapicom i anti-slip đonom",
-    price:    59.90,
-    oldPrice: 99.90,
-    tag:      "RADNA OBUĆA",
-    href:     "/radne-patike",
-    image:    "/images/product-1.webp",
-    hot:      true,
-  },
-  {
-    name:     "Aeox Plus S3 Radne Patike",
-    desc:     "Metalna kapica, kevlar đon i SRC protuklizna zaštita",
-    price:    59.90,
-    oldPrice: 139.90,
-    tag:      "RADNA OBUĆA",
-    href:     "/radne-patike-aeox",
-    image:    "/aeoxplus/11.webp",
-    hot:      true,
-  },
-  {
-    name:     "Usmjerivač Zraka Klime",
-    desc:     "Podesiv kut 0°–45°, montaža 5 min bez bušenja, za sve split klime",
-    price:    14.90,
-    oldPrice: 29.90,
-    tag:      "DOM",
-    href:     "/usmjerivac-zraka",
-    image:    "/usmjerivac/hero.png",
-    hot:      true,
-  },
-  {
-    name:     "Bluetooth Zvučnik ZQS",
-    desc:     "Bežični zvučnik 40W s mikrofonom i IPX5 zaštitom",
-    price:    59.90,
-    oldPrice: 99.90,
-    tag:      "DOM",
-    href:     "/zvucnik",
-    image:    "/images/zvucnik/zvucnik1.webp",
-    hot:      false,
-  },
-  {
-    name:     "DeWalt 28V XR Bušilica Set",
-    desc:     "Kompletan set · bušilica, 2 baterije, punjač i komplet alata u tvrdom koferu",
-    price:    69.90,
-    oldPrice: 199.90,
-    tag:      "ALATI",
-    href:     "/dewalt-busilica",
-    image:    "/images/dewalt.png",
-    hot:      true,
-  },
-  {
-    name:     "Čelična Četka za Trimer",
-    desc:     "Profesionalna čelična četka · uklanja korov, suhu travu i korijenje. 1+1 GRATIS",
-    price:    24.90,
-    oldPrice: 49.90,
-    tag:      "VRTLARSTVO",
-    href:     "/celicna-cetka",
-    image:    "/celicnacetka.jpeg",
-    hot:      true,
-  },
+type Sort = "popular" | "price-asc" | "price-desc" | "discount";
+const SORTS: { value: Sort; label: string }[] = [
+  { value: "popular",    label: "Najpopularnije" },
+  { value: "price-asc",  label: "Cijena: od najniže" },
+  { value: "price-desc", label: "Cijena: od najviše" },
+  { value: "discount",   label: "Najveći popust" },
 ];
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-function applyFilters(products: Product[], filters: FilterState, query: string): Product[] {
-  let out = [...products];
-
-  if (filters.categories.length > 0)
-    out = out.filter(p => filters.categories.includes(p.tag));
-
-  out = out.filter(p => p.price <= filters.priceMax);
-
-  if (query.trim())
-    out = out.filter(p =>
-      p.name.toLowerCase().includes(query.toLowerCase()) ||
-      p.tag.toLowerCase().includes(query.toLowerCase())
-    );
-
-  if (filters.sortBy === "price-asc")  out.sort((a, b) => a.price - b.price);
-  if (filters.sortBy === "price-desc") out.sort((a, b) => b.price - a.price);
-  if (filters.sortBy === "name-asc")   out.sort((a, b) => a.name.localeCompare(b.name));
-
-  return out;
-}
-
-const DEFAULT_FILTERS: FilterState = {
-  categories: [],
-  priceMax:   300,
-  inStock:    false,
-  sortBy:     "default",
-};
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
 export default function ProizvodiPage() {
-  const [filters,   setFilters]   = useState<FilterState>(DEFAULT_FILTERS);
-  const [query,     setQuery]     = useState("");
-  const [visible,   setVisible]   = useState(false);
-  const [mobileFilter, setMobileFilter] = useState(false);
-  const gridRef = useRef<HTMLDivElement>(null);
+  const [cat,  setCat]  = useState<CategoryId | "sve">("sve");
+  const [q,    setQ]    = useState("");
+  const [sort, setSort] = useState<Sort>("popular");
 
-  const filtered = applyFilters(ALL_PRODUCTS, filters, query);
+  // Read ?kategorija= and ?q= on load (links from the header, footer and home page)
+  useEffect(() => {
+    const sp = new URLSearchParams(window.location.search);
+    const k = sp.get("kategorija");
+    if (k && CATEGORIES.some(c => c.id === k)) setCat(k as CategoryId);
+    const qs = sp.get("q");
+    if (qs) setQ(qs);
+    const s = sp.get("sort");
+    if (s && SORTS.some(o => o.value === s)) setSort(s as Sort);
+  }, []);
 
-  // Facebook Pixel · ViewContent on page load
+  // Keep the URL shareable without adding history entries
+  useEffect(() => {
+    const sp = new URLSearchParams();
+    if (cat !== "sve") sp.set("kategorija", cat);
+    if (q.trim()) sp.set("q", q.trim());
+    if (sort !== "popular") sp.set("sort", sort);
+    const qs = sp.toString();
+    window.history.replaceState(null, "", qs ? `/proizvodi?${qs}` : "/proizvodi");
+  }, [cat, q, sort]);
+
   useEffect(() => {
     event("ViewContent", {
       content_name:     "Katalog proizvoda",
@@ -191,296 +53,101 @@ export default function ProizvodiPage() {
     });
   }, []);
 
-  // Trigger entrance animation shortly after mount
-  useEffect(() => {
-    const t = setTimeout(() => setVisible(true), 80);
-    return () => clearTimeout(t);
-  }, []);
+  const list = useMemo(() => {
+    let out = q.trim() ? searchCatalog(q) : [...CATALOG];
+    if (cat !== "sve") out = out.filter(p => p.category === cat);
+    if (sort === "popular")    out.sort((a, b) => Number(!!b.bestseller) - Number(!!a.bestseller));
+    if (sort === "price-asc")  out.sort((a, b) => a.price - b.price);
+    if (sort === "price-desc") out.sort((a, b) => b.price - a.price);
+    if (sort === "discount")   out.sort((a, b) => discountPct(b) - discountPct(a));
+    return out;
+  }, [cat, q, sort]);
 
-  // Reset visibility briefly when filters change for re-animate effect
-  useEffect(() => {
-    setVisible(false);
-    const t = setTimeout(() => setVisible(true), 60);
-    return () => clearTimeout(t);
-  }, [filters, query]);
+  const tabs: { id: CategoryId | "sve"; label: string; n: number }[] = [
+    { id: "sve", label: "Sve", n: CATALOG.length },
+    ...CATEGORIES.map(c => ({ id: c.id, label: c.label, n: CATALOG.filter(p => p.category === c.id).length })),
+  ];
+
+  const title = cat === "sve" ? "Svi proizvodi." : `${CATEGORIES.find(c => c.id === cat)?.label}.`;
 
   return (
-    <div className="bg-[#F5F2EE] min-h-screen">
-      <Header />
+    <div className="min-h-screen bg-[#FFF8F4] text-[#2A1E18] antialiased" style={{ fontFamily: FONT }}>
+      <StoreHeader />
 
-      {/* ─── Page hero bar ───────────────────────────────────────── */}
-      <div className="bg-white border-b border-gray-100">
-        <div className="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-10 py-8 md:py-10">
-          <div className="flex items-center gap-2 text-[11.5px] text-gray-400 font-medium mb-3">
-            <a href="/" className="hover:text-gray-700 transition-colors">Početna</a>
-            <span>/</span>
-            <span className="text-gray-700">Proizvodi</span>
-          </div>
+      <main className="px-4 pb-20 pt-6 sm:px-6 sm:pt-10">
+        <div className="mx-auto max-w-[1200px]">
+          <Link href="/" className="inline-flex items-center gap-0.5 text-[14px] text-[#6E6E73] hover:text-[#1D1D1F]">
+            <ChevronLeft size={15} strokeWidth={2} /> Početna
+          </Link>
+          <h1 className="mt-2 text-[36px] font-semibold tracking-[-0.035em] sm:text-[52px]">{title}</h1>
+          <p className="mt-1 text-[17px] text-[#6E6E73]">Dostava po cijeloj BiH. Plaćate kuriru kad paket stigne.</p>
 
-          <div className="flex flex-col sm:flex-row sm:items-end gap-4">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.15em] mb-2" style={{ color: ACCENT }}>
-                Sva naša ponuda
-              </p>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 leading-none tracking-tight">
-                Proizvodi
-              </h1>
-            </div>
-
-            {/* Search */}
-            <div className="sm:ml-auto relative w-full sm:w-72">
-              <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-              <input
-                type="text"
-                placeholder="Pretraži proizvode..."
-                value={query}
-                onChange={e => setQuery(e.target.value)}
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-9 pr-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 font-medium focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-150"
-                style={{ ["--tw-ring-color" as string]: "rgba(255,107,0,0.25)" }}
-              />
-              {query && (
-                <button onClick={() => setQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700">
-                  <X size={14} />
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ─── Main content ────────────────────────────────────────── */}
-      <div className="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-10 py-8 md:py-10">
-
-        {/* Mobile: filter toggle + count */}
-        <div className="lg:hidden flex items-center justify-between mb-5">
-          <p className="text-sm text-gray-500 font-medium">
-            <span className="font-bold text-gray-900">{filtered.length}</span> {filtered.length === 1 ? "proizvod" : "proizvoda"}
-          </p>
-          <button
-            onClick={() => setMobileFilter(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 hover:border-gray-400 transition-all shadow-sm"
-          >
-            <SlidersHorizontal size={14} style={{ color: ACCENT }} />
-            Filteri
-          </button>
-        </div>
-
-        {/* Mobile filter drawer */}
-        {mobileFilter && (
-          <div className="lg:hidden fixed inset-0 z-[300] flex">
-            <div className="absolute inset-0 bg-black/40" onClick={() => setMobileFilter(false)} />
-            <div className="relative ml-auto w-[85vw] max-w-sm bg-white h-full overflow-y-auto shadow-2xl">
-              <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-                <span className="font-bold text-sm uppercase tracking-widest">Filteri</span>
-                <button onClick={() => setMobileFilter(false)} className="p-1 hover:bg-gray-100 rounded-lg">
-                  <X size={18} />
-                </button>
-              </div>
-              <div className="p-5">
-                <MobileFilters filters={filters} onChange={setFilters} total={filtered.length} onClose={() => setMobileFilter(false)} />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Sidebar + grid */}
-        <div className="flex gap-7 lg:gap-8 items-start">
-          <FilterSidebar filters={filters} onChange={setFilters} total={filtered.length} />
-
-          {/* Grid area */}
-          <div className="flex-1 min-w-0" ref={gridRef}>
-            {/* Count + label · desktop */}
-            <div className="hidden lg:flex items-center justify-between mb-5">
-              <p className="text-sm text-gray-500 font-medium">
-                <span className="font-bold text-gray-900">{filtered.length}</span> {filtered.length === 1 ? "proizvod" : "proizvoda"}
-              </p>
-              <div className="flex items-center gap-1.5 text-xs text-gray-400 font-medium">
-                <LayoutGrid size={13} />
-                Grid prikaz
-              </div>
-            </div>
-
-            {filtered.length === 0 ? (
-              <EmptyState onReset={() => { setFilters(DEFAULT_FILTERS); setQuery(""); }} />
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-5">
-                {filtered.map((product, i) => (
-                  <ProductCard
-                    key={product.href}
-                    product={product}
-                    visible={visible}
-                    delay={i * 70}
-                  />
+          {/* Controls */}
+          <div className="mt-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <div className="flex w-max gap-2" role="tablist" aria-label="Kategorije">
+                {tabs.map(t => (
+                  <button
+                    key={t.id}
+                    role="tab"
+                    aria-selected={cat === t.id}
+                    onClick={() => setCat(t.id)}
+                    className={`h-10 whitespace-nowrap rounded-full px-4 text-[14px] font-medium transition-colors ${cat === t.id ? "bg-[#1D1D1F] text-white" : "bg-[#F5F5F7] text-[#1D1D1F] hover:bg-[#E8E8ED]"}`}
+                  >
+                    {t.label} <span className={cat === t.id ? "text-white/60" : "text-[#86868B]"}>{t.n}</span>
+                  </button>
                 ))}
               </div>
-            )}
+            </div>
+
+            <div className="flex gap-2">
+              <label className="relative min-w-0 flex-1 lg:w-[280px] lg:flex-none">
+                <span className="sr-only">Pretraga</span>
+                <Search size={17} strokeWidth={2} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#86868B]" />
+                <input
+                  value={q}
+                  onChange={e => setQ(e.target.value)}
+                  placeholder="Pretraži"
+                  enterKeyHint="search"
+                  className="h-10 w-full rounded-full bg-[#F5F5F7] pl-10 pr-9 text-[16px] text-[#1D1D1F] outline-none placeholder:text-[#86868B] focus:bg-white focus:shadow-[0_0_0_2px_#1D1D1F] sm:text-[14px]"
+                />
+                {q && (
+                  <button onClick={() => setQ("")} aria-label="Obriši pretragu" className="absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full bg-[#D2D2D7] text-white">
+                    <X size={13} strokeWidth={2.5} />
+                  </button>
+                )}
+              </label>
+              <label className="shrink-0">
+                <span className="sr-only">Sortiraj</span>
+                <select
+                  value={sort}
+                  onChange={e => setSort(e.target.value as Sort)}
+                  className="h-10 rounded-full bg-[#F5F5F7] pl-4 pr-8 text-[14px] font-medium text-[#1D1D1F] outline-none"
+                >
+                  {SORTS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                </select>
+              </label>
+            </div>
           </div>
-        </div>
-      </div>
 
-      {/* ─── Footer ──────────────────────────────────────────────── */}
-      <footer className="border-t border-gray-100 bg-white mt-10 md:mt-14">
-        <div className="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-10 py-8 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <span className="text-sm font-bold text-gray-900">
-            cartly<span style={{ color: ACCENT }}>.</span>
-          </span>
-          <p className="text-xs text-gray-400 font-medium">
-            © 2026 Cartly · Dostava 10 KM · Plaćanje pouzećem
-          </p>
-        </div>
-      </footer>
-    </div>
-  );
-}
-
-// ─── Empty state ──────────────────────────────────────────────────────────────
-function EmptyState({ onReset }: { onReset: () => void }) {
-  return (
-    <div className="flex flex-col items-center justify-center py-24 text-center">
-      <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mb-4">
-        <Search size={24} className="text-gray-400" />
-      </div>
-      <h3 className="text-lg font-bold text-gray-900 mb-1.5">Nema rezultata</h3>
-      <p className="text-sm text-gray-500 mb-6 max-w-xs">
-        Nijedan proizvod ne odgovara odabranim filterima.
-      </p>
-      <button
-        onClick={onReset}
-        className="px-6 py-2.5 rounded-xl text-sm font-bold text-white transition-all duration-200 hover:opacity-90"
-        style={{ background: ACCENT }}
-      >
-        Resetuj filtere
-      </button>
-    </div>
-  );
-}
-
-// ─── Mobile filter panel ──────────────────────────────────────────────────────
-import { Wrench, Camera, HardHat, Speaker, Leaf, ChevronDown, RotateCcw } from "lucide-react";
-
-const MOBILE_CATEGORIES = [
-  { label: "ALATI",        Icon: Wrench   },
-  { label: "VIDEO NADZOR", Icon: Camera   },
-  { label: "RADNA OBUĆA",  Icon: HardHat  },
-  { label: "DOM",          Icon: Speaker  },
-  { label: "VRTLARSTVO",   Icon: Leaf     },
-];
-
-const SORT_OPTIONS = [
-  { value: "default",    label: "Preporučeno"  },
-  { value: "price-asc",  label: "Cijena: niža" },
-  { value: "price-desc", label: "Cijena: viša" },
-  { value: "name-asc",   label: "Naziv A → Z"  },
-];
-
-function MobileFilters({
-  filters, onChange, total, onClose,
-}: { filters: FilterState; onChange: (f: FilterState) => void; total: number; onClose: () => void }) {
-  function toggleCat(label: string) {
-    const next = filters.categories.includes(label)
-      ? filters.categories.filter(c => c !== label)
-      : [...filters.categories, label];
-    onChange({ ...filters, categories: next });
-  }
-
-  return (
-    <div className="space-y-6">
-      {/* Sort */}
-      <div>
-        <label className="block text-[10px] font-bold uppercase tracking-[0.12em] text-gray-400 mb-2.5">Sortiraj</label>
-        <div className="relative">
-          <select
-            value={filters.sortBy}
-            onChange={e => onChange({ ...filters, sortBy: e.target.value })}
-            className="w-full appearance-none bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-gray-700 pr-8 focus:outline-none"
-          >
-            {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
-          <ChevronDown size={13} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-        </div>
-      </div>
-
-      <div className="h-px bg-gray-100" />
-
-      {/* Categories */}
-      <div>
-        <label className="block text-[10px] font-bold uppercase tracking-[0.12em] text-gray-400 mb-3">Kategorija</label>
-        <div className="space-y-1.5">
-          {MOBILE_CATEGORIES.map(({ label, Icon }) => {
-            const active = filters.categories.includes(label);
-            return (
-              <button
-                key={label}
-                onClick={() => toggleCat(label)}
-                className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] font-semibold text-left transition-all duration-150 border"
-                style={{
-                  color:      active ? "#FF6B00" : "#4B5563",
-                  background: active ? "rgba(255,107,0,0.06)" : "transparent",
-                  borderColor: active ? "#FED7AA" : "transparent",
-                }}
-              >
-                <Icon size={14} style={{ color: active ? ACCENT : "#AAAAAA", flexShrink: 0 }} />
-                {label}
-                {active && <span className="ml-auto w-1.5 h-1.5 rounded-full" style={{ background: ACCENT }} />}
+          {/* Grid */}
+          {list.length ? (
+            <div className="mt-8 grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
+              {list.map((p, i) => <ProductCard key={p.slug} product={p} priority={i < 4} />)}
+            </div>
+          ) : (
+            <div className="mt-16 text-center">
+              <p className="text-[19px] font-semibold">Nema rezultata za &bdquo;{q}&ldquo;.</p>
+              <p className="mt-1 text-[15px] text-[#6E6E73]">Probajte drugi pojam ili pogledajte sve proizvode.</p>
+              <button onClick={() => { setQ(""); setCat("sve"); }} className="mt-5 h-[44px] rounded-full bg-[#1D1D1F] px-6 text-[15px] font-semibold text-white">
+                Prikaži sve
               </button>
-            );
-          })}
+            </div>
+          )}
         </div>
-      </div>
+      </main>
 
-      <div className="h-px bg-gray-100" />
-
-      {/* Price */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <label className="text-[10px] font-bold uppercase tracking-[0.12em] text-gray-400">Max. cijena</label>
-          <span className="text-sm font-bold" style={{ color: ACCENT }}>{filters.priceMax} KM</span>
-        </div>
-        <input
-          type="range" min={30} max={300} step={10}
-          value={filters.priceMax}
-          onChange={e => onChange({ ...filters, priceMax: Number(e.target.value) })}
-          className="w-full cursor-pointer" style={{ accentColor: ACCENT }}
-        />
-        <div className="flex justify-between text-[11px] text-gray-400 mt-1.5 font-medium">
-          <span>30 KM</span><span>300 KM</span>
-        </div>
-      </div>
-
-      <div className="h-px bg-gray-100" />
-
-      {/* In stock */}
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-[13px] font-semibold text-gray-700">Samo na stanju</p>
-          <p className="text-[11px] text-gray-400 mt-0.5">Prikaži dostupne</p>
-        </div>
-        <button
-          onClick={() => onChange({ ...filters, inStock: !filters.inStock })}
-          className="relative w-11 h-6 rounded-full transition-colors duration-200 flex-shrink-0"
-          style={{ background: filters.inStock ? ACCENT : "#E5E7EB" }}
-        >
-          <span className="absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-all duration-200"
-            style={{ left: filters.inStock ? 24 : 4 }} />
-        </button>
-      </div>
-
-      {/* Apply */}
-      <button
-        onClick={onClose}
-        className="w-full py-3.5 rounded-xl text-sm font-bold text-white transition-opacity hover:opacity-90"
-        style={{ background: ACCENT }}
-      >
-        Primijeni ({total} {total === 1 ? "proizvod" : "proizvoda"})
-      </button>
-
-      {/* Reset */}
-      <button
-        onClick={() => onChange(DEFAULT_FILTERS)}
-        className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-semibold text-gray-500 hover:text-gray-900 border border-gray-200 hover:border-gray-400 rounded-xl transition-all duration-150"
-      >
-        <RotateCcw size={13} /> Resetuj filtere
-      </button>
+      <StoreFooter />
     </div>
   );
 }

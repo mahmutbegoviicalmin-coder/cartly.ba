@@ -1,7 +1,9 @@
 import { Metadata } from "next";
 import MilwaukeeSetClient from "./MilwaukeeSetClient";
+import { productSeo } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  ...productSeo("milwaukee-set-31"),
   title: "Milwaukee Set 3.1 | Cartly.ba",
   description:
     "Milwaukee Set 3.1 — kompletan profesionalni set. Udarni odvijač 226 Nm, 2× baterija 5.0 Ah. Akcijska cijena 149 KM. Plaćanje pouzećem, dostava +10 KM širom BiH.",

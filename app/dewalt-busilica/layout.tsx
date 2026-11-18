@@ -1,5 +1,6 @@
 ﻿import type { Metadata } from "next";
 import { Sora, Inter } from "next/font/google";
+import { productSeo } from "@/lib/seo";
 
 const sora = Sora({
   weight:   ["600", "700", "800"],
@@ -16,8 +17,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  ...productSeo("dewalt-busilica"),
   title:       "DeWalt 28V XR Bušilica · Kompletan Set | Cartly.ba",
-  description: "DeWalt 28V XR akumulatorska bušilica sa 2 baterije, punjačem i kompletnim setom alata u tvrdom koferu. Dostava 1–3 dana po cijeloj BiH.",
+  description: "DeWalt 28V XR akumulatorska bušilica sa 2 baterije, punjačem i kompletnim setom alata u tvrdom koferu. Dostava 1–2 dana po cijeloj BiH.",
 };
 
 export default function DeWaltLayout({ children }: { children: React.ReactNode }) {

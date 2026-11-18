@@ -8,7 +8,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { track } from "@vercel/analytics";
 import { event } from "@/lib/fbpixel";
 import OrderPopup from "./OrderPopup";
-import ZirafaFloatingCTA from "./FloatingCTA";
 
 import GiftAddon from "@/components/GiftAddon";
 import { GIFT_PRICE } from "@/lib/gift";
@@ -842,7 +841,6 @@ export default function ZirafaClient() {
 
       <PurchaseNotification />
       <OrderPopup open={popupOpen} onClose={() => setPopupOpen(false)} />
-      <ZirafaFloatingCTA onOrder={openPopup} />
     </>
   );
 }

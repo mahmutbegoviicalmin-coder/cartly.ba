@@ -2,28 +2,32 @@
 
 .ad-shell {
   min-height: 100dvh;
-  background: #070708;
-  color: #f5f5f7;
-  color-scheme: dark;
+  background: #F5F5F7;
+  color: #1D1D1F;
+  color-scheme: light;
 }
 
 .ad {
-  --bg: #070708;
-  --card: #141416;
-  --ink: #f5f5f7;
-  --muted: #a1a1a6;
-  --dim: #6e6e73;
-  --line: rgba(255, 255, 255, 0.08);
-  --line-2: rgba(255, 255, 255, 0.14);
-  --fill: #1c1c1e;
-  --fill-2: #2c2c2e;
-  --blue: #0a84ff;
-  --blue-press: #409cff;
-  --green: #30d158;
-  --orange: #ff9f0a;
-  --red: #ff453a;
-  --purple: #bf5af2;
-  --shadow: 0 0 0 1px rgba(255,255,255,0.04);
+  --bg: #F5F5F7;
+  --card: #FFFFFF;
+  --ink: #1D1D1F;
+  --muted: #6E6E73;
+  --dim: #86868B;
+  --line: rgba(0, 0, 0, 0.07);
+  --line-2: rgba(0, 0, 0, 0.12);
+  --fill: #F5F5F7;
+  --fill-2: #F0F0F2;
+  /* Cartly brand orange (kept under the old --blue name so every accent follows it). */
+  --blue: #F45B39;
+  --blue-press: #DB4724;
+  --brand: #F45B39;
+  --brand-soft: #FDEDE7;
+  --brand-ink: #C2410C;
+  --green: #34C759;
+  --orange: #FF9F0A;
+  --red: #FF3B30;
+  --purple: #AF52DE;
+  --shadow: 0 1px 2px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.05);
   --radius: 18px;
   --safe-b: env(safe-area-inset-bottom, 0px);
   --nav-h: calc(72px + var(--safe-b));
@@ -31,7 +35,7 @@
   --side: 260px;
   min-height: 100dvh;
   overflow-x: hidden;
-  color-scheme: dark;
+  color-scheme: light;
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-manrope), -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, system-ui, sans-serif;
@@ -54,7 +58,7 @@
 .ad-sidebar {
   display: none;
   width: var(--side);
-  background: rgba(7, 7, 8, 0.88);
+  background: rgba(255, 255, 255, 0.78);
   border-right: 1px solid var(--line);
   padding: 28px 14px 18px;
   position: fixed;
@@ -64,16 +68,17 @@
   backdrop-filter: saturate(180%) blur(20px);
 }
 
-.ad-logo { padding: 4px 12px 22px; }
+.ad-logo { display: flex; align-items: center; gap: 10px; padding: 0 10px 22px; }
+.ad-logo img { flex-shrink: 0; }
 .ad-logo-name {
   font-size: 23px;
   font-weight: 700;
   letter-spacing: -0.06em;
   line-height: 1;
 }
-.ad-logo-name span { color: var(--blue); }
+.ad-logo-name span { color: var(--brand); }
 .ad-logo-sub {
-  margin-top: 7px;
+  margin-top: 4px;
   font-size: 12px;
   font-weight: 500;
   color: var(--dim);
@@ -95,6 +100,7 @@
   cursor: pointer;
   text-align: left;
 }
+.ad-nav-btn:hover { background: rgba(0,0,0,0.035); }
 .ad-nav-btn.is-on {
   background: var(--card);
   color: var(--ink);
@@ -129,8 +135,8 @@
   place-items: center;
 }
 .ad-nav-btn.is-on .ad-nav-count {
-  background: rgba(0,122,255,0.12);
-  color: var(--blue);
+  background: var(--brand-soft);
+  color: var(--brand-ink);
 }
 
 .ad-logout { margin-top: auto; padding-top: 14px; }
@@ -167,7 +173,7 @@
   justify-content: space-between;
   gap: 10px;
   padding: 0 16px;
-  background: rgba(7, 7, 8, 0.82);
+  background: rgba(245, 245, 247, 0.82);
   border-bottom: 1px solid var(--line);
   backdrop-filter: saturate(180%) blur(20px);
 }
@@ -194,7 +200,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #d1d1d6;
+  background: #C7C7CC;
   position: relative;
 }
 .ad-dot.is-on { background: var(--green); }
@@ -339,7 +345,7 @@
   font-size: 16px;
   outline: none;
 }
-.ad-search input:focus { background: #1c1c1e; box-shadow: 0 0 0 3px rgba(10,132,255,0.28); }
+.ad-search input:focus { background: #fff; box-shadow: 0 0 0 3px rgba(244,91,57,0.22); }
 .ad-search button, .ad-btn {
   height: 44px;
   padding: 0 16px;
@@ -373,7 +379,7 @@
   background: var(--fill-2);
   color: var(--ink);
   font-size: 15px;
-  color-scheme: dark;
+  color-scheme: light;
 }
 .ad-exports .span-2 { grid-column: 1 / -1; }
 .ad-export-btn {
@@ -392,8 +398,8 @@
   white-space: nowrap;
 }
 .ad-export-btn:disabled { opacity: 0.45; }
-.ad-export-btn.xe { background: rgba(255,159,10,0.16); color: #ffd60a; }
-.ad-export-btn.sk { background: rgba(10,132,255,0.16); color: #64d2ff; }
+.ad-export-btn.xe { background: var(--fill-2); color: var(--ink); }
+.ad-export-btn.sk { background: var(--brand-soft); color: var(--brand-ink); }
 .ad-export-btn.csv { background: var(--fill-2); color: var(--muted); }
 
 .ad-filters {
@@ -422,7 +428,7 @@
   border-radius: 9px;
   cursor: pointer;
 }
-.ad-seg button.is-on { background: #3a3a3c; color: var(--ink); box-shadow: none; }
+.ad-seg button.is-on { background: #fff; color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 .ad-chip {
   flex-shrink: 0;
   height: 34px;
@@ -438,7 +444,8 @@
   align-items: center;
   gap: 6px;
 }
-.ad-chip.is-on { background: rgba(10,132,255,0.18); color: #64d2ff; }
+.ad-chip.is-on { background: var(--ink); color: #fff; }
+.ad-chip .n { font-variant-numeric: tabular-nums; opacity: 0.6; font-weight: 600; }
 .ad-chip .dot { width: 7px; height: 7px; border-radius: 50%; }
 
 .ad-empty {
@@ -465,7 +472,7 @@
   vertical-align: middle;
 }
 .ad-table tr:last-child td { border-bottom: none; }
-.ad-table tbody tr:hover td { background: rgba(255,255,255,0.03); }
+.ad-table tbody tr:hover td { background: rgba(0,0,0,0.018); }
 .ad-table tbody tr.is-dup td { background: rgba(255,159,10,0.08); }
 
 .ad-cards { display: flex; flex-direction: column; gap: 10px; }
@@ -541,7 +548,7 @@
   border-radius: 6px;
   display: grid;
   place-items: center;
-  background: rgba(0,0,0,0.28);
+  background: rgba(255,255,255,0.7);
 }
 
 .ad-status {
@@ -701,7 +708,7 @@
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   padding: 6px 8px var(--safe-b);
-  background: rgba(14, 14, 16, 0.9);
+  background: rgba(255, 255, 255, 0.9);
   border-top: 1px solid var(--line);
   backdrop-filter: saturate(180%) blur(20px);
 }
@@ -736,7 +743,7 @@
 .ad-ip:hover,
 .ad-tel:hover { color: var(--blue); }
 
-select.ad-status option { background: #1c1c1e; color: #f5f5f7; }
+select.ad-status option { background: #fff; color: #1D1D1F; }
 
 @media (min-width: 900px) {
   .ad-bottom { display: none; }
@@ -787,7 +794,7 @@ select.ad-status option { background: #1c1c1e; color: #f5f5f7; }
   padding: 3px 8px;
   border-radius: 99px;
   background: rgba(255,159,10,0.16);
-  color: #ffd60a;
+  color: #B25E00;
   font: inherit;
   font-size: 11px;
   font-weight: 700;
@@ -854,7 +861,7 @@ select.ad-status option { background: #1c1c1e; color: #f5f5f7; }
   padding: 22px 22px 20px;
   border-radius: 22px;
   background:
-    radial-gradient(800px 180px at 100% 0%, rgba(10,132,255,0.22), transparent 55%),
+    radial-gradient(700px 200px at 100% 0%, rgba(244,91,57,0.16), transparent 60%),
     var(--card);
   box-shadow: var(--shadow);
 }
@@ -879,7 +886,7 @@ select.ad-status option { background: #1c1c1e; color: #f5f5f7; }
   gap: 8px;
   padding: 8px 12px;
   border-radius: 99px;
-  background: rgba(255,255,255,0.05);
+  background: var(--fill-2);
   font-size: 13px;
   color: var(--muted);
   font-weight: 500;
@@ -930,4 +937,71 @@ select.ad-status option { background: #1c1c1e; color: #f5f5f7; }
   .ov-kpis { grid-template-columns: repeat(3, 1fr); }
   .ov-split { grid-template-columns: 1.7fr 1fr; }
   .ov-hero { padding: 28px; }
+}
+
+/* ── Cartly additions: status picker, overview status row, Lisko ─────────── */
+.ad-stseg {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  padding: 3px;
+  border-radius: 12px;
+  background: var(--fill-2);
+}
+.ad-stseg button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 36px;
+  padding: 0 4px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+.ad-stseg button .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; opacity: 0.55; }
+.ad-stseg button.is-on { box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.ad-stseg button.is-on .dot { opacity: 1; }
+
+.ov-hero-side { display: flex; align-items: flex-end; gap: 14px; flex-shrink: 0; }
+.ov-lisko { width: 84px; height: auto; margin: -24px -6px -20px 0; filter: drop-shadow(0 10px 14px rgba(110,45,25,0.18)); }
+
+.ov-status { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ov-status button {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 14px 14px 16px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--card);
+  box-shadow: var(--shadow);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.ov-status button:hover { transform: translateY(-1px); box-shadow: 0 8px 24px -12px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.05); }
+.ov-status-top { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.ov-status-top .dot { width: 8px; height: 8px; border-radius: 50%; }
+.ov-status b { font-size: 28px; font-weight: 700; letter-spacing: -0.045em; line-height: 1; font-variant-numeric: tabular-nums; }
+.ov-status-go { position: absolute; right: 12px; top: 14px; color: var(--dim); }
+
+.ad-badge { background: var(--fill-2); color: var(--ink); }
+.ad-badge i { color: var(--brand); }
+
+@media (min-width: 900px) {
+  .ov-status { grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .ov-status button { padding: 18px; }
+  .ov-status b { font-size: 34px; }
+  .ov-lisko { width: 120px; margin: -34px -8px -28px 0; }
 }

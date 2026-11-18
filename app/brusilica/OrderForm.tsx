@@ -1,312 +1,178 @@
 ﻿"use client";
 
-import { useState, useRef, FormEvent } from "react";
-import { ChevronRight, Truck, CreditCard, RotateCcw } from "lucide-react";
+import { useState, FormEvent } from "react";
+import { AlertCircle, ArrowRight, Check, CreditCard, Lock, Truck } from "lucide-react";
 import { event } from "@/lib/fbpixel";
-import OrderSuccess from "@/components/OrderSuccess";
-
 import GiftAddon from "@/components/GiftAddon";
 import { GIFT_PRICE } from "@/lib/gift";
-const ACCENT = "#FF6B00";
+import { BlackNovemberCartNote } from "@/components/store/BlackNovember";
 
-const TRUST_ITEMS = [
-  { Icon: Truck,      title: "Dostava 10,00 KM",  desc: "Cijela BiH · 1–3 radna dana"  },
-  { Icon: CreditCard, title: "Plaćanje pouzećem",  desc: "Platite pri preuzimanju"       },
-  { Icon: RotateCcw,  title: "Povrat 14 dana",     desc: "Bez pitanja i bez troškova"   },
-];
+const RED = "#CC0000";
+const PRICE = 74.9;
+const SHIPPING = 10;
 
-interface FormData {
-  ime:           string;
-  telefon:       string;
-  adresa:        string;
-  postanski_broj: string;
-  grad:          string;
-  napomena:      string;
+const km = (n: number) => `${n.toFixed(2).replace(".", ",")} KM`;
+
+const FIELDS = [
+  { name: "ime",            label: "Ime i prezime",  placeholder: "npr. Emir Hadžić", type: "text", autoComplete: "name",           span: 2 },
+  { name: "adresa",         label: "Adresa dostave", placeholder: "npr. Titova 12",   type: "text", autoComplete: "street-address", span: 2 },
+  { name: "postanski_broj", label: "Poštanski broj", placeholder: "npr. 71000",       type: "text", autoComplete: "postal-code",    span: 1, inputMode: "numeric" },
+  { name: "grad",           label: "Grad",           placeholder: "npr. Sarajevo",    type: "text", autoComplete: "address-level2", span: 1 },
+  { name: "telefon",        label: "Broj telefona",  placeholder: "npr. 061 123 456", type: "tel",  autoComplete: "tel",            span: 2 },
+] as const;
+
+type FormState = { ime: string; adresa: string; postanski_broj: string; grad: string; telefon: string };
+
+interface Props {
+  /** Fires InitiateCheckout once (shared with the page CTAs). */
+  onFirstInteraction: () => void;
+  onSuccess: () => void;
 }
 
-export default function OrderForm() {
-  const [formData, setFormData] = useState<FormData>({
-    ime: "", telefon: "", adresa: "", postanski_broj: "", grad: "", napomena: "",
-  });
+export default function OrderForm({ onFirstInteraction, onSuccess }: Props) {
+  const [form,    setForm]    = useState<FormState>({ ime: "", adresa: "", postanski_broj: "", grad: "", telefon: "" });
   const [gift,    setGift]    = useState(false);
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
   const [error,   setError]   = useState<string | null>(null);
-  const checkoutTracked = useRef(false);
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  const total = PRICE + SHIPPING + (gift ? GIFT_PRICE : 0);
+
+  function onChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const value = e.target.name === "postanski_broj"
+      ? e.target.value.replace(/\D/g, "").slice(0, 5)
+      : e.target.value;
+    setForm(p => ({ ...p, [e.target.name]: value }));
     if (error) setError(null);
   }
 
-  async function handleSubmit(e: FormEvent) {
+  async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    const { ime, telefon, adresa, postanski_broj, grad } = formData;
-    if (!ime.trim() || !telefon.trim() || !adresa.trim() || !postanski_broj.trim() || !grad.trim()) {
-      setError("Molimo popunite sva obavezna polja.");
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
+    const { ime, adresa, postanski_broj, grad, telefon } = form;
+    if (!ime.trim() || !adresa.trim() || !postanski_broj.trim() || !grad.trim() || !telefon.trim()) { setError("Molimo popunite sva obavezna polja."); return; }
+    if (!/^[0-9+\s\-()]{6,}$/.test(telefon.trim())) { setError("Unesite ispravan broj telefona."); return; }
+    setLoading(true); setError(null);
     try {
-      const res = await fetch("/api/brusilica-order", {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ ime: formData.ime, telefon: formData.telefon, adresa: formData.adresa, grad: formData.grad, napomena: formData.napomena, poklon: gift }),
-      });
+      const res  = await fetch("/api/brusilica-order", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ime, adresa: `${adresa}, ${postanski_broj} ${grad}`, grad, telefon, poklon: gift, externalId: (() => { try { return localStorage.getItem("_crt_eid") || ""; } catch { return ""; } })() }) });
       const json = await res.json();
-      if (!res.ok || !json.success) throw new Error(json.error || "Greška pri slanju narudžbe.");
-
-      event("Purchase", { content_name: "Akumulatorska Brusilica", value: 84.9 + (gift ? GIFT_PRICE : 0), currency: "BAM" }, json.orderNumber);
-      setSuccess(true);
+      if (!res.ok || !json.success) throw new Error(json.error || "Greška pri slanju.");
+      event("Purchase", { content_name: "Akumulatorska Brusilica M18 Set", content_ids: ["brusilica-m18-set"], content_type: "product", value: 84.9 + (gift ? GIFT_PRICE : 0), currency: "BAM" }, json.orderNumber);
+      onSuccess();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Greška pri slanju narudžbe. Pokušajte ponovo.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  if (success) {
-    return (
-      <div style={{ background: "#fff", borderRadius: 20, border: "1px solid #E5E2DC", boxShadow: "0 2px 20px rgba(0,0,0,0.05)" }}>
-        <OrderSuccess />
-      </div>
-    );
-  }
-
-  // Shared input styles (light theme)
-  const inputBase: React.CSSProperties = {
-    border:     "1.5px solid #E5E2DC",
-    background: "#FAFAF8",
-    color:      "#1a1a1a",
-  };
-
-  function onFocusInput(e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) {
-    e.target.style.borderColor = ACCENT;
-    e.target.style.background  = "#fff";
-  }
-  function onBlurInput(e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) {
-    e.target.style.borderColor = "#E5E2DC";
-    e.target.style.background  = "#FAFAF8";
+    } finally { setLoading(false); }
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
-
-      {/* ── Form ──────────────────────────────────────────────── */}
+    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
+      {/* ── Form ─────────────────────────────────────────── */}
       <form
-        onSubmit={handleSubmit}
-        className="lg:col-span-3 bg-white rounded-2xl p-8"
-        style={{ border: "1px solid #E5E2DC" }}
-        onFocus={() => {
-          if (!checkoutTracked.current) {
-            checkoutTracked.current = true;
-            event("InitiateCheckout", { value: 74.9, currency: "BAM" });
-          }
-        }}
+        onSubmit={onSubmit}
+        onFocus={onFirstInteraction}
+        noValidate
+        className="rounded-[28px] bg-white p-5 sm:p-8 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_32px_rgba(0,0,0,0.04)]"
       >
-        <h3 className="font-extrabold text-[#1a1a1a] text-2xl mb-6 tracking-tight">
-          Podaci za dostavu
-        </h3>
+        <h3 className="text-[21px] font-semibold tracking-[-0.02em] text-[#1D1D1F]">Podaci za dostavu</h3>
+        <p className="mt-1 text-[14px] text-[#6E6E73]">Ništa ne plaćate unaprijed.</p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-
-          {/* Ime */}
-          <div className="sm:col-span-2 flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-[#888] uppercase tracking-wider">
-              Ime i prezime *
+        <div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-4">
+          {FIELDS.map(f => (
+            <label key={f.name} className={f.span === 2 ? "col-span-2" : "col-span-1 min-w-0"}>
+              <span className="mb-1.5 block text-[13px] font-medium text-[#424245]">{f.label}</span>
+              <input
+                name={f.name}
+                type={f.type}
+                value={form[f.name]}
+                onChange={onChange}
+                placeholder={f.placeholder}
+                autoComplete={f.autoComplete}
+                inputMode={"inputMode" in f ? f.inputMode : undefined}
+                required
+                className="brs-input h-[52px] w-full min-w-0 rounded-[14px] border border-[#D2D2D7] bg-white px-4 text-[16px] text-[#1D1D1F] outline-none transition-[border-color,box-shadow] placeholder:text-[#A1A1A6] focus:border-[#1D1D1F] focus:shadow-[0_0_0_4px_rgba(0,0,0,0.06)]"
+              />
             </label>
-            <input
-              name="ime" value={formData.ime} onChange={handleChange}
-              onFocus={onFocusInput} onBlur={onBlurInput}
-              placeholder="npr. Emir Hadžić" autoComplete="name"
-              className="w-full rounded-xl px-4 py-3 text-sm placeholder-[#bbb] outline-none transition-all duration-150"
-              style={inputBase}
-            />
-          </div>
-
-          {/* Telefon */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-[#888] uppercase tracking-wider">
-              Broj telefona *
-            </label>
-            <input
-              name="telefon" type="tel" value={formData.telefon} onChange={handleChange}
-              onFocus={onFocusInput} onBlur={onBlurInput}
-              placeholder="npr. 061 123 456" autoComplete="tel"
-              className="w-full rounded-xl px-4 py-3 text-sm placeholder-[#bbb] outline-none transition-all duration-150"
-              style={inputBase}
-            />
-          </div>
-
-          {/* Grad */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-[#888] uppercase tracking-wider">
-              Grad *
-            </label>
-            <input
-              name="grad" value={formData.grad} onChange={handleChange}
-              onFocus={onFocusInput} onBlur={onBlurInput}
-              placeholder="npr. Sarajevo" autoComplete="address-level2"
-              className="w-full rounded-xl px-4 py-3 text-sm placeholder-[#bbb] outline-none transition-all duration-150"
-              style={inputBase}
-            />
-          </div>
-
-          {/* Adresa */}
-          <div className="sm:col-span-2 flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-[#888] uppercase tracking-wider">
-              Adresa dostave *
-            </label>
-            <input
-              name="adresa" value={formData.adresa} onChange={handleChange}
-              onFocus={onFocusInput} onBlur={onBlurInput}
-              placeholder="npr. Titova 12" autoComplete="street-address"
-              className="w-full rounded-xl px-4 py-3 text-sm placeholder-[#bbb] outline-none transition-all duration-150"
-              style={inputBase}
-            />
-          </div>
-
-          {/* Poštanski broj */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-[#888] uppercase tracking-wider">
-              Poštanski broj *
-            </label>
-            <input
-              name="postanski_broj"
-              value={formData.postanski_broj}
-              onChange={(e) => {
-                const v = e.target.value.replace(/\D/g, "").slice(0, 5);
-                setFormData(prev => ({ ...prev, postanski_broj: v }));
-                if (error) setError(null);
-              }}
-              onFocus={onFocusInput} onBlur={onBlurInput}
-              placeholder="npr. 71000" autoComplete="postal-code"
-              inputMode="numeric"
-              className="w-full rounded-xl px-4 py-3 text-sm placeholder-[#bbb] outline-none transition-all duration-150"
-              style={inputBase}
-            />
-          </div>
-
-          {/* Napomena */}
-          <div className="sm:col-span-2 flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-[#888] uppercase tracking-wider">
-              Napomena{" "}
-              <span className="normal-case font-normal text-[#ccc]">(opciono)</span>
-            </label>
-            <textarea
-              name="napomena" value={formData.napomena} onChange={handleChange}
-              onFocus={onFocusInput} onBlur={onBlurInput}
-              placeholder="Posebne instrukcije za dostavu ili ostale napomene..."
-              rows={3}
-              className="w-full rounded-xl px-4 py-3 text-sm placeholder-[#bbb] outline-none transition-all duration-150 resize-none"
-              style={inputBase}
-            />
-          </div>
+          ))}
         </div>
 
-        {/* Error */}
         {error && (
-          <div
-            className="mb-4 px-4 py-3 rounded-xl text-sm font-medium"
-            style={{ background: "rgba(220,38,38,0.06)", color: "#dc2626", border: "1px solid rgba(220,38,38,0.15)" }}
-          >
-            {error}
+          <div role="alert" className="mt-4 flex items-center gap-2.5 rounded-[14px] bg-[#CC0000]/[0.06] px-4 py-3 text-[14px] font-medium text-[#CC0000]">
+            <AlertCircle size={16} strokeWidth={2} className="shrink-0" />
+            <span>{error}</span>
           </div>
         )}
 
-        {/* Submit */}
-        <GiftAddon checked={gift} onChange={setGift} accent={ACCENT} style={{ marginBottom: 12 }} />
+        <GiftAddon checked={gift} onChange={setGift} accent={RED} style={{ marginTop: 20 }} />
+
+        <BlackNovemberCartNote className="mt-5" />
+
+        <div className="mt-5 flex items-baseline justify-between border-t border-[#E8E8ED] pt-4">
+          <span className="text-[15px] text-[#6E6E73]">Ukupno za plaćanje</span>
+          <span className="text-[22px] font-semibold tracking-[-0.02em] tabular-nums text-[#1D1D1F]">{km(total)}</span>
+        </div>
+
         <button
           type="submit"
           disabled={loading}
-          className="w-full flex items-center justify-center gap-2.5 text-white font-bold text-base py-4 rounded-full transition-all duration-150"
-          style={{ background: loading ? "#cc5500" : ACCENT, opacity: loading ? 0.8 : 1, cursor: loading ? "not-allowed" : "pointer" }}
+          className="brs-cta mt-4 flex h-[56px] w-full items-center justify-center gap-2 rounded-full text-[17px] font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? (
             <>
-              <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none">
+              <svg className="brs-spin h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" aria-hidden>
                 <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="3" />
-                <path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="3" strokeLinecap="round" />
+                <path d="M12 2a10 10 0 0 1 10 10" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
               </svg>
               Slanje narudžbe...
             </>
           ) : (
-            <>
-              Potvrdi narudžbu
-              <ChevronRight size={18} strokeWidth={2.5} />
-            </>
+            <>Potvrdi narudžbu <ArrowRight size={18} strokeWidth={2.25} /></>
           )}
         </button>
 
-        <p className="text-center text-[#bbb] text-xs mt-3">
-          Plaćanje pouzećem · Bez skrivenih troškova
+        <p className="mt-3 flex items-center justify-center gap-1.5 text-[13px] text-[#86868B]">
+          <Lock size={13} strokeWidth={2} /> Sigurna narudžba. Plaćanje pouzećem.
         </p>
       </form>
 
-      {/* ── Summary ───────────────────────────────────────────── */}
-      <div className="lg:col-span-2 flex flex-col gap-4">
-
-        {/* Order card */}
-        <div className="bg-white rounded-2xl p-6" style={{ border: "1px solid #E5E2DC" }}>
-          <h4 className="text-[#aaa] font-bold text-xs uppercase tracking-[0.15em] mb-5">
-            Sažetak narudžbe
-          </h4>
-
-          <div className="flex flex-col gap-3">
-            <div className="flex items-start justify-between gap-2">
-              <span className="text-sm text-[#888]">Proizvod</span>
-              <span className="text-sm font-semibold text-[#1a1a1a] text-right">Akumulatorska Brusilica</span>
-            </div>
-            <div className="flex items-start justify-between gap-2">
-              <span className="text-sm text-[#888]">Komplet</span>
-              <span className="text-xs font-medium text-[#aaa] text-right max-w-[160px]">
-                2× baterija, punjač, HD kaseta
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-[#888]">Cijena</span>
-              <span className="text-sm font-bold" style={{ color: ACCENT }}>74,90 KM</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-[#888]">Dostava</span>
-              <span className="text-sm font-semibold text-[#1a1a1a]">10,00 KM</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-[#888]">Plaćanje</span>
-              <span className="text-sm font-semibold text-[#1a1a1a]">Pouzećem</span>
-            </div>
-            <div className="border-t pt-3 flex items-center justify-between" style={{ borderColor: "#E5E2DC" }}>
-              <span className="text-base font-bold text-[#1a1a1a]">Ukupno</span>
-              <span className="font-extrabold leading-none" style={{ fontSize: 28, color: ACCENT }}>
-                {(84.9 + (gift ? GIFT_PRICE : 0)).toFixed(2).replace(".", ",")} KM
-              </span>
-            </div>
+      {/* ── Summary ──────────────────────────────────────── */}
+      <aside className="rounded-[28px] bg-white p-5 sm:p-7 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_32px_rgba(0,0,0,0.04)] lg:sticky lg:top-20">
+        <h4 className="text-[13px] font-semibold uppercase tracking-[0.06em] text-[#86868B]">Sažetak narudžbe</h4>
+        <dl className="mt-4 space-y-3 text-[15px]">
+          <div className="flex justify-between gap-4">
+            <dt className="text-[#424245]">Brusilica M18, kompletan set</dt>
+            <dd className="shrink-0 font-medium tabular-nums text-[#1D1D1F]">{km(PRICE)}</dd>
           </div>
+          {gift && (
+            <div className="flex justify-between gap-4">
+              <dt className="text-[#424245]">Poklon iznenađenja</dt>
+              <dd className="shrink-0 font-medium tabular-nums text-[#1D1D1F]">{km(GIFT_PRICE)}</dd>
+            </div>
+          )}
+          <div className="flex justify-between gap-4">
+            <dt className="text-[#424245]">Dostava</dt>
+            <dd className="shrink-0 font-medium tabular-nums text-[#1D1D1F]">{km(SHIPPING)}</dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-[#424245]">Plaćanje</dt>
+            <dd className="shrink-0 font-medium text-[#1D1D1F]">Pouzećem</dd>
+          </div>
+        </dl>
+        <div className="mt-5 flex items-baseline justify-between border-t border-[#E8E8ED] pt-4">
+          <span className="text-[17px] font-semibold text-[#1D1D1F]">Ukupno</span>
+          <span className="text-[32px] font-semibold tracking-[-0.03em] tabular-nums text-[#1D1D1F]">{km(total)}</span>
         </div>
 
-        {/* Trust cards */}
-        {TRUST_ITEMS.map(({ Icon, title, desc }) => (
-          <div
-            key={title}
-            className="bg-white rounded-xl px-5 py-4 flex items-center gap-4"
-            style={{ border: "1px solid #E5E2DC" }}
-          >
-            <div
-              className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(255,107,0,0.07)", color: ACCENT }}
-            >
-              <Icon size={18} strokeWidth={2} />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-[#1a1a1a]">{title}</p>
-              <p className="text-xs text-[#aaa]">{desc}</p>
-            </div>
-          </div>
-        ))}
-      </div>
+        <ul className="mt-6 space-y-3 border-t border-[#E8E8ED] pt-5 text-[14px] text-[#424245]">
+          {[
+            { Icon: CreditCard, text: "Plaćate kuriru pri preuzimanju" },
+            { Icon: Truck,      text: "Dostava 1–2 radna dana, cijela BiH" },
+            { Icon: Check,      text: "Narudžba automatski zaprimljena" },
+          ].map(({ Icon, text }) => (
+            <li key={text} className="flex items-center gap-3">
+              <Icon size={16} strokeWidth={2} className="shrink-0 text-[#1D1D1F]" />
+              {text}
+            </li>
+          ))}
+        </ul>
+      </aside>
     </div>
   );
 }

@@ -3,6 +3,10 @@ import { Sora } from "next/font/google";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
+import { CampaignBarGate } from "@/components/store/BlackNovember";
+import { QuickOrderGate } from "@/components/store/QuickOrder";
+import { StructuredData } from "@/components/store/StructuredData";
+import { SITE_NAME, SITE_URL } from "@/lib/seo";
 
 const sora = Sora({
   subsets:  ["latin"],
@@ -12,8 +16,22 @@ const sora = Sora({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Cartly.ba — Online kupovina u Bosni i Hercegovini",
   description: "Kupuj online uz brzu dostavu, plaćanje pouzećem i provjeren kvalitet. Radne patike, kamere, alati i više — dostava po cijeloj BiH.",
+  applicationName: SITE_NAME,
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    locale: "bs_BA",
+    url: "/",
+    title: "Cartly.ba — Online kupovina u Bosni i Hercegovini",
+    description: "Alati, radna obuća i stvari za dom. Dostava 1–2 dana po cijeloj BiH, plaćanje pouzećem.",
+    images: [{ url: "/lisko/lisko-640.webp", alt: SITE_NAME }],
+  },
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large" } },
+  // Google Search Console (HTML-tag method). GOOGLE_SITE_VERIFICATION in Vercel overrides it.
+  verification: { google: process.env.GOOGLE_SITE_VERIFICATION || "ifiTTxvyHTTDyoe8HclcLQDBsL3RtnQDg7AmiKv4Gf0" },
 };
 
 const FB_PIXEL_ID =
@@ -83,7 +101,10 @@ export default function RootLayout({
       <body
         className={`${sora.className} antialiased bg-white text-black`}
       >
+        <StructuredData />
+        <CampaignBarGate />
         {children}
+        <QuickOrderGate />
         <Analytics />
       </body>
     </html>

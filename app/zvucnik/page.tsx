@@ -4,10 +4,11 @@ import ImageGallery     from "./ImageGallery";
 import OrderForm        from "./OrderForm";
 import SocialProofToast from "./SocialProofToast";
 import LiveCounter      from "./LiveCounter";
-import FloatingCTA      from "./FloatingCTA";
 import PixelEvents      from "./PixelEvents";
+import { productSeo } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  ...productSeo("zvucnik"),
   title:       "Bluetooth Zvučnik ZQS-6239 · 40W, Bežični Mikrofon | Cartly.ba",
   description: "Bluetooth zvučnik ZQS-6239 sa bežičnim mikrofonom, 40W, IPX5, USB-C, FM radio. 59,90 KM. Plaćanje pouzećem. Dostava Brza Pošta.",
 };
@@ -183,7 +184,7 @@ export default function ZvucnikPage() {
                   <circle cx="18.5" cy="18.5" r="2.5" />
                 </svg>
                 <span>
-                  Dostava <strong className="text-gray-900">10,00 KM</strong> · Brza Pošta · 1–3 radna dana
+                  Dostava <strong className="text-gray-900">10,00 KM</strong> · Brza Pošta · 1–2 radna dana
                 </span>
               </div>
 
@@ -297,7 +298,7 @@ export default function ZvucnikPage() {
             <p className="text-[#FF6B00] text-xs font-semibold tracking-widest uppercase mb-3 text-center">Narudžba</p>
             <h2 className="text-gray-900 font-bold text-3xl text-center mb-2">Naruči odmah</h2>
             <p className="text-gray-500 text-sm text-center mb-10">
-              Dostava Brza Pošta · 1–3 radna dana · Plaćanje pouzećem
+              Dostava Brza Pošta · 1–2 radna dana · Plaćanje pouzećem
             </p>
 
             <div className="rounded-2xl p-6 md:p-8 bg-white border border-gray-200 shadow-sm">
@@ -375,7 +376,6 @@ export default function ZvucnikPage() {
       </main>
 
       <SocialProofToast />
-      <FloatingCTA />
     </>
   );
 }

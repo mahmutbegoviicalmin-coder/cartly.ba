@@ -1,16 +1,16 @@
-/* Skytec tab — Apple-style grouped lists (dark). Scoped under .skx. */
+/* Skytec + Otkupnine tabs — Apple-style grouped lists (light, Cartly orange). Scoped under .skx. */
 
 .skx {
-  --skx-bg-2: #1c1c1e;
-  --skx-bg-3: #2c2c2e;
-  --skx-sep: rgba(84, 84, 88, 0.45);
-  --skx-label: #f5f5f7;
-  --skx-label-2: rgba(235, 235, 245, 0.6);
-  --skx-label-3: rgba(235, 235, 245, 0.3);
-  --skx-blue: #0a84ff;
-  --skx-green: #30d158;
-  --skx-orange: #ff9f0a;
-  --skx-red: #ff453a;
+  --skx-bg-2: #FFFFFF;
+  --skx-bg-3: #F0F0F2;
+  --skx-sep: rgba(60, 60, 67, 0.14);
+  --skx-label: #1D1D1F;
+  --skx-label-2: rgba(60, 60, 67, 0.66);
+  --skx-label-3: rgba(60, 60, 67, 0.36);
+  --skx-blue: #F45B39;
+  --skx-green: #1F9D45;
+  --skx-orange: #C26A00;
+  --skx-red: #E0262D;
 
   max-width: 860px;
   margin: 0 auto;
@@ -41,6 +41,7 @@
 
 .skx-group {
   background: var(--skx-bg-2);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.05);
   border-radius: 14px;
   overflow: hidden;
 }
@@ -73,8 +74,8 @@
   cursor: pointer;
 }
 .skx-row.static { cursor: default; }
-.skx-row:not(.static):not(:disabled):hover { background: rgba(255, 255, 255, 0.04); }
-.skx-row:not(.static):not(:disabled):active { background: rgba(255, 255, 255, 0.07); }
+.skx-row:not(.static):not(:disabled):hover { background: rgba(0, 0, 0, 0.025); }
+.skx-row:not(.static):not(:disabled):active { background: rgba(0, 0, 0, 0.05); }
 .skx-row:disabled { cursor: default; }
 
 .skx-row-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
@@ -153,7 +154,7 @@
 .skx-actionbar {
   display: flex; flex-direction: column; gap: 12px;
   padding: 14px 16px 16px;
-  background: #242426;
+  background: #FAFAFB;
   box-shadow: inset 0 0.5px 0 var(--skx-sep);
 }
 .skx-actionbar-info { display: flex; flex-direction: column; gap: 1px; }
@@ -169,9 +170,9 @@
   cursor: pointer; white-space: nowrap; text-decoration: none;
   transition: opacity 0.12s, background 0.12s;
 }
-.skx-btn:hover:not(:disabled) { background: #3a3a3c; }
+.skx-btn:hover:not(:disabled) { background: #E8E8ED; }
 .skx-btn.primary { background: var(--skx-blue); color: #fff; }
-.skx-btn.primary:hover:not(:disabled) { background: #409cff; }
+.skx-btn.primary:hover:not(:disabled) { background: #DB4724; }
 .skx-btn.danger { background: rgba(255, 69, 58, 0.15); color: var(--skx-red); }
 .skx-btn.sm { height: 32px; padding: 0 12px; border-radius: 9px; font-size: 13px; flex-shrink: 0; }
 .skx-btn:disabled { opacity: 0.35; cursor: default; }
@@ -201,11 +202,11 @@
 
 /* ── Pills ───────────────────────────────────────────────── */
 .skx-pill { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 99px; white-space: nowrap; }
-.skx-pill.gray { background: rgba(142, 142, 147, 0.2); color: #aeaeb2; }
-.skx-pill.blue { background: rgba(10, 132, 255, 0.18); color: #64d2ff; }
-.skx-pill.orange { background: rgba(255, 159, 10, 0.18); color: #ffb340; }
-.skx-pill.green { background: rgba(48, 209, 88, 0.16); color: #4cd964; }
-.skx-pill.red { background: rgba(255, 69, 58, 0.16); color: #ff6961; }
+.skx-pill.gray { background: #F0F0F2; color: #6E6E73; }
+.skx-pill.blue { background: #FDEDE7; color: #C2410C; }
+.skx-pill.orange { background: #FFF4D6; color: #8E5B00; }
+.skx-pill.green { background: #E6F6EA; color: #1A7F3C; }
+.skx-pill.red { background: #FDE7E8; color: #C4161C; }
 
 /* ── Returns ─────────────────────────────────────────────── */
 .skx-prod .skx-row-main { flex: 1 1 40%; }
@@ -227,8 +228,8 @@
   font-size: 13px; font-weight: 500; cursor: pointer;
 }
 .skx-seg button em { font-style: normal; margin-left: 4px; color: var(--skx-label-3); }
-.skx-seg button.on { background: var(--skx-label); color: #000; }
-.skx-seg button.on em { color: rgba(0, 0, 0, 0.5); }
+.skx-seg button.on { background: var(--skx-label); color: #fff; }
+.skx-seg button.on em { color: rgba(255, 255, 255, 0.6); }
 
 /* ── Parcel detail ───────────────────────────────────────── */
 .skx-chev { color: var(--skx-label-3); flex-shrink: 0; transition: transform 0.18s; }
@@ -258,14 +259,14 @@
 /* ── Misc ────────────────────────────────────────────────── */
 .skx-banner {
   display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-radius: 12px;
-  background: rgba(255, 159, 10, 0.12); color: #ffb340; font-size: 14px;
+  background: #FFF4D6; color: #8E5B00; font-size: 14px;
 }
 .skx-toast {
   position: fixed; left: 50%; bottom: calc(var(--nav-h, 72px) + 14px); transform: translateX(-50%);
   z-index: 60; width: max-content; max-width: calc(100vw - 32px);
   padding: 12px 18px; border-radius: 14px;
-  background: rgba(44, 44, 46, 0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  color: var(--skx-label); font-size: 14px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45); cursor: pointer;
+  background: rgba(29, 29, 31, 0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  color: #fff; font-size: 14px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25); cursor: pointer;
 }
 
 @media (max-width: 520px) {
@@ -290,7 +291,7 @@
 
 .skx-note {
   display: flex; align-items: flex-start; gap: 8px; padding: 10px 16px;
-  font-size: 13px; line-height: 1.4; color: #ffb340; background: rgba(255, 159, 10, 0.08);
+  font-size: 13px; line-height: 1.4; color: #8E5B00; background: #FFF8E6;
 }
 .skx-note svg { flex-shrink: 0; margin-top: 1px; }
 
@@ -301,7 +302,7 @@
   height: 28px; padding: 0 10px; border: none; border-radius: 7px; background: none;
   color: var(--skx-label-2); font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap;
 }
-.cod-seg button.on { background: #636366; color: var(--skx-label); }
+.cod-seg button.on { background: #fff; color: var(--skx-label); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
 .cod-hero { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; padding: 18px 16px 14px; }
 .cod-hero-main { display: flex; flex-direction: column; gap: 2px; }
@@ -316,7 +317,7 @@
 
 .cod-stack { display: flex; gap: 2px; height: 8px; margin: 0 16px 10px; border-radius: 4px; overflow: hidden; background: var(--skx-bg-3); }
 .cod-stack i, .cod-mini i { display: block; height: 100%; }
-.blue { --tone: #0a84ff; } .orange { --tone: #ff9f0a; } .purple { --tone: #bf5af2; } .green { --tone: #30d158; } .red { --tone: #ff453a; }
+.blue { --tone: #F45B39; } .orange { --tone: #FF9F0A; } .purple { --tone: #AF52DE; } .green { --tone: #34C759; } .red { --tone: #FF3B30; }
 .cod-stack i, .cod-mini i, .cod-dot { background: var(--tone); }
 .cod-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 .cod-stage { min-height: 60px; }
@@ -324,10 +325,10 @@
 .cod-warn { color: var(--skx-orange); }
 .cod-age {
   flex-shrink: 0; font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 99px;
-  background: rgba(142, 142, 147, 0.2); color: #aeaeb2; white-space: nowrap;
+  background: #F0F0F2; color: #6E6E73; white-space: nowrap;
 }
-.cod-age.orange { background: rgba(255, 159, 10, 0.18); color: #ffb340; }
-.cod-age.red { background: rgba(255, 69, 58, 0.18); color: #ff6961; }
+.cod-age.orange { background: #FFF4D6; color: #8E5B00; }
+.cod-age.red { background: #FDE7E8; color: #C4161C; }
 .cod-call { display: inline-flex; align-items: center; gap: 3px; color: var(--skx-blue) !important; text-decoration: none; }
 .cod-ok svg { color: var(--skx-green); }
 .cod-plus { color: var(--skx-green); }
@@ -342,10 +343,10 @@
   flex: 1; height: 100%; display: flex; align-items: flex-end; padding: 0; border: none;
   background: none; cursor: pointer; min-width: 0;
 }
-.cod-bar i { display: block; width: 100%; border-radius: 3px 3px 1px 1px; background: rgba(48, 209, 88, 0.55); transition: background 0.12s; }
+.cod-bar i { display: block; width: 100%; border-radius: 3px 3px 1px 1px; background: rgba(52, 199, 89, 0.5); transition: background 0.12s; }
 .cod-bar i.zero { background: var(--skx-bg-3); }
 .cod-bar.on i, .cod-bar:hover i { background: var(--skx-green); }
-.cod-bar.on i.zero, .cod-bar:hover i.zero { background: #48484a; }
+.cod-bar.on i.zero, .cod-bar:hover i.zero { background: #D1D1D6; }
 .cod-axis { display: flex; justify-content: space-between; margin-top: 6px; font-size: 11px; color: var(--skx-label-3); }
 
 .cod-items { padding: 0 16px 12px; display: flex; flex-direction: column; }

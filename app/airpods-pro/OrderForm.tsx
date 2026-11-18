@@ -154,7 +154,7 @@ export default function OrderForm({ compact, onSuccess }: Props) {
           margin: 0, fontSize: 15, color: MUTED, fontFamily: F, lineHeight: 1.6,
           maxWidth: 320, marginInline: "auto",
         }}>
-          Kontaktiraćemo vas radi potvrde. Plaćanje pouzećem, dostava 1 do 3 radna dana.
+          Narudžba je automatski zaprimljena. Plaćanje pouzećem, paket stiže za 1–2 radna dana.
         </p>
       </div>
     );

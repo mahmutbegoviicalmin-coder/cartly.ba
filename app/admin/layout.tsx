@@ -5,13 +5,13 @@ export const viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover" as const,
-  colorScheme: "dark" as const,
-  themeColor: "#070708",
+  colorScheme: "light" as const,
+  themeColor: "#F5F5F7",
 };
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="ad-shell" style={{ minHeight: "100dvh", background: "#070708", color: "#f5f5f7" }}>
+    <div className="ad-shell" style={{ minHeight: "100dvh", background: "#F5F5F7", color: "#1D1D1F" }}>
       {children}
     </div>
   );

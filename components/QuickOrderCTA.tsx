@@ -86,7 +86,7 @@ export default function QuickOrderCTA() {
           </div>
           <h3 style={{ fontFamily: "var(--font-manrope), sans-serif", fontWeight: 800, fontSize: 22, color: "#0A0A0A", letterSpacing: "-0.02em", margin: "0 0 10px" }}>Hvala, {name.split(" ")[0]}!</h3>
           <p style={{ fontFamily: "var(--font-manrope), sans-serif", fontSize: 15, color: "#666", lineHeight: 1.6, margin: 0 }}>
-            Narudžba primljena. Javit ćemo se na <strong>{phone}</strong> u roku od 24h.
+            Narudžba je automatski zaprimljena. Paket stiže na vašu adresu za 1–2 radna dana.
           </p>
         </div>
       </section>

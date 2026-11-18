@@ -6,7 +6,7 @@ import { Plus } from "lucide-react";
 const ITEMS = [
   {
     q: "Kako naručujem?",
-    a: "Popuni formu na dnu stranice: ime, prezime, adresa, grad, poštanski broj i telefon. Potvrdi narudžbu. Javimo se radi potvrde.",
+    a: "Popuni formu na dnu stranice: ime, prezime, adresa, grad, poštanski broj i telefon. Potvrdi narudžbu i to je to: narudžba je automatski zaprimljena, a paket stiže za 1–2 radna dana.",
   },
   {
     q: "Kako se plaća?",

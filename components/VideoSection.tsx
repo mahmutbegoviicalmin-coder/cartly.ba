@@ -215,7 +215,7 @@ export default function VideoSection() {
               margin: 0,
             }}
           >
-            Dostava Euro Express &bull; 1–3 radna dana
+            Dostava Euro Express &bull; 1–2 radna dana
           </p>
         </div>
       </div>

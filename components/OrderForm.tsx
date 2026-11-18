@@ -439,7 +439,7 @@ export default function OrderForm() {
                 </button>
 
                 <p style={{ textAlign: "center", fontSize: 12, color: "#aaa", margin: 0, lineHeight: 1.5 }}>
-                  Plaćanje pouzećem &bull; Euro Express &bull; 1–3 radna dana
+                  Plaćanje pouzećem &bull; Euro Express &bull; 1–2 radna dana
                 </p>
 
                 {/* Trust icons */}

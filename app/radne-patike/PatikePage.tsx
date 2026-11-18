@@ -9,7 +9,6 @@ import Reviews from "@/components/Reviews";
 import B2BSection from "@/components/B2BSection";
 import FAQ from "@/components/FAQ";
 import Footer from "@/components/Footer";
-import FloatingCTA from "@/components/FloatingCTA";
 import OrderModal from "@/components/OrderModal";
 import PixelEvents from "@/components/PixelEvents";
 import SocialProof from "@/components/SocialProof";
@@ -35,7 +34,6 @@ export default function PatikePage() {
         <FAQ />
       </main>
       <Footer />
-      <FloatingCTA onOrder={() => openModal()} />
       <OrderModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}

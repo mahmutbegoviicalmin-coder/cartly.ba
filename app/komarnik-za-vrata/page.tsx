@@ -3,8 +3,8 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import ProductPageHeader from "@/components/ProductPageHeader";
 import Footer from "@/components/Footer";
 import KomarnikClient from "./KomarnikClient";
-import KomarnikFloatingCTA from "./FloatingCTA";
 import PixelEvents from "./PixelEvents";
+import { productSeo } from "@/lib/seo";
 
 const displayFont = Plus_Jakarta_Sans({
   subsets:  ["latin"],
@@ -14,6 +14,7 @@ const displayFont = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
+  ...productSeo("komarnik-za-vrata"),
   title: "Magnetni Komarnik za Vrata · Bez Bušenja | Cartly.ba",
   description:
     "Magnetni komarnik sa samozatvarajućim panelima. Montaža za 2 minute bez bušenja. Zaštita od komaraca i insekata. Dostava po cijeloj BiH, plaćanje pouzećem.",
@@ -27,7 +28,6 @@ export default function KomarnikPage() {
         <KomarnikClient />
       </main>
       <Footer />
-      <KomarnikFloatingCTA />
       <PixelEvents />
     </div>
   );

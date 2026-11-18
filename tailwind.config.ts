@@ -16,6 +16,7 @@ const config: Config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
         accent:     "#FF6B00",
+        
       },
     },
   },

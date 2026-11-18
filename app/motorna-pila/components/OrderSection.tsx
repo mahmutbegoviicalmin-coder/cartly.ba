@@ -13,7 +13,7 @@ export default function OrderSection({ onReady }: { onReady?: () => void }) {
           <h2 className="mp-h2">Unesi podatke. Plaćaš pouzećem.</h2>
           <p className="mp-copy">
             Nema avansa i nema online plaćanja. Popuni formu, potvrdi narudžbu.
-            Javimo se radi potvrde, a 114,90 KM daš kad preuzmeš.
+            Narudžba se zaprima automatski, a 114,90 KM daš kad preuzmeš.
           </p>
           <div className="mp-price-block" style={{ marginTop: 24 }}>
             <div className="mp-price-old">{fmtKM(ORIGINAL_PRICE)}</div>

@@ -95,7 +95,7 @@ export default function Navbar() {
       `}</style>
 
       <nav style={{
-        position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000,
+        position: "fixed", top: "var(--bn-h, 0px)", left: 0, right: 0, zIndex: 1000,
         background: "#fff",
         borderBottom: "1px solid #F0F0F0",
         boxShadow: scrolled ? "0 2px 12px rgba(0,0,0,0.06)" : "none",

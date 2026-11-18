@@ -256,7 +256,7 @@ export default function OrderPopup({ open, onClose, initialBundle }: Props) {
                       Narudžba primljena!
                     </div>
                     <p style={{ fontSize: 14, color: GR, fontFamily: F, lineHeight: 1.7, maxWidth: 280, margin: "0 auto 28px" }}>
-                      Kontaktiraćemo vas radi potvrde i dogovora oko dostave.
+                      Narudžba je automatski zaprimljena. Paket stiže na vašu adresu za 1–2 radna dana.
                     </p>
                     <button
                       onClick={handleClose}

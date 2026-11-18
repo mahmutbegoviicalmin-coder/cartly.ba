@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import MotornaPilaClient from "./MotornaPilaClient";
 import PixelEvents from "./PixelEvents";
+import { productSeo } from "@/lib/seo";
 
 const TITLE = "Motorna pila 4,9 KS, 40 cm | 104,90 KM";
 const DESCRIPTION =
@@ -8,6 +9,7 @@ const DESCRIPTION =
 const OG_IMAGE = "/motorka/motorka1.png";
 
 export const metadata: Metadata = {
+  ...productSeo("motorna-pila"),
   title: TITLE,
   description: DESCRIPTION,
   openGraph: {

@@ -183,8 +183,8 @@ export default function OrderForm({ onClose }: { onClose?: () => void }) {
         <p style={{ margin: "0 auto", maxWidth: 340, fontSize: 15, lineHeight: 1.55, color: MUTED }}>
           Vaša narudžba je primljena{gift ? " zajedno sa poklonom iznenađenja" : ""}.{" "}
           {weekend
-            ? "Brza pošta ne radi vikendom, pa vaš paket šaljemo u ponedjeljak. Dostava traje 1 do 3 radna dana."
-            : "Paket šaljemo u najkraćem roku i stiže za 1 do 3 radna dana."}
+            ? "Brza pošta ne radi vikendom, pa vaš paket šaljemo u ponedjeljak. Dostava traje 1 do 2 radna dana."
+            : "Paket šaljemo u najkraćem roku i stiže za 1 do 2 radna dana."}
         </p>
         <div style={{ marginTop: 20, display: "inline-flex", gap: 8, padding: "10px 16px", borderRadius: 999, background: BG, fontSize: 13, color: MUTED }}>
           Broj narudžbe <strong style={{ color: INK, fontWeight: 600 }}>{done}</strong>

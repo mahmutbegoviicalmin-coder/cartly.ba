@@ -1,5 +1,5 @@
 :root { --ae-ink:#1d211f; --ae-muted:#707873; --ae-accent:#c14822; --ae-paper:#f5f3ee; --ae-line:#dfded7; }
-.ae-header { position:sticky; top:0; z-index:100; background:rgba(250,249,245,.96); backdrop-filter:blur(18px); border-bottom:1px solid #e6e5df; }
+.ae-header { position:sticky; top:var(--bn-h, 0px); z-index:100; background:rgba(250,249,245,.96); backdrop-filter:blur(18px); border-bottom:1px solid #e6e5df; }
 .ae-header-inner { max-width:1440px; height:70px; margin:auto; padding:0 48px; display:flex; align-items:center; justify-content:space-between; gap:32px; }
 .ae-logo { color:var(--ae-ink); text-decoration:none; font:800 23px/1 var(--font-manrope,Inter,sans-serif); letter-spacing:-.065em; }
 .ae-logo span { color:var(--ae-accent); }
@@ -183,4 +183,45 @@
   .ae-price { font-size:37px; }
   .ae-promo-timer > span { font-size:10px; }
   .ae-promo-timer strong { font-size:16px; }
+}
+
+/* ── Polish: system font, calmer weights, softer corners ─────────────────── */
+.ae-root, .ae-root button, .ae-root input, .ae-root select, .ae-root textarea, .ae-logo {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+}
+.ae-logo { font-weight: 700; letter-spacing: -0.035em; }
+.ae-hero h1, .ae-anatomy h2 { font-weight: 700; letter-spacing: -0.04em; line-height: 1.02; }
+.ae-order h2, .ae-reviews h2 { font-weight: 700 !important; letter-spacing: -0.03em !important; }
+.ae-price { font-weight: 700; letter-spacing: -0.035em; }
+.ae-floating-info strong { font-weight: 700; letter-spacing: -0.03em; }
+.ae-promo-timer strong { font-weight: 700; letter-spacing: 0.02em; }
+.ae-eyebrow, .ae-hero-code, .ae-detail-kicker, .ae-bottom-index, .ae-offer-kicker, .ae-price-label, .ae-floating-label { font-weight: 700; letter-spacing: 0.1em; }
+.ae-gallery-count { font-weight: 700; }
+.ae-detail h3 { font-weight: 600; letter-spacing: -0.02em; }
+.ae-spec-strip strong { font-weight: 700; letter-spacing: -0.02em; }
+
+/* Softer, more premium shapes */
+.ae-header button, .ae-primary-button, .ae-floating-cta button, .r-cta { border-radius: 999px !important; }
+.ae-primary-button { justify-content: center; gap: 10px; font-weight: 700; font-size: 15px; }
+.ae-header button { justify-content: center; gap: 10px; font-weight: 700; }
+.ae-floating-cta button { justify-content: center; gap: 8px; font-weight: 700; font-size: 13px; }
+.ae-buy-panel { border-radius: 24px; border-top-width: 1px !important; border-top-color: #e2dfd7 !important; }
+.ae-gallery-main { border-radius: 24px; }
+.ae-thumb { border-radius: 14px; overflow: hidden; }
+.ae-gallery-tag { border-radius: 999px; }
+.ae-gallery-arrows button { border-radius: 999px; }
+.ae-promo-timer { border-radius: 14px; }
+.ae-anatomy-image { border-radius: 24px; overflow: hidden; }
+.ae-anatomy-details { border-radius: 24px; }
+.ae-floating-cta { border-radius: 20px; }
+.ae-order > div { border-radius: 28px !important; }
+.ae-order .rq-inp { border-radius: 14px !important; }
+.ae-order .rq-sub { border-radius: 999px !important; }
+.ae-order .rq-q-btn { border-radius: 10px !important; }
+.ae-reviews .r-reviews-grid > div { border-radius: 24px !important; }
+@media (max-width: 780px) {
+  .ae-floating-cta { border-radius: 0; }
+  .ae-buy-panel { border-radius: 20px; margin-top: 12px !important; }
+  .ae-gallery-main { border-radius: 20px; }
 }

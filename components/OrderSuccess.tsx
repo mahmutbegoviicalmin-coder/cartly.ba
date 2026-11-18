@@ -15,7 +15,7 @@ const TRUST_ITEMS = [
   },
   {
     Icon:  Truck,
-    label: "Dostava 1–3 dana",
+    label: "Dostava 1–2 dana",
     color: "#3B82F6",
     bg:    "rgba(59,130,246,0.08)",
   },
@@ -81,7 +81,7 @@ export default function OrderSuccess() {
       >
         Vaša narudžba je evidentirana i u procesu obrade.
         <br />
-        Dostava 1–3 radna dana. Plaćanje pouzećem prilikom preuzimanja.
+        Dostava 1–2 radna dana. Plaćanje pouzećem prilikom preuzimanja.
       </p>
 
       {/* ── Trust features ── */}

@@ -198,7 +198,7 @@ function Header({ onOrder }: { onOrder: () => void }) {
 
   return (
     <>
-      <header style={{ position:"fixed", top:0, left:0, right:0, zIndex:9000, background: scrolled ? "rgba(255,255,255,0.96)" : "transparent", backdropFilter: scrolled ? "blur(20px)" : "none", WebkitBackdropFilter: scrolled ? "blur(20px)" : "none", boxShadow: scrolled ? "0 1px 24px rgba(0,0,0,0.07)" : "none", borderBottom: scrolled ? `1px solid ${BORDER}` : "none", transition:"all 0.3s ease" }}>
+      <header style={{ position:"fixed", top:"var(--bn-h, 0px)", left:0, right:0, zIndex:9000, background: scrolled ? "rgba(255,255,255,0.96)" : "transparent", backdropFilter: scrolled ? "blur(20px)" : "none", WebkitBackdropFilter: scrolled ? "blur(20px)" : "none", boxShadow: scrolled ? "0 1px 24px rgba(0,0,0,0.07)" : "none", borderBottom: scrolled ? `1px solid ${BORDER}` : "none", transition:"all 0.3s ease" }}>
         <div style={{ maxWidth:1200, margin:"0 auto", padding:"0 24px", height:68, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <a href="#home" style={{ display:"flex", alignItems:"center", gap:10, textDecoration:"none" }}>
             <div style={{ width:36, height:36, borderRadius:10, background:`linear-gradient(135deg, ${BLUE} 0%, ${BLUE2} 100%)`, display:"flex", alignItems:"center", justifyContent:"center" }}>
@@ -837,7 +837,7 @@ function OrderModal({ open, onClose }: { open: boolean; onClose: () => void }) {
                     <CheckCircle size={36} color="#fff" />
                   </div>
                   <h3 style={{ fontSize:24, fontWeight:900, color:NAVY, letterSpacing:"-0.03em", margin:"0 0 10px" }}>Narudžba primljena!</h3>
-                  <p style={{ fontSize:14, color:MUTED, lineHeight:1.7, maxWidth:320, margin:"0 auto" }}>Kontaktiraćemo vas u kratkom roku radi potvrde dostave. Hvala na povjerenju!</p>
+                  <p style={{ fontSize:14, color:MUTED, lineHeight:1.7, maxWidth:320, margin:"0 auto" }}>Narudžba je automatski zaprimljena. Paket stiže za 1–2 radna dana. Hvala na povjerenju!</p>
                   <button onClick={onClose} style={{ marginTop:28, padding:"14px 36px", background:`linear-gradient(135deg, ${BLUE} 0%, ${BLUE2} 100%)`, color:"#fff", border:"none", borderRadius:14, fontSize:15, fontWeight:700, cursor:"pointer" }}>Zatvori</button>
                 </div>
               ) : (
@@ -1105,7 +1105,7 @@ function OfferSection() {
               </div>
               <h3 style={{ fontSize:28, fontWeight:900, color:NAVY, fontFamily:F, letterSpacing:"-0.03em", margin:"0 0 12px" }}>Narudžba primljena!</h3>
               <p style={{ fontSize:15, color:MUTED, fontFamily:F, lineHeight:1.7, maxWidth:380, margin:"0 auto" }}>
-                Kontaktiraćemo vas u kratkom roku radi potvrde i dogovora oko dostave. Hvala na povjerenju!
+                Narudžba je automatski zaprimljena. Paket stiže za 1–2 radna dana. Hvala na povjerenju!
               </p>
             </div>
           ) : (
@@ -1294,60 +1294,6 @@ function Footer() {
 }
 
 /* ─── FLOATING CTA ───────────────────────────────────────────────── */
-function FloatingCTA({ onOrder }: { onOrder: () => void }) {
-  const [show, setShow] = useState(false);
-  useEffect(() => {
-    const h = () => setShow(window.scrollY > 600);
-    window.addEventListener("scroll", h, { passive:true });
-    return () => window.removeEventListener("scroll", h);
-  }, []);
-
-  return (
-    <>
-      {/* Mobile bar */}
-      <div className="k-mob-bar" style={{ position:"fixed", bottom:0, left:0, right:0, zIndex:8000, background:"rgba(255,255,255,0.95)", backdropFilter:"blur(24px)", WebkitBackdropFilter:"blur(24px)", borderTop:"1px solid rgba(255,255,255,0.6)", padding:"10px 20px 22px", display:"flex", alignItems:"center", justifyContent:"space-between", boxShadow:"0 -8px 32px rgba(0,0,0,0.1)", height:78, gap:14 }}>
-        <div style={{ flexShrink:0 }}>
-          <div style={{ display:"flex", alignItems:"center", gap:5, marginBottom:1 }}>
-            <span style={{ fontSize:11, color:MUTED, textDecoration:"line-through", fontFamily:F }}>79,90</span>
-            <span style={{ background:RED, color:"#fff", fontSize:8, fontWeight:800, padding:"1px 5px", borderRadius:4, fontFamily:F }}>-38%</span>
-          </div>
-          <div style={{ fontSize:24, fontWeight:900, color:NAVY, fontFamily:F, letterSpacing:"-0.04em", lineHeight:1 }}>44,90 KM</div>
-          <div style={{ fontSize:10, color:GREEN, fontWeight:700, fontFamily:F, marginTop:2, display:"flex", alignItems:"center", gap:3 }}>
-            <Truck size={9} color={MUTED} /> Dostava 10,00 KM
-          </div>
-        </div>
-        <button onClick={onOrder}
-          style={{ flex:1, padding:"14px 16px", background:`linear-gradient(135deg, ${BLUE} 0%, ${BLUE2} 100%)`, color:"#fff", border:"none", borderRadius:16, fontSize:15, fontWeight:800, fontFamily:F, cursor:"pointer", boxShadow:`0 6px 20px rgba(37,99,235,0.4)`, display:"flex", alignItems:"center", justifyContent:"center", gap:8, maxWidth:200 }}
-          onMouseEnter={e => e.currentTarget.style.transform="scale(1.02)"}
-          onMouseLeave={e => e.currentTarget.style.transform="scale(1)"}
-        >
-          Naruči odmah <ArrowRight size={15} />
-        </button>
-      </div>
-
-      {/* Desktop corner */}
-      <AnimatePresence>
-        {show && (
-          <motion.button initial={{ opacity:0, scale:0.8, y:20 }} animate={{ opacity:1, scale:1, y:0 }} exit={{ opacity:0, scale:0.8, y:20 }} transition={{ duration:0.3, ease:EASE }}
-            onClick={onOrder} className="k-desk-fab"
-            style={{ position:"fixed", bottom:32, right:32, zIndex:8000, padding:"16px 28px", background:`linear-gradient(135deg, ${BLUE} 0%, ${BLUE2} 100%)`, color:"#fff", border:"none", borderRadius:20, fontSize:15, fontWeight:800, fontFamily:F, cursor:"pointer", boxShadow:`0 12px 48px rgba(37,99,235,0.45)`, display:"flex", alignItems:"center", gap:8 }}
-          >
-            Naruči — 44,90 KM <ArrowRight size={16} />
-          </motion.button>
-        )}
-      </AnimatePresence>
-
-      <style suppressHydrationWarning>{`
-        .k-mob-bar  { display: flex !important; }
-        .k-desk-fab { display: none !important; }
-        @media(min-width: 640px) {
-          .k-mob-bar  { display: none !important; }
-          .k-desk-fab { display: flex !important; }
-        }
-      `}</style>
-    </>
-  );
-}
 
 /* ─── BACK TO TOP ────────────────────────────────────────────────── */
 function BackToTop() {
@@ -1425,7 +1371,6 @@ export default function KameraClient() {
       </main>
 
       <Footer />
-      <FloatingCTA onOrder={scrollToOrder} />
       <BackToTop />
       <OrderModal open={modalOpen} onClose={() => setModalOpen(false)} />
     </>

@@ -944,7 +944,7 @@ export default function KomarnikClient() {
                 Narudžba primljena.
               </h2>
               <p style={{ fontSize: 16, color: TEXT_MUTED, lineHeight: 1.72, fontFamily: "var(--font-manrope),sans-serif", maxWidth: 400, margin: "0 auto" }}>
-                Kontaktiraćemo vas u najkraćem mogućem roku kako bismo potvrdili narudžbu i dogovorili dostavu.
+                Narudžba je automatski zaprimljena. Paket stiže na vašu adresu za 1–2 radna dana.
               </p>
             </div>
           ) : (

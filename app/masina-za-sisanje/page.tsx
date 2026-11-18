@@ -3,10 +3,11 @@ import ProductPageHeader from "@/components/ProductPageHeader";
 import TickerBar from "@/components/TickerBar";
 import Footer from "@/components/Footer";
 import MasinaClient from "./MasinaClient";
-import MasinaFloatingCTA from "./FloatingCTA";
 import PixelEvents from "./PixelEvents";
+import { productSeo } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  ...productSeo("masina-za-sisanje"),
   title: "Mašina za šišanje ovaca 1200W · Kompletni set | Cartly.ba",
   description: "Profesionalna mašina za šišanje ovaca 1200W. U setu: rezervni nož GRATIS, kofer za prenošenje i mazivo. Plaćanje pouzećem, dostava po cijeloj BiH.",
 };
@@ -20,7 +21,6 @@ export default function MasinaPage() {
         <MasinaClient />
       </main>
       <Footer />
-      <MasinaFloatingCTA />
       <PixelEvents />
     </>
   );

@@ -11,7 +11,6 @@ import FeatureStory from "./components/FeatureStory";
 import Reviews from "./components/Reviews";
 import FAQ from "./components/FAQ";
 import OrderSection from "./components/OrderSection";
-import FloatingCTA from "./components/FloatingCTA";
 import RecentOrderNotification from "./components/RecentOrderNotification";
 import { ORDER_TOTAL, PRODUCT_ID, PRODUCT_NAME, PRODUCT_PRICE } from "./product";
 import { trackAddToCart, trackInitiateCheckout } from "@/lib/analytics";
@@ -59,7 +58,6 @@ export default function MotornaPilaClient() {
       <FAQ />
       <OrderSection onReady={fireCheckout} />
       <Footer />
-      <FloatingCTA onOrder={goToForm} />
       <RecentOrderNotification />
     </div>
   );

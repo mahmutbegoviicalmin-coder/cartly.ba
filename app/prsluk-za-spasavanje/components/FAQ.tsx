@@ -19,7 +19,7 @@ const FAQS = [
   },
   {
     q: "Koliko traje dostava?",
-    a: "Dostava se realizuje u roku od 1 do 3 radna dana na teritoriji cijele Bosne i Hercegovine.",
+    a: "Dostava se realizuje u roku od 1 do 2 radna dana na teritoriji cijele Bosne i Hercegovine.",
   },
   {
     q: "Mogu li zamijeniti veličinu ako ne odgovara?",

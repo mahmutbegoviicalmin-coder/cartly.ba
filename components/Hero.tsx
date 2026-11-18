@@ -55,7 +55,7 @@ const TRUST = [
 const BADGE_DETAILS: Record<string, string> = {
   "EN ISO 20345 S3": "Europski standard zaštite · Čelična kapica do 200J · Zaštita od proboja",
   "BOA Fit System™": "Precizno podešavanje u 3 sekunde · Patent sistema zatvaranja · Bez vezica",
-  "Na stanju": "Dostupno odmah · Isporuka 1-3 radna dana · Plaćanje pri preuzimanju",
+  "Na stanju": "Dostupno odmah · Isporuka 1–2 radna dana · Plaćanje pri preuzimanju",
 };
 
 export default function Hero({ onOrder }: { onOrder?: () => void }) {
