@@ -9,7 +9,7 @@ type Ship = {
   ime: string | null; telefon: string | null; grad: string | null;
   sky_sifra: string | null; cod_amount: number; state: string; state_label: string | null;
   state_note: string | null; state_at: string | null; tracking_url: string | null;
-  cod_paid_at: string | null; cod_paid_amount: number | null; postarina: number | null; created_at: string;
+  cod_paid_at: string | null; cod_paid_amount: number | null; cod_presjek_at: string | null; postarina: number | null; created_at: string;
 };
 
 const RETURNED = new Set(["vracena", "povrat_dostavljen"]);
@@ -39,8 +39,10 @@ export async function GET() {
   const ships = (shipsRes.data ?? []) as Ship[];
   const sum = (xs: Ship[], f: (s: Ship) => number) => Math.round(xs.reduce((a, s) => a + f(s), 0) * 100) / 100;
 
-  const onField = ships.filter((s) => !CLOSED.has(s.state));
-  const deliveredUnpaid = ships.filter((s) => s.state === "dostavljena" && !s.cod_paid_at && Number(s.cod_amount) > 0);
+  // cod_presjek_at = Skytec already booked the COD, so the parcel was delivered even if our status lags.
+  const collected = (s: Ship) => s.state === "dostavljena" || !!s.cod_presjek_at;
+  const onField = ships.filter((s) => !CLOSED.has(s.state) && !collected(s));
+  const deliveredUnpaid = ships.filter((s) => collected(s) && !RETURNED.has(s.state) && !s.cod_paid_at && Number(s.cod_amount) > 0);
   const overdue = deliveredUnpaid.filter((s) => s.state_at && Date.now() - new Date(s.state_at).getTime() > 7 * DAY);
   const finished = ships.filter((s) => s.state === "dostavljena" || RETURNED.has(s.state));
   const returned = finished.filter((s) => RETURNED.has(s.state));

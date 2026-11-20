@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronDown, Download, Loader2, Phone, AlertCircle, CheckCircle2, RefreshCw } from "lucide-react";
-import { km, paket, plural, prettyDay, productOf, downloadBlob } from "./sk-format";
+import { km, paket, plural, prettyDay, productOf, downloadBlob, syncSkytec, lastSyncAt, agoText } from "./sk-format";
 import "./skytec.css";
 
 type Stage = "na_terenu" | "naplaceno" | "u_isplati" | "uplaceno" | "izgubljeno";
@@ -29,11 +29,11 @@ type CodData = {
 };
 
 const STAGES: { key: Stage; label: string; hint: string; tone: string }[] = [
-  { key: "na_terenu", label: "U dostavi", hint: "Paket je kod kurira, kupac još nije platio", tone: "blue" },
-  { key: "naplaceno", label: "Naplaćeno od kupca", hint: "Kupac je platio kuriru, Skytec još nije obračunao", tone: "orange" },
-  { key: "u_isplati", label: "Na putu do tebe", hint: "Skytec je obračunao, isplata je u toku", tone: "purple" },
-  { key: "uplaceno", label: "Uplaćeno", hint: "Novac je stigao tebi", tone: "green" },
-  { key: "izgubljeno", label: "Izgubljeno", hint: "Kupac nije preuzeo paket", tone: "red" },
+  { key: "na_terenu", label: "Još u dostavi", hint: "Paket je kod kurira, kupac još nije platio", tone: "blue" },
+  { key: "naplaceno", label: "Dostavljeno, Skytec još nije obračunao", hint: "Kupac je platio kuriru, uplata još nije pokrenuta", tone: "orange" },
+  { key: "u_isplati", label: "Dostavljeno, uplata u toku", hint: "Skytec je obračunao, novac stiže na račun za 1–2 dana", tone: "purple" },
+  { key: "uplaceno", label: "Uplaćeno na tvoj račun", hint: "Novac je stigao", tone: "green" },
+  { key: "izgubljeno", label: "Vraćeno", hint: "Kupac nije preuzeo paket, nema novca", tone: "red" },
 ];
 
 const pct = (part: number, total: number) => (total > 0 ? (part / total) * 100 : 0);
@@ -55,6 +55,8 @@ export default function CodPanel() {
   const [allPayouts, setAllPayouts] = useState(false);
   const [busy, setBusy] = useState(false);
   const [hover, setHover] = useState<number | null>(null);
+  const [syncedAt, setSyncedAt] = useState<number | null>(null);
+  const [, tick] = useState(0);
 
   const load = useCallback(async (d: number) => {
     setErr(null);
@@ -66,13 +68,18 @@ export default function CodPanel() {
 
   useEffect(() => { setData(null); load(days); }, [days, load]);
 
-  const refresh = async () => {
+  // Show what we have right away, then pull fresh data from Skytec and reload.
+  const refresh = useCallback(async (force: boolean) => {
     setBusy(true);
     try {
-      await fetch("/api/admin/skytec/sync", { method: "POST" });
-      await load(days);
+      const ran = await syncSkytec(force);
+      setSyncedAt(lastSyncAt());
+      if (ran) await load(days);
     } finally { setBusy(false); }
-  };
+  }, [days, load]);
+
+  useEffect(() => { refresh(false); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { const t = setInterval(() => tick((n) => n + 1), 30_000); return () => clearInterval(t); }, []);
 
   const exportCsv = () => {
     if (!data) return;
@@ -102,7 +109,7 @@ export default function CodPanel() {
         <header className="skx-section-head">
           <div>
             <h2>Gdje je novac</h2>
-            <p>Svaka marka od pouzeća, od kurira do tvog računa.</p>
+            <p>Svaka marka od pouzeća, od kurira do tvog računa · {busy ? "osvježavam sa Skytecom…" : agoText(syncedAt)}</p>
           </div>
           <div className="cod-tools">
             <div className="cod-seg" role="tablist" aria-label="Period">
@@ -110,7 +117,7 @@ export default function CodPanel() {
                 <button key={d} className={days === d ? "on" : ""} onClick={() => setDays(d)}>{d} dana</button>
               ))}
             </div>
-            <button className="skx-icon" onClick={refresh} disabled={busy} aria-label="Osvježi iz Skyteca">
+            <button className="skx-icon" onClick={() => refresh(true)} disabled={busy} aria-label="Osvježi iz Skyteca">
               {busy ? <Loader2 size={16} className="ad-spin" /> : <RefreshCw size={16} />}
             </button>
             <button className="skx-icon" onClick={exportCsv} disabled={!data} aria-label="Preuzmi CSV">
@@ -127,17 +134,17 @@ export default function CodPanel() {
           <div className="skx-group">
             <div className="cod-hero">
               <div className="cod-hero-main">
-                <span>Duguju ti</span>
+                <span>Skytec ti duguje</span>
                 <b>{km(owed)}</b>
                 <small>
                   {owed > 0
-                    ? `${paket(data.pipeline.naplaceno.count + data.pipeline.u_isplati.count)} naplaćeno, novac još nije stigao`
+                    ? `${paket(data.pipeline.naplaceno.count + data.pipeline.u_isplati.count)} dostavljeno i naplaćeno, novac još nije na računu`
                     : "Sav naplaćeni novac je uplaćen"}
                 </small>
               </div>
               <div className="cod-hero-side">
-                <div><span>Uplaćeno</span><b>{km(data.pipeline.uplaceno.amount)}</b></div>
-                <div><span>U dostavi</span><b>{km(data.pipeline.na_terenu.amount)}</b></div>
+                <div><span>Uplaćeno ({data.days} dana)</span><b>{km(data.pipeline.uplaceno.amount)}</b></div>
+                <div><span>Još u dostavi</span><b>{km(data.pipeline.na_terenu.amount)}</b></div>
               </div>
             </div>
 

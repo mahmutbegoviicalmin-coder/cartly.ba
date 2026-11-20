@@ -6,7 +6,7 @@ import {
   RefreshCw, Link2, AlertCircle, X, Package,
 } from "lucide-react";
 import {
-  productOf, km, paket, narudzba, when, todayStr, shiftDay, prettyDay, downloadBlob,
+  productOf, km, paket, narudzba, when, todayStr, shiftDay, prettyDay, downloadBlob, syncSkytec, lastSyncAt, agoText,
 } from "./sk-format";
 import "./skytec.css";
 
@@ -153,6 +153,8 @@ export default function SkytecPanel() {
   const [filter, setFilter] = useState("all");
   const [showAll, setShowAll] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [syncedAt, setSyncedAt] = useState<number | null>(null);
+  const [autoSyncing, setAutoSyncing] = useState(false);
 
   const flash = (m: string) => { setToast(m); setTimeout(() => setToast(null), 6000); };
 
@@ -178,7 +180,16 @@ export default function SkytecPanel() {
   }, []);
 
   useEffect(() => { setResult(null); loadDay(date); }, [date, loadDay]);
-  useEffect(() => { loadOverview(); }, [loadOverview]);
+  useEffect(() => {
+    loadOverview();
+    // Pull fresh statuses + payouts from Skytec on open (throttled to every 5 min), then reload.
+    setSyncedAt(lastSyncAt());
+    setAutoSyncing(true);
+    syncSkytec().then(async (ran) => {
+      setSyncedAt(lastSyncAt());
+      if (ran) await loadOverview();
+    }).finally(() => setAutoSyncing(false));
+  }, [loadOverview]);
 
   const unsent = useMemo(() => (day ?? []).filter((o) => !o.sent), [day]);
   const sentToday = useMemo(() => (day ?? []).filter((o) => o.sent), [day]);
@@ -233,6 +244,8 @@ export default function SkytecPanel() {
       const j = await r.json();
       if (!r.ok) flash(j.error ?? "Greška.");
       else {
+        try { localStorage.setItem("skx-last-sync", String(Date.now())); } catch {}
+        setSyncedAt(lastSyncAt());
         const n = j.imported?.imported ?? 0;
         flash(n ? `Povučeno ${paket(n)} iz Skyteca.` : "Sve je ažurno.");
       }
@@ -417,29 +430,29 @@ export default function SkytecPanel() {
 
       {/* ── Money ────────────────────────────────────────────── */}
       <section className="skx-section">
-        <header className="skx-section-head"><div><h2>Otkupnine</h2><p>Zadnjih 60 dana</p></div></header>
+        <header className="skx-section-head"><div><h2>Novac od pouzeća</h2><p>Paketi poslani u zadnjih 60 dana · {busy === "sync" || autoSyncing ? "osvježavam sa Skytecom…" : agoText(syncedAt)}</p></div></header>
         <div className="skx-group skx-metrics">
           <div className="skx-metric">
-            <span>Kod kupaca</span>
+            <span>Još u dostavi</span>
             <b>{k ? km(k.onFieldAmount) : "—"}</b>
-            <small>{k ? `${paket(k.onFieldCount)} u putu` : ""}</small>
+            <small>{k ? `${paket(k.onFieldCount)} kod kurira, nije naplaćeno` : ""}</small>
           </div>
           <div className="skx-metric">
-            <span>Kod Skyteca</span>
+            <span>Skytec ti duguje</span>
             <b>{k ? km(k.deliveredUnpaidAmount) : "—"}</b>
             <small className={k?.overdueCount ? "warn" : ""}>
-              {k ? (k.overdueCount ? `${paket(k.overdueCount)} kasni više od 7 dana` : "dostavljeno, čeka uplatu") : ""}
+              {k ? `${paket(k.deliveredUnpaidCount)} dostavljeno, čeka uplatu${k.overdueCount ? ` · ${k.overdueCount} kasni 7+ dana` : ""}` : ""}
             </small>
           </div>
           <div className="skx-metric">
-            <span>Uplaćeno tebi</span>
+            <span>Uplaćeno na račun</span>
             <b>{k ? km(k.paid30) : "—"}</b>
             <small>zadnjih 30 dana</small>
           </div>
           <div className="skx-metric">
-            <span>Odbijeno</span>
+            <span>Vraćeno</span>
             <b>{k?.returnRate != null ? `${(k.returnRate * 100).toFixed(1).replace(".", ",")} %` : "—"}</b>
-            <small>{k ? `${k.returnedCount} od ${k.finishedCount} paketa` : ""}</small>
+            <small>{k ? `${k.returnedCount} od ${k.finishedCount} paketa nije preuzeto` : ""}</small>
           </div>
         </div>
       </section>
@@ -520,7 +533,7 @@ export default function SkytecPanel() {
           <div className="skx-row static">
             <span className="skx-row-main">
               <span className="skx-row-title">Osvježi iz Skyteca</span>
-              <span className="skx-row-sub">Radi se samo svako jutro. Povuče i pakete poslane preko web klijenta.</span>
+              <span className="skx-row-sub">Radi se sam kad otvoriš ovaj tab i svako jutro. Povuče i pakete poslane preko web klijenta.</span>
             </span>
             <button className="skx-btn sm" onClick={sync} disabled={busy !== null}>
               {busy === "sync" ? <Loader2 size={14} className="ad-spin" /> : <RefreshCw size={14} />} Osvježi

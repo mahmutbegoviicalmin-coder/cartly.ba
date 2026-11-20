@@ -68,9 +68,11 @@ export async function GET(req: NextRequest) {
     const stageOf = (s: Ship): CodStage => {
       const c = s.sky_sifra ? codBySifra.get(s.sky_sifra) : undefined;
       if (s.cod_paid_at || c?.status === 10) return "uplaceno";
+      // A COD remittance from Skytec means the customer paid, even if our
+      // copy of the parcel status hasn't caught up yet.
+      if (c || s.cod_presjek_at) return "u_isplati";
       if (RETURNED.has(s.state)) return "izgubljeno";
       if (OPEN.has(s.state)) return "na_terenu";
-      if (c || s.cod_presjek_at) return "u_isplati";
       return "naplaceno";
     };
 

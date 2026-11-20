@@ -60,3 +60,37 @@ export async function downloadBlob(res: Response | Blob, name: string) {
   a.remove();
   URL.revokeObjectURL(url);
 }
+
+// ── Auto-sync with Skytec ────────────────────────────────────────────────────
+// Our tables only mirror Skytec, so before showing money numbers we pull fresh
+// statuses + COD remittances. Throttled so switching tabs doesn't hammer the API.
+const SYNC_KEY = "skx-last-sync";
+const SYNC_EVERY = 5 * 60_000;
+let inflight: Promise<boolean> | null = null;
+
+export function lastSyncAt(): number | null {
+  try { const v = Number(localStorage.getItem(SYNC_KEY)); return v > 0 ? v : null; } catch { return null; }
+}
+
+/** Sync if the last one is older than 5 min (or `force`). Resolves true when a sync ran OK. */
+export function syncSkytec(force = false): Promise<boolean> {
+  const last = lastSyncAt();
+  if (!force && last && Date.now() - last < SYNC_EVERY) return Promise.resolve(false);
+  if (inflight) return inflight;
+  inflight = fetch("/api/admin/skytec/sync", { method: "POST" })
+    .then((r) => {
+      if (r.ok) { try { localStorage.setItem(SYNC_KEY, String(Date.now())); } catch {} }
+      return r.ok;
+    })
+    .catch(() => false)
+    .finally(() => { inflight = null; });
+  return inflight;
+}
+
+export function agoText(ts: number | null) {
+  if (!ts) return "još nije osvježeno";
+  const m = Math.floor((Date.now() - ts) / 60_000);
+  if (m < 1) return "osvježeno upravo";
+  if (m < 60) return `osvježeno prije ${m} min`;
+  return `osvježeno ${when(new Date(ts).toISOString())}`;
+}
