@@ -20,3 +20,6 @@ export const GIFT_COST = 2;
 export const DEFAULT_POSTAGE = 10.5;
 
 export const ADNAN_PREFIXES = Object.keys(ADNAN_PRODUCTS);
+
+/** Settlement starts when the Skytec API went live; older parcels are ignored here (kept in the DB). */
+export const ADNAN_START = "2026-11-18";

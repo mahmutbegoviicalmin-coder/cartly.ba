@@ -10,7 +10,8 @@ type Totals = {
   gifts: number; giftCost: number; postage: number; returnLoss: number; profit: number;
 };
 type Data = {
-  from: string | null;
+  from: string;
+  start: string;
   firstDate: string | null;
   total: Totals;
   owedAdnan: number;
@@ -123,7 +124,7 @@ export default function AdnanPanel() {
 
   const t = data?.total;
   const parcels = data ? (showAll ? data.parcels : data.parcels.slice(0, 25)) : [];
-  const periodText = !data ? "" : from ? `od ${dmy(from)}` : data.firstDate ? `od ${dmy(data.firstDate)} (sve)` : "sve";
+  const periodText = !data ? "" : data.from === data.start ? `od ${dmy(data.start)} (od kad radi Skytec API)` : `od ${dmy(data.from)}`;
 
   return (
     <div className="skx">
@@ -151,7 +152,7 @@ export default function AdnanPanel() {
         {period === "custom" && (
           <label className="adn-from">
             Obračun od
-            <input type="date" value={custom} max={todayStr()} onChange={(e) => e.target.value && chooseDate(e.target.value)} />
+            <input type="date" value={custom} min={data?.start} max={todayStr()} onChange={(e) => e.target.value && chooseDate(e.target.value)} />
           </label>
         )}
 

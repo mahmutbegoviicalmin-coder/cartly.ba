@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { isAdmin } from "@/lib/admin-auth";
-import { ADNAN_PRODUCTS, ADNAN_PREFIXES, DEFAULT_POSTAGE, GIFT_COST, GIFT_PRICE } from "@/lib/adnan";
+import { ADNAN_PRODUCTS, ADNAN_PREFIXES, ADNAN_START, DEFAULT_POSTAGE, GIFT_COST, GIFT_PRICE } from "@/lib/adnan";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +25,9 @@ const missingTable = (e: { message?: string; code?: string } | null) =>
  */
 export async function GET(req: NextRequest) {
   if (!isAdmin()) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const from = req.nextUrl.searchParams.get("from");
+  const asked = req.nextUrl.searchParams.get("from");
+  // Never earlier than the settlement start.
+  const from = asked && /^\d{4}-\d{2}-\d{2}$/.test(asked) && asked > ADNAN_START ? asked : ADNAN_START;
   const sb = getSupabaseAdmin();
 
   const ships: Ship[] = [];
@@ -34,7 +36,7 @@ export async function GET(req: NextRequest) {
       .select("order_number, product_prefix, ime, grad, cod_amount, postarina, state, state_at, created_at, cod_paid_at, cod_presjek_at")
       .in("product_prefix", ADNAN_PREFIXES).neq("state", "otkazana")
       .order("created_at", { ascending: false }).range(page * 1000, page * 1000 + 999);
-    if (from && /^\d{4}-\d{2}-\d{2}$/.test(from)) q = q.gte("created_at", `${from}T00:00:00+01:00`);
+    q = q.gte("created_at", `${from}T00:00:00+01:00`);
     const { data, error } = await q;
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     ships.push(...((data ?? []) as Ship[]));
@@ -110,13 +112,14 @@ export async function GET(req: NextRequest) {
   const { data: pay, error: payErr } = await sb.from("adnan_payments")
     .select("id, paid_on, amount, note, created_at").order("paid_on", { ascending: false }).limit(500);
   if (payErr) needsMigration = missingTable(payErr);
-  else payments = ((pay ?? []) as Payment[]).filter((x) => !from || x.paid_on >= from);
+  else payments = ((pay ?? []) as Payment[]).filter((x) => x.paid_on >= from);
   const paid = r2(payments.reduce((a, x) => a + Number(x.amount), 0));
 
   parcels.sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
 
   return NextResponse.json({
     from,
+    start: ADNAN_START,
     firstDate: ships.length ? ships[ships.length - 1].created_at.slice(0, 10) : null,
     total: round(total),
     owedAdnan: r2(total.adnan - paid),
