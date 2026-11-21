@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isAdmin, isSupplier } from "@/lib/admin-auth";
 import { createClient } from "@supabase/supabase-js";
 import { stripIp } from "@/lib/order-ip";
 
@@ -7,11 +8,8 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-const SUPPLIER_PASSWORD = process.env.SUPPLIER_PASSWORD || "adnan2024";
-
 export async function GET(req: NextRequest) {
-  const auth = req.headers.get("x-supplier-password");
-  if (auth !== SUPPLIER_PASSWORD) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!isSupplier(req) && !isAdmin()) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
   const date = searchParams.get("date") ?? new Date().toISOString().slice(0, 10);

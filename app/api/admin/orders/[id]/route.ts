@@ -1,11 +1,8 @@
-import { cookies } from "next/headers";
+import { isAdmin } from "@/lib/admin-auth";
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 
-function isAuthenticated() {
-  const cookieStore = cookies();
-  return cookieStore.get("admin_session")?.value === "authenticated";
-}
+const isAuthenticated = isAdmin;
 
 /** Resolve which table to use based on ID prefix. */
 function resolveTable(id: string): { table: "orders" | "cetka_orders" | "usmjerivac_orders" | "komarnik_orders" | "lezaljka_orders"; realId: string } {

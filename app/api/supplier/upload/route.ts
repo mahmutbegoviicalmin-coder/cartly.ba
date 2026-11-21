@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isAdmin, isSupplier } from "@/lib/admin-auth";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -6,11 +7,8 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-const SUPPLIER_PASSWORD = process.env.SUPPLIER_PASSWORD || "adnan2024";
-
 export async function POST(req: NextRequest) {
-  const auth = req.headers.get("x-supplier-password");
-  if (auth !== SUPPLIER_PASSWORD) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!isSupplier(req) && !isAdmin()) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const formData = await req.formData();
   const file = formData.get("file") as File | null;

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { checkAdminPassword, isAdmin, isSupplier } from "@/lib/admin-auth";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -6,12 +7,8 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-const SUPPLIER_PASSWORD = process.env.SUPPLIER_PASSWORD || "adnan2024";
-
 function checkAuth(req: NextRequest) {
-  const auth = req.headers.get("x-supplier-password");
-  const adminAuth = req.headers.get("x-admin-password");
-  return auth === SUPPLIER_PASSWORD || adminAuth === process.env.ADMIN_PASSWORD;
+  return isSupplier(req) || isAdmin() || checkAdminPassword(req.headers.get("x-admin-password"));
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {

@@ -1,3 +1,4 @@
+import { isAdmin, isSupplier } from "@/lib/admin-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { stripIp } from "@/lib/order-ip";
@@ -279,6 +280,10 @@ function sadrzaj(orderNumber: string, velicine: Velicina[]): string {
 }
 
 export async function GET(request: NextRequest) {
+  if (!isAdmin() && !isSupplier(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     // ── Date param ────────────────────────────────────────────────────────────
     const { searchParams } = new URL(request.url);

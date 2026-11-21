@@ -249,7 +249,7 @@ export default function SupplierClient() {
 
   async function exportPosta() {
     setExpLoading(true);
-    const res = await fetch(`/api/export/posta?date=${expDate}`);
+    const res = await fetch(`/api/export/posta?date=${expDate}`, { headers: { "x-supplier-password": password } });
     if (res.ok) {
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);

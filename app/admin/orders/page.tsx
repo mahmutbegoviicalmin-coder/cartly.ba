@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { isAdmin } from "@/lib/admin-auth";
 import { redirect } from "next/navigation";
 import DashboardClient from "../dashboard/DashboardClient";
 import AdminErrorBoundary from "../AdminErrorBoundary";
@@ -6,9 +6,7 @@ import AdminErrorBoundary from "../AdminErrorBoundary";
 export const dynamic = "force-dynamic";
 
 export default function AdminOrdersPage() {
-  const session = cookies().get("admin_session");
-
-  if (session?.value !== "authenticated") {
+  if (!isAdmin()) {
     redirect("/admin");
   }
 

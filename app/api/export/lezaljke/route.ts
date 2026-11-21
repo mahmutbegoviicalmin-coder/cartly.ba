@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { isAdmin, isSupplier } from "@/lib/admin-auth";
+import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { stripIp } from "@/lib/order-ip";
 import * as XLSX from "xlsx";
@@ -50,7 +51,11 @@ const HEADERS = [
   "Zamjenska pošiljka (da/ne)", "Povrat ambalaže (da/ne)", "", "",
 ];
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  if (!isAdmin() && !isSupplier(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const { data, error } = await getSupabaseAdmin()

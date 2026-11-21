@@ -1,3 +1,4 @@
+import { isAdmin, isSupplier } from "@/lib/admin-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { stripIp } from "@/lib/order-ip";
@@ -110,6 +111,10 @@ function totalQty(velicine: Velicina[]): number {
 
 // ── Route ──────────────────────────────────────────────────────────────────────
 export async function GET(request: NextRequest) {
+  if (!isAdmin() && !isSupplier(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const dateParam = searchParams.get("date") ?? new Date().toISOString().slice(0, 10);
