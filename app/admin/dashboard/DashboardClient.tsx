@@ -46,6 +46,7 @@ import { hasGift } from "@/lib/gift";
 const OverviewChart = dynamic(() => import("./OverviewChart"), { ssr: false });
 const SkytecPanel = dynamic(() => import("./SkytecPanel"), { ssr: false });
 const CodPanel = dynamic(() => import("./CodPanel"), { ssr: false });
+const AdnanPanel = dynamic(() => import("./AdnanPanel"), { ssr: false });
 
 type IconCmp = LucideIcon;
 
@@ -534,119 +535,6 @@ function OrderTable({
   );
 }
 
-function MarginCalc() {
-  const saved =
-    typeof window !== "undefined"
-      ? {
-          sell: parseFloat(localStorage.getItem("calc_sell") ?? "99.9"),
-          cost: parseFloat(localStorage.getItem("calc_cost") ?? "0"),
-          qty: parseInt(localStorage.getItem("calc_qty") ?? "1", 10),
-        }
-      : { sell: 99.9, cost: 0, qty: 1 };
-
-  const [sell, setSell] = useState(saved.sell);
-  const [cost, setCost] = useState(saved.cost);
-  const [qty, setQty] = useState(saved.qty);
-
-  const margin = sell - cost;
-  const marginPct = sell > 0 ? (margin / sell) * 100 : 0;
-  const mColor = margin > 0 ? "#1A7F3C" : margin < 0 ? "#E0262D" : "#86868b";
-  const costPct = sell > 0 ? Math.min(100, (cost / sell) * 100) : 0;
-  const totalNet = margin * qty;
-
-  return (
-    <div className="ad-calc">
-      <div className="ad-calc-card">
-        <div className="ad-calc-grid">
-          <div>
-            <p>Prodajna cijena</p>
-            <div className="ad-field">
-              <input
-                type="number"
-                value={sell}
-                min={0}
-                step={0.1}
-                onChange={(e) => {
-                  const v = parseFloat(e.target.value) || 0;
-                  setSell(v);
-                  localStorage.setItem("calc_sell", String(v));
-                }}
-                style={{ color: "var(--brand)" }}
-              />
-              <i>KM</i>
-            </div>
-          </div>
-          <div>
-            <p>Nabavna cijena</p>
-            <div className="ad-field">
-              <input
-                type="number"
-                value={cost}
-                min={0}
-                step={0.1}
-                onChange={(e) => {
-                  const v = parseFloat(e.target.value) || 0;
-                  setCost(v);
-                  localStorage.setItem("calc_cost", String(v));
-                }}
-              />
-              <i>KM</i>
-            </div>
-          </div>
-          <div>
-            <p>Prodano komada</p>
-            <div className="ad-field">
-              <input
-                type="number"
-                value={qty}
-                min={0}
-                step={1}
-                onChange={(e) => {
-                  const v = Math.max(0, parseInt(e.target.value) || 0);
-                  setQty(v);
-                  localStorage.setItem("calc_qty", String(v));
-                }}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="ad-calc-result">
-          <div className="ad-calc-result-row">
-            <div>
-              <p style={{ margin: "0 0 6px", fontSize: 12, fontWeight: 600, color: "#86868b" }}>Marža po komadu</p>
-              <strong style={{ color: mColor }}>{fmt(margin)}</strong>
-            </div>
-            <p style={{ color: mColor }}>{marginPct.toFixed(1)}%</p>
-          </div>
-          <div style={{ height: 8, borderRadius: 99, background: "#e5e5ea", overflow: "hidden" }}>
-            <div
-              style={{
-                height: "100%",
-                borderRadius: 99,
-                width: "100%",
-                background:
-                  margin >= 0
-                    ? `linear-gradient(90deg, #d1d1d6 ${costPct}%, #34c759 ${costPct}%)`
-                    : "#ff3b30",
-              }}
-            />
-          </div>
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-            <span style={{ fontSize: 12, color: "#86868b" }}>Trošak {costPct.toFixed(0)}%</span>
-            <span style={{ fontSize: 12, color: "#86868b" }}>Zarada {(100 - costPct).toFixed(0)}%</span>
-          </div>
-          {qty > 0 && (
-            <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid rgba(60,60,67,0.12)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: 13, color: "#6e6e73", fontWeight: 500 }}>Ukupna zarada · {qty} kom</span>
-              <span style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.04em", color: mColor }}>{fmt(totalNet)}</span>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function DashboardClient() {
   const router = useRouter();
@@ -1235,7 +1123,7 @@ export default function DashboardClient() {
 
           {activeTab === "otkupnine" && <CodPanel />}
 
-          {activeTab === "margins" && <MarginCalc />}
+          {activeTab === "margins" && <AdnanPanel />}
         </main>
       </div>
 

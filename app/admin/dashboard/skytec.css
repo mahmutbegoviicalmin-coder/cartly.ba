@@ -375,3 +375,32 @@
   .cod-hero-main b { font-size: 30px; }
   .cod-hero-side { width: 100%; justify-content: space-between; }
 }
+
+/* ── Obračun s Adnanom ───────────────────────────────────── */
+.adn-head { flex-wrap: wrap; align-items: flex-end; }
+.adn-from {
+  display: flex; align-items: center; gap: 10px; padding: 0 4px;
+  font-size: 13px; color: var(--skx-label-2);
+}
+.adn-from input, .adn-pay input {
+  height: 36px; padding: 0 10px; border: 0.5px solid var(--skx-sep); border-radius: 9px;
+  background: #fff; color: var(--skx-label); font-size: 14px; min-width: 0;
+}
+.skx-group > .adn-calc::before { display: none; }
+.adn-calc { display: flex; flex-direction: column; padding: 4px 16px 14px; }
+.adn-calc div {
+  display: flex; justify-content: space-between; gap: 12px; padding: 7px 0;
+  font-size: 14px; color: var(--skx-label-2);
+}
+.adn-calc b { font-weight: 600; color: var(--skx-label); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.adn-calc .sum { margin-top: 4px; padding-top: 10px; border-top: 0.5px solid var(--skx-sep); font-size: 15px; color: var(--skx-label); font-weight: 600; }
+.adn-calc .sum b { font-size: 17px; }
+.adn-pay { display: grid; grid-template-columns: 1fr 1fr 2fr auto; gap: 8px; padding: 12px 16px; align-items: center; }
+.adn-pay .skx-btn { height: 36px; }
+.adn-err { padding: 0 16px 12px; font-size: 13px; color: var(--skx-red); }
+.adn-gift { display: inline-flex; align-items: center; gap: 3px; margin-left: 8px; vertical-align: 1px; }
+@media (max-width: 640px) {
+  .adn-pay { grid-template-columns: 1fr 1fr; }
+  .adn-pay input:nth-of-type(3) { grid-column: 1 / -1; }
+  .adn-pay .skx-btn { grid-column: 1 / -1; }
+}
