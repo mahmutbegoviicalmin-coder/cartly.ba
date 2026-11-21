@@ -138,6 +138,7 @@ const fadeUp = {
 function Countdown({ dark }: { dark?: boolean }) {
   const t = useCountdown();
   const cells: [string, string][] = [
+    [t?.d ?? "--", "dana"],
     [t?.h ?? "--", "sati"],
     [t?.m ?? "--", "min"],
     [t?.s ?? "--", "sek"],
@@ -147,14 +148,14 @@ function Countdown({ dark }: { dark?: boolean }) {
       {cells.map(([v, l], i) => (
         <div key={l} style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <div style={{
-            minWidth: 52, padding: "8px 6px 6px", borderRadius: 12, textAlign: "center",
+            minWidth: 44, padding: "8px 5px 6px", borderRadius: 12, textAlign: "center",
             background: dark ? "rgba(255,255,255,0.1)" : WHITE,
             border: dark ? "1px solid rgba(255,255,255,0.12)" : `1px solid ${LINE}`,
           }}>
             <div style={{ fontSize: 22, fontWeight: 600, letterSpacing: "-0.02em", color: dark ? WHITE : INK, fontVariantNumeric: "tabular-nums", lineHeight: 1 }}>{v}</div>
             <div style={{ fontSize: 10, fontWeight: 500, color: dark ? "rgba(255,255,255,0.55)" : SOFT, marginTop: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>{l}</div>
           </div>
-          {i < 2 && <span style={{ fontSize: 18, fontWeight: 600, color: dark ? "rgba(255,255,255,0.4)" : SOFT }}>:</span>}
+          {i < cells.length - 1 && <span style={{ fontSize: 18, fontWeight: 600, color: dark ? "rgba(255,255,255,0.4)" : SOFT }}>:</span>}
         </div>
       ))}
     </div>
@@ -165,6 +166,7 @@ function InlineTimer() {
   const t = useCountdown();
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontVariantNumeric: "tabular-nums" }}>
+      {t && <span style={{ fontWeight: 700, color: INK, marginRight: 2 }}>{t.d} {t.d === "1" ? "dan" : "dana"}</span>}
       {[t?.h ?? "--", t?.m ?? "--", t?.s ?? "--"].map((v, i) => (
         <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
           <span style={{ minWidth: 36, padding: "6px 0", textAlign: "center", borderRadius: 10, background: INK, color: WHITE, fontSize: 16, fontWeight: 600 }}>{v}</span>
@@ -293,7 +295,7 @@ export default function MakitaClient() {
 
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, flexWrap: "wrap" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 600, color: INK }}>
-                <Clock size={16} color={SALE} /> Akcijska cijena ističe za
+                <Clock size={16} color={SALE} /> Black November cijena ističe za
               </div>
               <Countdown />
             </div>
@@ -384,7 +386,7 @@ export default function MakitaClient() {
 
             <div className="mk-order-timer">
               <span style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 600 }}>
-                <Clock size={16} color={SALE} /> Akcija ističe za
+                <Clock size={16} color={SALE} /> Black November ističe za
               </span>
               <InlineTimer />
             </div>
