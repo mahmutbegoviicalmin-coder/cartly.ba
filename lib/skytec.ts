@@ -408,23 +408,26 @@ export async function syncCodDay(sb: Sb, datum: string): Promise<{ count: number
       raw: c,
     });
     if (!c.sifraIzvornePosiljke) continue;
-    const patch = c.status === 10
-      ? {
-          cod_paid_at: parseSkyDate(c.datumDostave),
-          cod_presjek_at: parseSkyDate(c.datumPresjeka),
-          cod_paid_amount: c.iznosOtkupnine ?? null,
-        }
-      : { cod_presjek_at: parseSkyDate(c.datumPresjeka) };
+    const now = new Date().toISOString();
     const { data } = await sb.from("skytec_shipments")
-      .update({ ...patch, updated_at: new Date().toISOString() })
+      .update({ cod_presjek_at: parseSkyDate(c.datumPresjeka), updated_at: now })
       .eq("sky_sifra", c.sifraIzvornePosiljke).select("id");
     if (data && data.length > 0) matched++;
+    // Picked up: fill the pickup date only if empty, so a date marked by hand in
+    // admin ("Preuzeo sam") stays on the day the cash was actually counted.
+    if (c.status === 10) {
+      await sb.from("skytec_shipments")
+        .update({ cod_paid_at: parseSkyDate(c.datumDostave) ?? now, cod_paid_amount: c.iznosOtkupnine ?? null, updated_at: now })
+        .eq("sky_sifra", c.sifraIzvornePosiljke).is("cod_paid_at", null);
+    }
   }
   return { count: byCode.size, matched };
 }
 
 /** Poll /shipment/status for open shipments (fallback when a webhook was missed). */
-export async function pollOpenShipments(sb: Sb, limit = 120): Promise<{ checked: number; changed: number; errors: number }> {
+export async function pollOpenShipments(
+  sb: Sb, limit = 120, deadline = Date.now() + 40_000,
+): Promise<{ checked: number; changed: number; errors: number; skipped: number }> {
   const since = new Date(Date.now() - 45 * 86400_000).toISOString();
   const { data } = await sb.from("skytec_shipments")
     .select("order_number, sky_sifra, state")
@@ -438,7 +441,9 @@ export async function pollOpenShipments(sb: Sb, limit = 120): Promise<{ checked:
   let changed = 0, errors = 0;
   const queue = [...rows];
   const worker = async () => {
-    for (let r = queue.shift(); r; r = queue.shift()) {
+    // Stop starting new calls near the function's time limit; the rest are
+    // picked up next run (least recently checked go first).
+    for (let r = queue.shift(); r && Date.now() < deadline; r = queue.shift()) {
       try {
         const s = await getStatus(r.sky_sifra);
         const state = stateFromInternal(s.status);
@@ -457,7 +462,7 @@ export async function pollOpenShipments(sb: Sb, limit = 120): Promise<{ checked:
     }
   };
   await Promise.all(Array.from({ length: 5 }, worker));
-  return { checked: rows.length, changed, errors };
+  return { checked: rows.length - queue.length, changed, errors, skipped: queue.length };
 }
 
 /**
@@ -466,18 +471,23 @@ export async function pollOpenShipments(sb: Sb, limit = 120): Promise<{ checked:
  * days are synced, so a late status change would otherwise be missed.
  * Status 10 = delivered to us = cash picked up at the depot.
  */
-export async function pollCodPickups(sb: Sb, limit = 150): Promise<{ checked: number; picked: number; errors: number }> {
+export async function pollCodPickups(
+  sb: Sb, limit = 150, deadline = Date.now() + 40_000,
+): Promise<{ checked: number; picked: number; errors: number; skipped: number }> {
   const since = new Date(Date.now() - 90 * 86400_000).toISOString();
+  // Oldest otkupnine first: they are the most likely to be picked up already.
+  // Picked-up ones drop out of this query, so newer ones move up next run.
   const { data } = await sb.from("skytec_cod_payments")
     .select("sifra_otkupnine, sifra_izvorne_posiljke, iznos, status")
     .or("status.is.null,status.neq.10")
     .gte("created_at", since)
+    .order("datum_slanja", { ascending: true, nullsFirst: false })
     .limit(limit);
   const rows = (data ?? []) as { sifra_otkupnine: string; sifra_izvorne_posiljke: string | null; iznos: number | null }[];
   let picked = 0, errors = 0;
   const queue = [...rows];
   const worker = async () => {
-    for (let r = queue.shift(); r; r = queue.shift()) {
+    for (let r = queue.shift(); r && Date.now() < deadline; r = queue.shift()) {
       try {
         const st = await getStatus(r.sifra_otkupnine);
         if (st.status !== 10) continue;
@@ -502,7 +512,7 @@ export async function pollCodPickups(sb: Sb, limit = 150): Promise<{ checked: nu
     }
   };
   await Promise.all(Array.from({ length: 5 }, worker));
-  return { checked: rows.length, picked, errors };
+  return { checked: rows.length - queue.length, picked, errors, skipped: queue.length };
 }
 
 /**

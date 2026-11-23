@@ -170,9 +170,32 @@ export async function POST(req: NextRequest) {
   const sb = getSupabaseAdmin();
 
   if (body.undo) {
-    // Drop pickup records that covered these otkupnine; the user re-marks with the right amount.
-    for (const o of orders) {
-      await sb.from("skytec_events").delete().eq("source", "cod_pickup").contains("raw", { orders: [o] });
+    // Take only these otkupnine out of their pickup records. The rest of the same
+    // pickup keeps its received amount (minus the undone ones' value, since that
+    // cash was counted in it), so the day still compares correctly.
+    const { data: amts } = await sb.from("skytec_shipments")
+      .select("order_number, cod_paid_amount, cod_amount").in("order_number", orders);
+    const amountOf = new Map(((amts ?? []) as { order_number: string; cod_paid_amount: number | null; cod_amount: number }[])
+      .map((r) => [r.order_number, Number(r.cod_paid_amount ?? r.cod_amount) || 0]));
+    const undo = new Set(orders);
+    // Few rows (one per pickup), so filter in code rather than with a jsonb query.
+    const { data: evs } = await sb.from("skytec_events").select("id, raw").eq("source", "cod_pickup")
+      .gte("status_at", new Date(Date.now() - 365 * DAY).toISOString());
+    type PickupRaw = { orders?: string[]; expected?: number; received?: number | null };
+    for (const e of (evs ?? []) as { id: number; raw: PickupRaw | null }[]) {
+      const before = e.raw?.orders ?? [];
+      const removed = before.filter((o) => undo.has(o));
+      if (!removed.length) continue;
+      const keep = before.filter((o) => !undo.has(o));
+      if (!keep.length) { await sb.from("skytec_events").delete().eq("id", e.id); continue; }
+      const minus = removed.reduce((a, o) => a + (amountOf.get(o) ?? 0), 0);
+      const expected = r2((e.raw?.expected ?? 0) - minus);
+      const received = e.raw?.received == null ? null : r2(Math.max(0, e.raw.received - minus));
+      await sb.from("skytec_events").update({
+        raw: { ...e.raw, orders: keep, expected, received },
+        note: received != null && Math.abs(received - expected) >= 0.01
+          ? `Dobijeno ${received.toFixed(2)} KM, očekivano ${expected.toFixed(2)} KM` : null,
+      }).eq("id", e.id);
     }
     const { data, error } = await sb.from("skytec_shipments")
       .update({ cod_paid_at: null, cod_paid_amount: null, updated_at: new Date().toISOString() })

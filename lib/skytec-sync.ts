@@ -12,6 +12,8 @@ type Sb = ReturnType<typeof getSupabaseAdmin>;
  *  3. check each otkupnina waiting at the depot for a pickup (status 10).
  */
 export async function runSkytecSync(sb: Sb, days: number) {
+  // Vercel stops the function at 60 s; leave room to answer.
+  const deadline = Date.now() + 50_000;
   let imported: Awaited<ReturnType<typeof importHistory>> | null = null;
   let importError: string | null = null;
   try {
@@ -20,8 +22,8 @@ export async function runSkytecSync(sb: Sb, days: number) {
     importError = e instanceof Error ? e.message : "greška";
   }
   const [status, cod] = await Promise.all([
-    pollOpenShipments(sb),
-    pollCodPickups(sb).catch(() => null),
+    pollOpenShipments(sb, 120, deadline),
+    pollCodPickups(sb, 150, deadline).catch(() => null),
   ]);
   return { imported, importError, status, cod };
 }
