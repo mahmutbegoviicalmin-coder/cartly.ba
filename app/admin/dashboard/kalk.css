@@ -1,0 +1,127 @@
+/* Kalkulator (Adnan + Meta) — card layout on top of the .skx tokens. */
+
+.kx { max-width: 1040px; gap: 16px; }
+.kx .pos { color: var(--skx-green); }
+.kx .neg { color: var(--skx-red); }
+
+.kx-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 0 2px; }
+.kx-head h2 { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
+.kx-head p { margin: 2px 0 0; font-size: 13px; color: var(--skx-label-3); }
+
+.kx-card {
+  background: #fff; border-radius: 16px; padding: 18px 20px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
+  min-width: 0;
+}
+.kx-card h3 { margin: 0; font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+.kx-sub { margin: 2px 0 0; font-size: 12.5px; color: var(--skx-label-3); }
+.kx-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.kx-loading { display: grid; place-items: center; min-height: 120px; color: var(--skx-label-3); }
+.kx-empty { margin: 12px 0 0; font-size: 13px; color: var(--skx-label-2); }
+.kx-foot { margin: 12px 0 0; font-size: 11.5px; color: var(--skx-label-3); }
+.kx-muted { display: block; font-size: 12px; color: var(--skx-label-3); font-weight: 400; }
+h3 .kx-muted { display: inline; margin-left: 6px; }
+
+/* KPIs */
+.kx-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.kx-kpi { display: flex; flex-direction: column; gap: 4px; padding: 16px 18px; }
+.kx-kpi span { font-size: 12.5px; color: var(--skx-label-2); }
+.kx-kpi b { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.kx-kpi small { font-size: 12px; color: var(--skx-label-3); }
+.kx-kpi-main { background: linear-gradient(180deg, #F3FBF5 0%, #fff 100%); }
+.kx-kpi-main b { font-size: 26px; }
+
+.kx-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* Split bar + legend */
+.kx-split { display: flex; gap: 2px; height: 14px; margin: 16px 0 14px; border-radius: 7px; overflow: hidden; background: var(--skx-bg-3); }
+.kx-split i { display: block; height: 100%; min-width: 3px; }
+.kx-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+.kx-legend li { display: grid; grid-template-columns: 10px 1fr auto 40px; align-items: center; gap: 10px; font-size: 13.5px; }
+.kx-legend i { width: 10px; height: 10px; border-radius: 3px; }
+.kx-legend span { color: var(--skx-label-2); }
+.kx-legend b { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.kx-legend em { font-style: normal; font-size: 12px; color: var(--skx-label-3); text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Statement */
+.kx-ledger { margin: 12px 0 0; display: flex; flex-direction: column; }
+.kx-ledger div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 7px 0; font-size: 13.5px; }
+.kx-ledger dt { color: var(--skx-label-2); min-width: 0; }
+.kx-ledger dt small { display: block; font-size: 11.5px; color: var(--skx-label-3); margin-top: 1px; }
+.kx-ledger dd { margin: 0; font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.kx-ledger .sub { border-top: 0.5px solid var(--skx-sep); margin-top: 4px; padding-top: 10px; }
+.kx-ledger .sub dt, .kx-ledger .sub dd { color: var(--skx-label); font-weight: 600; }
+.kx-ledger .sum { border-top: 1px solid var(--skx-label); margin-top: 4px; padding-top: 10px; }
+.kx-ledger .sum dt { color: var(--skx-label); font-weight: 700; font-size: 15px; }
+.kx-ledger .sum dd { font-weight: 700; font-size: 17px; }
+
+/* Forecast */
+.kx-forecast { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 20px; }
+.kx-stepper { justify-self: start; display: flex; align-items: center; gap: 4px; padding: 3px; border-radius: 10px; background: var(--skx-bg-3); }
+.kx-stepper button {
+  width: 30px; height: 30px; border: none; border-radius: 8px; background: #fff; color: var(--skx-label);
+  display: grid; place-items: center; cursor: pointer; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+.kx-stepper button:disabled { opacity: 0.35; cursor: default; }
+.kx-stepper span { min-width: 92px; text-align: center; font-size: 13px; color: var(--skx-label-2); }
+.kx-stepper span { color: var(--skx-label); font-weight: 600; }
+.kx-forecast-nums { display: flex; gap: 24px; }
+.kx-forecast-nums div { display: flex; flex-direction: column; gap: 2px; }
+.kx-forecast-nums span { font-size: 12px; color: var(--skx-label-3); }
+.kx-forecast-nums b { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* Meta */
+.kx-pill { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 99px; white-space: nowrap; }
+.kx-pill.ok { background: rgba(31, 157, 69, 0.12); color: var(--skx-green); }
+.kx-pill.bad { background: rgba(224, 38, 45, 0.1); color: var(--skx-red); }
+.kx-mini { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 16px; }
+.kx-mini div { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border-radius: 12px; background: #F7F7F9; }
+.kx-mini span { font-size: 12px; color: var(--skx-label-2); }
+.kx-mini b { font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.kx-mini small { font-size: 11.5px; color: var(--skx-label-3); min-height: 14px; }
+.kx-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 18px; }
+.kx-charts figure { margin: 0; min-width: 0; }
+.kx-charts figcaption { font-size: 12.5px; font-weight: 600; color: var(--skx-label-2); margin-bottom: 6px; }
+.kx-chart { width: 100%; height: 180px; min-width: 0; }
+
+/* Tables */
+.kx-table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 13.5px; }
+.kx-table th {
+  text-align: right; font-size: 11.5px; font-weight: 500; color: var(--skx-label-3);
+  padding: 0 0 8px 12px; border-bottom: 0.5px solid var(--skx-sep); white-space: nowrap;
+}
+.kx-table th:first-child, .kx-table td:first-child { text-align: left; padding-left: 0; }
+.kx-table td { text-align: right; padding: 10px 0 10px 12px; border-bottom: 0.5px solid var(--skx-sep); font-variant-numeric: tabular-nums; white-space: nowrap; vertical-align: top; }
+.kx-table tr:last-child td { border-bottom: none; }
+.kx-table td:first-child { white-space: normal; width: 100%; }
+.kx-cname { display: block; font-weight: 500; color: var(--skx-label); }
+.kx-cbar { display: block; height: 4px; margin-top: 6px; max-width: 220px; border-radius: 2px; background: var(--skx-bg-3); overflow: hidden; }
+.kx-cbar i { display: block; height: 100%; background: #2a78d6; border-radius: 2px; }
+.kx-gift { margin-left: 6px; vertical-align: -1px; color: #C26A00; }
+
+/* Payments + toggles */
+.kx .adn-pay { padding: 14px 0 0; }
+.kx-list { list-style: none; margin: 12px 0 0; padding: 0; }
+.kx-list li { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-top: 0.5px solid var(--skx-sep); font-size: 13.5px; }
+.kx-list li span { flex: 1; min-width: 0; }
+.kx-list li small { margin-left: 8px; color: var(--skx-label-3); }
+.kx-list li b { font-variant-numeric: tabular-nums; }
+.kx-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; border: none; background: none; padding: 0; cursor: pointer; color: inherit; font: inherit; text-align: left; }
+.kx-toggle svg { color: var(--skx-label-3); transition: transform 0.18s; }
+.kx-toggle svg.open { transform: rotate(180deg); }
+
+@media (max-width: 860px) {
+  .kx-kpis { grid-template-columns: 1fr 1fr; }
+  .kx-grid, .kx-charts { grid-template-columns: 1fr; }
+  .kx-mini { grid-template-columns: 1fr 1fr; }
+  .kx-forecast { grid-template-columns: 1fr; gap: 14px; }
+}
+@media (max-width: 520px) {
+  .kx-card { padding: 16px; border-radius: 14px; }
+  .kx-kpi b { font-size: 19px; }
+  .kx-kpi-main { grid-column: 1 / -1; }
+  .kx-kpi-main b { font-size: 26px; }
+  .kx-table { font-size: 12.5px; }
+  .kx-table th:nth-child(3), .kx-table td:nth-child(3) { display: none; }
+  .kx-forecast-nums { justify-content: space-between; }
+}

@@ -87,7 +87,7 @@ export async function GET(req: NextRequest) {
     order_number: string; prefix: string; ime: string | null; grad: string | null; state: "dostavljena" | "vracena";
     date: string | null; cod: number; adnan: number; gift: boolean; postage: number; profit: number; skytecPaid: boolean;
   }[] = [];
-  let openAmount = 0, openAdnan = 0, openPostage = 0, skytecOwes = 0;
+  let openAmount = 0, openAdnan = 0, openPostage = 0, openProfit = 0, skytecOwes = 0;
 
   for (const s of ships) {
     const prod = ADNAN_PRODUCTS[s.product_prefix];
@@ -121,7 +121,10 @@ export async function GET(req: NextRequest) {
       });
     } else {
       total.open++; p.open++;
-      openAmount += cod; openAdnan += prod.cost * qtyOf(s); openPostage += postage;
+      const cost = prod.cost * qtyOf(s);
+      openAmount += cod; openAdnan += cost; openPostage += postage;
+      // What this parcel earns if the customer takes it (postage is already paid).
+      openProfit += cod - cost - (hasGift(s) ? GIFT_COST : 0) - postage;
     }
     byProduct.set(s.product_prefix, p);
   }
@@ -148,7 +151,7 @@ export async function GET(req: NextRequest) {
     owedAdnan: r2(total.adnan - paid),
     paidAdnan: paid,
     // Postage already paid to Skytec for parcels still out; comes back with the otkupnina.
-    open: { count: total.open, amount: r2(openAmount), adnan: r2(openAdnan), postage: r2(openPostage) },
+    open: { count: total.open, amount: r2(openAmount), adnan: r2(openAdnan), postage: r2(openPostage), profit: r2(openProfit) },
     skytecOwes: r2(skytecOwes),
     byProduct: ADNAN_PREFIXES.map((k) => byProduct.get(k)).filter(Boolean).map((p) => round(p!)),
     parcels,
