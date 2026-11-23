@@ -1,62 +1,111 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ChevronDown, Download, Loader2, Phone, AlertCircle, CheckCircle2, RefreshCw } from "lucide-react";
-import { km, paket, plural, prettyDay, productOf, downloadBlob, syncSkytec, lastSyncAt, agoText } from "./sk-format";
+import { Check, Download, Loader2, AlertCircle, RefreshCw, Search, Undo2, Warehouse, Printer } from "lucide-react";
+import { km, plural, prettyDay, productOf, downloadBlob, syncSkytec, lastSyncAt, agoText, todayStr, PREFIX_LABEL } from "./sk-format";
 import "./skytec.css";
 
-type Stage = "na_terenu" | "naplaceno" | "u_isplati" | "uplaceno" | "izgubljeno";
+type Stage = "kod_kurira" | "ceka_obracun" | "za_podizanje" | "preuzeto" | "vraceno";
+
+type Parcel = {
+  order_number: string; linked: boolean; order_date: string;
+  ime: string | null; telefon: string | null; grad: string | null; product_prefix: string | null;
+  sky_sifra: string | null; cod_sifra: string | null;
+  amount: number; paid: number | null; stage: Stage;
+  delivered_at: string | null; picked_at: string | null; picked_by_skytec: boolean; waiting_days: number | null;
+};
 
 type CodData = {
   days: number;
   totalExpected: number;
   pipeline: Record<Stage, { count: number; amount: number }>;
-  stats: {
-    avgDaysToPayout: number | null; medianDaysToPayout: number | null; longestWait: number;
-    overdueCount: number; overdueAmount: number; unmatchedCount: number; unmatchedAmount: number;
-  };
-  waiting: {
-    order_number: string; ime: string | null; telefon: string | null; grad: string | null; product_prefix: string | null;
-    amount: number; stage: Stage; delivered_at: string | null; days: number; sky_sifra: string | null;
-  }[];
-  payouts: {
-    date: string; count: number; total: number;
-    items: { sifra: string | null; amount: number; ime: string | null; order_number: string | null; product_prefix: string | null }[];
-  }[];
-  series: { date: string; amount: number }[];
-  mismatches: { order_number: string; ime: string | null; expected: number; paid: number; sky_sifra: string | null }[];
-  byProduct: { prefix: string; collected: number; outstanding: number; lost: number; parcels: number }[];
+  parcels: Parcel[];
+  pickups: { date: string; count: number; total: number; received: number | null }[];
+  alerts: { noOtkupnina: string[]; longAtDepot: string[] };
+  mismatches: { order_number: string; ime: string | null; expected: number; paid: number }[];
 };
 
-const STAGES: { key: Stage; label: string; hint: string; tone: string }[] = [
-  { key: "na_terenu", label: "Još u dostavi", hint: "Paket je kod kurira, kupac još nije platio", tone: "blue" },
-  { key: "naplaceno", label: "Dostavljeno, Skytec još nije obračunao", hint: "Kupac je platio kuriru, uplata još nije pokrenuta", tone: "orange" },
-  { key: "u_isplati", label: "Dostavljeno, uplata u toku", hint: "Skytec je obračunao, novac stiže na račun za 1–2 dana", tone: "purple" },
-  { key: "uplaceno", label: "Uplaćeno na tvoj račun", hint: "Novac je stigao", tone: "green" },
-  { key: "izgubljeno", label: "Vraćeno", hint: "Kupac nije preuzeo paket, nema novca", tone: "red" },
+const STAGES: { key: Stage; label: string; short: string; hint: string; tone: string }[] = [
+  { key: "za_podizanje", label: "Za podizanje", short: "Za podizanje", hint: "Kupac je platio, novac čeka u Skytecu (Živinice)", tone: "purple" },
+  { key: "ceka_obracun", label: "Čeka obračun", short: "Čeka obračun", hint: "Dostavljeno, Skytec još nije napravio otkupninu", tone: "orange" },
+  { key: "kod_kurira", label: "Kod kurira", short: "Kod kurira", hint: "Paket još nije dostavljen", tone: "blue" },
+  { key: "preuzeto", label: "Preuzeto", short: "Preuzeto", hint: "Novac si podigao", tone: "green" },
+  { key: "vraceno", label: "Vraćeno", short: "Vraćeno", hint: "Kupac nije preuzeo paket, nema novca", tone: "red" },
 ];
+const STAGE_BY_KEY = Object.fromEntries(STAGES.map((s) => [s.key, s])) as Record<Stage, (typeof STAGES)[number]>;
 
-const pct = (part: number, total: number) => (total > 0 ? (part / total) * 100 : 0);
-const fmtPct = (n: number) => `${n.toFixed(n >= 10 || n === 0 ? 0 : 1).replace(".", ",")} %`;
+const otkupnina = (n: number) => plural(n, "otkupnina", "otkupnine", "otkupnina");
 const dana = (n: number) => plural(n, "dan", "dana", "dana");
-const fmtDays = (n: number | null) => (n == null ? "—" : `${n.toFixed(1).replace(".", ",")} ${n === 1 ? "dan" : "dana"}`);
-const shortDay = (d: string) => `${Number(d.slice(8, 10))}.${Number(d.slice(5, 7))}.`;
+const dmy = (d: string | null) => (d ? `${Number(d.slice(8, 10))}.${Number(d.slice(5, 7))}.${d.slice(0, 4)}.` : "");
+const product = (p: Parcel) => (p.product_prefix ? productOf(p.product_prefix) : p.linked ? "—" : "Napravljeno u Skytecu");
 
 function csvEscape(v: unknown) {
   const s = String(v ?? "");
   return /[",;\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
+function esc(v: unknown) {
+  return String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
+}
+
+/** Printable checklist to take to the Živinice depot. */
+function printList(rows: Parcel[]) {
+  const sorted = [...rows].sort((a, b) => (a.cod_sifra ?? "~").localeCompare(b.cod_sifra ?? "~"));
+  const total = sorted.reduce((a, p) => a + p.amount, 0);
+  const body = sorted.map((p, i) => `<tr>
+    <td class="n">${i + 1}</td><td class="box"></td>
+    <td><b>${esc(p.cod_sifra ?? "—")}</b><br><small>pošiljka ${esc(p.sky_sifra ?? "")}</small></td>
+    <td>${esc(p.ime ?? "—")}<br><small>${esc(p.grad ?? "")}</small></td>
+    <td>${esc(product(p))}<br><small>${esc(p.linked ? p.order_number : "")}</small></td>
+    <td class="r">${esc(km(p.amount))}</td></tr>`).join("");
+  const w = window.open("", "_blank");
+  if (!w) return;
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Otkupnine za podizanje ${todayStr()}</title>
+  <style>
+    body{font:13px -apple-system,system-ui,sans-serif;margin:24px;color:#111}
+    h1{font-size:18px;margin:0 0 4px} p{margin:0 0 16px;color:#555}
+    table{width:100%;border-collapse:collapse} th,td{padding:6px 8px;border-bottom:1px solid #ddd;text-align:left;vertical-align:top}
+    th{font-size:11px;text-transform:uppercase;color:#666} small{color:#777} .r{text-align:right;white-space:nowrap} .n{color:#999;width:18px}
+    .box{width:14px} .box::before{content:"";display:inline-block;width:12px;height:12px;border:1.5px solid #333;border-radius:2px}
+    tfoot td{font-weight:700;font-size:15px;border:none;padding-top:12px}
+    .sign{margin-top:40px;display:flex;gap:48px} .sign div{flex:1;border-top:1px solid #333;padding-top:4px;color:#555}
+  </style></head><body>
+  <h1>Otkupnine za podizanje — Skytec Živinice</h1>
+  <p>${esc(dmy(todayStr()))} · ${esc(otkupnina(sorted.length))}</p>
+  <table><thead><tr><th></th><th></th><th>Otkupnina</th><th>Kupac</th><th>Proizvod</th><th class="r">Iznos</th></tr></thead>
+  <tbody>${body}</tbody>
+  <tfoot><tr><td colspan="5">Ukupno</td><td class="r">${esc(km(total))}</td></tr>
+  <tr><td colspan="5" style="font-weight:400;font-size:13px">Stvarno dobijeno</td><td class="r" style="font-weight:400">__________ KM</td></tr></tfoot></table>
+  <div class="sign"><div>Datum</div><div>Potpis</div></div>
+  <script>window.onload=()=>{window.print()}</script></body></html>`);
+  w.document.close();
+}
+
+function Tick({ on }: { on: boolean }) {
+  return <span className={`skx-tick${on ? " on" : ""}`} aria-hidden>{on && <Check size={13} strokeWidth={3} />}</span>;
+}
+
 export default function CodPanel() {
   const [days, setDays] = useState(60);
   const [data, setData] = useState<CodData | null>(null);
   const [err, setErr] = useState<string | null>(null);
-  const [open, setOpen] = useState<string | null>(null);
-  const [allPayouts, setAllPayouts] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [hover, setHover] = useState<number | null>(null);
+  const [saving, setSaving] = useState(false);
   const [syncedAt, setSyncedAt] = useState<number | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
   const [, tick] = useState(0);
+
+  // Filters
+  const [stage, setStage] = useState<Stage | "sve">("za_podizanje");
+  const [q, setQ] = useState("");
+  const [prod, setProd] = useState("");
+  const [pickDay, setPickDay] = useState<string | null>(null);
+
+  // Selection + pickup date
+  const [sel, setSel] = useState<Set<string>>(new Set());
+  const [date, setDate] = useState(todayStr());
+  const [received, setReceived] = useState("");
+  const [onlyOrders, setOnlyOrders] = useState<Set<string> | null>(null);
 
   const load = useCallback(async (d: number) => {
     setErr(null);
@@ -68,7 +117,6 @@ export default function CodPanel() {
 
   useEffect(() => { setData(null); load(days); }, [days, load]);
 
-  // Show what we have right away, then pull fresh data from Skytec and reload.
   const refresh = useCallback(async (force: boolean) => {
     setBusy(true);
     try {
@@ -80,47 +128,101 @@ export default function CodPanel() {
 
   useEffect(() => { refresh(false); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { const t = setInterval(() => tick((n) => n + 1), 30_000); return () => clearInterval(t); }, []);
+  useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(null), 4000); return () => clearTimeout(t); }, [toast]);
+  useEffect(() => { setSel(new Set()); }, [stage, q, prod, pickDay, days, onlyOrders]);
+  useEffect(() => { setReceived(""); }, [sel]);
+
+  const products = useMemo(() => {
+    const set = new Set<string>();
+    for (const p of data?.parcels ?? []) set.add(p.product_prefix ?? "");
+    return Array.from(set).sort((a, b) => (PREFIX_LABEL[a] ?? a).localeCompare(PREFIX_LABEL[b] ?? b));
+  }, [data]);
+
+  const list = useMemo(() => {
+    if (!data) return [];
+    const needle = q.trim().toLowerCase();
+    const rows = data.parcels.filter((p) =>
+      (stage === "sve" || p.stage === stage) &&
+      (!prod || (p.product_prefix ?? "") === (prod === "-" ? "" : prod)) &&
+      (!pickDay || p.picked_at === pickDay) &&
+      (!onlyOrders || onlyOrders.has(p.order_number)) &&
+      (!needle || [p.ime, p.order_number, p.telefon, p.grad, p.sky_sifra, p.cod_sifra].some((v) => v?.toLowerCase().includes(needle))));
+    // Oldest waiting first; picked up: newest pickup first.
+    return rows.sort((a, b) =>
+      a.stage === "preuzeto" && b.stage === "preuzeto"
+        ? (b.picked_at ?? "").localeCompare(a.picked_at ?? "") || (a.ime ?? "").localeCompare(b.ime ?? "")
+        : (b.waiting_days ?? -1) - (a.waiting_days ?? -1) || b.order_date.localeCompare(a.order_date));
+  }, [data, stage, q, prod, pickDay, onlyOrders]);
+
+  const listSum = list.reduce((a, p) => a + p.amount, 0);
+  // Only rows with money at Skytec can be marked; only our own marks can be undone.
+  const canMark = (p: Parcel) => p.stage === "za_podizanje" || p.stage === "ceka_obracun";
+  const canUndo = (p: Parcel) => p.stage === "preuzeto" && !p.picked_by_skytec;
+  const selectable = list.filter((p) => canMark(p) || canUndo(p));
+  const chosen = list.filter((p) => sel.has(p.order_number));
+  const chosenSum = chosen.reduce((a, p) => a + p.amount, 0);
+  const undoMode = chosen.length > 0 && chosen.every(canUndo);
+  const markSum = chosen.filter(canMark).reduce((a, p) => a + p.amount, 0);
+  const receivedNum = received.trim() === "" ? null : Number(received.replace(/\./g, "").replace(",", "."));
+  const receivedOk = receivedNum == null || (Number.isFinite(receivedNum) && receivedNum >= 0);
+  const diff = receivedNum != null && receivedOk ? Math.round((receivedNum - markSum) * 100) / 100 : 0;
+
+  const toggle = (o: string) => setSel((s) => { const n = new Set(s); if (n.has(o)) n.delete(o); else n.add(o); return n; });
+  const toggleAll = () => setSel((s) => (s.size === selectable.length ? new Set() : new Set(selectable.map((p) => p.order_number))));
+
+  const save = async (undo: boolean) => {
+    const orders = chosen.filter(undo ? canUndo : canMark).map((p) => p.order_number);
+    if (!orders.length) return;
+    setSaving(true);
+    try {
+      const r = await fetch("/api/admin/skytec/cod", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(undo ? { orders, undo: true } : { orders, date, ...(receivedNum != null ? { received: receivedNum } : {}) }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) { setToast(j.error ?? "Greška pri spremanju."); return; }
+      setToast(undo
+        ? `Poništeno: ${otkupnina(j.updated)}`
+        : `Označeno kao preuzeto: ${otkupnina(j.updated)} · ${km(j.expected ?? markSum)}${diff ? ` · razlika ${diff > 0 ? "+" : "−"}${km(Math.abs(diff))}` : ""}`);
+      setSel(new Set());
+      await load(days);
+    } finally { setSaving(false); }
+  };
 
   const exportCsv = () => {
     if (!data) return;
-    const rows: unknown[][] = [["Datum isplate", "Kupac", "Narudžba", "Pošiljka", "Proizvod", "Iznos (KM)"]];
-    for (const p of data.payouts) for (const i of p.items) {
-      rows.push([p.date, i.ime, i.order_number ?? "", i.sifra ?? "", productOf(i.product_prefix), i.amount.toFixed(2).replace(".", ",")]);
-    }
-    rows.push([]);
-    rows.push(["Čeka uplatu", "Kupac", "Narudžba", "Pošiljka", "Dana", "Iznos (KM)"]);
-    for (const w of data.waiting) {
-      rows.push([w.delivered_at?.slice(0, 10) ?? "", w.ime, w.order_number, w.sky_sifra ?? "", w.days, w.amount.toFixed(2).replace(".", ",")]);
+    const rows: unknown[][] = [["Status", "Kupac", "Telefon", "Grad", "Narudžba", "Proizvod", "Pošiljka", "Otkupnina", "Dostavljeno", "Preuzeto", "Iznos (KM)"]];
+    for (const p of list) {
+      rows.push([STAGE_BY_KEY[p.stage].label, p.ime, p.telefon, p.grad, p.linked ? p.order_number : "", product(p),
+        p.sky_sifra ?? "", p.cod_sifra ?? "", p.delivered_at?.slice(0, 10) ?? "", p.picked_at ?? "", p.amount.toFixed(2).replace(".", ",")]);
     }
     const csv = "﻿" + rows.map((r) => r.map(csvEscape).join(";")).join("\n");
-    downloadBlob(new Blob([csv], { type: "text/csv;charset=utf-8" }), `otkupnine_${data.days}dana.csv`);
+    downloadBlob(new Blob([csv], { type: "text/csv;charset=utf-8" }), `otkupnine_${stage}_${todayStr()}.csv`);
   };
 
-  const maxBar = useMemo(() => Math.max(1, ...(data?.series ?? []).map((s) => s.amount)), [data]);
-  const last30 = useMemo(() => (data?.series ?? []).reduce((a, s) => a + s.amount, 0), [data]);
-  const payouts = data ? (allPayouts ? data.payouts : data.payouts.slice(0, 10)) : [];
-  const owed = data ? data.pipeline.naplaceno.amount + data.pipeline.u_isplati.amount : 0;
-  const hovered = hover != null && data ? data.series[hover] : null;
+  const pick = (s: Stage | "sve") => { setStage(s); setPickDay(null); setOnlyOrders(null); };
+  const showAlert = (s: Stage, orders: string[]) => { setStage(s); setPickDay(null); setQ(""); setProd(""); setOnlyOrders(new Set(orders)); };
 
   return (
-    <div className="skx">
-      {/* ── Header ───────────────────────────────────────────── */}
+    <div className={`skx${chosen.length ? " cod-has-bar" : ""}`}>
+      {toast && <div className="skx-toast" role="status" onClick={() => setToast(null)}>{toast}</div>}
+
       <section className="skx-section">
         <header className="skx-section-head">
           <div>
-            <h2>Gdje je novac</h2>
-            <p>Svaka marka od pouzeća, od kurira do tvog računa · {busy ? "osvježavam sa Skytecom…" : agoText(syncedAt)}</p>
+            <h2>Otkupnine</h2>
+            <p>Novac od pouzeća podižeš u Skytec magacinu u Živinicama · {busy ? "osvježavam sa Skytecom…" : agoText(syncedAt)}</p>
           </div>
           <div className="cod-tools">
             <div className="cod-seg" role="tablist" aria-label="Period">
-              {[30, 60, 90].map((d) => (
-                <button key={d} className={days === d ? "on" : ""} onClick={() => setDays(d)}>{d} dana</button>
+              {[30, 60, 90, 180].map((d) => (
+                <button key={d} className={days === d ? "on" : ""} onClick={() => setDays(d)}>{d} d</button>
               ))}
             </div>
             <button className="skx-icon" onClick={() => refresh(true)} disabled={busy} aria-label="Osvježi iz Skyteca">
               {busy ? <Loader2 size={16} className="ad-spin" /> : <RefreshCw size={16} />}
             </button>
-            <button className="skx-icon" onClick={exportCsv} disabled={!data} aria-label="Preuzmi CSV">
+            <button className="skx-icon" onClick={exportCsv} disabled={!data} aria-label="Preuzmi CSV prikazane liste">
               <Download size={16} />
             </button>
           </div>
@@ -132,184 +234,212 @@ export default function CodPanel() {
           <div className="skx-group"><div className="skx-empty"><Loader2 size={20} className="ad-spin" /></div></div>
         ) : (
           <div className="skx-group">
-            <div className="cod-hero">
+            <button className="cod-hero cod-hero-btn" onClick={() => pick("za_podizanje")}>
               <div className="cod-hero-main">
-                <span>Skytec ti duguje</span>
-                <b>{km(owed)}</b>
+                <span><Warehouse size={14} /> Čeka te u Živinicama</span>
+                <b>{km(data.pipeline.za_podizanje.amount)}</b>
                 <small>
-                  {owed > 0
-                    ? `${paket(data.pipeline.naplaceno.count + data.pipeline.u_isplati.count)} dostavljeno i naplaćeno, novac još nije na računu`
-                    : "Sav naplaćeni novac je uplaćen"}
+                  {data.pipeline.za_podizanje.count
+                    ? `${otkupnina(data.pipeline.za_podizanje.count)} spremno za podizanje`
+                    : "Nema nepodignutih otkupnina"}
                 </small>
               </div>
               <div className="cod-hero-side">
-                <div><span>Uplaćeno ({data.days} dana)</span><b>{km(data.pipeline.uplaceno.amount)}</b></div>
-                <div><span>Još u dostavi</span><b>{km(data.pipeline.na_terenu.amount)}</b></div>
+                <div><span>Preuzeto ({data.days} d)</span><b className="cod-plus">{km(data.pipeline.preuzeto.amount)}</b></div>
+                <div><span>Kod kurira</span><b>{km(data.pipeline.kod_kurira.amount)}</b></div>
               </div>
-            </div>
-
-            <div className="cod-stack" aria-hidden>
-              {STAGES.map((s) => {
-                const w = pct(data.pipeline[s.key].amount, data.totalExpected);
-                return w > 0 ? <i key={s.key} className={s.tone} style={{ width: `${w}%` }} /> : null;
-              })}
-            </div>
-
-            {STAGES.map((s) => {
-              const v = data.pipeline[s.key];
-              return (
-                <div key={s.key} className="skx-row static cod-stage">
-                  <span className={`cod-dot ${s.tone}`} />
-                  <span className="skx-row-main">
-                    <span className="skx-row-title">{s.label}</span>
-                    <span className="skx-row-sub">{s.hint}</span>
-                  </span>
-                  <span className="skx-row-end">
-                    <span className="skx-row-amt">{km(v.amount)}</span>
-                    <span className="skx-row-meta">{paket(v.count)} · {fmtPct(pct(v.amount, data.totalExpected))}</span>
-                  </span>
-                </div>
-              );
-            })}
+            </button>
           </div>
         )}
       </section>
 
       {data && (
         <>
-          {/* ── Timing ─────────────────────────────────────────── */}
-          <div className="skx-group skx-metrics">
-            <div className="skx-metric">
-              <span>Do uplate obično</span>
-              <b>{fmtDays(data.stats.medianDaysToPayout)}</b>
-              <small>od dostave do tvog računa</small>
-            </div>
-            <div className="skx-metric">
-              <span>Najduže čeka</span>
-              <b>{data.waiting.length ? dana(data.stats.longestWait) : "—"}</b>
-              <small>{data.waiting.length ? data.waiting[0].ime ?? "" : "ništa ne čeka"}</small>
-            </div>
-            <div className="skx-metric">
-              <span>Kasni više od 7 dana</span>
-              <b className={data.stats.overdueCount ? "cod-warn" : ""}>{km(data.stats.overdueAmount)}</b>
-              <small>{paket(data.stats.overdueCount)}</small>
-            </div>
-            <div className="skx-metric">
-              <span>Uplaćeno u 30 dana</span>
-              <b>{km(last30)}</b>
-              <small>{fmtPct(pct(data.pipeline.uplaceno.amount, data.pipeline.uplaceno.amount + data.pipeline.izgubljeno.amount))} naplativo</small>
-            </div>
-          </div>
-
-          {/* ── Waiting for money ──────────────────────────────── */}
-          <section className="skx-section">
-            <header className="skx-section-head">
-              <div><h2>Čeka uplatu</h2><p>Kupac je platio, novac još nije kod tebe</p></div>
-            </header>
-            <div className="skx-group">
-              {data.waiting.length === 0 ? (
-                <div className="skx-empty cod-ok">
-                  <CheckCircle2 size={24} strokeWidth={1.8} />
-                  <b>Sve je uplaćeno</b>
-                  <span>Nema naplaćenih paketa za koje novac nije stigao.</span>
-                </div>
-              ) : (
-                data.waiting.map((w) => (
-                  <div key={w.order_number} className="skx-row static">
-                    <span className="skx-row-main">
-                      <span className="skx-row-title">{w.ime ?? "—"}</span>
-                      <span className="skx-row-sub">
-                        {productOf(w.product_prefix)} · {w.stage === "u_isplati" ? "na putu do tebe" : "Skytec još nije obračunao"}
-                      </span>
-                    </span>
-                    <span className={`cod-age${w.days > 14 ? " red" : w.days > 7 ? " orange" : ""}`}>{dana(w.days)}</span>
-                    <span className="skx-row-end">
-                      <span className="skx-row-amt">{km(w.amount)}</span>
-                      {w.telefon && w.days > 7 && (
-                        <a className="skx-row-meta cod-call" href={`tel:${w.telefon.replace(/\s/g, "")}`}><Phone size={11} /> kupac</a>
-                      )}
-                    </span>
-                  </div>
-                ))
+          {(data.alerts.noOtkupnina.length > 0 || data.alerts.longAtDepot.length > 0) && (
+            <div className="cod-alerts">
+              {data.alerts.noOtkupnina.length > 0 && (
+                <button className="skx-note" onClick={() => showAlert("ceka_obracun", data.alerts.noOtkupnina)}>
+                  <AlertCircle size={15} />
+                  <span><b>{plural(data.alerts.noOtkupnina.length, "paket", "paketa", "paketa")} dostavljeno prije više od 3 dana</b>, a Skytec još nije napravio otkupninu. Provjeri sa Skytecom.</span>
+                </button>
+              )}
+              {data.alerts.longAtDepot.length > 0 && (
+                <button className="skx-note" onClick={() => showAlert("za_podizanje", data.alerts.longAtDepot)}>
+                  <AlertCircle size={15} />
+                  <span><b>{otkupnina(data.alerts.longAtDepot.length)} čeka u magacinu duže od 7 dana.</b> Podigni ih pri sljedećem odlasku.</span>
+                </button>
               )}
             </div>
-          </section>
+          )}
 
-          {/* ── Payouts ───────────────────────────────────────── */}
+          {/* ── Filters ─────────────────────────────────────────── */}
           <section className="skx-section">
-            <header className="skx-section-head">
-              <div><h2>Isplate</h2><p>Šta je Skytec uplatio, po danima. Uporedi s izvodom iz banke.</p></div>
-            </header>
+            <div className="cod-chips" role="tablist" aria-label="Status otkupnine">
+              {STAGES.map((s) => (
+                <button key={s.key} className={`cod-chip ${s.tone}${stage === s.key ? " on" : ""}`} onClick={() => pick(s.key)}>
+                  <span className="cod-dot" />
+                  {s.short}
+                  <em>{data.pipeline[s.key].count}</em>
+                </button>
+              ))}
+              <button className={`cod-chip${stage === "sve" ? " on" : ""}`} onClick={() => pick("sve")}>
+                Sve <em>{data.parcels.length}</em>
+              </button>
+            </div>
+            <div className="cod-filters">
+              <label className="cod-search">
+                <Search size={15} />
+                <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Kupac, telefon, narudžba, šifra…" />
+              </label>
+              <select value={prod} onChange={(e) => setProd(e.target.value)} aria-label="Proizvod">
+                <option value="">Svi proizvodi</option>
+                {products.map((p) => <option key={p || "-"} value={p || "-"}>{p ? productOf(p) : "Napravljeno u Skytecu"}</option>)}
+              </select>
+            </div>
+            {onlyOrders && (
+              <div className="cod-dayfilter warn">
+                Prikazano samo ono iz upozorenja ({onlyOrders.size})
+                <button onClick={() => setOnlyOrders(null)}>Ukloni</button>
+              </div>
+            )}
+            {pickDay && (
+              <div className="cod-dayfilter">
+                Preuzeto {prettyDay(pickDay).toLowerCase()} ({dmy(pickDay)})
+                <button onClick={() => setPickDay(null)}>Ukloni</button>
+              </div>
+            )}
+
+            {/* ── List ──────────────────────────────────────────── */}
             <div className="skx-group">
-              <div className="cod-chart">
-                <div className="cod-chart-head">
-                  <span>{hovered ? prettyDay(hovered.date) : "Zadnjih 30 dana"}</span>
-                  <b>{km(hovered ? hovered.amount : last30)}</b>
-                </div>
-                <div className="cod-bars" onMouseLeave={() => setHover(null)}>
-                  {data.series.map((s, i) => (
-                    <button
-                      key={s.date}
-                      className={`cod-bar${hover === i ? " on" : ""}`}
-                      onMouseEnter={() => setHover(i)}
-                      onFocus={() => setHover(i)}
-                      onClick={() => setHover(i)}
-                      aria-label={`${s.date}: ${km(s.amount)}`}
-                    >
-                      <i style={{ height: `${s.amount ? Math.max(4, (s.amount / maxBar) * 100) : 2}%` }} className={s.amount ? "" : "zero"} />
+              <div className="cod-listhead">
+                <span>{stage === "sve" ? "Sve otkupnine" : STAGE_BY_KEY[stage].hint}</span>
+                <span className="cod-listhead-end">
+                  <b>{otkupnina(list.length)} · {km(listSum)}</b>
+                  {stage === "za_podizanje" && list.length > 0 && (
+                    <button className="skx-btn sm" onClick={() => printList(chosen.length ? chosen : list)}>
+                      <Printer size={14} /> {chosen.length ? `Spisak (${chosen.length})` : "Spisak za podizanje"}
                     </button>
-                  ))}
-                </div>
-                <div className="cod-axis">
-                  <span>{shortDay(data.series[0].date)}</span>
-                  <span>{shortDay(data.series[14].date)}</span>
-                  <span>danas</span>
-                </div>
+                  )}
+                </span>
               </div>
 
-              {payouts.length === 0 ? (
-                <div className="skx-empty"><b>Nema isplata u ovom periodu</b></div>
-              ) : payouts.map((p) => (
-                <div key={p.date} className={`skx-ship${open === p.date ? " open" : ""}`}>
-                  <button className="skx-row" onClick={() => setOpen(open === p.date ? null : p.date)}>
-                    <span className="skx-row-main">
-                      <span className="skx-row-title">{prettyDay(p.date)}</span>
-                      <span className="skx-row-sub">{plural(p.count, "uplata", "uplate", "uplata")}</span>
-                    </span>
-                    <span className="skx-row-amt cod-plus">{km(p.total)}</span>
-                    <ChevronDown size={16} className="skx-chev" />
-                  </button>
-                  {open === p.date && (
-                    <div className="cod-items">
-                      {p.items.map((i, n) => (
-                        <div key={`${i.sifra}-${n}`} className="cod-item">
-                          <span>
-                            <b>{i.ime ?? "—"}</b>
-                            <small>{i.order_number ?? "bez narudžbe"} · {productOf(i.product_prefix)}</small>
-                          </span>
-                          <em>{km(i.amount)}</em>
-                        </div>
-                      ))}
-                    </div>
+              {list.length === 0 ? (
+                <div className="skx-empty"><b>Nema otkupnina</b><span>Promijeni filter ili period.</span></div>
+              ) : (
+                <>
+                  {selectable.length > 0 && (
+                    <button className="skx-row skx-selectall" onClick={toggleAll}>
+                      <Tick on={sel.size > 0 && sel.size === selectable.length} />
+                      <span className="skx-row-main"><span className="skx-row-title">
+                        {sel.size === selectable.length ? "Poništi odabir" : `Označi sve (${selectable.length})`}
+                      </span></span>
+                    </button>
                   )}
+                  {list.map((p) => {
+                    const selectableRow = canMark(p) || canUndo(p);
+                    const s = STAGE_BY_KEY[p.stage];
+                    const Row = selectableRow ? "button" : "div";
+                    return (
+                      <Row
+                        key={p.order_number}
+                        className={`skx-row${selectableRow ? "" : " static"}`}
+                        {...(selectableRow ? { onClick: () => toggle(p.order_number) } : {})}
+                      >
+                        {selectableRow ? <Tick on={sel.has(p.order_number)} /> : <span className={`cod-dot ${s.tone}`} />}
+                        <span className="skx-row-main">
+                          <span className="skx-row-title">{p.ime ?? "—"}</span>
+                          <span className="skx-row-sub">
+                            {product(p)} · {p.linked ? p.order_number : `Skytec ${p.sky_sifra ?? ""}`}{p.grad ? ` · ${p.grad}` : ""}
+                          </span>
+                          {(p.stage === "za_podizanje" || p.stage === "ceka_obracun" || p.stage === "preuzeto") && <span className="skx-row-meta">
+                            {p.cod_sifra ? `Otkupnina ${p.cod_sifra}` : "Otkupnina još nije napravljena"}
+                            {p.delivered_at ? ` · dostavljeno ${dmy(p.delivered_at.slice(0, 10))}` : ""}
+                          </span>}
+                        </span>
+                        <span className="skx-row-end">
+                          <span className="skx-row-amt">{km(p.amount)}</span>
+                          {p.stage === "preuzeto" ? (
+                            <span className="skx-row-meta ok">preuzeto {dmy(p.picked_at)}{p.picked_by_skytec ? " · Skytec" : ""}</span>
+                          ) : p.waiting_days != null ? (
+                            <span className={`cod-age${p.waiting_days > 14 ? " red" : p.waiting_days > 7 ? " orange" : ""}`}>čeka {dana(p.waiting_days)}</span>
+                          ) : stage === "sve" ? (
+                            <span className="skx-row-meta">{s.label}</span>
+                          ) : null}
+                        </span>
+                      </Row>
+                    );
+                  })}
+                </>
+              )}
+
+              {chosen.length > 0 && (
+                <div className="skx-actionbar cod-actionbar">
+                  <div className="skx-actionbar-info">
+                    <b>{otkupnina(chosen.length)} · {km(chosenSum)}</b>
+                    <span>
+                      {undoMode ? "Vrati u „Za podizanje“ ako si pogrešno označio"
+                        : !receivedOk ? "Neispravan iznos"
+                        : receivedNum == null ? "Upiši koliko si dobio, pa uporedimo"
+                        : diff === 0 ? "Iznos se slaže"
+                        : `Razlika ${diff > 0 ? "+" : "−"}${km(Math.abs(diff))} (${diff > 0 ? "dobio si više" : "fali"})`}
+                    </span>
+                  </div>
+                  <div className="skx-actionbar-btns">
+                    {undoMode ? (
+                      <button className="skx-btn danger" onClick={() => save(true)} disabled={saving}>
+                        {saving ? <Loader2 size={16} className="ad-spin" /> : <Undo2 size={16} />} Poništi preuzimanje
+                      </button>
+                    ) : (
+                      <>
+                        <label className={`cod-date${receivedNum != null && diff !== 0 ? " bad" : receivedNum != null && receivedOk ? " good" : ""}`}>
+                          <span>Dobio sam</span>
+                          <input inputMode="decimal" placeholder={markSum.toFixed(2).replace(".", ",")} value={received}
+                            onChange={(e) => setReceived(e.target.value)} aria-label="Stvarno dobijeni iznos u KM" />
+                        </label>
+                        <label className="cod-date">
+                          <span>Datum</span>
+                          <input type="date" value={date} max={todayStr()} onChange={(e) => e.target.value && setDate(e.target.value)} />
+                        </label>
+                        <button className="skx-btn primary" onClick={() => save(false)} disabled={saving || !chosen.some(canMark) || !receivedOk}>
+                          {saving ? <Loader2 size={16} className="ad-spin" /> : <Check size={16} />} Preuzeo sam
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
-              ))}
-              {!allPayouts && data.payouts.length > 10 && (
-                <button className="skx-row skx-more" onClick={() => setAllPayouts(true)}>Prikaži sve isplate ({data.payouts.length})</button>
               )}
             </div>
-            {data.stats.unmatchedCount > 0 && (
-              <p className="cod-foot">
-                {plural(data.stats.unmatchedCount, "uplata", "uplate", "uplata")} ({km(data.stats.unmatchedAmount)}) nije povezano s paketom iz sistema.
-              </p>
-            )}
           </section>
 
-          {/* ── Mismatches ────────────────────────────────────── */}
+          {/* ── Pickups by day ───────────────────────────────── */}
+          <section className="skx-section">
+            <header className="skx-section-head">
+              <div><h2>Preuzimanja po danima</h2><p>Uporedi sa potpisanim spiskom iz magacina</p></div>
+            </header>
+            <div className="skx-group">
+              {data.pickups.length === 0 ? (
+                <div className="skx-empty"><b>Još ništa nije označeno kao preuzeto</b><span>Odaberi otkupnine u „Za podizanje“ i klikni „Preuzeo sam“.</span></div>
+              ) : data.pickups.map((g) => (
+                <button key={g.date} className="skx-row" onClick={() => { setStage("preuzeto"); setPickDay(g.date); }}>
+                  <span className="skx-row-main">
+                    <span className="skx-row-title">{prettyDay(g.date)}</span>
+                    <span className="skx-row-sub">{dmy(g.date)} · {otkupnina(g.count)}</span>
+                  </span>
+                  <span className="skx-row-end">
+                    <span className="skx-row-amt cod-plus">{km(g.total)}</span>
+                    {g.received != null && (Math.abs(g.received - g.total) < 0.01
+                      ? <span className="skx-row-meta ok">dobijeno, slaže se</span>
+                      : <span className="skx-row-meta cod-neg">dobijeno {km(g.received)} ({g.received > g.total ? "+" : "−"}{km(Math.abs(g.received - g.total))})</span>)}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </section>
+
           {data.mismatches.length > 0 && (
             <section className="skx-section">
               <header className="skx-section-head">
-                <div><h2>Neslaganja</h2><p>Uplaćeni iznos se razlikuje od otkupnine na paketu</p></div>
+                <div><h2>Neslaganja</h2><p>Preuzeti iznos se razlikuje od otkupnine na paketu</p></div>
               </header>
               <div className="skx-group">
                 {data.mismatches.map((m) => (
@@ -326,37 +456,6 @@ export default function CodPanel() {
                     </span>
                   </div>
                 ))}
-              </div>
-            </section>
-          )}
-
-          {/* ── Per product ───────────────────────────────────── */}
-          {data.byProduct.length > 0 && (
-            <section className="skx-section">
-              <header className="skx-section-head"><div><h2>Po proizvodu</h2><p>Uplaćeno, čeka i izgubljeno</p></div></header>
-              <div className="skx-group">
-                {data.byProduct.map((p) => {
-                  const total = p.collected + p.outstanding + p.lost;
-                  return (
-                    <div key={p.prefix} className="skx-row static cod-prod">
-                      <span className="skx-row-main">
-                        <span className="skx-row-title">{productOf(p.prefix === "?" ? null : p.prefix)}</span>
-                        <span className="cod-mini" aria-hidden>
-                          <i className="green" style={{ width: `${pct(p.collected, total)}%` }} />
-                          <i className="orange" style={{ width: `${pct(p.outstanding, total)}%` }} />
-                          <i className="red" style={{ width: `${pct(p.lost, total)}%` }} />
-                        </span>
-                        <span className="skx-row-sub">
-                          {paket(p.parcels)}{p.outstanding ? ` · čeka ${km(p.outstanding)}` : ""}{p.lost ? ` · izgubljeno ${km(p.lost)}` : ""}
-                        </span>
-                      </span>
-                      <span className="skx-row-end">
-                        <span className="skx-row-amt">{km(p.collected)}</span>
-                        <span className="skx-row-meta">uplaćeno</span>
-                      </span>
-                    </div>
-                  );
-                })}
               </div>
             </section>
           )}

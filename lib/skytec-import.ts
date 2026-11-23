@@ -1,7 +1,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // One-off / repeatable import of parcels that were sent to Skytec through the
 // web client or Excel upload (no order reference). Each parcel is matched to
-// our order by the customer's phone number + date (+ amount as tie-breaker).
+// our order by the order number typed into Skytec's reference field (sifraExt),
+// else by the customer's phone number + date (+ amount as tie-breaker).
 // Parcels that cannot be matched are still stored (order_number "SKY-<code>")
 // so COD and return statistics stay complete.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -74,6 +75,7 @@ export async function importHistory(sb: Sb, days = 60) {
   // 3. Candidate orders from every order table, indexed by phone.
   const since = new Date(from.getTime() - 21 * DAY).toISOString();
   const byPhone = new Map<string, OrderRow[]>();
+  const byNumber = new Map<string, OrderRow>();
   for (const t of ORDER_TABLES) {
     for (let page = 0; ; page++) {
       const { data, error } = await sb.from(t)
@@ -85,6 +87,7 @@ export async function importHistory(sb: Sb, days = 60) {
       if (error || !data?.length) break;
       for (const o of data as OrderRow[]) {
         if (!o.order_number) continue;
+        byNumber.set(o.order_number.toUpperCase(), o);
         const k = phoneKey(o.telefon);
         if (!k) continue;
         const arr = byPhone.get(k) ?? [];
@@ -95,7 +98,7 @@ export async function importHistory(sb: Sb, days = 60) {
     }
   }
 
-  // 4. Match: same phone, order placed 0–21 days before the parcel was sent,
+  // 4. Match: order number in the Skytec reference wins. Otherwise same phone, order placed 0–21 days before the parcel was sent,
   //    prefer equal COD amount, then the most recent order. Each order used once.
   const used = new Set<string>(knownOrders);
   let matched = 0, unmatched = 0;
@@ -108,7 +111,8 @@ export async function importHistory(sb: Sb, days = 60) {
   for (const p of fresh) {
     const sent = parseSkyDate(p.datumSlanja);
     const sentMs = sent ? new Date(sent).getTime() : Date.now();
-    const cands = (byPhone.get(phoneKey(p.primalacTelefon)) ?? []).filter((o) => {
+    const byRef = byNumber.get(String(p.sifraExt ?? "").trim().toUpperCase());
+    const cands = byRef && !used.has(byRef.order_number) ? [byRef] : (byPhone.get(phoneKey(p.primalacTelefon)) ?? []).filter((o) => {
       const t = new Date(o.created_at).getTime();
       return !used.has(o.order_number) && t <= sentMs + DAY && t >= sentMs - 21 * DAY;
     });

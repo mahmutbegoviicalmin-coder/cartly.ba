@@ -97,7 +97,7 @@ function ShipRow({ s, onCancel }: { s: Ship; onCancel: (o: string) => void }) {
           <Pill state={s.state} />
           <span className="skx-row-amt">
             {km(s.cod_amount)}
-            {s.cod_paid_at && <em>uplaćeno</em>}
+            {s.cod_paid_at && <em>novac preuzet</em>}
           </span>
         </span>
         <ChevronDown size={16} className="skx-chev" />

@@ -9,17 +9,27 @@ const OPEN = new Set(["najava", "preuzeto", "u_dostavi", "odgodjena", "sporna"])
 const RETURNED = new Set(["vracena", "povrat_dostavljen"]);
 
 type Ship = {
-  order_number: string; product_prefix: string | null; ime: string | null; telefon: string | null;
+  order_number: string; order_date: string | null; product_prefix: string | null; ime: string | null; telefon: string | null;
   grad: string | null; sky_sifra: string | null; cod_amount: number; state: string; state_at: string | null;
   created_at: string; cod_paid_at: string | null; cod_presjek_at: string | null; cod_paid_amount: number | null;
 };
 type Cod = {
   sifra_otkupnine: string; sifra_izvorne_posiljke: string | null; status: number | null; iznos: number | null;
   datum_slanja: string | null; datum_dostave: string | null; datum_presjeka: string | null;
-  raw: { posiljalac?: string | null } | null;
 };
 
-export type CodStage = "na_terenu" | "naplaceno" | "u_isplati" | "uplaceno" | "izgubljeno";
+/**
+ * Where the cash-on-delivery money is. Skytec does not wire it to a bank
+ * account: for every delivered parcel it creates a separate "OTKUPNINA"
+ * shipment (code O…) addressed to the Živinice depot, where the money is
+ * picked up in person. So the stages are:
+ *   kod_kurira  → parcel still out for delivery
+ *   ceka_obracun → delivered, Skytec hasn't created the otkupnina yet
+ *   za_podizanje → otkupnina exists, money waits at Skytec to be picked up
+ *   preuzeto    → picked up (marked in admin, or Skytec status 10)
+ *   vraceno     → returned, no money
+ */
+export type CodStage = "kod_kurira" | "ceka_obracun" | "za_podizanje" | "preuzeto" | "vraceno";
 
 const r2 = (n: number) => Math.round(n * 100) / 100;
 const sarajevoDay = (iso: string) => new Date(iso).toLocaleDateString("sv-SE", { timeZone: "Europe/Sarajevo" });
@@ -36,160 +46,171 @@ async function all<T>(q: (from: number, to: number) => PromiseLike<{ data: unkno
   return out;
 }
 
-/**
- * GET ?days=60 → everything about cash-on-delivery money:
- * pipeline (where every KM is), payouts grouped by day, parcels waiting for
- * money, amount mismatches, timing stats and per-product totals.
- */
+/** GET ?days=60 → every COD parcel with its stage, plus pickups grouped by day. */
 export async function GET(req: NextRequest) {
   if (!isAdmin()) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const days = Math.min(180, Math.max(7, Number(req.nextUrl.searchParams.get("days")) || 60));
+  const days = Math.min(365, Math.max(7, Number(req.nextUrl.searchParams.get("days")) || 60));
   const since = new Date(Date.now() - days * DAY).toISOString();
   const sb = getSupabaseAdmin();
 
   try {
-    const [ships, cods] = await Promise.all([
-      all<Ship>((a, b) => sb.from("skytec_shipments")
-        .select("order_number, product_prefix, ime, telefon, grad, sky_sifra, cod_amount, state, state_at, created_at, cod_paid_at, cod_presjek_at, cod_paid_amount")
-        .gte("created_at", since).neq("state", "otkazana").gt("cod_amount", 0)
-        .order("created_at", { ascending: false }).range(a, b)),
-      all<Cod>((a, b) => sb.from("skytec_cod_payments")
-        .select("sifra_otkupnine, sifra_izvorne_posiljke, status, iznos, datum_slanja, datum_dostave, datum_presjeka, raw")
-        .or(`datum_dostave.gte.${since},datum_presjeka.gte.${since},datum_slanja.gte.${since}`)
-        .range(a, b)),
-    ]);
+    const ships = await all<Ship>((a, b) => sb.from("skytec_shipments")
+      .select("order_number, order_date, product_prefix, ime, telefon, grad, sky_sifra, cod_amount, state, state_at, created_at, cod_paid_at, cod_presjek_at, cod_paid_amount")
+      .gte("created_at", since).neq("state", "otkazana").gt("cod_amount", 0)
+      .order("created_at", { ascending: false }).range(a, b));
+
+    const sifre = ships.map((s) => s.sky_sifra).filter((s): s is string => !!s);
+    const cods: Cod[] = [];
+    for (let i = 0; i < sifre.length; i += 300) {
+      const { data, error } = await sb.from("skytec_cod_payments")
+        .select("sifra_otkupnine, sifra_izvorne_posiljke, status, iznos, datum_slanja, datum_dostave, datum_presjeka")
+        .in("sifra_izvorne_posiljke", sifre.slice(i, i + 300));
+      if (error) throw error;
+      cods.push(...((data ?? []) as Cod[]));
+    }
+    // Pickup records: what was actually handed over at the depot (entered when marking).
+    const { data: evs } = await sb.from("skytec_events")
+      .select("status_at, raw").eq("source", "cod_pickup").gte("status_at", since);
+    const receivedByDay = new Map<string, number>();
+    for (const e of (evs ?? []) as { status_at: string; raw: { received?: number } | null }[]) {
+      if (typeof e.raw?.received !== "number") continue;
+      const d = sarajevoDay(e.status_at);
+      receivedByDay.set(d, (receivedByDay.get(d) ?? 0) + e.raw.received);
+    }
 
     const codBySifra = new Map<string, Cod>();
     for (const c of cods) if (c.sifra_izvorne_posiljke) codBySifra.set(c.sifra_izvorne_posiljke, c);
-    const shipBySifra = new Map<string, Ship>();
-    for (const s of ships) if (s.sky_sifra) shipBySifra.set(s.sky_sifra, s);
-
-    // ── Pipeline ────────────────────────────────────────────
-    const stageOf = (s: Ship): CodStage => {
-      const c = s.sky_sifra ? codBySifra.get(s.sky_sifra) : undefined;
-      if (s.cod_paid_at || c?.status === 10) return "uplaceno";
-      // A COD remittance from Skytec means the customer paid, even if our
-      // copy of the parcel status hasn't caught up yet.
-      if (c || s.cod_presjek_at) return "u_isplati";
-      if (RETURNED.has(s.state)) return "izgubljeno";
-      if (OPEN.has(s.state)) return "na_terenu";
-      return "naplaceno";
-    };
 
     const pipeline: Record<CodStage, { count: number; amount: number }> = {
-      na_terenu: { count: 0, amount: 0 }, naplaceno: { count: 0, amount: 0 },
-      u_isplati: { count: 0, amount: 0 }, uplaceno: { count: 0, amount: 0 }, izgubljeno: { count: 0, amount: 0 },
+      kod_kurira: { count: 0, amount: 0 }, ceka_obracun: { count: 0, amount: 0 },
+      za_podizanje: { count: 0, amount: 0 }, preuzeto: { count: 0, amount: 0 }, vraceno: { count: 0, amount: 0 },
     };
-    const prod = new Map<string, { prefix: string; collected: number; outstanding: number; lost: number; parcels: number }>();
-    const waiting: {
-      order_number: string; ime: string | null; telefon: string | null; grad: string | null; product_prefix: string | null;
-      amount: number; stage: CodStage; delivered_at: string | null; days: number; sky_sifra: string | null;
-    }[] = [];
-    const paidDelays: number[] = [];
-    const mismatches: { order_number: string; ime: string | null; expected: number; paid: number; sky_sifra: string | null }[] = [];
+    const pickupMap = new Map<string, { date: string; count: number; total: number }>();
+    const now = Date.now();
 
-    for (const s of ships) {
-      const stage = stageOf(s);
-      const amt = Number(s.cod_amount) || 0;
+    const parcels = ships.map((s) => {
+      const c = s.sky_sifra ? codBySifra.get(s.sky_sifra) : undefined;
+      const pickedAt = s.cod_paid_at ?? (c?.status === 10 ? c.datum_dostave : null);
+      const stage: CodStage = pickedAt ? "preuzeto"
+        : c || s.cod_presjek_at ? "za_podizanje"
+        : RETURNED.has(s.state) ? "vraceno"
+        : OPEN.has(s.state) ? "kod_kurira"
+        : "ceka_obracun";
+      const amount = Number(s.cod_amount) || 0;
       pipeline[stage].count++;
-      pipeline[stage].amount += amt;
+      pipeline[stage].amount += amount;
 
-      const k = s.product_prefix ?? "?";
-      const p = prod.get(k) ?? { prefix: k, collected: 0, outstanding: 0, lost: 0, parcels: 0 };
-      p.parcels++;
-      if (stage === "uplaceno") p.collected += amt;
-      else if (stage === "izgubljeno") p.lost += amt;
-      else p.outstanding += amt;
-      prod.set(k, p);
-
-      if (stage === "naplaceno" || stage === "u_isplati") {
-        const from = s.state_at ?? s.created_at;
-        waiting.push({
-          order_number: s.order_number, ime: s.ime, telefon: s.telefon, grad: s.grad, product_prefix: s.product_prefix,
-          amount: amt, stage, delivered_at: s.state_at, sky_sifra: s.sky_sifra,
-          days: Math.max(0, Math.floor((Date.now() - new Date(from).getTime()) / DAY)),
-        });
+      const paid = pickedAt ? Number(s.cod_paid_amount ?? c?.iznos ?? amount) : null;
+      if (pickedAt) {
+        const d = sarajevoDay(pickedAt);
+        const g = pickupMap.get(d) ?? { date: d, count: 0, total: 0 };
+        g.count++;
+        g.total += paid ?? amount;
+        pickupMap.set(d, g);
       }
-
-      if (stage === "uplaceno") {
-        const c = s.sky_sifra ? codBySifra.get(s.sky_sifra) : undefined;
-        const paidAt = s.cod_paid_at ?? c?.datum_dostave ?? null;
-        if (paidAt && s.state_at) {
-          const d = (new Date(paidAt).getTime() - new Date(s.state_at).getTime()) / DAY;
-          if (d >= 0 && d < 60) paidDelays.push(d);
-        }
-        const paidAmt = Number(s.cod_paid_amount ?? c?.iznos ?? amt);
-        if (Math.abs(paidAmt - amt) >= 0.01) {
-          mismatches.push({ order_number: s.order_number, ime: s.ime, expected: amt, paid: paidAmt, sky_sifra: s.sky_sifra });
-        }
-      }
-    }
+      const deliveredAt = stage === "kod_kurira" || stage === "vraceno" ? null : s.state_at ?? c?.datum_slanja ?? null;
+      return {
+        order_number: s.order_number,
+        linked: !s.order_number.startsWith("SKY-"),
+        order_date: s.order_date ?? s.created_at.slice(0, 10),
+        ime: s.ime, telefon: s.telefon, grad: s.grad, product_prefix: s.product_prefix,
+        sky_sifra: s.sky_sifra, cod_sifra: c?.sifra_otkupnine ?? null,
+        amount, paid, stage,
+        delivered_at: deliveredAt,
+        picked_at: pickedAt ? sarajevoDay(pickedAt) : null,
+        // manual = we marked it in admin; Skytec-confirmed ones can't be unmarked here
+        picked_by_skytec: c?.status === 10,
+        waiting_days: stage === "za_podizanje" || stage === "ceka_obracun"
+          ? Math.max(0, Math.floor((now - new Date(deliveredAt ?? s.created_at).getTime()) / DAY))
+          : null,
+      };
+    });
     for (const v of Object.values(pipeline)) v.amount = r2(v.amount);
-    waiting.sort((a, b) => b.days - a.days || b.amount - a.amount);
 
-    // ── Payouts (money that reached you), grouped by day ────
-    const payoutMap = new Map<string, {
-      date: string; count: number; total: number;
-      items: { sifra: string | null; amount: number; ime: string | null; order_number: string | null; product_prefix: string | null }[];
-    }>();
-    const sinceMs = Date.now() - days * DAY;
-    let unmatchedCount = 0, unmatchedAmount = 0;
-    for (const c of cods) {
-      if (c.status !== 10 || !c.datum_dostave || new Date(c.datum_dostave).getTime() < sinceMs) continue;
-      const d = sarajevoDay(c.datum_dostave);
-      const g = payoutMap.get(d) ?? { date: d, count: 0, total: 0, items: [] };
-      const s = c.sifra_izvorne_posiljke ? shipBySifra.get(c.sifra_izvorne_posiljke) : undefined;
-      const amt = Number(c.iznos) || 0;
-      g.count++;
-      g.total += amt;
-      g.items.push({
-        sifra: c.sifra_izvorne_posiljke, amount: amt,
-        ime: s?.ime ?? c.raw?.posiljalac ?? null,
-        order_number: s && !s.order_number.startsWith("SKY-") ? s.order_number : null,
-        product_prefix: s?.product_prefix ?? null,
-      });
-      if (!s) { unmatchedCount++; unmatchedAmount += amt; }
-      payoutMap.set(d, g);
-    }
-    const payouts = Array.from(payoutMap.values())
-      .map((g) => ({ ...g, total: r2(g.total), items: g.items.sort((a, b) => (a.ime ?? "").localeCompare(b.ime ?? "")) }))
+    const pickups = Array.from(pickupMap.values())
+      .map((g) => ({ ...g, total: r2(g.total), received: receivedByDay.has(g.date) ? r2(receivedByDay.get(g.date)!) : null }))
       .sort((a, b) => b.date.localeCompare(a.date));
 
-    // Daily series for the last 30 days (paid out per day).
-    const series: { date: string; amount: number }[] = [];
-    for (let i = 29; i >= 0; i--) {
-      const d = sarajevoDay(new Date(Date.now() - i * DAY).toISOString());
-      series.push({ date: d, amount: payoutMap.get(d)?.total ?? 0 });
-    }
+    const mismatches = parcels
+      .filter((p) => p.paid != null && Math.abs(p.paid - p.amount) >= 0.01)
+      .map((p) => ({ order_number: p.order_number, ime: p.ime, expected: p.amount, paid: p.paid as number }));
 
-    paidDelays.sort((a, b) => a - b);
-    const avg = paidDelays.length ? paidDelays.reduce((a, b) => a + b, 0) / paidDelays.length : null;
-    const median = paidDelays.length ? paidDelays[Math.floor(paidDelays.length / 2)] : null;
-
-    const totalExpected = r2(ships.reduce((a, s) => a + (Number(s.cod_amount) || 0), 0));
+    // Things that need a look: Skytec forgot the otkupnina, or money sits at the depot too long.
+    const alerts = {
+      noOtkupnina: parcels.filter((p) => p.stage === "ceka_obracun" && (p.waiting_days ?? 0) > 3).map((p) => p.order_number),
+      longAtDepot: parcels.filter((p) => p.stage === "za_podizanje" && (p.waiting_days ?? 0) > 7).map((p) => p.order_number),
+    };
 
     return NextResponse.json({
       days,
-      totalExpected,
+      alerts,
+      totalExpected: r2(ships.reduce((a, s) => a + (Number(s.cod_amount) || 0), 0)),
       pipeline,
-      stats: {
-        avgDaysToPayout: avg != null ? Math.round(avg * 10) / 10 : null,
-        medianDaysToPayout: median != null ? Math.round(median * 10) / 10 : null,
-        longestWait: waiting[0]?.days ?? 0,
-        overdueCount: waiting.filter((w) => w.days > 7).length,
-        overdueAmount: r2(waiting.filter((w) => w.days > 7).reduce((a, w) => a + w.amount, 0)),
-        unmatchedCount,
-        unmatchedAmount: r2(unmatchedAmount),
-      },
-      waiting,
-      payouts,
-      series,
+      parcels,
+      pickups,
       mismatches,
-      byProduct: Array.from(prod.values())
-        .map((p) => ({ ...p, collected: r2(p.collected), outstanding: r2(p.outstanding), lost: r2(p.lost) }))
-        .sort((a, b) => b.collected + b.outstanding - (a.collected + a.outstanding)),
     });
   } catch (e) {
     return NextResponse.json({ error: e instanceof Error ? e.message : "Greška" }, { status: 500 });
   }
+}
+
+/**
+ * POST { orders: string[], date?: "YYYY-MM-DD", received?: number } → mark otkupnine as picked up
+ *   at the depot; `received` is the cash actually handed over (kept in skytec_events, source cod_pickup).
+ * POST { orders: string[], undo: true }           → unmark (mistake).
+ * Uses cod_paid_at / cod_paid_amount, which the rest of the admin already reads
+ * as "the money is with us".
+ */
+export async function POST(req: NextRequest) {
+  if (!isAdmin()) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const body = await req.json().catch(() => ({}));
+  const orders = Array.isArray(body.orders) ? body.orders.filter((o: unknown): o is string => typeof o === "string").slice(0, 500) : [];
+  if (!orders.length) return NextResponse.json({ error: "Nije odabrana nijedna otkupnina." }, { status: 400 });
+  const sb = getSupabaseAdmin();
+
+  if (body.undo) {
+    // Drop pickup records that covered these otkupnine; the user re-marks with the right amount.
+    for (const o of orders) {
+      await sb.from("skytec_events").delete().eq("source", "cod_pickup").contains("raw", { orders: [o] });
+    }
+    const { data, error } = await sb.from("skytec_shipments")
+      .update({ cod_paid_at: null, cod_paid_amount: null, updated_at: new Date().toISOString() })
+      .in("order_number", orders).select("order_number");
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ updated: data?.length ?? 0 });
+  }
+
+  const date = typeof body.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(body.date) ? body.date : null;
+  if (date && date > sarajevoDay(new Date().toISOString())) {
+    return NextResponse.json({ error: "Datum preuzimanja ne može biti u budućnosti." }, { status: 400 });
+  }
+  // Noon Sarajevo time, so the day never shifts across time zones.
+  const pickedAt = date ? new Date(`${date}T12:00:00+01:00`).toISOString() : new Date().toISOString();
+
+  const { data: rows, error } = await sb.from("skytec_shipments")
+    .select("order_number, cod_amount").in("order_number", orders).is("cod_paid_at", null);
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  let updated = 0, expected = 0;
+  const done: string[] = [];
+  for (const r of (rows ?? []) as { order_number: string; cod_amount: number }[]) {
+    const { error: e } = await sb.from("skytec_shipments")
+      .update({ cod_paid_at: pickedAt, cod_paid_amount: r.cod_amount, updated_at: new Date().toISOString() })
+      .eq("order_number", r.order_number).is("cod_paid_at", null);
+    if (!e) { updated++; expected += Number(r.cod_amount) || 0; done.push(r.order_number); }
+  }
+  const received = typeof body.received === "number" && Number.isFinite(body.received) && body.received >= 0
+    ? r2(body.received) : null;
+  if (done.length) {
+    await sb.from("skytec_events").insert({
+      source: "cod_pickup",
+      state: "preuzeto",
+      label: "Otkupnine preuzete u magacinu",
+      note: received != null && Math.abs(received - expected) >= 0.01
+        ? `Dobijeno ${received.toFixed(2)} KM, očekivano ${r2(expected).toFixed(2)} KM` : null,
+      status_at: pickedAt,
+      raw: { orders: done, expected: r2(expected), received },
+    });
+  }
+  return NextResponse.json({ updated, expected: r2(expected), received });
 }

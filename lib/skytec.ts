@@ -461,6 +461,51 @@ export async function pollOpenShipments(sb: Sb, limit = 120): Promise<{ checked:
 }
 
 /**
+ * Check every otkupnina (O… shipment to the Živinice depot) that isn't picked
+ * up yet, one by one. Skytec's ISPLATA list is per day and only the last few
+ * days are synced, so a late status change would otherwise be missed.
+ * Status 10 = delivered to us = cash picked up at the depot.
+ */
+export async function pollCodPickups(sb: Sb, limit = 150): Promise<{ checked: number; picked: number; errors: number }> {
+  const since = new Date(Date.now() - 90 * 86400_000).toISOString();
+  const { data } = await sb.from("skytec_cod_payments")
+    .select("sifra_otkupnine, sifra_izvorne_posiljke, iznos, status")
+    .or("status.is.null,status.neq.10")
+    .gte("created_at", since)
+    .limit(limit);
+  const rows = (data ?? []) as { sifra_otkupnine: string; sifra_izvorne_posiljke: string | null; iznos: number | null }[];
+  let picked = 0, errors = 0;
+  const queue = [...rows];
+  const worker = async () => {
+    for (let r = queue.shift(); r; r = queue.shift()) {
+      try {
+        const st = await getStatus(r.sifra_otkupnine);
+        if (st.status !== 10) continue;
+        // The last tracking event is the hand-over at the depot.
+        let at: string | null = null;
+        try {
+          const track = await getTrack({ sifra: r.sifra_otkupnine });
+          at = parseSkyDate(track[track.length - 1]?.datum);
+        } catch { /* fall back to now */ }
+        at ??= new Date().toISOString();
+        await sb.from("skytec_cod_payments").update({ status: 10, datum_dostave: at }).eq("sifra_otkupnine", r.sifra_otkupnine);
+        if (r.sifra_izvorne_posiljke) {
+          // Keep a date we set by hand; only fill it if empty.
+          await sb.from("skytec_shipments")
+            .update({ cod_paid_at: at, cod_paid_amount: r.iznos, updated_at: new Date().toISOString() })
+            .eq("sky_sifra", r.sifra_izvorne_posiljke).is("cod_paid_at", null);
+        }
+        picked++;
+      } catch {
+        errors++;
+      }
+    }
+  };
+  await Promise.all(Array.from({ length: 5 }, worker));
+  return { checked: rows.length, picked, errors };
+}
+
+/**
  * A notification arrived for a parcel we never announced via API (e.g. it was
  * uploaded through the Excel export). If the reference is one of our order
  * numbers, create the shipment row from the order so tracking still works.
