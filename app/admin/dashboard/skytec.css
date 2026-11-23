@@ -464,6 +464,7 @@
 .adn-calc .sum b { font-size: 17px; }
 .adn-calc .sub { padding: 2px 0 2px 14px; font-size: 13px; color: var(--skx-label-3); }
 .adn-calc .sub b { font-weight: 400; color: var(--skx-label-3); }
+.adn-gain { color: var(--skx-green); font-size: 13px; }
 .adn-calc .sum small { font-size: 13px; font-weight: 400; color: var(--skx-label-3); }
 .adn-pay { display: grid; grid-template-columns: 1fr 1fr 2fr auto; gap: 8px; padding: 12px 16px; align-items: center; }
 .adn-pay .skx-btn { height: 36px; }

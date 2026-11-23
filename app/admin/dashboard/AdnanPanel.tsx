@@ -180,10 +180,19 @@ export default function AdnanPanel() {
 
             <div className="adn-calc">
               <div><span>Naplaćeno od kupaca ({paket(t.delivered)})</span><b>{km(t.revenue)}</b></div>
-              <div className="sub"><span>od toga alat i pokloni</span><b>{km(t.revenue - t.shipping)}</b></div>
+              <div className="sub"><span>od toga alat</span><b>{km(t.revenue - t.shipping - t.gifts * data.settings.giftPrice)}</b></div>
+              {t.gifts > 0 && (
+                <div className="sub"><span>od toga pokloni ({t.gifts} × {km(data.settings.giftPrice)})</span><b>{km(t.gifts * data.settings.giftPrice)}</b></div>
+              )}
               <div className="sub"><span>od toga dostava (kupci platili)</span><b>{km(t.shipping)}</b></div>
               <div><span>Adnanu za alat</span><b className="cod-neg">−{km(t.adnan)}</b></div>
-              <div><span>Pokloni, brusne ploče ({t.gifts} × {km(data.settings.giftCost)})</span><b className="cod-neg">−{km(t.giftCost)}</b></div>
+              <div>
+                <span>
+                  Pokloni, nabavka brusnih ploča ({t.gifts} × {km(data.settings.giftCost)})
+                  {t.gifts > 0 && <small className="adn-gain"> · zarada na poklonima +{km(t.gifts * data.settings.giftPrice - t.giftCost)}</small>}
+                </span>
+                <b className="cod-neg">−{km(t.giftCost)}</b>
+              </div>
               {t.paidDelivery > 0 && (() => {
                 const net = Math.round((t.shipping - t.paidDeliveryPostage) * 100) / 100;
                 return (
