@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { AlertCircle, Download, Gift, Loader2, Plus, RefreshCw, Trash2 } from "lucide-react";
+import { AlertCircle, Download, Gift, Loader2, Megaphone, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { km, paket, plural, when, todayStr, downloadBlob, syncSkytec, lastSyncAt, agoText } from "./sk-format";
 import "./skytec.css";
 
@@ -29,6 +29,21 @@ type Data = {
   settings: { products: Record<string, { label: string; cost: number }>; giftPrice: number; giftCost: number; postage: number };
 };
 
+type Ads = {
+  connected: boolean;
+  error?: string;
+  from?: string;
+  today?: string;
+  account?: { name: string; statusLabel: string; ok: boolean; due: number; currency: string };
+  days?: { date: string; spend: number; purchases: number }[];
+  total?: { spend: number; purchases: number };
+  campaigns?: { id: string; name: string; spend: number; purchases: number }[];
+  rate?: number;
+};
+
+const usd = (n: number) => `$${n.toFixed(2).replace(".", ",")}`;
+const ADS_EVERY = 5 * 60_000;
+
 type Period = "month" | "all" | "custom";
 const FROM_KEY = "adn-from";
 const monthStart = () => `${todayStr().slice(0, 7)}-01`;
@@ -47,6 +62,8 @@ export default function AdnanPanel() {
   const [pay, setPay] = useState({ amount: "", paid_on: todayStr(), note: "" });
   const [saving, setSaving] = useState(false);
   const [payErr, setPayErr] = useState<string | null>(null);
+  const [ads, setAds] = useState<Ads | null>(null);
+  const [adsAt, setAdsAt] = useState<number | null>(null);
 
   useEffect(() => {
     try {
@@ -67,6 +84,21 @@ export default function AdnanPanel() {
   }, [from]);
 
   useEffect(() => { load(); }, [load]);
+
+  // Meta ad spend for the same period, refreshed every few minutes.
+  const adsFrom = data?.from;
+  const loadAds = useCallback(async () => {
+    if (!adsFrom) return;
+    const r = await fetch(`/api/admin/ads?from=${adsFrom}`);
+    const j = (await r.json().catch(() => ({ connected: true, error: "Greška pri učitavanju." }))) as Ads;
+    setAds(j);
+    setAdsAt(Date.now());
+  }, [adsFrom]);
+  useEffect(() => {
+    loadAds();
+    const id = setInterval(loadAds, ADS_EVERY);
+    return () => clearInterval(id);
+  }, [loadAds]);
 
   const refresh = useCallback(async (force: boolean) => {
     setSyncing(true);
@@ -124,6 +156,8 @@ export default function AdnanPanel() {
   };
 
   const t = data?.total;
+  const adsKm = ads?.total && ads.rate ? Math.round(ads.total.spend * ads.rate * 100) / 100 : null;
+  const todayAds = ads?.days?.find((d) => d.date === ads.today);
   const parcels = data ? (showAll ? data.parcels : data.parcels.slice(0, 25)) : [];
   const periodText = !data ? "" : data.from === data.start ? `od ${dmy(data.start)} (od kad radi Skytec API)` : `od ${dmy(data.from)}`;
 
@@ -213,6 +247,18 @@ export default function AdnanPanel() {
                 <span>Tvoj profit{t.delivered ? <small> · {km(t.profit / t.delivered)} po paketu</small> : null}</span>
                 <b className={t.profit >= 0 ? "cod-plus" : "cod-neg"}>{km(t.profit)}</b>
               </div>
+              {adsKm != null && ads?.total && (
+                <>
+                  <div>
+                    <span>Reklame na Meti ({usd(ads.total.spend)} × {String(ads.rate).replace(".", ",")})</span>
+                    <b className="cod-neg">−{km(adsKm)}</b>
+                  </div>
+                  <div className="sum">
+                    <span>Zarada nakon reklama<small> · reklame plaćaju i pakete koji su još u dostavi</small></span>
+                    <b className={t.profit - adsKm >= 0 ? "cod-plus" : "cod-neg"}>{km(t.profit - adsKm)}</b>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -220,6 +266,89 @@ export default function AdnanPanel() {
 
       {data && t && (
         <>
+          {/* ── Meta ads ─────────────────────────────────────── */}
+          <section className="skx-section">
+            <header className="skx-section-head">
+              <div>
+                <h2><Megaphone size={18} className="adn-ico" /> Reklame</h2>
+                <p>
+                  Meta račun {ads?.account?.name || "Almin"} · {periodText}
+                  {adsAt ? ` · ${agoText(adsAt)}, osvježava se svakih 5 min` : ""}
+                </p>
+              </div>
+              <button className="skx-icon" onClick={loadAds} aria-label="Osvježi reklame"><RefreshCw size={16} /></button>
+            </header>
+            {!ads ? (
+              <div className="skx-group"><div className="skx-empty"><Loader2 size={20} className="ad-spin" /></div></div>
+            ) : !ads.connected ? (
+              <div className="skx-banner"><AlertCircle size={16} /> Meta nije povezana: dodaj META_ADS_TOKEN u Vercel i ponovo objavi.</div>
+            ) : ads.error ? (
+              <div className="skx-banner"><AlertCircle size={16} /> Meta: {ads.error}</div>
+            ) : (
+              <>
+                {ads.account && (!ads.account.ok || ads.account.due > 0) && (
+                  <div className="skx-banner">
+                    <AlertCircle size={16} />
+                    {ads.account.ok ? "Račun radi" : `Račun: ${ads.account.statusLabel}, reklame ne idu`}
+                    {ads.account.due > 0 ? ` · neplaćeno ${usd(ads.account.due)} (~${km(ads.account.due * (ads.rate ?? 1))})` : ""}
+                  </div>
+                )}
+                <div className="skx-group skx-metrics">
+                  <div className="skx-metric">
+                    <span>Danas potrošeno</span>
+                    <b>{usd(todayAds?.spend ?? 0)}</b>
+                    <small>{plural(todayAds?.purchases ?? 0, "kupovina", "kupovine", "kupovina")}</small>
+                  </div>
+                  <div className="skx-metric">
+                    <span>Ukupno u periodu</span>
+                    <b>{usd(ads.total?.spend ?? 0)}</b>
+                    <small>~{km(adsKm ?? 0)}</small>
+                  </div>
+                  <div className="skx-metric">
+                    <span>Kupovine (Meta)</span>
+                    <b>{ads.total?.purchases ?? 0}</b>
+                    <small>{ads.total?.purchases ? `${usd(ads.total.spend / ads.total.purchases)} po kupovini` : "—"}</small>
+                  </div>
+                  <div className="skx-metric">
+                    <span>Reklame po preuzetom paketu</span>
+                    <b>{t.delivered && adsKm != null ? km(adsKm / t.delivered) : "—"}</b>
+                    <small>profit po paketu {t.delivered ? km(t.profit / t.delivered) : "—"}</small>
+                  </div>
+                </div>
+                {(ads.days?.length ?? 0) > 0 && (
+                  <div className="skx-group">
+                    {[...(ads.days ?? [])].reverse().map((d) => (
+                      <div key={d.date} className="skx-row static">
+                        <span className="skx-row-main">
+                          <span className="skx-row-title">{d.date === ads.today ? "Danas" : dmy(d.date)}</span>
+                          <span className="skx-row-sub">{plural(d.purchases, "kupovina", "kupovine", "kupovina")}{d.purchases ? ` · ${usd(d.spend / d.purchases)} po kupovini` : ""}</span>
+                        </span>
+                        <span className="skx-row-end">
+                          <span className="skx-row-amt">{usd(d.spend)}</span>
+                          <span className="skx-row-meta">~{km(d.spend * (ads.rate ?? 1))}</span>
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {(ads.campaigns?.length ?? 0) > 0 && (
+                  <div className="skx-group">
+                    {ads.campaigns!.map((c) => (
+                      <div key={c.id} className="skx-row static">
+                        <span className="skx-row-main">
+                          <span className="skx-row-title">{c.name}</span>
+                          <span className="skx-row-sub">{plural(c.purchases, "kupovina", "kupovine", "kupovina")}{c.purchases ? ` · ${usd(c.spend / c.purchases)} po kupovini` : ""}</span>
+                        </span>
+                        <span className="skx-row-amt">{usd(c.spend)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <p className="cod-foot">Iznosi u KM su po kursu 1 USD = {String(ads.rate).replace(".", ",")} KM; tačan iznos je na izvodu kartice. Meta brojke kasne oko 15 minuta.</p>
+              </>
+            )}
+          </section>
+
           {/* ── Still in transit ─────────────────────────────── */}
           <div className="skx-group skx-metrics">
             <div className="skx-metric">
