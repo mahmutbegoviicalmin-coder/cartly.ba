@@ -6,7 +6,8 @@ import { km, paket, plural, when, todayStr, downloadBlob, syncSkytec, lastSyncAt
 import "./skytec.css";
 
 type Totals = {
-  delivered: number; returned: number; open: number; revenue: number; adnan: number;
+  delivered: number; returned: number; open: number; revenue: number; shipping: number; adnan: number;
+  paidDelivery: number; paidDeliveryPostage: number; freeDelivery: number; freeDeliveryPostage: number;
   gifts: number; giftCost: number; postage: number; returnLoss: number; profit: number;
 };
 type Data = {
@@ -16,7 +17,7 @@ type Data = {
   total: Totals;
   owedAdnan: number;
   paidAdnan: number;
-  open: { count: number; amount: number; adnan: number };
+  open: { count: number; amount: number; adnan: number; postage: number };
   skytecOwes: number;
   byProduct: (Totals & { prefix: string; label: string; cost: number })[];
   parcels: {
@@ -178,12 +179,31 @@ export default function AdnanPanel() {
             </div>
 
             <div className="adn-calc">
-              <div><span>Preuzeto i naplaćeno ({paket(t.delivered)})</span><b>{km(t.revenue)}</b></div>
+              <div><span>Naplaćeno od kupaca ({paket(t.delivered)})</span><b>{km(t.revenue)}</b></div>
+              <div className="sub"><span>od toga alat i pokloni</span><b>{km(t.revenue - t.shipping)}</b></div>
+              <div className="sub"><span>od toga dostava (kupci platili)</span><b>{km(t.shipping)}</b></div>
               <div><span>Adnanu za alat</span><b className="cod-neg">−{km(t.adnan)}</b></div>
-              <div><span>Poštarina za preuzete ({paket(t.delivered)})</span><b className="cod-neg">−{km(t.postage)}</b></div>
               <div><span>Pokloni, brusne ploče ({t.gifts} × {km(data.settings.giftCost)})</span><b className="cod-neg">−{km(t.giftCost)}</b></div>
+              {t.paidDelivery > 0 && (() => {
+                const net = Math.round((t.shipping - t.paidDeliveryPostage) * 100) / 100;
+                return (
+                  <div>
+                    <span>Dostava koju plaća kupac ({paket(t.paidDelivery)}): kupci platili {km(t.shipping)}, Skytecu {km(t.paidDeliveryPostage)}</span>
+                    <b className={net < 0 ? "cod-neg" : "cod-plus"}>{net < 0 ? "−" : "+"}{km(Math.abs(net))}</b>
+                  </div>
+                );
+              })()}
+              {t.freeDelivery > 0 && (
+                <div>
+                  <span>Besplatna dostava, plaćaš ti ({paket(t.freeDelivery)}, Makita)</span>
+                  <b className="cod-neg">−{km(t.freeDeliveryPostage)}</b>
+                </div>
+              )}
               <div><span>Povrati, izgubljena poštarina ({paket(t.returned)})</span><b className="cod-neg">−{km(t.returnLoss)}</b></div>
-              <div className="sum"><span>Tvoj profit</span><b className={t.profit >= 0 ? "cod-plus" : "cod-neg"}>{km(t.profit)}</b></div>
+              <div className="sum">
+                <span>Tvoj profit{t.delivered ? <small> · {km(t.profit / t.delivered)} po paketu</small> : null}</span>
+                <b className={t.profit >= 0 ? "cod-plus" : "cod-neg"}>{km(t.profit)}</b>
+              </div>
             </div>
           </div>
         )}
@@ -199,14 +219,14 @@ export default function AdnanPanel() {
               <small>kad se preuzmu, Adnanu još {km(data.open.adnan)}</small>
             </div>
             <div className="skx-metric">
-              <span>Skytec ti još duguje</span>
+              <span>Čeka u Živinicama</span>
               <b>{km(data.skytecOwes)}</b>
-              <small>preuzeto, novac još nije na računu</small>
+              <small>kupci platili, otkupnina još nije podignuta</small>
             </div>
             <div className="skx-metric">
-              <span>Profit po paketu</span>
-              <b>{t.delivered ? km(t.profit / t.delivered) : "—"}</b>
-              <small>prosjek, s povratima</small>
+              <span>Poštarina plaćena unaprijed</span>
+              <b>{km(data.open.postage)}</b>
+              <small>za {paket(data.open.count)} u dostavi, vrati se kroz otkupninu</small>
             </div>
             <div className="skx-metric">
               <span>Vraćeno</span>
@@ -320,6 +340,7 @@ export default function AdnanPanel() {
               Nabavne cijene: {Object.values(data.settings.products).map((p) => `${p.label} ${km(p.cost)}`).join(" · ")}.
               Poklon: kupac plaća {km(data.settings.giftPrice)}, tebe košta {km(data.settings.giftCost)}.
               Poštarina se uzima iz Skyteca (inače {km(data.settings.postage)}).
+              Dostavu koju plati kupac uzimamo iz narudžbe (Milwaukee i DeWalt 10 KM, Makita besplatna). Jedna pošiljka = jedna poštarina, i kad ima više artikala.
             </p>
           </section>
         </>
