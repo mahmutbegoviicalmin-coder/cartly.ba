@@ -26,6 +26,14 @@ for (const s of sky ?? []) {
   }).eq("order_number", s.order_number);
   if (error) { console.log(s.order_number, "GREŠKA", error.message); continue; }
   await sb.from("skytec_events").update({ order_number: order.order_number }).eq("order_number", s.order_number);
+  // Pickup records ("Preuzeo sam") list order numbers in raw.orders; rename there too.
+  const { data: picks } = await sb.from("skytec_events").select("id, raw").eq("source", "cod_pickup");
+  for (const e of (picks ?? []) as { id: number; raw: { orders?: string[] } | null }[]) {
+    if (!e.raw?.orders?.includes(s.order_number)) continue;
+    await sb.from("skytec_events").update({
+      raw: { ...e.raw, orders: e.raw.orders.map((o) => (o === s.order_number ? order!.order_number : o)) },
+    }).eq("id", e.id);
+  }
   await syncOrderStatus(sb, order.order_number, s.state as ShipState);
   console.log(s.order_number, "→", order.order_number, "povezano");
 }
