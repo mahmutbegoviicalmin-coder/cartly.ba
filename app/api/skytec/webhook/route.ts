@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { timingSafeEqual } from "crypto";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import {
-  WEBHOOK_HEADER, STATE_LABEL, applyState, ensureShipmentFromOrder, notifyOwner,
+  WEBHOOK_HEADER, STATE_LABEL, applyState, ensureShipmentFromOrder, isCodShipment, notifyOwner,
   parseSkyDate, stateFromWebhook, type SkyNotification,
 } from "@/lib/skytec";
 
@@ -28,6 +28,24 @@ export async function POST(req: NextRequest) {
   const ref = n.referenceNumber?.trim() || null;
   const sifra = n.shipmentNumber?.trim() || null;
   const at = parseSkyDate(n.statusDate);
+
+  // Otkupnina (cash on its way to the depot): log it and, once delivered (= picked
+  // up by us), mark the parcel's money as picked up. Never apply it to the parcel.
+  if (isCodShipment(sifra)) {
+    await sb.from("skytec_events").insert({
+      callback_uid: n.callbackUID ?? null, source: "webhook", order_number: ref, sky_sifra: sifra,
+      status_code: n.statusCode ?? null, state: state ?? null, label: n.statusDescription ?? null,
+      note: n.note ?? null, status_at: at, raw: n,
+    });
+    if (state === "dostavljena" && sifra) {
+      const when = at ?? new Date().toISOString();
+      await sb.from("skytec_cod_payments").update({ status: 10, datum_dostave: when }).eq("sifra_otkupnine", sifra);
+      await sb.from("skytec_shipments")
+        .update({ cod_paid_at: when, updated_at: new Date().toISOString() })
+        .eq("sky_sifra", sifra.slice(1)).is("cod_paid_at", null);
+    }
+    return NextResponse.json({ ok: true, cod: true });
+  }
 
   // Unknown code or Skytec's registration test → just keep the raw event.
   if (!state || sifra === "TEST") {

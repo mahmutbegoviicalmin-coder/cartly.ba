@@ -294,6 +294,15 @@ export async function syncOrderStatus(sb: Sb, orderNumber: string, state: ShipSt
   }
 }
 
+/**
+ * Otkupnina (COD remittance) shipments are numbered "O" + parcel number
+ * (O11335220, OA004672194) and carry the same order reference as the parcel.
+ * Their status is the cash travelling to the depot, never the parcel's.
+ */
+export function isCodShipment(sifra?: string | null): boolean {
+  return !!sifra && /^O[A-Z]?\d+$/i.test(sifra.trim());
+}
+
 /** Apply a new state to a shipment row + order, and log the event. */
 export async function applyState(
   sb: Sb,
@@ -327,7 +336,11 @@ export async function applyState(
     if (error?.code === "23505") return { duplicate: true, matched: false };
   }
 
-  let q = sb.from("skytec_shipments").select("id, order_number, state, state_at");
+  // Never let an otkupnina's status touch the parcel row (it would set the parcel
+  // back to "u dostavi" and replace its tracking number).
+  if (isCodShipment(where.sky_sifra)) return { duplicate: false, matched: false };
+
+  let q = sb.from("skytec_shipments").select("id, order_number, state, state_at, sky_sifra");
   if (where.sky_sifra && where.order_number) {
     q = q.or(`sky_sifra.eq.${where.sky_sifra},order_number.eq.${where.order_number}`);
   } else if (where.sky_sifra) {
@@ -338,7 +351,7 @@ export async function applyState(
     return { duplicate: false, matched: false };
   }
   const { data: rows } = await q.limit(1);
-  const row = rows?.[0] as { id: string; order_number: string; state: string; state_at: string | null } | undefined;
+  const row = rows?.[0] as { id: string; order_number: string; state: string; state_at: string | null; sky_sifra: string | null } | undefined;
   if (!row) return { duplicate: false, matched: false };
 
   // Ignore out-of-order notifications that are older than what we have.
@@ -362,7 +375,8 @@ export async function applyState(
     state_note: ev.note ?? null,
     state_at: ev.at ?? new Date().toISOString(),
     updated_at: new Date().toISOString(),
-    ...(where.sky_sifra ? { sky_sifra: where.sky_sifra } : {}),
+    // Fill the tracking number once; never overwrite a known one.
+    ...(where.sky_sifra && !row.sky_sifra ? { sky_sifra: where.sky_sifra } : {}),
     ...(ev.trackingUrl ? { tracking_url: ev.trackingUrl } : {}),
   }).eq("id", row.id);
 
