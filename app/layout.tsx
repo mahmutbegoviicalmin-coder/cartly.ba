@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { CampaignBarGate } from "@/components/store/BlackNovember";
 import { QuickOrderGate } from "@/components/store/QuickOrder";
+import { HolidayNotice } from "@/components/store/HolidayNotice";
 import { StructuredData } from "@/components/store/StructuredData";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
 
@@ -105,6 +106,7 @@ export default function RootLayout({
         <CampaignBarGate />
         {children}
         <QuickOrderGate />
+        <HolidayNotice />
         <Analytics />
       </body>
     </html>
