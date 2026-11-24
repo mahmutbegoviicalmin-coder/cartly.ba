@@ -6,6 +6,7 @@ import { event } from "@/lib/fbpixel";
 
 import GiftAddon from "@/components/GiftAddon";
 import { GIFT_PRICE } from "@/lib/gift";
+import { ShipNote } from "@/components/store/ShipNote";
 /* ─── CONSTANTS ──────────────────────────────────────── */
 const ACCENT       = "#5C8B5A";
 const ACCENT_DARK  = "#4A7248";
@@ -946,6 +947,7 @@ export default function KomarnikClient() {
               <p style={{ fontSize: 16, color: TEXT_MUTED, lineHeight: 1.72, fontFamily: "var(--font-manrope),sans-serif", maxWidth: 400, margin: "0 auto" }}>
                 Narudžba je automatski zaprimljena. Paket stiže na vašu adresu za 1–2 radna dana.
               </p>
+              <ShipNote />
             </div>
           ) : (
             <>

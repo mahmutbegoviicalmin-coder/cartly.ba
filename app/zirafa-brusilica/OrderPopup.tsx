@@ -8,6 +8,7 @@ import { event } from "@/lib/fbpixel";
 
 import GiftAddon from "@/components/GiftAddon";
 import { GIFT_PRICE } from "@/lib/gift";
+import { ShipNote, shipDayText as nextShipText } from "@/components/store/ShipNote";
 const manrope = Manrope({ subsets: ["latin"], weight: ["400","500","600","700","800"], display: "swap" });
 
 const ACC  = "#0284C7";
@@ -24,8 +25,8 @@ const TOTAL      = UNIT_PRICE + DELIVERY;
 function fmt(n: number) { return n.toFixed(2).replace(".", ",") + " KM"; }
 
 function shippingDayText(): string {
-  const day = new Date().getDay(); // 0=Ned, 5=Pet, 6=Sub
-  return (day === 5 || day === 6 || day === 0) ? "šalje se u ponedjeljak" : "šalje se sutra";
+  // Skips weekends and holidays (Dan državnosti, …).
+  return `šalje se ${nextShipText()}`;
 }
 
 type Fields = { ime: string; telefon: string; adresa: string; grad: string };
@@ -222,6 +223,7 @@ export default function OrderPopup({ open, onClose }: Props) {
                     <p style={{ fontSize: 14, color: GR, fontFamily: F, lineHeight: 1.7, maxWidth: 280, margin: "0 auto 28px" }}>
                       Narudžba je zaprimljena, paket {shippingDayText()} putem Euro Express-a.
                     </p>
+                    <ShipNote />
                     <button
                       onClick={handleClose}
                       style={{ padding: "12px 32px", background: ACC, color: "#fff", border: "none", borderRadius: 10, fontSize: 15, fontWeight: 700, fontFamily: F, cursor: "pointer", boxShadow: "0 4px 16px rgba(2,132,199,0.3)" }}

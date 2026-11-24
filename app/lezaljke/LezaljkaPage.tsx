@@ -13,6 +13,7 @@ import { PRODUCT } from "./components/types";
 
 import GiftAddon from "@/components/GiftAddon";
 import { GIFT_PRICE } from "@/lib/gift";
+import { ShipNote } from "@/components/store/ShipNote";
 const PRICE = 59.9;
 const DELIVERY = 10.0;
 
@@ -132,6 +133,7 @@ export default function LezaljkaPage() {
           <p style={{ fontFamily: "var(--font-manrope), sans-serif", fontSize: 15, color: "#555", lineHeight: 1.6, margin: "0 0 28px" }}>
             Narudžba je automatski zaprimljena. Paket stiže na vašu adresu za 1–2 radna dana.
           </p>
+          <ShipNote />
           <Link href="/" style={{ display: "inline-block", background: "#1B4332", color: "#fff", padding: "14px 28px", borderRadius: 12, fontFamily: "var(--font-manrope), sans-serif", fontWeight: 700, fontSize: 15, textDecoration: "none" }}>
             Nazad na početnu
           </Link>

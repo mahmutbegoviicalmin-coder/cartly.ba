@@ -6,6 +6,7 @@ import { event } from "@/lib/fbpixel";
 
 import GiftAddon from "@/components/GiftAddon";
 import { GIFT_PRICE } from "@/lib/gift";
+import { ShipNote } from "@/components/store/ShipNote";
 const BLUE  = "#1a5fff";
 const BLUE2 = "#1448d4";
 const BLK   = "#0a0a1a";
@@ -258,6 +259,7 @@ export default function OrderPopup({ open, onClose, initialBundle }: Props) {
                     <p style={{ fontSize: 14, color: GR, fontFamily: F, lineHeight: 1.7, maxWidth: 280, margin: "0 auto 28px" }}>
                       Narudžba je automatski zaprimljena. Paket stiže na vašu adresu za 1–2 radna dana.
                     </p>
+                    <ShipNote />
                     <button
                       onClick={handleClose}
                       style={{ padding: "12px 32px", background: BLUE, color: "#fff", border: "none", borderRadius: 10, fontSize: 15, fontWeight: 700, fontFamily: F, cursor: "pointer", boxShadow: "0 4px 16px rgba(26,95,255,0.3)" }}

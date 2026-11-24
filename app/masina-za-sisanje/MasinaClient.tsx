@@ -6,6 +6,7 @@ import { event } from "@/lib/fbpixel";
 
 import GiftAddon from "@/components/GiftAddon";
 import { GIFT_PRICE } from "@/lib/gift";
+import { ShipNote } from "@/components/store/ShipNote";
 const ACCENT    = "#FF6B00";
 const PRICE    = 89.90;
 const DELIVERY = 10.00;
@@ -779,6 +780,7 @@ export default function MasinaClient() {
               <p style={{ fontSize:14, color:"rgba(0,0,0,0.50)", margin:0, lineHeight:1.65, fontFamily:"var(--font-manrope),sans-serif" }}>
                 Narudžba je automatski zaprimljena. Paket stiže na vašu adresu za 1–2 radna dana.
               </p>
+              <ShipNote />
             </div>
           ) : (
             <form onSubmit={handleSubmit} style={{

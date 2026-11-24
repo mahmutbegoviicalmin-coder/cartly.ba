@@ -11,6 +11,7 @@ import OrderPopup from "./OrderPopup";
 
 import GiftAddon from "@/components/GiftAddon";
 import { GIFT_PRICE } from "@/lib/gift";
+import { ShipNote, shipDayText as nextShipText } from "@/components/store/ShipNote";
 const manrope = Manrope({ subsets: ["latin"], weight: ["400","500","600","700","800"], display: "swap" });
 
 /* ─── TOKENS ──────────────────────────────────── */
@@ -32,8 +33,8 @@ const TOTAL      = UNIT_PRICE + DELIVERY;
 const DISCOUNT_PCT = Math.round((1 - UNIT_PRICE / OLD_PRICE) * 100);
 
 function shippingDayText(): string {
-  const day = new Date().getDay(); // 0=Ned, 5=Pet, 6=Sub
-  return (day === 5 || day === 6 || day === 0) ? "šalje se u ponedjeljak" : "šalje se sutra";
+  // Skips weekends and holidays (Dan državnosti, …).
+  return `šalje se ${nextShipText()}`;
 }
 
 function fmt(n: number) { return n.toFixed(2).replace(".", ",") + " KM"; }
@@ -337,6 +338,7 @@ function InlineOrderForm() {
         <div style={{ fontSize: 20, fontWeight: 900, color: BLK, fontFamily: F, marginBottom: 6 }}>Narudžba primljena!</div>
         <div style={{ fontSize: 13, color: GR, fontFamily: F, marginBottom: 10 }}>Broj narudžbe: <strong style={{ color: BLK }}>{orderNum}</strong></div>
         <p style={{ fontSize: 14, color: GR, fontFamily: F, lineHeight: 1.7 }}>Narudžba je zaprimljena, paket {shippingDayText()} putem Euro Express-a.</p>
+        <ShipNote />
       </div>
     );
   }

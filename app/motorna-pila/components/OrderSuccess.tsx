@@ -2,6 +2,7 @@
 
 import { Check } from "lucide-react";
 import { fmtKM } from "../product";
+import { ShipNote } from "@/components/store/ShipNote";
 
 export default function OrderSuccess({
   orderNumber,
@@ -21,6 +22,7 @@ export default function OrderSuccess({
       <p className="mp-copy" style={{ marginInline: "auto" }}>
         Narudžba je automatski zaprimljena. Paket stiže na tvoju adresu za 1–2 radna dana.
       </p>
+      <ShipNote />
       <div style={{ marginTop: 22, padding: "16px 0", borderTop: "1px solid #d8d6cf", borderBottom: "1px solid #d8d6cf" }}>
         <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "#6b6e68" }}>
           Broj narudžbe

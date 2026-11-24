@@ -12,6 +12,7 @@ import {
 import { event } from "@/lib/fbpixel";
 import HeroImage from "./HeroImage";
 import OrderForm from "./OrderForm";
+import { ShipNote } from "@/components/store/ShipNote";
 
 // ─── Countdown: real end of Black November, hidden after it ends ─────────────
 function useCountdown() {
@@ -332,6 +333,7 @@ export default function BrusilicaPage() {
                 <p className="mt-2 text-[15px] text-[#6E6E73]">
                   Narudžba je 100% zaprimljena. Paket stiže na vašu adresu za 1–2 radna dana.
                 </p>
+                <ShipNote />
                 <a href="/" className="brs-ghost mt-8 inline-flex h-[50px] w-full items-center justify-center rounded-full bg-[#1D1D1F] text-[16px] font-semibold text-white hover:bg-black">
                   Vrati se na početnu
                 </a>

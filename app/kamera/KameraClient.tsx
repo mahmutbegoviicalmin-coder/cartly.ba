@@ -13,6 +13,7 @@ import {
 
 import GiftAddon from "@/components/GiftAddon";
 import { GIFT_PRICE } from "@/lib/gift";
+import { ShipNote } from "@/components/store/ShipNote";
 /* ─── TOKENS ─────────────────────────────────────────────────────── */
 const F      = "var(--font-manrope),'Inter',-apple-system,sans-serif";
 const NAVY   = "#0F172A";
@@ -838,6 +839,7 @@ function OrderModal({ open, onClose }: { open: boolean; onClose: () => void }) {
                   </div>
                   <h3 style={{ fontSize:24, fontWeight:900, color:NAVY, letterSpacing:"-0.03em", margin:"0 0 10px" }}>Narudžba primljena!</h3>
                   <p style={{ fontSize:14, color:MUTED, lineHeight:1.7, maxWidth:320, margin:"0 auto" }}>Narudžba je automatski zaprimljena. Paket stiže za 1–2 radna dana. Hvala na povjerenju!</p>
+                  <ShipNote />
                   <button onClick={onClose} style={{ marginTop:28, padding:"14px 36px", background:`linear-gradient(135deg, ${BLUE} 0%, ${BLUE2} 100%)`, color:"#fff", border:"none", borderRadius:14, fontSize:15, fontWeight:700, cursor:"pointer" }}>Zatvori</button>
                 </div>
               ) : (
@@ -1107,6 +1109,7 @@ function OfferSection() {
               <p style={{ fontSize:15, color:MUTED, fontFamily:F, lineHeight:1.7, maxWidth:380, margin:"0 auto" }}>
                 Narudžba je automatski zaprimljena. Paket stiže za 1–2 radna dana. Hvala na povjerenju!
               </p>
+              <ShipNote />
             </div>
           ) : (
             <>

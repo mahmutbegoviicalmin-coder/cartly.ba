@@ -6,6 +6,7 @@ import { createPortal } from "react-dom";
 
 import GiftAddon from "@/components/GiftAddon";
 import { GIFT_PRICE } from "@/lib/gift";
+import { ShipNote } from "@/components/store/ShipNote";
 /* ── Constants ───────────────────────────────────────────────────── */
 const ACCENT  = "#B33000";
 const F       = "var(--font-manrope, 'Inter', sans-serif)";
@@ -540,6 +541,7 @@ function OrderModal({ open, onClose, initialSize }: { open: boolean; onClose: ()
             </div>
             <h3 style={{ fontSize: 22, fontWeight: 900, color: "#0A0A0A", letterSpacing: "-0.03em", margin: "0 0 10px", fontFamily: F }}>Narudžba primljena!</h3>
             <p style={{ fontSize: 14, color: "#888", lineHeight: 1.75, margin: "0 0 28px", maxWidth: 300, marginLeft: "auto", marginRight: "auto", fontFamily: F }}>Narudžba je 100% zaprimljena. Paket stiže za 1–2 radna dana.</p>
+            <ShipNote />
             <button onClick={onClose} style={{ padding: "13px 36px", background: "#0A0A0A", color: "#fff", border: "none", borderRadius: 13, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: F }}>Zatvori</button>
           </div>
         ) : (
@@ -715,6 +717,7 @@ function QuickOrderSection({ onDone }: { onDone?: (orderNumber: string, total: n
         </div>
         <h3 style={{ fontFamily: F, fontWeight: 800, fontSize: 22, color: "#0A0A0A", letterSpacing: "-0.02em", margin: "0 0 10px" }}>Hvala, {name.split(" ")[0]}!</h3>
         <p style={{ fontFamily: F, fontSize: 15, color: "#666", lineHeight: 1.6, margin: 0 }}>Narudžba je automatski zaprimljena. Paket stiže na vašu adresu za 1–2 radna dana.</p>
+        <ShipNote />
       </div>
     </section>
   );

@@ -5,6 +5,7 @@ import { event } from "@/lib/fbpixel";
 import { track } from "@vercel/analytics";
 import { isValidBaPhone, PHONE_ERROR } from "@/lib/ba-phone";
 import { useOrderProtection } from "@/lib/order-protection";
+import { ShipNote } from "@/components/store/ShipNote";
 
 const SIZES = [39, 40, 41, 42, 43, 44, 45, 46, 47, 48];
 const OUT_OF_STOCK = new Set([47, 48]);
@@ -88,6 +89,7 @@ export default function QuickOrderCTA() {
           <p style={{ fontFamily: "var(--font-manrope), sans-serif", fontSize: 15, color: "#666", lineHeight: 1.6, margin: 0 }}>
             Narudžba je automatski zaprimljena. Paket stiže na vašu adresu za 1–2 radna dana.
           </p>
+          <ShipNote />
         </div>
       </section>
     );

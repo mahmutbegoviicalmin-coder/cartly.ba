@@ -7,6 +7,7 @@ import { INK, MUTED, BG, F } from "./theme";
 
 import GiftAddon from "@/components/GiftAddon";
 import { GIFT_PRICE } from "@/lib/gift";
+import { ShipNote } from "@/components/store/ShipNote";
 export const UNIT_PRICE = 49.9;
 export const DELIVERY   = 10;
 export const PRODUCT    = "AirPods Pro";
@@ -156,6 +157,7 @@ export default function OrderForm({ compact, onSuccess }: Props) {
         }}>
           Narudžba je automatski zaprimljena. Plaćanje pouzećem, paket stiže za 1–2 radna dana.
         </p>
+        <ShipNote />
       </div>
     );
   }

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Check, Package, Truck, Banknote, ArrowRight } from "lucide-react";
 import { useState } from "react";
+import { ShipNote } from "@/components/store/ShipNote";
 
 const ACCENT = "#B33000";
 
@@ -83,6 +84,7 @@ export default function OrderSuccess() {
         <br />
         Dostava 1–2 radna dana. Plaćanje pouzećem prilikom preuzimanja.
       </p>
+      <ShipNote />
 
       {/* ── Trust features ── */}
       <div

@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { event } from "@/lib/fbpixel";
 import OrderForm from "./OrderForm";
+import { ShipNote } from "@/components/store/ShipNote";
 
 /** Flip to true when the set is sold out: CTAs and the form are replaced by a notice. */
 const OUT_OF_STOCK = false;
@@ -376,6 +377,7 @@ export default function DeWaltPage() {
                   Hvala vam na povjerenju. Vaša narudžba je evidentirana i trenutno se obrađuje.
                 </p>
                 <p className="mt-2 text-[15px] text-[#6E6E73]">Narudžba je 100% zaprimljena. Paket stiže na vašu adresu za 1–2 radna dana.</p>
+                <ShipNote />
                 <a href="/" className="dw-ghost mt-8 inline-flex h-[50px] w-full items-center justify-center rounded-full bg-[#1D1D1F] text-[16px] font-semibold text-white hover:bg-black">
                   Vrati se na početnu
                 </a>

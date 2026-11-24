@@ -13,6 +13,7 @@ import GiftAddon from "@/components/GiftAddon";
 import { GIFT_PRICE } from "@/lib/gift";
 import { BlackNovemberCartNote } from "@/components/store/BlackNovember";
 import ProductOnFloor from "@/components/store/ProductOnFloor";
+import { ShipNote } from "@/components/store/ShipNote";
 
 /*
  * Shared premium landing page for single products (Milwaukee set, Milwaukee
@@ -594,6 +595,7 @@ export default function ProductLanding({ c }: { c: LandingConfig }) {
                 </span>
                 <h2 className="mt-6 text-[28px] font-semibold leading-tight tracking-[-0.03em] sm:text-[34px]">Narudžba je zaprimljena.</h2>
                 <p className="mt-3 text-[17px] leading-[1.55] text-[#424245]">Hvala vam na povjerenju. Narudžba je 100% zaprimljena i paket šaljemo odmah.</p>
+                <ShipNote />
                 <p className="mt-2 text-[15px] text-[#6E6E73]">Paket stiže na vašu adresu za 1–2 radna dana. Plaćate kuriru pri preuzimanju.</p>
                 <a href="/" className="mt-8 inline-flex h-[50px] w-full items-center justify-center rounded-full bg-[#1D1D1F] text-[16px] font-semibold text-white transition-colors hover:bg-black">
                   Vrati se na početnu

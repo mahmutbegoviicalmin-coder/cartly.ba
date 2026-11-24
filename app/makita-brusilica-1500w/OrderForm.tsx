@@ -10,6 +10,7 @@ import {
   INK, MUTED, BG, LINE, TEAL, TEAL_T,
   PRODUCT, CONTENT_ID, UNIT_PRICE, GIFT_PRICE, DELIVERY, fmt,
 } from "./theme";
+import { ShipNote } from "@/components/store/ShipNote";
 
 type Fields = { ime: string; prezime: string; telefon: string; grad: string; postanski: string; adresa: string };
 type Errs   = Partial<Record<keyof Fields, string>>;
@@ -186,6 +187,7 @@ export default function OrderForm({ onClose }: { onClose?: () => void }) {
             ? "Brza pošta ne radi vikendom, pa vaš paket šaljemo u ponedjeljak. Dostava traje 1 do 2 radna dana."
             : "Paket šaljemo u najkraćem roku i stiže za 1 do 2 radna dana."}
         </p>
+        <ShipNote />
         <div style={{ marginTop: 20, display: "inline-flex", gap: 8, padding: "10px 16px", borderRadius: 999, background: BG, fontSize: 13, color: MUTED }}>
           Broj narudžbe <strong style={{ color: INK, fontWeight: 600 }}>{done}</strong>
         </div>

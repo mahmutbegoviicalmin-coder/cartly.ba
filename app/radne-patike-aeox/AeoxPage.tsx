@@ -8,6 +8,7 @@ import { event as fbEvent } from "@/lib/fbpixel";
 
 import GiftAddon from "@/components/GiftAddon";
 import { GIFT_PRICE } from "@/lib/gift";
+import { ShipNote, shipDayText, withDot } from "@/components/store/ShipNote";
 /* ── Constants ───────────────────────────────────────────────────── */
 const ACCENT  = "#C14822";
 // Same system stack as the other product pages (SF Pro on Apple devices); Sora was too cramped here.
@@ -15,13 +16,9 @@ const F       = "-apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"SF Pro
 const PRICE    = 59.90;
 const DELIVERY = 0;
 
-const DAY_NAMES = ["nedjelja", "ponedjeljak", "utorak", "srijeda", "četvrtak", "petak", "subota"];
-
 function OrderReceivedCopy({ style }: { style: CSSProperties }) {
-  const day = new Date().getDay();
-  const ships = (day === 0 || day === 5 || day === 6)
-    ? "Vaša narudžba se šalje u ponedjeljak."
-    : `Vaša narudžba se šalje sutra (${DAY_NAMES[(day + 1) % 7]}).`;
+  // Skips weekends and holidays (Dan državnosti, …).
+  const ships = `Vaša narudžba se šalje ${withDot(shipDayText())}`;
   return (
     <p style={style}>
       Vaša narudžba je primljena.<br />
@@ -361,6 +358,7 @@ function OrderModal({ open, onClose, initialSize }: { open: boolean; onClose: ()
             </div>
             <h3 style={{ fontSize: 22, fontWeight: 700, color: "#0A0A0A", letterSpacing: "-0.03em", margin: "0 0 10px", fontFamily: F }}>Hvala{fields.ime.trim() ? `, ${fields.ime.trim().split(" ")[0]}` : ""}!</h3>
             <OrderReceivedCopy style={{ fontSize: 14, color: "#888", lineHeight: 1.75, margin: "0 0 28px", maxWidth: 320, marginLeft: "auto", marginRight: "auto", fontFamily: F }} />
+            <ShipNote />
             <button onClick={onClose} style={{ padding: "13px 36px", background: "#0A0A0A", color: "#fff", border: "none", borderRadius: 13, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: F }}>Zatvori</button>
           </div>
         ) : (
@@ -553,6 +551,7 @@ function QuickOrderSection({ onDone }: { onDone?: (orderNumber: string, total: n
         </div>
         <h3 style={{ fontFamily: F, fontWeight: 800, fontSize: 22, color: "#0A0A0A", letterSpacing: "-0.02em", margin: "0 0 10px" }}>Hvala, {name.split(" ")[0]}!</h3>
         <OrderReceivedCopy style={{ fontFamily: F, fontSize: 15, color: "#666", lineHeight: 1.6, margin: 0 }} />
+        <ShipNote />
       </div>
     </section>
   );

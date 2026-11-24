@@ -7,6 +7,7 @@ import { event } from "@/lib/fbpixel";
 
 import GiftAddon from "@/components/GiftAddon";
 import { GIFT_PRICE } from "@/lib/gift";
+import { ShipNote } from "@/components/store/ShipNote";
 const SIZES = [
   { size: "S", price: 42, desc: "Djeca do 9 godina" },
   { size: "M", price: 45, desc: "Djeca do 15 godina" },
@@ -168,6 +169,7 @@ export default function OrderModal({ open, onClose, initialSize, initialColor }:
                   <p className="mb-6 text-[14px] leading-relaxed text-[#061B38]/60">
                     Narudžba je automatski zaprimljena. Paket stiže na vašu adresu za 1–2 radna dana.
                   </p>
+                  <ShipNote />
                   <button
                     onClick={onClose}
                     className="rounded-2xl bg-[#061B38] px-8 py-3.5 text-[14px] font-bold text-white transition-transform hover:scale-[1.02] active:scale-95"

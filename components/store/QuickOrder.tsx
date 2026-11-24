@@ -11,6 +11,7 @@ import { GIFT_PRICE } from "@/lib/gift";
 import { event } from "@/lib/fbpixel";
 import { useOrderProtection } from "@/lib/order-protection";
 import { isValidBaPhone, looksLikeRealAddress, looksLikeRealName, looksLikeRealPlace, PHONE_ERROR } from "@/lib/ba-phone";
+import { ShipNote } from "@/components/store/ShipNote";
 
 /*
  * One floating "Naruči" button + one order pop-up for every product page.
@@ -374,6 +375,7 @@ function OrderDialog({ slug, cfg, onClose }: { slug: string; cfg: QuickOrderConf
               Narudžba je zaprimljena automatski, ne trebate čekati poziv.
               Paket stiže za 1–2 radna dana, a plaćate kad ga preuzmete.
             </p>
+            <ShipNote />
             {done && <p className="mb-6 text-[14px] text-black/55">Broj narudžbe: <b className="text-[#1D1D1F]">{done}</b></p>}
             <p className="mb-6 text-[15.5px] font-bold text-[#1D1D1F]">Za platiti pri preuzimanju: {km(total)}</p>
             <button type="button" onClick={onClose} className="h-[50px] w-full rounded-[16px] bg-[#1D1D1F] text-[16px] font-bold text-white">Zatvori</button>

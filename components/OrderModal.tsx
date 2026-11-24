@@ -9,6 +9,7 @@ import { useOrderProtection } from "@/lib/order-protection";
 
 import GiftAddon from "@/components/GiftAddon";
 import { GIFT_PRICE } from "@/lib/gift";
+import { ShipNote } from "@/components/store/ShipNote";
 const SIZES = [39, 40, 41, 42, 43, 44, 45, 46, 47];
 const OUT_OF_STOCK = new Set<number>([47]);
 const PRICE = 59.9;
@@ -140,6 +141,7 @@ export default function OrderModal({ open, onClose, initialSize }: Props) {
               <p style={{ fontFamily: "var(--font-manrope), sans-serif", fontSize: 14, color: "#666", lineHeight: 1.6, marginBottom: 20 }}>
                 Narudžba je automatski zaprimljena. Paket stiže na vašu adresu za 1–2 radna dana.
               </p>
+              <ShipNote />
               <button onClick={onClose} style={{ background: "#0A0A0A", color: "#fff", border: "none", borderRadius: 12, padding: "13px 28px", fontFamily: "var(--font-manrope), sans-serif", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>Zatvori</button>
             </div>
           ) : (
