@@ -74,13 +74,15 @@ export async function GET(req: NextRequest) {
     const n = Array.isArray(v) ? v.reduce((a: number, x: { kolicina?: number }) => a + (Number(x?.kolicina) || 0), 0) : 0;
     return n > 0 ? n : 1;
   };
-  // We prepay Skytec's postage; the delivery inside the otkupnina brings it back.
-  // Products sold with "free" delivery (order dostava = 0, e.g. Makita) have it
-  // built into the price, so there it covers exactly the postage.
-  const deliveryCharged = (s: Ship) => {
+  // Delivery shown to the customer (order dostava; Makita = 0, "besplatna").
+  const deliveryListed = (s: Ship) => {
     const o = orders.get(s.order_number);
     return o ? Number(o.dostava) || 0 : ADNAN_PRODUCTS[s.product_prefix].delivery;
   };
+  // We prepay Skytec's postage and the customer pays it back in the otkupnina:
+  // as a delivery line (Milwaukee, DeWalt 10 KM) or built into the price where
+  // delivery is advertised as free (Makita), where it covers exactly the postage.
+  const deliveryCharged = (s: Ship, postage: number) => deliveryListed(s) || postage;
   const total = blank();
   const byProduct = new Map<string, ReturnType<typeof blank> & { prefix: string; label: string; cost: number }>();
   const parcels: {
@@ -100,11 +102,11 @@ export async function GET(req: NextRequest) {
       const gift = hasGift(s);
       const giftCost = gift ? GIFT_COST : 0;
       const cost = prod.cost * qtyOf(s);
-      const charged = deliveryCharged(s);
+      const charged = deliveryCharged(s, postage);
       const profit = cod - cost - giftCost - postage;
       for (const t of [total, p]) {
         t.delivered++; t.revenue += cod; t.shipping += charged; t.adnan += cost; t.postage += postage; t.profit += profit;
-        if (charged > 0) { t.paidDelivery++; t.paidDeliveryPostage += postage; }
+        if (deliveryListed(s) > 0) { t.paidDelivery++; t.paidDeliveryPostage += postage; }
         else { t.freeDelivery++; t.freeDeliveryPostage += postage; }
         if (gift) { t.gifts++; t.giftCost += giftCost; }
       }

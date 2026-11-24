@@ -284,7 +284,7 @@ export default function AdnanPanel() {
           <dl className="kx-ledger">
             <div><dt>Naplaćeno</dt><dd>{km(t.revenue)}</dd></div>
             <div><dt>Adnanu za alat</dt><dd className="neg">−{km(t.adnan)}</dd></div>
-            <div><dt>Poštarina <small>kupci platili {km(t.shipping)} dostave</small></dt><dd className="neg">−{km(t.postage)}</dd></div>
+            <div><dt>Poštarina <small>kupci platili {km(t.shipping)} kroz cijenu (i Makita, gdje piše besplatna)</small></dt><dd className="neg">−{km(t.postage)}</dd></div>
             <div><dt>Brusne ploče <small>{t.gifts} poklona, zarada {signed(t.gifts * data.settings.giftPrice - t.giftCost)}</small></dt><dd className="neg">−{km(t.giftCost)}</dd></div>
             {t.returned > 0 && <div><dt>Povrati <small>{paket(t.returned)}</small></dt><dd className="neg">−{km(t.returnLoss)}</dd></div>}
             <div className="sub"><dt>Profit</dt><dd>{km(t.profit)}</dd></div>
