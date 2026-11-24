@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { isAdmin } from "@/lib/admin-auth";
+import { SHEET_BUCKET } from "@/lib/cod-sheet";
 
 export const dynamic = "force-dynamic";
 
@@ -72,10 +73,18 @@ export async function GET(req: NextRequest) {
     const { data: evs } = await sb.from("skytec_events")
       .select("status_at, raw").eq("source", "cod_pickup").gte("status_at", since);
     const receivedByDay = new Map<string, number>();
-    for (const e of (evs ?? []) as { status_at: string; raw: { received?: number } | null }[]) {
-      if (typeof e.raw?.received !== "number") continue;
+    const photosByDay = new Map<string, string[]>();
+    for (const e of (evs ?? []) as { status_at: string; raw: { received?: number; photos?: string[] } | null }[]) {
       const d = sarajevoDay(e.status_at);
+      if (e.raw?.photos?.length) photosByDay.set(d, [...(photosByDay.get(d) ?? []), ...e.raw.photos]);
+      if (typeof e.raw?.received !== "number") continue;
       receivedByDay.set(d, (receivedByDay.get(d) ?? 0) + e.raw.received);
+    }
+    // Signed links (1 h) to the photographed Skytec sheets of each pickup.
+    const photoUrls = new Map<string, string[]>();
+    for (const [d, paths] of Array.from(photosByDay)) {
+      const { data } = await sb.storage.from(SHEET_BUCKET).createSignedUrls(paths, 3600);
+      photoUrls.set(d, (data ?? []).map((x) => x.signedUrl).filter(Boolean) as string[]);
     }
 
     const codBySifra = new Map<string, Cod>();
@@ -128,7 +137,7 @@ export async function GET(req: NextRequest) {
     for (const v of Object.values(pipeline)) v.amount = r2(v.amount);
 
     const pickups = Array.from(pickupMap.values())
-      .map((g) => ({ ...g, total: r2(g.total), received: receivedByDay.has(g.date) ? r2(receivedByDay.get(g.date)!) : null }))
+      .map((g) => ({ ...g, total: r2(g.total), received: receivedByDay.has(g.date) ? r2(receivedByDay.get(g.date)!) : null, photos: photoUrls.get(g.date) ?? [] }))
       .sort((a, b) => b.date.localeCompare(a.date));
 
     const mismatches = parcels
@@ -232,7 +241,11 @@ export async function POST(req: NextRequest) {
       note: received != null && Math.abs(received - expected) >= 0.01
         ? `Dobijeno ${received.toFixed(2)} KM, očekivano ${r2(expected).toFixed(2)} KM` : null,
       status_at: pickedAt,
-      raw: { orders: done, expected: r2(expected), received },
+      raw: {
+        orders: done, expected: r2(expected), received,
+        // Paths in the cod-sheets bucket: the Skytec specification this pickup was checked against.
+        photos: Array.isArray(body.photos) ? body.photos.filter((p: unknown): p is string => typeof p === "string").slice(0, 8) : [],
+      },
     });
   }
   return NextResponse.json({ updated, expected: r2(expected), received });

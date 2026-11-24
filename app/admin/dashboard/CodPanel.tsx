@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Check, Download, Loader2, AlertCircle, RefreshCw, Search, Undo2, Warehouse, Printer } from "lucide-react";
 import { km, plural, prettyDay, productOf, downloadBlob, syncSkytec, lastSyncAt, agoText, todayStr, PREFIX_LABEL } from "./sk-format";
+import SheetCheck from "./SheetCheck";
 import "./skytec.css";
 
 type Stage = "kod_kurira" | "ceka_obracun" | "za_podizanje" | "preuzeto" | "vraceno";
@@ -20,7 +21,7 @@ type CodData = {
   totalExpected: number;
   pipeline: Record<Stage, { count: number; amount: number }>;
   parcels: Parcel[];
-  pickups: { date: string; count: number; total: number; received: number | null }[];
+  pickups: { date: string; count: number; total: number; received: number | null; photos: string[] }[];
   alerts: { noOtkupnina: string[]; longAtDepot: string[] };
   mismatches: { order_number: string; ime: string | null; expected: number; paid: number }[];
 };
@@ -272,6 +273,8 @@ export default function CodPanel() {
             </div>
           )}
 
+          <SheetCheck onMarked={() => load(days)} toast={setToast} />
+
           {/* ── Filters ─────────────────────────────────────────── */}
           <section className="skx-section">
             <div className="cod-chips" role="tablist" aria-label="Status otkupnine">
@@ -420,7 +423,8 @@ export default function CodPanel() {
               {data.pickups.length === 0 ? (
                 <div className="skx-empty"><b>Još ništa nije označeno kao preuzeto</b><span>Odaberi otkupnine u „Za podizanje“ i klikni „Preuzeo sam“.</span></div>
               ) : data.pickups.map((g) => (
-                <button key={g.date} className="skx-row" onClick={() => { setStage("preuzeto"); setPickDay(g.date); }}>
+                <div key={g.date} className="sc-pick">
+                <button className="skx-row" onClick={() => { setStage("preuzeto"); setPickDay(g.date); }}>
                   <span className="skx-row-main">
                     <span className="skx-row-title">{prettyDay(g.date)}</span>
                     <span className="skx-row-sub">{dmy(g.date)} · {otkupnina(g.count)}</span>
@@ -432,6 +436,17 @@ export default function CodPanel() {
                       : <span className="skx-row-meta cod-neg">dobijeno {km(g.received)} ({g.received > g.total ? "+" : "−"}{km(Math.abs(g.received - g.total))})</span>)}
                   </span>
                 </button>
+                {g.photos?.length > 0 && (
+                  <div className="sc-photos">
+                    {g.photos.map((u, i) => (
+                      <a key={u} href={u} target="_blank" rel="noreferrer" title={`Specifikacija, strana ${i + 1}`}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={u} alt={`Specifikacija ${i + 1}`} />
+                      </a>
+                    ))}
+                  </div>
+                )}
+                </div>
               ))}
             </div>
           </section>
