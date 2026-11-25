@@ -21,7 +21,7 @@ export const GIFT_PRICE  = 5;
 export const DELIVERY    = 0;
 
 export function fmt(n: number) {
-  return n.toFixed(2).replace(".", ",") + " KM";
+  return n.toFixed(2).replace(".", ",") + "\u00a0KM"; // never splits on narrow phones
 }
 
 export const IMG = {

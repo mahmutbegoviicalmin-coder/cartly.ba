@@ -74,7 +74,7 @@ export default function GiftAddon({ checked, onChange, accent = "#16A34A", dark,
       </span>
       <span style={{ flex: 1, minWidth: 0 }}>
         <span style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
-          <span style={{ fontSize: 15, fontWeight: 700, color: ink, letterSpacing: "-0.01em" }}>{GIFT_LABEL}</span>
+          <span style={{ fontSize: "clamp(14px, 4.2vw, 15px)", fontWeight: 700, color: ink, letterSpacing: "-0.01em", whiteSpace: "nowrap" }}>{GIFT_LABEL}</span>
           <span style={{ fontSize: 15, fontWeight: 700, color: accent, whiteSpace: "nowrap" }}>+{GIFT_PRICE},00 KM</span>
         </span>
         <span style={{ display: "block", fontSize: 13, color: muted, marginTop: 3, lineHeight: 1.4 }}>

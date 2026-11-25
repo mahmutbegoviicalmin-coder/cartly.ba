@@ -74,7 +74,8 @@ export function UrgencyPanel({ slug, compact = false }: { slug: string; compact?
 
   return (
     <div className="flex min-w-0 items-center gap-2.5 text-[#1D1D1F]">
-      {bn.active && <TimeRing accent={ringAccent} size={compact ? 38 : 44} />}
+      {/* Phone bar: no ring, so text and the "Naruči" button never overlap on narrow Androids. */}
+      {bn.active && !compact && <TimeRing accent={ringAccent} size={44} />}
       <div className="min-w-0 leading-tight">
         {bn.active && (
           <>
@@ -82,7 +83,7 @@ export function UrgencyPanel({ slug, compact = false }: { slug: string; compact?
               <span className="h-[6px] w-[6px] rounded-full bg-white" aria-hidden="true" />
               {soon ? "Akcija završava uskoro" : "Cijena završava za"}
             </p>
-            <p className={`mt-0.5 ${compact ? "text-[16px]" : "text-[18px]"} font-extrabold tabular-nums text-[#E11D2E]`}>
+            <p className={`mt-0.5 whitespace-nowrap ${compact ? "text-[16px]" : "text-[18px]"} font-extrabold tabular-nums text-[#E11D2E]`}>
               {bn.mounted && bn.days > 0 && (
                 <span className="urgency-blink">{bn.days} {bn.days === 1 ? "dan" : "dana"} </span>
               )}
@@ -175,7 +176,7 @@ function QuickOrder({ slug, cfg }: { slug: string; cfg: QuickOrderConfig }) {
                   <p className="flex items-center gap-1 text-[12px] text-black/60"><Truck size={13} /> Plaćanje pouzećem</p>
                 </div>
               )}
-              {button("h-[56px] min-w-[132px] px-5 text-[18px]")}
+              {button("h-[56px] min-w-[116px] whitespace-nowrap px-4 text-[18px]")}
             </div>
           </div>
 
@@ -493,6 +494,7 @@ function OrderDialog({ slug, cfg, onClose }: { slug: string; cfg: QuickOrderConf
                   <span className="text-[22px] font-bold tabular-nums">{km(total)}</span>
                 </div>
                 <p className="mt-1 text-[13.5px] text-black/55">Plaćate gotovinom kad preuzmete paket.</p>
+                <p className="mt-1 text-[12px] text-black/45">Podatke koristimo samo da vas kontaktiramo oko narudžbe.</p>
               </div>
             </div>
 

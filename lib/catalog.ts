@@ -66,7 +66,7 @@ export const CATALOG: CatalogProduct[] = [
 ];
 
 export const km = (n: number) =>
-  `${n.toFixed(2).replace(".", ",")} KM`;
+  `${n.toFixed(2).replace(".", ",")}\u00a0KM`; // never splits on narrow phones
 
 export const discountPct = (p: CatalogProduct) =>
   p.oldPrice && p.oldPrice > p.price ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;

@@ -78,8 +78,8 @@ function Field({
 function Row({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
     <div style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 14, color: MUTED }}>
-      <span>{label}</span>
-      <span style={{ color: accent ? TEAL : INK, fontWeight: 600 }}>{value}</span>
+      <span style={{ minWidth: 0 }}>{label}</span>
+      <span style={{ color: accent ? TEAL : INK, fontWeight: 600, whiteSpace: "nowrap" }}>{value}</span>
     </div>
   );
 }
@@ -245,7 +245,7 @@ export default function OrderForm({ onClose }: { onClose?: () => void }) {
         </span>
         <span style={{ flex: 1, textAlign: "left", minWidth: 0 }}>
           <span style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
-            <span style={{ fontSize: 15, fontWeight: 600, color: INK, letterSpacing: "-0.01em" }}>Poklon iznenađenja</span>
+            <span style={{ fontSize: "clamp(14px, 4.2vw, 15px)", fontWeight: 600, color: INK, letterSpacing: "-0.01em", whiteSpace: "nowrap" }}>Poklon iznenađenja</span>
             <span style={{ fontSize: 15, fontWeight: 600, color: TEAL, whiteSpace: "nowrap" }}>+{fmt(GIFT_PRICE)}</span>
           </span>
           <span style={{ display: "block", fontSize: 13, color: MUTED, marginTop: 3, lineHeight: 1.4 }}>
@@ -261,8 +261,8 @@ export default function OrderForm({ onClose }: { onClose?: () => void }) {
         <Row label="Dostava" value="Besplatna" accent />
         <div style={{ height: 1, background: LINE, margin: "3px 0" }} />
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-          <span style={{ fontSize: 15, fontWeight: 600, color: INK }}>Ukupno za platiti</span>
-          <span style={{ fontSize: 24, fontWeight: 600, color: INK, letterSpacing: "-0.03em" }}>{fmt(total)}</span>
+          <span style={{ fontSize: 15, fontWeight: 600, color: INK, whiteSpace: "nowrap" }}>Ukupno za platiti</span>
+          <span style={{ fontSize: "clamp(20px, 6vw, 24px)", fontWeight: 600, color: INK, letterSpacing: "-0.03em", whiteSpace: "nowrap" }}>{fmt(total)}</span>
         </div>
       </div>
 
@@ -290,6 +290,7 @@ export default function OrderForm({ onClose }: { onClose?: () => void }) {
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><Banknote size={13} /> Pouzećem</span>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><ShieldCheck size={13} /> Garancija</span>
       </div>
+      <p style={{ margin: 0, textAlign: "center", fontSize: 12, color: MUTED }}>Podatke koristimo samo da vas kontaktiramo oko narudžbe.</p>
     </form>
   );
 }

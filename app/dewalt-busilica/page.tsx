@@ -203,8 +203,8 @@ export default function DeWaltPage() {
                 {timer && !OUT_OF_STOCK && (
                   <p className="flex items-center justify-center gap-1.5 text-[14px] text-[#6E6E73] sm:justify-start">
                     <Clock size={14} strokeWidth={2} />
-                    Black November cijena završava za
-                    <span className="font-semibold tabular-nums text-[#1D1D1F]">{timer.d > 0 ? `${timer.d}d ` : ""}{pad(timer.h)}:{pad(timer.m)}:{pad(timer.s)}</span>
+                    <span className="whitespace-nowrap"><span className="hidden min-[400px]:inline">Black November cijena</span><span className="min-[400px]:hidden">Cijena</span> završava za</span>
+                    <span className="whitespace-nowrap font-semibold tabular-nums text-[#1D1D1F]">{timer.d > 0 ? `${timer.d}d ` : ""}{pad(timer.h)}:{pad(timer.m)}:{pad(timer.s)}</span>
                   </p>
                 )}
               </div>
@@ -219,8 +219,8 @@ export default function DeWaltPage() {
               <li key={title} className="flex items-start gap-3">
                 <Icon size={22} strokeWidth={1.75} className="mt-0.5 shrink-0 text-[#1D1D1F]" />
                 <div className="min-w-0">
-                  <p className="text-[15px] font-semibold leading-tight">{title}</p>
-                  <p className="mt-0.5 text-[13px] text-[#6E6E73]">{desc}</p>
+                  <p className="whitespace-nowrap text-[14px] font-semibold leading-tight min-[360px]:text-[15px]">{title}</p>
+                  <p className="mt-0.5 whitespace-nowrap text-[12px] text-[#6E6E73] min-[360px]:text-[13px]">{desc}</p>
                 </div>
               </li>
             ))}

@@ -47,6 +47,7 @@ const OverviewChart = dynamic(() => import("./OverviewChart"), { ssr: false });
 const SkytecPanel = dynamic(() => import("./SkytecPanel"), { ssr: false });
 const CodPanel = dynamic(() => import("./CodPanel"), { ssr: false });
 const AdnanPanel = dynamic(() => import("./AdnanPanel"), { ssr: false });
+const DraftsPanel = dynamic(() => import("./DraftsPanel"), { ssr: false });
 
 type IconCmp = LucideIcon;
 
@@ -929,6 +930,8 @@ export default function DashboardClient() {
               </div>
             </div>
           )}
+
+          {activeTab === "orders" && <DraftsPanel />}
 
           {activeTab === "orders" && (
             <div className="ad-panel">

@@ -702,8 +702,8 @@ const CSS = `
 
 .mk-btn {
   width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  padding: 16px 22px; border: none; border-radius: 980px; cursor: pointer;
-  background: ${INK}; color: ${WHITE}; font-family: inherit; font-size: 17px; font-weight: 500; letter-spacing: -0.01em;
+  padding: 16px 18px; border: none; border-radius: 980px; cursor: pointer; white-space: nowrap;
+  background: ${INK}; color: ${WHITE}; font-family: inherit; font-size: clamp(15px, 4.5vw, 17px); font-weight: 500; letter-spacing: -0.01em;
   transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
 }
 .mk-btn:hover { background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.18); transform: translateY(-1px); }

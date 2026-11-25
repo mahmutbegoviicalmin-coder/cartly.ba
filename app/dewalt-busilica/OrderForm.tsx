@@ -10,7 +10,7 @@ import { BlackNovemberCartNote } from "@/components/store/BlackNovember";
 const PRICE = 69.9;
 const SHIPPING = 10;
 
-const km = (n: number) => `${n.toFixed(2).replace(".", ",")} KM`;
+const km = (n: number) => `${n.toFixed(2).replace(".", ",")}\u00a0KM`;
 
 const FIELDS = [
   { name: "ime",            label: "Ime i prezime",  placeholder: "npr. Emir Hadžić", type: "text", autoComplete: "name",           span: 2 },
@@ -131,6 +131,7 @@ export default function OrderForm({ onFirstInteraction, onSuccess }: Props) {
         <p className="mt-3 flex items-center justify-center gap-1.5 text-[13px] text-[#86868B]">
           <Lock size={13} strokeWidth={2} /> Sigurna narudžba. Plaćanje pouzećem.
         </p>
+        <p className="mt-1 text-center text-[12px] text-[#A1A1A6]">Podatke koristimo samo da vas kontaktiramo oko narudžbe.</p>
       </form>
 
       {/* ── Summary ──────────────────────────────────────── */}
