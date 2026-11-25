@@ -205,7 +205,10 @@ function usePageFormActive() {
   useEffect(() => {
     const seen = new Set<Element>();
     const io = new IntersectionObserver((entries) => {
-      for (const e of entries) e.isIntersecting ? seen.add(e.target) : seen.delete(e.target);
+      for (const e of entries) {
+        if (e.isIntersecting) seen.add(e.target);
+        else seen.delete(e.target);
+      }
       setVisible(seen.size > 0);
     }, { threshold: 0.05 });
     const watch = () => document.querySelectorAll("form:not([data-quick-order])").forEach((f) => io.observe(f));
