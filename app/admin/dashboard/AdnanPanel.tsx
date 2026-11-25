@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AlertCircle, ChevronDown, Download, Gift, Loader2, Minus, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { km, paket, plural, when, todayStr, downloadBlob, syncSkytec, lastSyncAt, agoText } from "./sk-format";
 import { DayBars } from "./AdsCharts";
@@ -39,6 +39,7 @@ type Ads = {
   total?: { spend: number; purchases: number };
   campaigns?: { id: string; name: string; spend: number; purchases: number }[];
   rate?: number;
+  from?: string;
 };
 type Period = "month" | "all" | "custom";
 
@@ -61,8 +62,10 @@ const SPLIT = [
 ] as const;
 
 export default function AdnanPanel() {
-  const [period, setPeriod] = useState<Period>("all");
-  const [custom, setCustom] = useState(monthStart);
+  const saved = (() => { try { return localStorage.getItem(FROM_KEY); } catch { return null; } })();
+  const [period, setPeriod] = useState<Period>(() =>
+    saved === "month" || saved === "all" ? saved : saved && /^\d{4}-\d{2}-\d{2}$/.test(saved) ? "custom" : "all");
+  const [custom, setCustom] = useState(() => (saved && /^\d{4}-\d{2}-\d{2}$/.test(saved) ? saved : monthStart()));
   const [data, setData] = useState<Data | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [syncing, setSyncing] = useState(false);
@@ -74,30 +77,29 @@ export default function AdnanPanel() {
   const [saving, setSaving] = useState(false);
   const [payErr, setPayErr] = useState<string | null>(null);
 
-  useEffect(() => {
-    try {
-      const v = localStorage.getItem(FROM_KEY);
-      if (v === "month" || v === "all") setPeriod(v);
-      else if (v && /^\d{4}-\d{2}-\d{2}$/.test(v)) { setPeriod("custom"); setCustom(v); }
-    } catch {}
-  }, []);
-
   const from = period === "all" ? null : period === "month" ? monthStart() : custom;
 
+  const wanted = useRef(from);
+  wanted.current = from;
   const load = useCallback(async () => {
     setErr(null);
     const r = await fetch(`/api/admin/adnan${from ? `?from=${from}` : ""}`);
     const j = await r.json().catch(() => ({}));
+    if (wanted.current !== from) return; // the period changed meanwhile: drop this answer
     if (!r.ok) { setErr(j.error ?? "Greška pri učitavanju."); return; }
     setData(j);
   }, [from]);
   useEffect(() => { load(); }, [load]);
 
   const adsFrom = data?.from;
+  const adsWanted = useRef(adsFrom);
+  adsWanted.current = adsFrom;
   const loadAds = useCallback(async () => {
     if (!adsFrom) return;
     const r = await fetch(`/api/admin/ads?from=${adsFrom}`);
-    setAds((await r.json().catch(() => ({ connected: true, error: "Greška pri učitavanju." }))) as Ads);
+    const j = (await r.json().catch(() => ({ connected: true, error: "Greška pri učitavanju." }))) as Ads;
+    if (adsWanted.current !== adsFrom) return; // a newer period was chosen meanwhile
+    setAds({ ...j, from: j.from ?? adsFrom });
   }, [adsFrom]);
   useEffect(() => {
     loadAds();
@@ -171,7 +173,10 @@ export default function AdnanPanel() {
   }
 
   const t = data.total;
-  const adsOk = !!ads?.connected && !ads.error && !!ads.total;
+  // Ad spend counts only when it covers exactly the same days as the parcels.
+  const adsOk = !!ads?.connected && !ads.error && !!ads.total && ads.from === data.from;
+  // Meta is connected but its numbers for this period are not in yet: don't show a half result.
+  const adsPending = ads?.connected !== false && !adsOk && !ads?.error;
   const rate = ads?.rate ?? 1.7;
   const adsKm = adsOk ? r2(ads!.total!.spend * rate) : 0;
   const net = r2(t.profit - adsKm);
@@ -235,7 +240,7 @@ export default function AdnanPanel() {
       <div className="kx-kpis">
         <div className="kx-card kx-kpi kx-kpi-main">
           <span>{adsOk ? "Zarada nakon reklama" : "Profit (bez reklama)"}</span>
-          <b className={net >= 0 ? "pos" : "neg"}>{km(net)}</b>
+          <b className={adsPending ? "" : net >= 0 ? "pos" : "neg"}>{adsPending ? "…" : km(net)}</b>
           <small>{paket(t.delivered)} preuzeto{adsOk ? ` · reklame ${km(adsKm)}` : ""}</small>
         </div>
         <div className="kx-card kx-kpi">
@@ -289,7 +294,7 @@ export default function AdnanPanel() {
             {t.returned > 0 && <div><dt>Povrati <small>{paket(t.returned)}</small></dt><dd className="neg">−{km(t.returnLoss)}</dd></div>}
             <div className="sub"><dt>Profit</dt><dd>{km(t.profit)}</dd></div>
             {adsOk && <div><dt>Reklame <small>{usd(ads!.total!.spend)}</small></dt><dd className="neg">−{km(adsKm)}</dd></div>}
-            <div className="sum"><dt>Zarada</dt><dd className={net >= 0 ? "pos" : "neg"}>{km(net)}</dd></div>
+            <div className="sum"><dt>Zarada</dt><dd className={adsPending ? "" : net >= 0 ? "pos" : "neg"}>{adsPending ? "…" : km(net)}</dd></div>
           </dl>
         </section>
       </div>
