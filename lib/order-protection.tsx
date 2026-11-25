@@ -11,6 +11,7 @@ export function useOrderProtection() {
     return {
       website: websiteRef.current?.value ?? "",
       formStartedAt: startedAt.current,
+      formElapsedMs: Date.now() - startedAt.current,
     };
   }
 

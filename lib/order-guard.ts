@@ -13,7 +13,7 @@ const DUPLICATE_WINDOW_MS = 5 * 60 * 1000;
 const PHONE_LIMIT_WINDOW_MS = 2 * 60 * 60 * 1000;
 const PHONE_LIMIT_MAX = 3;
 const IP_WINDOW_MS = 10 * 60 * 1000;
-const IP_LIMIT_MAX = 5;
+const IP_LIMIT_MAX = 15; // mobile operators put many customers behind one IP
 const MIN_FILL_MS = 1800;
 
 const ORDER_TABLES = [
@@ -51,6 +51,31 @@ function str(body: Record<string, unknown>, ...keys: string[]): string {
   return "";
 }
 
+/**
+ * Keep every refused attempt (with what the customer typed) so nobody is lost:
+ * they can be called back. Stored next to the other events, source "order_reject".
+ */
+async function logReject(request: NextRequest, body: Record<string, unknown>, reason: string) {
+  try {
+    const pick = (k: string) => (typeof body[k] === "string" ? (body[k] as string).slice(0, 200) : undefined);
+    await getSupabaseAdmin().from("skytec_events").insert({
+      source: "order_reject",
+      state: "odbijeno",
+      label: reason,
+      status_at: new Date().toISOString(),
+      raw: {
+        route: request.nextUrl.pathname,
+        ime: pick("ime") ?? pick("name"), prezime: pick("prezime"),
+        telefon: pick("telefon") ?? pick("phone"), adresa: pick("adresa") ?? pick("address"),
+        grad: pick("grad") ?? pick("city"), postanski: pick("postanski") ?? pick("postanski_broj"),
+        ip: getClientIP(request),
+      },
+    });
+  } catch (err) {
+    console.error("order-guard reject log error:", err);
+  }
+}
+
 function fail(error: string, status = 400): OrderGuardBlocked {
   return {
     ok: false,
@@ -76,6 +101,11 @@ function honeypotFilled(body: Record<string, unknown>): boolean {
 }
 
 function submittedTooFast(body: Record<string, unknown>): boolean {
+  // Measured in the browser: immune to a phone clock that is off.
+  if (body.formElapsedMs != null) {
+    const ms = Number(body.formElapsedMs);
+    return Number.isFinite(ms) && ms >= 0 && ms < MIN_FILL_MS;
+  }
   const started = Number(body.formStartedAt);
   if (!Number.isFinite(started) || started <= 0) return false;
   const elapsed = Date.now() - started;
@@ -122,8 +152,13 @@ export async function guardCustomerOrder(
       : {};
 
   if (honeypotFilled(body) || submittedTooFast(body)) {
+    await logReject(request, body, honeypotFilled(body) ? "bot: skriveno polje popunjeno" : "bot: prebrzo poslano");
     return silentDrop();
   }
+  const refuse = async (error: string, status = 400) => {
+    await logReject(request, body, error);
+    return fail(error, status);
+  };
 
   const imeFirst = str(body, "ime", "name");
   const prezime = str(body, "prezime");
@@ -134,35 +169,35 @@ export async function guardCustomerOrder(
   const postanski = str(body, "postanski", "postanski_broj", "postalCode", "zip");
 
   if (options?.requirePrezime && !prezime) {
-    return fail("Nedostaju obavezna polja.");
+    return refuse("Nedostaju obavezna polja.");
   }
   if (!fullName || !telefon || !adresa || !grad) {
-    return fail("Nedostaju obavezna polja.");
+    return refuse("Nedostaju obavezna polja.");
   }
   if (options?.requirePostal && !postanski) {
-    return fail("Unesite poštanski broj.");
+    return refuse("Unesite poštanski broj.");
   }
   if (postanski && !/^\d{5}$/.test(postanski)) {
-    return fail("Unesite ispravan poštanski broj (5 cifara).");
+    return refuse("Unesite ispravan poštanski broj (5 cifara).");
   }
   if (!looksLikeRealName(fullName) || (prezime && !looksLikeRealName(prezime))) {
-    return fail("Unesite ime i prezime.");
+    return refuse("Unesite ime i prezime.");
   }
   if (!looksLikeRealAddress(adresa)) {
-    return fail("Unesite ispravnu adresu.");
+    return refuse("Unesite ispravnu adresu.");
   }
   if (!looksLikeRealPlace(grad, 2)) {
-    return fail("Unesite ispravan grad.");
+    return refuse("Unesite ispravan grad.");
   }
 
   const telefonNormalized = normalizeBaPhone(telefon);
   if (!telefonNormalized) {
-    return fail(PHONE_ERROR);
+    return refuse(PHONE_ERROR);
   }
 
   const ip = getClientIP(request);
   if (!checkIpLimit(ip)) {
-    return fail("Previše narudžbi s ove mreže. Pokušajte kasnije.", 429);
+    return refuse("Previše narudžbi s ove mreže. Pokušajte kasnije.", 429);
   }
 
   try {
@@ -172,7 +207,7 @@ export async function guardCustomerOrder(
     );
 
     if (samePhone.length >= PHONE_LIMIT_MAX) {
-      return fail("Ovaj broj je već korišten za više narudžbi. Javit ćemo se uskoro.", 429);
+      return refuse("Ovaj broj je već korišten za više narudžbi. Javit ćemo se uskoro.", 429);
     }
 
     const cutoff = Date.now() - DUPLICATE_WINDOW_MS;

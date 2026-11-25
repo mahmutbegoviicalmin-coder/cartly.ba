@@ -6,7 +6,7 @@ export const PHONE_ERROR = "Unesite ispravan BH broj (035, 061–067 …).";
 const ALLOWED_PREFIXES = new Set([
   "060", "061", "062", "063", "064", "065", "066", "067",
   "030", "031", "032", "033", "034", "035", "036", "037", "038", "039",
-  "049", "051", "052", "053", "054", "055", "056", "057", "058", "059",
+  "049", "050", "051", "052", "053", "054", "055", "056", "057", "058", "059",
 ]);
 
 const JUNK_EXACT = new Set([
@@ -21,11 +21,11 @@ export function digitsOnly(value: string): string {
   return String(value || "").replace(/\D/g, "");
 }
 
-/** National format with leading 0, e.g. 061555333 or 035123456. */
-export function normalizeBaPhone(raw: string): string | null {
+function normalizeOne(raw: string): string | null {
   let d = digitsOnly(raw);
   if (d.startsWith("00387")) d = d.slice(2);
-  if (d.startsWith("387")) d = "0" + d.slice(3);
+  // "+387 61…", but also "+387 061…" / "+387 (0) 61…" written by many customers.
+  if (d.startsWith("387")) d = "0" + d.slice(3).replace(/^0+/, "");
   if (!d.startsWith("0") && d.length >= 8 && d.length <= 10) d = "0" + d;
 
   const prefix = d.slice(0, 3);
@@ -36,6 +36,20 @@ export function normalizeBaPhone(raw: string): string | null {
   if (/^(\d)\1+$/.test(subscriber)) return null;
 
   return d;
+}
+
+/**
+ * National format with leading 0, e.g. 061555333 or 035123456. Accepts two
+ * numbers in one field ("061 111 222 ili 062 333 444") and keeps the first valid one.
+ */
+export function normalizeBaPhone(raw: string): string | null {
+  const whole = normalizeOne(raw);
+  if (whole) return whole;
+  for (const part of String(raw || "").split(/\s*(?:\bili\b|\bi\b|,|;|\|)\s*/i)) {
+    const n = normalizeOne(part);
+    if (n) return n;
+  }
+  return null;
 }
 
 export function isValidBaPhone(raw: string): boolean {
@@ -71,5 +85,6 @@ export function looksLikeRealPlace(raw: string, minLen = 3): boolean {
 export function looksLikeRealAddress(raw: string): boolean {
   const value = String(raw || "").replace(/\s+/g, " ").trim();
   if (/^bb$/i.test(value) || /\sbb$/i.test(value)) return value.length >= 2;
-  return looksLikeRealPlace(raw, 5);
+  // Villages are often just a short name ("Gaj", "Brdo").
+  return looksLikeRealPlace(raw, 3);
 }

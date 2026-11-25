@@ -142,6 +142,11 @@ function QuickOrder({ slug, cfg }: { slug: string; cfg: QuickOrderConfig }) {
     return () => window.removeEventListener(OPEN_EVENT, show);
   }, [show]);
 
+  // Pages with their own order form: hide the bar while that form is on screen
+  // or being typed in. Otherwise customers fill the page form, tap this "Naruči"
+  // bar (it covers the real submit button) and get a second, empty form.
+  const pageFormActive = usePageFormActive();
+
   const button = (cls: string) => (
     <button
       type="button" onClick={show}
@@ -157,7 +162,7 @@ function QuickOrder({ slug, cfg }: { slug: string; cfg: QuickOrderConfig }) {
       {/* Space so the bar never covers the page's last content on phones. */}
       <div aria-hidden="true" className="h-[92px] md:hidden" />
 
-      {!open && (
+      {!open && !pageFormActive && (
         <>
           {/* Phone: bar at the bottom. */}
           <div className="fixed inset-x-0 bottom-0 z-[90] border-t border-black/[0.08] bg-white/95 px-3 pt-2.5 backdrop-blur-md md:hidden" style={{ paddingBottom: "max(10px, env(safe-area-inset-bottom))" }}>
@@ -190,6 +195,38 @@ function QuickOrder({ slug, cfg }: { slug: string; cfg: QuickOrderConfig }) {
       {open && <OrderDialog slug={slug} cfg={cfg} onClose={() => setOpen(false)} />}
     </>
   );
+}
+
+/** True while a page's own order form (not this pop-up) is visible or focused. */
+function usePageFormActive() {
+  const [visible, setVisible] = useState(false);
+  const [focused, setFocused] = useState(false);
+
+  useEffect(() => {
+    const seen = new Set<Element>();
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) e.isIntersecting ? seen.add(e.target) : seen.delete(e.target);
+      setVisible(seen.size > 0);
+    }, { threshold: 0.05 });
+    const watch = () => document.querySelectorAll("form:not([data-quick-order])").forEach((f) => io.observe(f));
+    watch();
+    const mo = new MutationObserver(watch);
+    mo.observe(document.body, { childList: true, subtree: true });
+
+    const inPageForm = (t: EventTarget | null) =>
+      t instanceof Element && !!t.closest("form:not([data-quick-order])");
+    const onIn = (e: FocusEvent) => setFocused(inPageForm(e.target));
+    const onOut = () => setTimeout(() => setFocused(inPageForm(document.activeElement)), 0);
+    document.addEventListener("focusin", onIn);
+    document.addEventListener("focusout", onOut);
+    return () => {
+      io.disconnect(); mo.disconnect();
+      document.removeEventListener("focusin", onIn);
+      document.removeEventListener("focusout", onOut);
+    };
+  }, []);
+
+  return visible || focused;
 }
 
 // ─── Pop-up ──────────────────────────────────────────────────────────────────
@@ -381,7 +418,7 @@ function OrderDialog({ slug, cfg, onClose }: { slug: string; cfg: QuickOrderConf
             <button type="button" onClick={onClose} className="h-[50px] w-full rounded-[16px] bg-[#1D1D1F] text-[16px] font-bold text-white">Zatvori</button>
           </div>
         ) : (
-          <form onSubmit={submit} noValidate className="flex min-h-0 flex-1 flex-col overflow-clip">
+          <form data-quick-order onSubmit={submit} noValidate className="flex min-h-0 flex-1 flex-col overflow-clip">
             <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-4 pt-5">
               {bn.active && (
                 <div className="mb-5 flex items-center gap-3 rounded-[16px] bg-[#141110] px-4 py-3.5 text-white">
