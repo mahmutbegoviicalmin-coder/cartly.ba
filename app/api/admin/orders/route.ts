@@ -2,6 +2,7 @@ import { isAdmin } from "@/lib/admin-auth";
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { readIp, stripIp } from "@/lib/order-ip";
+import { getCities, resolvePtt } from "@/lib/skytec";
 
 const isAuthenticated = isAdmin;
 
@@ -187,7 +188,19 @@ export async function GET(request: Request) {
     ? flagged
     : flagged.slice((page - 1) * pageSize, page * pageSize);
 
-  return NextResponse.json({ orders: paginated, total, page, pageSize });
+  // Orders not yet sent: flag a city/postal code Skytec won't accept, so it can be fixed here.
+  let withCity = paginated as (typeof paginated[number] & { city_ok?: boolean })[];
+  try {
+    const cities = await getCities();
+    withCity = paginated.map((o) => {
+      const st = String((o as { status?: string }).status ?? "");
+      if (st !== "nova" && st !== "potvrđena") return o;
+      const typed = String(o.adresa ?? "").match(/,\s*(\d{5})\b/)?.[1];
+      return { ...o, city_ok: !!resolvePtt(cities, String(o.grad ?? ""), typed) };
+    });
+  } catch { /* Skytec unreachable: no flag */ }
+
+  return NextResponse.json({ orders: withCity, total, page, pageSize });
 }
 
 function digitsPhone(t: unknown) {

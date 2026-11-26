@@ -181,7 +181,16 @@ export function resolvePtt(cities: SkyCity[], grad: string, typedPtt?: string): 
 
   const key = normalize(grad);
   if (!key) return null;
-  const hits = cities.filter((c) => normalize(c.naziv ?? "") === key);
+  let hits = cities.filter((c) => normalize(c.naziv ?? "") === key);
+  // Typos ("Banjs Luka", "Sarjevo"): the one place name within 2 letters, if it is unambiguous.
+  if (hits.length === 0 && key.length >= 5) {
+    const near = new Map<string, SkyCity[]>();
+    for (const c of cities) {
+      const n = normalize(c.naziv ?? "");
+      if (n && Math.abs(n.length - key.length) <= 2 && editDistance(n, key) <= 2) near.set(n, [...(near.get(n) ?? []), c]);
+    }
+    if (near.size === 1) hits = Array.from(near.values())[0];
+  }
   if (hits.length === 0) return null;
   // Prefer the main office code (…000 / …00 / lowest).
   hits.sort((a, b) => {
@@ -189,6 +198,17 @@ export function resolvePtt(cities: SkyCity[], grad: string, typedPtt?: string): 
     return score(a.pttBroj) - score(b.pttBroj) || a.pttBroj.localeCompare(b.pttBroj);
   });
   return hits[0].pttBroj;
+}
+
+/** Levenshtein distance, small strings only (place names). */
+function editDistance(a: string, b: string): number {
+  let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    const cur = [i];
+    for (let j = 1; j <= b.length; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    prev = cur;
+  }
+  return prev[b.length];
 }
 
 // ── Shipments ────────────────────────────────────────────────────────────────

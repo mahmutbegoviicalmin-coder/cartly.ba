@@ -17,6 +17,7 @@ import {
   MapPin,
   Globe,
   Trash2,
+  Pencil,
   ChevronRight,
   Package,
   Camera,
@@ -66,6 +67,7 @@ type Order = {
   dostava: number;
   ukupno: number;
   status: string;
+  city_ok?: boolean;
   duplicates?: {
     phone: number;
     ip: number;
@@ -383,14 +385,78 @@ function DeleteBtn({ onClick }: { onClick: () => void }) {
   );
 }
 
+type OrderFields = { ime: string; telefon: string; adresa: string; grad: string };
+
+function EditBtn({ onClick }: { onClick: () => void }) {
+  return (
+    <button className="ad-edit" onClick={onClick} title="Izmijeni narudžbu" aria-label="Izmijeni narudžbu">
+      <Pencil size={16} strokeWidth={2} />
+    </button>
+  );
+}
+
+/** Shown next to the city when Skytec won't recognise it (typo): fix it with the pencil. */
+function CityWarn({ order }: { order: Order }) {
+  if (order.city_ok !== false) return null;
+  return <span className="ad-citywarn" title="Skytec ne prepoznaje ovaj grad. Ispravi ga olovkom.">⚠ Skytec ne zna grad</span>;
+}
+
+/** Fix a customer's details (typo in city, address or phone) before the parcel goes to Skytec. */
+function EditOrderModal({ order, onClose, onSave }: {
+  order: Order; onClose: () => void; onSave: (id: string, f: OrderFields) => Promise<string | null>;
+}) {
+  const [f, setF] = useState<OrderFields>({ ime: order.ime ?? "", telefon: order.telefon ?? "", adresa: order.adresa ?? "", grad: order.grad ?? "" });
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const field = (k: keyof OrderFields, label: string, hint?: string) => (
+    <label className="ad-edit-field">
+      <span>{label}</span>
+      <input value={f[k]} onChange={(e) => { setF({ ...f, [k]: e.target.value }); setErr(null); }} />
+      {hint && <small>{hint}</small>}
+    </label>
+  );
+  const save = async () => {
+    if (Object.values(f).some((v) => v.trim().length < 2)) { setErr("Popuni sva polja."); return; }
+    setSaving(true);
+    const e = await onSave(order.id, f);
+    setSaving(false);
+    if (e) setErr(e); else onClose();
+  };
+  return createPortal(
+    <div className="ad-edit-back" onClick={onClose} role="presentation">
+      <div className="ad-edit-box" role="dialog" aria-label="Izmjena narudžbe" onClick={(e) => e.stopPropagation()}>
+        <div className="ad-edit-head">
+          <div>
+            <b>Izmjena narudžbe</b>
+            <span>{order.order_number ?? ""}</span>
+          </div>
+          <button className="ad-edit-x" onClick={onClose} aria-label="Zatvori"><X size={18} /></button>
+        </div>
+        {field("ime", "Ime i prezime")}
+        {field("telefon", "Telefon")}
+        {field("adresa", "Adresa", /^MK[BK]-/.test(order.order_number ?? "") ? "Na kraju ostavi poštanski broj, npr. \"Titova 12, 71000\"" : undefined)}
+        {field("grad", "Grad", "Piši puni naziv grada, npr. Banja Luka, Sarajevo, Mostar")}
+        {err && <p className="ad-edit-err">{err}</p>}
+        <div className="ad-edit-foot">
+          <button className="ad-edit-cancel" onClick={onClose}>Odustani</button>
+          <button className="ad-edit-save" onClick={save} disabled={saving}>{saving ? "Spremam…" : "Spremi"}</button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
 function OrderCard({
   order,
   onStatus,
   onDelete,
+  onEdit,
 }: {
   order: Order;
   onStatus: (id: string, status: string) => void;
   onDelete: (id: string, ime: string) => void;
+  onEdit: (o: Order) => void;
 }) {
   const tone = toneFor(order.ime);
   return (
@@ -421,7 +487,7 @@ function OrderCard({
         </div>
         <div className="ad-row">
           <MapPin size={15} strokeWidth={2} />
-          <span>{order.grad}</span>
+          <span>{order.grad} <CityWarn order={order} /></span>
         </div>
         <div className="ad-row">
           <Globe size={15} strokeWidth={2} />
@@ -443,6 +509,7 @@ function OrderCard({
       </div>
       <div className="ad-card-foot">
         <StatusSegment value={order.status} onChange={(v) => onStatus(order.id, v)} />
+        <EditBtn onClick={() => onEdit(order)} />
         <DeleteBtn onClick={() => onDelete(order.id, order.ime)} />
       </div>
     </article>
@@ -455,12 +522,14 @@ function OrderTable({
   empty,
   onStatus,
   onDelete,
+  onEdit,
 }: {
   orders: Order[];
   loading?: boolean;
   empty?: string;
   onStatus: (id: string, status: string) => void;
   onDelete: (id: string, ime: string) => void;
+  onEdit: (o: Order) => void;
 }) {
   return (
     <div className="ad-table-wrap">
@@ -502,7 +571,7 @@ function OrderTable({
                   <td>
                     <PhoneBtn phone={order.telefon} />
                   </td>
-                  <td style={{ color: "#6e6e73" }}>{order.grad}</td>
+                  <td style={{ color: "#6e6e73" }}>{order.grad} <CityWarn order={order} /></td>
                   <td style={{ fontFamily: "ui-monospace, Menlo, monospace", fontSize: 12, color: "#86868b", whiteSpace: "nowrap" }}>
                     {order.ip_address ? (
                       <button className="ad-ip" title="Kopiraj IP" onClick={() => copyText(order.ip_address)}>
@@ -524,7 +593,10 @@ function OrderTable({
                     <StatusSelect value={order.status} onChange={(v) => onStatus(order.id, v)} />
                   </td>
                   <td>
-                    <DeleteBtn onClick={() => onDelete(order.id, order.ime)} />
+                    <div style={{ display: "flex", gap: 6 }}>
+                      <EditBtn onClick={() => onEdit(order)} />
+                      <DeleteBtn onClick={() => onDelete(order.id, order.ime)} />
+                    </div>
                   </td>
                 </tr>
               );
@@ -718,6 +790,22 @@ export default function DashboardClient() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
     });
+  };
+
+  const [editing, setEditing] = useState<Order | null>(null);
+  const handleEdit = async (id: string, f: OrderFields): Promise<string | null> => {
+    const r = await fetch(`/api/admin/orders/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fields: f }),
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) return j.error ?? "Greška pri spremanju.";
+    // Edited city is re-checked against Skytec on the next load; clear the warning meanwhile.
+    const apply = (o: Order) => (o.id === id ? { ...o, ...f, city_ok: undefined } : o);
+    setOrders((prev) => prev.map(apply));
+    setAllOrders((prev) => prev.map(apply));
+    return null;
   };
 
   const handleDelete = async (id: string, ime: string) => {
@@ -1042,7 +1130,7 @@ export default function DashboardClient() {
                       <div className="ad-empty">{emptyText}</div>
                     ) : (
                       orders.map((o) => (
-                        <OrderCard key={o.id} order={o} onStatus={handleStatusChange} onDelete={handleDelete} />
+                        <OrderCard key={o.id} order={o} onStatus={handleStatusChange} onDelete={handleDelete} onEdit={setEditing} />
                       ))
                     )}
                   </div>
@@ -1052,6 +1140,7 @@ export default function DashboardClient() {
                     empty={emptyText}
                     onStatus={handleStatusChange}
                     onDelete={handleDelete}
+                    onEdit={setEditing}
                   />
                   {totalPages > 1 && (
                     <div className="ad-pager">
@@ -1108,10 +1197,10 @@ export default function DashboardClient() {
                           <div className="ad-day-body">
                             <div className="ad-cards">
                               {dayOrders.map((o) => (
-                                <OrderCard key={o.id} order={o} onStatus={handleStatusChange} onDelete={handleDelete} />
+                                <OrderCard key={o.id} order={o} onStatus={handleStatusChange} onDelete={handleDelete} onEdit={setEditing} />
                               ))}
                             </div>
-                            <OrderTable orders={dayOrders} onStatus={handleStatusChange} onDelete={handleDelete} />
+                            <OrderTable orders={dayOrders} onStatus={handleStatusChange} onDelete={handleDelete} onEdit={setEditing} />
                           </div>
                         )}
                       </div>
@@ -1129,6 +1218,8 @@ export default function DashboardClient() {
           {activeTab === "margins" && <AdnanPanel />}
         </main>
       </div>
+
+      {editing && <EditOrderModal order={editing} onClose={() => setEditing(null)} onSave={handleEdit} />}
 
       <nav className="ad-bottom">
         {NAV.map(({ tab, label, Icon }) => (
